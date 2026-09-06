@@ -11,7 +11,7 @@ FICHIER_DREES  <- file.path(DIR_DATA, "departretraite_parcsp.csv")
 # --- Source des données BTS (script 01) ---------------------------------------
 # SOURCE_BTS : "test" = table simulée en mémoire (défaut, développement) ;
 #              "parquet" = lecture de la vraie extraction via Arrow (lazy).
-SOURCE_BTS   <- "parquet"
+SOURCE_BTS   <- "test"
 FICHIER_BTS  <- file.path(DIR_DATA, "bts_2024.parquet")   # extraction BTS
 FICHIER_SIREN<- file.path(DIR_DATA, "liste_siren_bitd.txt") # périmètre BITD (1 SIREN/ligne)
 AGE_MIN_BTS  <- 43        # borne d'âge du champ de l'étude (filtre poussé au disque)
@@ -25,7 +25,7 @@ COL_BTS <- c(siren = "siren", sexe = "sexe", age = "age", pcs = "pcs")
 # 1,2 = indépendants -> hors champ salarié). Les hors-champ sont EXCLUS (tracé).
 AGGREGER_PCS <- TRUE    # table test désormais en PCS 4 chiffres (comme la
                         # vraie BTS) -> agrégation active. COL_PCS ci-dessous.
-COL_PCS      <- "pcs"   # nom EXACT de la colonne code PCS dans BTS2024
+COL_PCS      <- "pcs"   # nom EXACT de la colonne code PCS dans votre extraction
 # Table de correspondance 1er chiffre -> libellé cs1 (doit matcher les libellés
 # utilisés partout ailleurs : correspondance DREES du 04, COEF_CSP_INVALIDITE).
 PCS_VERS_CS1 <- c("3" = "Cadres",
@@ -138,7 +138,8 @@ ANNEE_MORTALITE    <- 2022    # millésime retenu (2022-2024 = provisoires "(p)"
 Q_DECES_ANNUEL <- c("H" = 0.0045, "F" = 0.0025)
 
 # --- Paramètres de restitution graphique (script 06) --------------------------
-ANNEE_REF_GRAPHIQUE <- 2026   # année d'affichage des âges (photo BTS : 2024)
+ANNEE_REF_GRAPHIQUE <- 2024   # année d'affichage = millésime de la photo BTS
+                              # (tout aligné sur 2024 : cohérence heatmap/barres)
 BREAKS_TRANCHES <- c(-Inf, 48, 54, 60, Inf)
 LABELS_TRANCHES <- c("43-48 ans", "49-54 ans", "55-60 ans", "61 ans et +")
 # Discrétisation de p_central en classes de lecture (convention de restitution)
