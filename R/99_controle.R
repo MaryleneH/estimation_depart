@@ -14,9 +14,7 @@
 #        À lancer à la demande (pas nécessairement dans main.R).
 # ==============================================================================
 if (!exists("bts")) stop("Objet 'bts' introuvable : exécutez R/01 (+01b) ou main.R.")
-
-library(dplyr)
-library(tidyr)
+library(dplyr); library(tidyr)
 
 # Tranches d'affichage cohérentes avec le graphique (âge en ANNEE_REF_GRAPHIQUE)
 decalage <- ANNEE_REF_GRAPHIQUE - 2024
@@ -149,9 +147,10 @@ save_g(gB, "controle_viz_age_fin_carriere.png", 9.5, 4.4)
 
 # ---- Viz C : heatmap du taux de sortie d'emploi projeté (CS × tranche) -------
 if (exists("bts_projete")) {
+  # Tranches calculées sur l'ÂGE EN 2024 (photo BTS), et non en 2026 : on
+  # regarde les gens tels qu'ils sont aujourd'hui, avec leur devenir projeté 2030.
   hc <- bts_projete |>
-    mutate(age_affiche = age_2024 + decalage,
-           tranche = cut(age_affiche, breaks = BREAKS_TRANCHES, labels = LABELS_TRANCHES)) |>
+    mutate(tranche = cut(age_2024, breaks = BREAKS_TRANCHES, labels = LABELS_TRANCHES)) |>
     group_by(cs1, tranche) |>
     summarise(sortie = 100 * mean(p_central), .groups = "drop") |>
     mutate(cs1 = factor(cs1, levels = rev(c("Cadres","Prof. intermediaires","Employes","Ouvriers"))))
@@ -164,7 +163,7 @@ if (exists("bts_projete")) {
     labs(title = "Taux de sortie d'emploi projeté d'ici 2030",
          subtitle = "Part des salariés ayant quitté l'emploi, par CS et tranche d'âge — scénario central",
          caption = "Lecture du gradient : plus foncé = sortie plus fréquente. Source : projection — données : table test",
-         x = paste0("Âge en ", ANNEE_REF_GRAPHIQUE), y = NULL, fill = "Sortie") +
+         x = "Âge en 2024", y = NULL, fill = "Sortie") +
     theme_atelier() + theme(panel.grid = element_blank())
   save_g(gC, "controle_viz_heatmap_sortie.png", 9.5, 4.2)
 }
