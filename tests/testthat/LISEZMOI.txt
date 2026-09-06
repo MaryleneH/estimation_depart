@@ -1,0 +1,1 @@
+Emplacement des futurs tests testthat (étape dédiée de l'atelier) : les contrôles print() des scripts y migreront en expect_*().
