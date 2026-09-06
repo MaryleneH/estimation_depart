@@ -1,0 +1,71 @@
+Déposez ici les fichiers de données (hors versionnement Git recommandé) :
+
+1. departretraite_parcsp.csv   — DREES, âge conjoncturel & durées de fin de
+   carrière par CSP (data.drees, jeu departretraite_parcsp). Export ';' + '.'.
+
+2. 3_Quotients_mortalite.xlsx  — Insee, quotients de mortalité par sexe et âge
+   (insee.fr/fr/statistiques/8560675). Classeur natif à 4 onglets.
+
+3. incidence_invalidite.xlsx   — EACR table I-Invalidité au format natif
+   (data.drees, jeu donnes_eacr). Le 02c filtre : Caisse "CNAM, yc indépendants",
+   Champ "ddir", flux, année 2024. FACULTATIF (repli config sinon).
+
+3bis. pop_active_insee.csv     — DÉNOMINATEUR : population active (occupés +
+   chômeurs) par TRANCHE d'âge x sexe. Source : Insee, table PACT00, jeu
+   "Activité, emploi et chômage en 2024" (insee.fr/fr/statistiques/8599935).
+   Colonnes ';' :  tranche;sexe;actifs   (sexe Hommes/Femmes, Ensemble ignoré ;
+   ex. "50 à 54 ans"). LES TRANCHES DE CE FICHIER PILOTENT LE CALCUL : le taux
+   d'invalidité est calculé par tranche (entrées EACR / actifs de la tranche),
+   sans lissage ni âge fin — cohérent avec la granularité du dénominateur.
+   Effectifs en unités OU en milliers (détecté). FACULTATIF : sans ce fichier,
+   02c reconstruit le dénominateur sur les tranches par défaut de 00_config.R.
+
+4. (à venir) votre extraction BTS 2024 — branchée dans 01_fabriquer_donnees_test.R.
+
+
+============================================================================
+BRANCHEMENT DE LA VRAIE BTS (rappel des paramètres à régler dans 00_config.R)
+============================================================================
+1. Script 01 : remplacer la génération factice par la lecture de votre
+   extraction (arrow::read_parquet / readr::read_csv) + renommage vers les
+   colonnes : id, siren, sexe, age_2024, cs1 (ou code PCS), generation.
+   Vérifier la définition de l'âge (atteint dans l'année ?) avant de dériver
+   'generation'.
+2. Agrégation PCS (script 01b) : mettre AGGREGER_PCS <- TRUE, renseigner
+   COL_PCS (nom exact de la colonne code PCS). Le repli se fait sur le 1er
+   chiffre (3/4/5/6) ; indépendants et non renseignés EXCLUS et comptés.
+3. Employés : la table test n'a que 3 CSP ; avec la vraie BTS (4 CSP), ajouter
+   'Employes' à la correspondance DREES (04) et à COEF_CSP_INVALIDITE (00).
+   Le garde-fou anti_join du 04 signalera toute CSP non câblée au 1er run.
+
+
+============================================================================
+POLICES (graphiques 06b / 06c / 99) — DANS LE PROJET, pas d'installation
+============================================================================
+Les .ttf sont versionnés dans assets/fonts/ (Caveat-Regular, Kalam-Regular,
+Kalam-Bold). Le script R/00b_fonts.R les enregistre au vol via systemfonts,
+SANS installation système : portable sur toute machine ayant le dépôt (Onyxia,
+collègues), y compris après un reset. Repli automatique sur la police système
+par défaut si assets/fonts/ ou systemfonts sont absents (aucun plantage).
+Rien à installer : il suffit que le dossier assets/fonts/ soit présent.
+Pour changer de police : déposez d'autres .ttf dans assets/fonts/ et ajustez
+les noms de fichiers dans R/00b_fonts.R.
+
+
+============================================================================
+BRANCHER LA VRAIE BTS EN PARQUET (Arrow, faible RAM)
+============================================================================
+1. Déposer votre extraction : data/bts_2024.parquet
+   et la liste du périmètre : data/liste_siren_bitd.txt (1 SIREN par ligne).
+2. Dans 00_config.R :
+   - SOURCE_BTS <- "parquet"
+   - vérifier COL_BTS : noms EXACTS des colonnes du Parquet (siren, sexe, age,
+     pcs). Les lire d'abord avec :  arrow::open_dataset("data/bts_2024.parquet")
+     puis names() ou schema().
+   - AGE_MIN_BTS <- 43 (borne du champ), COL_PCS <- "pcs" (pour l'agrégation).
+3. Le script 01 lit en LAZY : filtre (âge, SIREN) et sélection de colonnes sont
+   poussés au niveau du fichier ; seul le sous-ensemble utile est chargé en RAM.
+   Test de charge : 2,4 M lignes -> 0,8 s de lecture, pic ~0,3 Go, chaîne
+   complète en ~40 s. Compatible faible mémoire.
+4. Conseil : valider d'abord sur un échantillon en ajoutant |> head(10000)
+   avant collect(), puis retirer pour le run complet.
