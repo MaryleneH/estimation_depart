@@ -13,11 +13,7 @@
 #             seulement sur segments >= 4 %, ordre des CS = gradient social.
 # ==============================================================================
 if (!exists("bts_projete")) stop("Objet 'bts_projete' introuvable : exécutez R/04 (ou main.R).")
-
-library(dplyr)
-library(tidyr)
-library(ggplot2)
-library(scales)
+library(dplyr); library(tidyr); library(ggplot2); library(scales)
 
 # --- Typographie manuscrite (style Excalidraw) via ragg ----------------------
 # ragg lit les polices système ; on déclare des familles nommées si présentes.
@@ -32,11 +28,15 @@ repartition_cs <- bts_projete |>
   mutate(age_affiche = age_2024 + decalage,
          tranche = cut(age_affiche, breaks = BREAKS_TRANCHES, labels = LABELS_TRANCHES),
          # risques concurrents (identique au 06) : parts additives, somme = 1
-         `Sortie de l'emploi (retraite ou sas)` = p_cal_central * (1 - p_inval) * (1 - p_deces),
-         `Sortie invalidité` = p_inval * (1 - p_cal_central) * (1 - p_deces),
-         `Décès` = p_deces * (1 - p_cal_central) * (1 - p_inval),
-         `Maintien en emploi` = 1 - (`Sortie de l'emploi (retraite ou sas)` +
-                                     `Sortie invalidité` + `Décès`)) |>
+         `Maintien en emploi` = 1 - p_central,   # vraie non-sortie (cf. heatmap)
+         # 3 causes réparties À L'INTÉRIEUR de p_central (somme == p_central) :
+         .brut_ret = p_cal_central * (1 - p_inval) * (1 - p_deces),
+         .brut_inv = p_inval * (1 - p_cal_central) * (1 - p_deces),
+         .brut_dec = p_deces * (1 - p_cal_central) * (1 - p_inval),
+         .som = pmax(.brut_ret + .brut_inv + .brut_dec, 1e-12),
+         `Sortie de l'emploi (retraite ou sas)` = p_central * .brut_ret / .som,
+         `Sortie invalidité`                    = p_central * .brut_inv / .som,
+         `Décès`                                = p_central * .brut_dec / .som) |>
   group_by(cs1, tranche) |>
   summarise(across(all_of(niveaux), mean), .groups = "drop") |>
   pivot_longer(-c(cs1, tranche), names_to = "classe", values_to = "part") |>

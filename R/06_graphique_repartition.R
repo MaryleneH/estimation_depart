@@ -12,11 +12,7 @@
 # Les décomptes officiels restent la somme des probabilités continues (05).
 # ==============================================================================
 if (!exists("bts_projete")) stop("Objet 'bts_projete' introuvable : exécutez R/04 (ou main.R).")
-
-library(dplyr)
-library(tidyr)
-library(ggplot2)
-library(scales)
+library(dplyr); library(tidyr); library(ggplot2); library(scales)
 
 decalage <- ANNEE_REF_GRAPHIQUE - 2024
 base_g <- bts_projete |>
@@ -34,15 +30,19 @@ if (MODE_GRAPHIQUE == "attendu") {
                "Décès")
   repartition <- base_g |>
     mutate(
-      # part retraite : liquidation calendaire, pondérée par survie aux 2 risques
-      `Sortie de l'emploi (retraite ou sas)` = p_cal_central * (1 - p_inval) * (1 - p_deces),
-      # part invalidité : devient invalide sans être déjà parti en retraite ni décédé
-      `Sortie invalidité`                 = p_inval * (1 - p_cal_central) * (1 - p_deces),
-      # part décès : décède sans être déjà parti ni invalide
-      `Décès`                             = p_deces * (1 - p_cal_central) * (1 - p_inval),
-      # maintien : le complément
-      `Maintien en emploi` = 1 - (`Sortie de l'emploi (retraite ou sas)` +
-                                  `Sortie invalidité` + `Décès`)
+      # Maintien = vraie non-sortie (cohérent avec p_central de la heatmap).
+      `Maintien en emploi` = 1 - p_central,
+      # Les 3 causes se répartissent À L'INTÉRIEUR de la sortie réelle p_central,
+      # au prorata de leur contribution brute (risques concurrents), de sorte que
+      # retraite + invalidité + décès == p_central exactement (pas de fuite vers
+      # le maintien). .brut_* = contributions non normalisées ; .som leur total.
+      .brut_ret = p_cal_central * (1 - p_inval) * (1 - p_deces),
+      .brut_inv = p_inval * (1 - p_cal_central) * (1 - p_deces),
+      .brut_dec = p_deces * (1 - p_cal_central) * (1 - p_inval),
+      .som = pmax(.brut_ret + .brut_inv + .brut_dec, 1e-12),
+      `Sortie de l'emploi (retraite ou sas)` = p_central * .brut_ret / .som,
+      `Sortie invalidité`                    = p_central * .brut_inv / .som,
+      `Décès`                                = p_central * .brut_dec / .som
     ) |>
     group_by(tranche) |>
     summarise(across(all_of(niveaux), mean), .groups = "drop") |>
