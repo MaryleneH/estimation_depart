@@ -8,7 +8,7 @@
 #             sorties/criticite_55plus_ze_cs.csv      (détail ZE x CS, masqué)
 #             sorties/quadrant_55plus_ze.png          (matrice de vulnérabilité)
 #             sorties/tableau_departs_55plus_ze.csv   (tableau 55+ par ZE + total)
-#             sorties/tableau_departs_55plus_ze.html  (mise en forme gt, si dispo)
+#             sorties/tableau_departs_55plus_ze.html  (mise en forme, sans gt)
 # LECTURE   : deux dimensions par zone d'emploi — le STOCK (part des 55+ dans
 #             l'effectif 43+ : la zone a-t-elle vieilli ?) et le FLUX (taux de
 #             départ attendu des 55+ d'ici 2030 : partent-ils vite ?). Le
@@ -260,67 +260,68 @@ write.csv2(tableau_55plus_ze |>
            file.path(DIR_SORTIES, "tableau_departs_55plus_ze.csv"),
            row.names = FALSE)
 
-# Mise en forme gt (mêmes conventions que 07) ; repli gracieux sans gt pour ne
-# pas casser la chaîne sur un poste où seul le CSV est attendu.
-if (requireNamespace("gt", quietly = TRUE)) {
-  library(gt)
-  gt_55plus_ze <- tableau_55plus_ze |>
-    mutate(fourchette = sprintf("%s – %s",
-                                format(round(bas),  big.mark = " ", trim = TRUE),
-                                format(round(haut), big.mark = " ", trim = TRUE))) |>
-    select(zone, effectif, departs, dont_retraite, dont_invalidite, dont_deces,
-           taux_pct, fourchette, est_total) |>
-    gt() |>
-    cols_hide(est_total) |>
-    tab_header(
-      title    = md(sprintf("**Départs attendus d'ici 2030 des salariés de %d ans et +, par %s**",
-                            AGE_SENIOR, tolower(LIBELLE_ZE))),
-      subtitle = md(sprintf("Champ : uniquement les %d ans et + en 2024 (%s salariés) — scénario central ; fourchette réglementaire δ",
-                            AGE_SENIOR,
-                            format(sum(synthese_ze$effectif_55plus), big.mark = " ")))
-    ) |>
-    tab_spanner(label = "dont, par cause",
-                columns = c(dont_retraite, dont_invalidite, dont_deces)) |>
-    cols_label(zone            = LIBELLE_ZE,
-               effectif        = sprintf("Effectif %d+", AGE_SENIOR),
-               departs         = "Départs attendus",
-               dont_retraite   = "retraite / fin de carrière",
-               dont_invalidite = "invalidité",
-               dont_deces      = "décès",
-               taux_pct        = "Taux de départ (%)",
-               fourchette      = "Fourchette") |>
-    fmt_number(columns = c(effectif, departs), decimals = 0, sep_mark = " ") |>
-    fmt_number(columns = c(dont_retraite, dont_invalidite, dont_deces, taux_pct),
-               decimals = 1, dec_mark = ",", sep_mark = " ") |>
-    cols_align(align = "left",  columns = zone) |>
-    cols_align(align = "right", columns = c(effectif, departs, dont_retraite,
-                                            dont_invalidite, dont_deces,
-                                            taux_pct, fourchette)) |>
-    tab_style(
-      style = list(cell_text(weight = "bold"),
-                   cell_fill(color = "#eef2f7")),
-      locations = cells_body(rows = est_total)
-    ) |>
-    tab_style(
-      style = cell_borders(sides = "top", weight = px(2), color = "#2f6da4"),
-      locations = cells_body(rows = est_total)
-    ) |>
-    tab_source_note(md(
-      "Lecture : classement par départs attendus décroissants. Sources : DREES, EACR invalidité, mortalité Insee — calculs propres. Données individuelles : table test."
-    )) |>
-    tab_options(table.font.size = px(14),
-                heading.title.font.size = px(16),
-                column_labels.font.weight = "bold",
-                table.border.top.style = "none")
+# Tableau MIS EN FORME sans dépendance : HTML écrit à la main (inline CSS,
+# style sobre aligné sur le quadrant). S'ouvre dans un navigateur, s'imprime,
+# se colle dans un document — sans gt ni aucun package supplémentaire.
+fmt0 <- function(x) formatC(round(x), format = "d", big.mark = " ")
+fmt1 <- function(x) formatC(x, format = "f", digits = 1,
+                            big.mark = " ", decimal.mark = ",")
+echap <- function(x) { x <- gsub("&", "&amp;", x, fixed = TRUE)
+                       x <- gsub("<", "&lt;",  x, fixed = TRUE)
+                       gsub(">", "&gt;", x, fixed = TRUE) }
+lignes_html <- with(tableau_55plus_ze, paste0(
+  "      <tr", ifelse(est_total, " class=\"total\"", ""), ">",
+  "<td>", echap(zone), "</td>",
+  "<td class=\"num\">", fmt0(effectif), "</td>",
+  "<td class=\"num\">", fmt0(departs), "</td>",
+  "<td class=\"num\">", fmt1(dont_retraite), "</td>",
+  "<td class=\"num\">", fmt1(dont_invalidite), "</td>",
+  "<td class=\"num\">", fmt1(dont_deces), "</td>",
+  "<td class=\"num\">", fmt1(taux_pct), "</td>",
+  "<td class=\"num\">", fmt0(bas), " – ", fmt0(haut), "</td></tr>"))
+page_html <- c(
+  "<!DOCTYPE html>",
+  "<html lang=\"fr\"><head><meta charset=\"utf-8\">",
+  sprintf("<title>Départs des %d ans et + par %s</title>", AGE_SENIOR, tolower(LIBELLE_ZE)),
+  "<style>",
+  "  body { font-family: -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;",
+  "         color: #1a1a1a; margin: 2em; }",
+  "  h1 { font-size: 1.15em; margin: 0 0 .2em; }",
+  "  p.sous-titre { color: #666; font-size: .85em; margin: 0 0 1.2em; }",
+  "  table { border-collapse: collapse; font-size: .85em; }",
+  "  th { text-align: right; font-weight: 600; padding: .35em .7em;",
+  "       border-bottom: 2px solid #3d6480; }",
+  "  th:first-child { text-align: left; }",
+  "  td { padding: .3em .7em; border-bottom: 1px solid #e3e3e3; }",
+  "  td.num { text-align: right; font-variant-numeric: tabular-nums; }",
+  "  tr:nth-child(even) td { background: #f7f9fa; }",
+  "  tr.total td { font-weight: 700; background: #eef2f7;",
+  "                border-top: 2px solid #3d6480; border-bottom: none; }",
+  "  p.note { color: #666; font-size: .75em; max-width: 60em; }",
+  "</style></head><body>",
+  sprintf("<h1>Départs attendus d'ici 2030 des salariés de %d ans et +, par %s</h1>",
+          AGE_SENIOR, tolower(LIBELLE_ZE)),
+  sprintf("<p class=\"sous-titre\">Champ : uniquement les %d ans et + en 2024 (%s salariés) — scénario central ; fourchette = δ réglementaire. Classement par départs attendus décroissants.</p>",
+          AGE_SENIOR, fmt0(sum(synthese_ze$effectif_55plus))),
+  "  <table>",
+  sprintf(paste0("    <thead><tr><th>%s</th><th>Effectif %d+</th><th>Départs attendus</th>",
+                 "<th>dont retraite / fin de carrière</th><th>dont invalidité</th>",
+                 "<th>dont décès</th><th>Taux de départ (%%)</th><th>Fourchette</th></tr></thead>"),
+          echap(LIBELLE_ZE), AGE_SENIOR),
+  "    <tbody>", lignes_html, "    </tbody>",
+  "  </table>",
+  "<p class=\"note\">Sources : DREES, EACR invalidité, mortalité Insee — calculs propres. Données individuelles : table test.</p>",
+  "</body></html>")
+writeLines(page_html, file.path(DIR_SORTIES, "tableau_departs_55plus_ze.html"),
+           useBytes = FALSE)
 
-  gtsave(gt_55plus_ze, file.path(DIR_SORTIES, "tableau_departs_55plus_ze.html"))
-  if (requireNamespace("webshot2", quietly = TRUE))
-    gtsave(gt_55plus_ze, file.path(DIR_SORTIES, "tableau_departs_55plus_ze.png"),
-           vwidth = 1100, vheight = 1400)
-} else {
-  message("08 : package 'gt' absent -> tableau exporté en CSV seulement ",
-          "(install.packages(\"gt\") pour la version mise en forme).")
-}
+cat(sprintf("\n--- Tableau %d+ par %s (tête + total ; détail : CSV) ---\n",
+            AGE_SENIOR, tolower(LIBELLE_ZE)))
+print(tableau_55plus_ze |>
+        filter(row_number() <= 5 | est_total) |>
+        select(-est_total) |>
+        mutate(across(where(is.numeric), ~ round(.x, 1))) |>
+        as.data.frame(), row.names = FALSE)
 
 message("08 OK -> sorties/analyse_55plus_par_ze.csv, criticite_55plus_ze_cs.csv, ",
-        "quadrant_55plus_ze.png, tableau_departs_55plus_ze.csv (+ .html si gt)")
+        "quadrant_55plus_ze.png, tableau_departs_55plus_ze.csv + .html")
