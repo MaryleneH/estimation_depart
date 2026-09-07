@@ -24,9 +24,6 @@ if (!"ze" %in% names(bts_projete))
 
 library(dplyr); library(ggplot2); library(scales)
 
-# --- Typographie manuscrite (style Excalidraw), comme 06b --------------------
-if (file.exists("R/00b_fonts.R")) source("R/00b_fonts.R") else {FONT_TITRE<-"sans";FONT_CORPS<-"sans"}
-
 # --- A. Base seniors : 55+ localisés, décomposition par cause ----------------
 # Les NA de zone (communes hors table de passage) sont REGROUPÉS, pas perdus.
 base_ze <- bts_projete |>
@@ -118,70 +115,103 @@ if (n_masquees > 0)
   message("08 : ", n_masquees, " cellule(s) ZE x CS masquée(s) (effectif < ",
           SEUIL_DIFFUSION, ").")
 
-# --- E. Quadrant de vulnérabilité — palette « atelier » de 06b ---------------
-CREME  <- "#FBF7EF"; ENCRE <- "#2B2622"; ENCRE2 <- "#6E655C"
-BLEU   <- "#3E6E8E"                      # bleu ardoise (points)
-ROUGE  <- "#B5583C"                      # terracotta : cadran critique
+# --- E. Quadrant de vulnérabilité — restitution SOBRE (lecture d'état-major) --
+# Contraintes : ~42 zones sur le vrai périmètre, un décideur non statisticien,
+# 30 secondes de lecture. D'où : fond blanc, une seule couleur d'alerte, seules
+# les zones NOTABLES sont nommées (cadran critique, plus gros effectifs,
+# extrêmes), et chaque cadran affiche son COMPTE de zones — la répartition
+# d'ensemble se lit sans lire les 42 noms.
+NOIR   <- "#1A1A1A"; GRIS <- "#666666"; GRILLE <- "#E3E3E3"
+MARINE <- "#3D6480"                      # zones hors cadran critique
+ALERTE <- "#A63D2F"                      # cadran critique uniquement
+
+synthese_ze <- synthese_ze |>
+  mutate(critique = part_55plus_pct >= med_part & taux_depart_55plus_pct >= med_taux,
+         # zones nommées sur le graphique : critiques, 6 plus gros effectifs,
+         # et extrêmes des deux axes (bornes du nuage)
+         notable = critique |
+           rank(-effectif_43plus, ties.method = "first") <= 6 |
+           part_55plus_pct == max(part_55plus_pct) |
+           part_55plus_pct == min(part_55plus_pct) |
+           taux_depart_55plus_pct == max(taux_depart_55plus_pct) |
+           taux_depart_55plus_pct == min(taux_depart_55plus_pct))
+
+# Compte de zones par cadran, affiché sous l'intitulé de chaque coin
+n_q <- synthese_ze |>
+  count(haut = taux_depart_55plus_pct >= med_taux, droite = part_55plus_pct >= med_part)
+n_de <- function(h, d) { v <- n_q$n[n_q$haut == h & n_q$droite == d]
+                         if (length(v) == 0) 0L else v }
 quadrants <- tibble::tribble(
-  ~x,    ~y,    ~hjust, ~vjust, ~lab,
-   Inf,   Inf,  1.05,   1.6,   "Vieillies, départs imminents",
-  -Inf,   Inf,  -0.05,  1.6,   "Jeunes, mais seniors sur le départ",
-   Inf,  -Inf,  1.05,  -0.9,   "Vieillies, départs étalés",
-  -Inf,  -Inf,  -0.05, -0.9,   "Zones préservées")
+  ~x,   ~y,   ~hjust, ~lab,
+   Inf,  Inf, 1,      sprintf("VIEILLIES, DÉPARTS IMMINENTS — %d zones", n_de(TRUE,  TRUE)),
+  -Inf,  Inf, 0,      sprintf("JEUNES, DÉPARTS RAPIDES — %d zones",      n_de(TRUE,  FALSE)),
+   Inf, -Inf, 1,      sprintf("VIEILLIES, DÉPARTS ÉTALÉS — %d zones",    n_de(FALSE, TRUE)),
+  -Inf, -Inf, 0,      sprintf("PROFIL PRÉSERVÉ — %d zones",              n_de(FALSE, FALSE))) |>
+  mutate(vjust = ifelse(y > 0, 1.8, -1.2))
 
 g <- synthese_ze |>
-  mutate(critique = part_55plus_pct >= med_part &
-                    taux_depart_55plus_pct >= med_taux) |>
   ggplot(aes(x = part_55plus_pct, y = taux_depart_55plus_pct)) +
-  geom_hline(yintercept = med_taux, linetype = "22", color = ENCRE2, linewidth = 0.5) +
-  geom_vline(xintercept = med_part, linetype = "22", color = ENCRE2, linewidth = 0.5) +
+  geom_hline(yintercept = med_taux, linetype = "42", color = GRIS, linewidth = 0.45) +
+  geom_vline(xintercept = med_part, linetype = "42", color = GRIS, linewidth = 0.45) +
   geom_text(data = quadrants, aes(x = x, y = y, label = lab, hjust = hjust, vjust = vjust),
-            family = FONT_TITRE, size = 4.6, color = ENCRE2, alpha = 0.85) +
-  geom_errorbar(aes(ymin = taux_55plus_bas_pct, ymax = taux_55plus_haut_pct),
-                width = 0, linewidth = 0.5, color = "grey55", alpha = 0.8) +
-  geom_point(aes(size = effectif_43plus, fill = critique),
-             shape = 21, color = CREME, stroke = 1.1, alpha = 0.92) +
-  ggrepel::geom_text_repel(aes(label = ze), family = FONT_CORPS, size = 3.6,
-                           color = ENCRE, seed = GRAINE, point.padding = 6,
-                           min.segment.length = 0.3, segment.color = ENCRE2) +
-  scale_size_area(max_size = 16, labels = label_number(big.mark = " ")) +
-  scale_fill_manual(values = c(`TRUE` = ROUGE, `FALSE` = BLEU), guide = "none") +
-  scale_x_continuous(labels = label_percent(scale = 1, accuracy = 1)) +
+            size = 3.4, fontface = "bold",
+            color = c(ALERTE, GRIS, GRIS, GRIS)) +
+  geom_point(aes(size = effectif_43plus, color = critique), alpha = 0.85) +
+  ggrepel::geom_text_repel(data = ~ filter(.x, notable),
+                           aes(label = ze, color = critique), size = 3.2,
+                           fontface = "bold", seed = GRAINE, point.padding = 4,
+                           min.segment.length = 0.25, segment.color = "grey70",
+                           segment.size = 0.3, max.overlaps = Inf,
+                           show.legend = FALSE) +
+  scale_size_area(max_size = 9, labels = label_number(big.mark = " ")) +
+  scale_color_manual(values = c(`TRUE` = ALERTE, `FALSE` = MARINE), guide = "none") +
+  # expansion large : les intitulés de cadrans vivent dans les coins, il leur
+  # faut de l'air pour ne pas mordre sur les points extrêmes
+  scale_x_continuous(labels = label_percent(scale = 1, accuracy = 1),
+                     expand = expansion(mult = 0.07)) +
   # accuracy 0.1 : la plage de y est étroite (les 55+ partent presque tous
   # d'ici 2030), un arrondi entier fausserait la lecture des écarts
-  scale_y_continuous(labels = label_percent(scale = 1, accuracy = 0.1)) +
+  scale_y_continuous(labels = label_percent(scale = 1, accuracy = 0.1),
+                     expand = expansion(mult = 0.10)) +
   labs(
-    title = "Quelles zones d'emploi vont perdre leurs seniors ?",
-    subtitle = sprintf(paste0("Salariés de %d ans et + : poids dans l'effectif (x) et taux de départ d'ici 2030 (y) — ",
-                              "scénario central, barres = fourchette réglementaire δ"), AGE_SENIOR),
-    caption = paste0("Lignes pointillées : médianes du périmètre. Taille des points : effectif 43 ans et +.\n",
-                     "Sources : DREES, EACR invalidité, mortalité Insee — calculs propres · données : table test"),
+    title = sprintf("Seniors : %d zones d'emploi en situation critique d'ici 2030",
+                    n_de(TRUE, TRUE)),
+    subtitle = sprintf(paste0("Chaque point est une zone d'emploi du périmètre (%d zones). ",
+                              "À droite : les plus vieillies (part des %d ans et +).\n",
+                              "En haut : celles où les seniors partent le plus vite d'ici 2030. ",
+                              "En rouge : les deux à la fois. Seules les zones notables sont nommées."),
+                       nrow(synthese_ze), AGE_SENIOR),
+    caption = sprintf(paste0("Champ : salariés de 43 ans et + en 2024, périmètre BITD. Lignes pointillées : médianes du périmètre. ",
+                             "Scénario central (δ = %.2f an).\n",
+                             "Sources : DREES, EACR invalidité, mortalité Insee — calculs propres · données : table test"),
+                      delta_central),
     x = sprintf("Part des %d ans et + dans l'effectif 43+ (2024)", AGE_SENIOR),
     y = sprintf("Départs attendus des %d+ d'ici 2030", AGE_SENIOR),
     size = "Effectif 43+"
   ) +
-  theme_minimal(base_size = 13) +
+  theme_minimal(base_size = 12.5) +
   theme(
-    text            = element_text(family = FONT_CORPS, color = ENCRE),
-    plot.title      = element_text(family = FONT_TITRE, size = 30, hjust = 0,
-                                   color = ENCRE, margin = margin(b = 2)),
-    plot.subtitle   = element_text(family = FONT_CORPS, size = 11, color = ENCRE2,
-                                   margin = margin(b = 14)),
-    plot.caption    = element_text(family = FONT_CORPS, size = 7.5, color = ENCRE2,
-                                   hjust = 0, margin = margin(t = 14)),
-    axis.text       = element_text(family = FONT_CORPS, size = 9.5, color = ENCRE2),
-    axis.title      = element_text(family = FONT_CORPS, size = 10.5, color = ENCRE2),
+    text            = element_text(color = NOIR),
+    plot.title      = element_text(face = "bold", size = 17, hjust = 0,
+                                   color = NOIR, margin = margin(b = 4)),
+    plot.subtitle   = element_text(size = 10, color = GRIS, lineheight = 1.15,
+                                   margin = margin(b = 12)),
+    plot.caption    = element_text(size = 7.5, color = GRIS, hjust = 0,
+                                   margin = margin(t = 12)),
+    axis.text       = element_text(size = 9, color = GRIS),
+    axis.title      = element_text(size = 10, color = NOIR),
     legend.position = "top", legend.justification = "left",
-    legend.text     = element_text(family = FONT_CORPS, size = 9.5),
-    legend.title    = element_text(family = FONT_CORPS, size = 10),
-    panel.grid.major = element_line(color = "#E8E0D4", linewidth = 0.4),
+    legend.text     = element_text(size = 9, color = GRIS),
+    legend.title    = element_text(size = 9.5),
+    legend.margin   = margin(b = 2),
+    panel.grid.major = element_line(color = GRILLE, linewidth = 0.35),
     panel.grid.minor = element_blank(),
-    plot.background  = element_rect(fill = CREME, color = NA),
-    panel.background = element_rect(fill = CREME, color = NA),
-    plot.margin     = margin(18, 22, 12, 18)
+    plot.background  = element_rect(fill = "white", color = NA),
+    panel.background = element_rect(fill = "white", color = NA),
+    plot.margin     = margin(16, 20, 12, 16)
   )
 
 ggsave(file.path(DIR_SORTIES, "quadrant_55plus_ze.png"),
-       g, width = 10.5, height = 8, dpi = 300, device = ragg::agg_png,
-       background = CREME)
+       g, width = 11, height = 8, dpi = 300, device = ragg::agg_png,
+       background = "white")
 message("08 OK -> sorties/analyse_55plus_par_ze.csv, criticite_55plus_ze_cs.csv, quadrant_55plus_ze.png")
