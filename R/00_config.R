@@ -147,3 +147,19 @@ SEUIL_CERTAIN  <- 0.75        # p >= 0.75  -> « Départ certain d'ici 2030 »
 SEUIL_PROBABLE <- 0.25        # 0.25-0.75  -> « Départ probable / envisageable »
 MODE_GRAPHIQUE <- "attendu"   # "attendu" : parts espérées par cause (défaut)
                               # "classes" : classes individuelles par seuils
+
+# --- Analyse des seniors (55+) par zone d'emploi (script 08) -------------------
+AGE_SENIOR <- 55              # borne basse de la population « senior » étudiée
+# Géographie : la BTS localise l'ÉTABLISSEMENT employeur. Deux cas selon
+# l'extraction (GEO_NIVEAU) :
+#   "ze"      : la colonne COL_GEO_BTS contient déjà la zone d'emploi ;
+#   "commune" : elle contient le code commune (codgeo) -> conversion via la
+#               table de passage Insee ZE2020 (data/table_passage_commune_ze.csv,
+#               colonnes  codgeo;ze;libze , séparateur ';').
+# En mode test (SOURCE_BTS = "test"), une ZE simulée est tirée par salarié.
+COL_GEO_BTS <- "ze"           # nom EXACT de la colonne géographique du Parquet
+GEO_NIVEAU  <- "ze"           # "ze" ou "commune"
+FICHIER_COMMUNE_ZE <- file.path(DIR_DATA, "table_passage_commune_ze.csv")
+# Secret statistique : une cellule (ZE x CS) portant moins de SEUIL_DIFFUSION
+# salariés n'est pas diffusée dans les exports (convention statistique publique).
+SEUIL_DIFFUSION <- 20
