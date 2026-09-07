@@ -90,12 +90,20 @@ if (SOURCE_BTS == "parquet") {
                   prob = c(0.24, 0.24, 0.18, 0.28, 0.04, 0.02))
     vapply(grp, function(g) sample(codes_pcs[[g]], 1), character(1))
   }
-  # Zones d'emploi simulées : pyramides des âges volontairement CONTRASTÉES
-  # (poids senior de ~0.6 à ~2.1) pour que le quadrant du script 08 ait du
-  # relief — sinon toutes les zones s'empilent sur la moyenne.
+  # Zones d'emploi simulées À L'ÉCHELLE RÉELLE du périmètre (42 zones) pour
+  # dimensionner la restitution du script 08 sur la vraie densité de points.
+  # Pyramides des âges volontairement CONTRASTÉES (poids senior ~0.55 à ~2.2),
+  # sinon toutes les zones s'empilent sur la moyenne.
   zones_test <- c("Toulouse", "Bordeaux", "Brest", "Cherbourg-en-Cotentin",
-                  "Bourges", "Toulon", "Rennes", "Saint-Nazaire")
-  poids_senior_ze <- c(0.6, 0.9, 1.4, 2.1, 1.8, 1.6, 0.7, 1.2)
+                  "Bourges", "Toulon", "Rennes", "Saint-Nazaire", "Lorient",
+                  "Nantes", "Paris", "Versailles", "Évry", "Créteil",
+                  "Marseille", "Aix-en-Provence", "Istres", "Nice", "Lyon",
+                  "Grenoble", "Valence", "Clermont-Ferrand", "Limoges",
+                  "Tarbes", "Pau", "Angoulême", "Poitiers", "Tours",
+                  "Orléans", "Le Mans", "Caen", "Rouen", "Le Havre", "Lille",
+                  "Douai", "Valenciennes", "Metz", "Nancy", "Strasbourg",
+                  "Mulhouse", "Belfort", "Dijon")
+  poids_senior_ze <- runif(length(zones_test), 0.55, 2.2)
   bts <- tibble(
     id       = sprintf("ID%05d", 1:N_TEST),
     siren    = sample(sprintf("ENT_%02d", 1:8), N_TEST, replace = TRUE),
