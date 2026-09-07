@@ -18,4 +18,7 @@ source("R/05_resultats_entreprises.R")    # -> sorties/ (csv + png)  [facultatif
 source("R/06_graphique_repartition.R")    # -> sorties/repartition_departs_par_age.png
 source("R/06b_graphique_repartition_cs.R")# -> sorties/repartition_par_cs.png (design par CS)
 source("R/07_tableau_contribution.R")     # -> sorties/tableau_contribution.html (+ .png)
+source("R/08_analyse_55plus_ze.R")        # -> sorties/analyse_55plus_par_ze.csv,
+                                          #    criticite_55plus_ze_cs.csv,
+                                          #    quadrant_55plus_ze.png (55+ par ZE)
 message("Chaîne exécutée.")
