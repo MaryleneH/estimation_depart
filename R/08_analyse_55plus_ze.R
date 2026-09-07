@@ -3,10 +3,12 @@
 # ------------------------------------------------------------------------------
 # PRÉREQUIS : objet `bts_projete` avec colonne `ze` (scripts 01-04) ;
 #             paramètres AGE_SENIOR, SEUIL_DIFFUSION (00_config.R)
-# PRODUIT   : objets `synthese_ze`, `criticite_ze_cs` ;
+# PRODUIT   : objets `synthese_ze`, `criticite_ze_cs`, `tableau_55plus_ze` ;
 #             sorties/analyse_55plus_par_ze.csv       (synthèse par ZE)
 #             sorties/criticite_55plus_ze_cs.csv      (détail ZE x CS, masqué)
 #             sorties/quadrant_55plus_ze.png          (matrice de vulnérabilité)
+#             sorties/tableau_departs_55plus_ze.csv   (tableau 55+ par ZE + total)
+#             sorties/tableau_departs_55plus_ze.html  (mise en forme gt, si dispo)
 # LECTURE   : deux dimensions par zone d'emploi — le STOCK (part des 55+ dans
 #             l'effectif 43+ : la zone a-t-elle vieilli ?) et le FLUX (taux de
 #             départ attendu des 55+ d'ici 2030 : partent-ils vite ?). Le
@@ -221,4 +223,104 @@ g <- synthese_ze |>
 ggsave(file.path(DIR_SORTIES, "quadrant_55plus_ze.png"),
        g, width = 11, height = 8, dpi = 300, device = ragg::agg_png,
        background = "white")
-message("08 OK -> sorties/analyse_55plus_par_ze.csv, criticite_55plus_ze_cs.csv, quadrant_55plus_ze.png")
+
+# --- F. Tableau des départs des 55+ par zone d'emploi, avec ligne de total ----
+# Champ STRICT : les AGE_SENIOR ans et + (le tableau ne contient qu'eux).
+# Le libellé de la variable géographique est paramétrable (LIBELLE_ZE, 00).
+tableau_55plus_ze <- synthese_ze |>
+  arrange(desc(departs_55plus)) |>
+  transmute(zone            = ze,
+            effectif        = effectif_55plus,
+            departs         = departs_55plus,
+            dont_retraite   = dep_55_retraite,
+            dont_invalidite = dep_55_invalidite,
+            dont_deces      = dep_55_deces,
+            taux_pct        = taux_depart_55plus_pct,
+            bas             = departs_55plus_bas,
+            haut            = departs_55plus_haut,
+            est_total       = FALSE) |>
+  bind_rows(
+    synthese_ze |>
+      summarise(zone = "Ensemble du périmètre",
+                effectif = sum(effectif_55plus),
+                departs  = sum(departs_55plus),
+                dont_retraite   = sum(dep_55_retraite),
+                dont_invalidite = sum(dep_55_invalidite),
+                dont_deces      = sum(dep_55_deces),
+                bas  = sum(departs_55plus_bas),
+                haut = sum(departs_55plus_haut),
+                est_total = TRUE) |>
+      mutate(taux_pct = 100 * departs / effectif))
+
+# Export tableur FR — la colonne géographique porte le libellé paramétré
+write.csv2(tableau_55plus_ze |>
+             select(-est_total) |>
+             mutate(across(where(is.numeric), ~ round(.x, 1))) |>
+             rename(!!LIBELLE_ZE := zone),
+           file.path(DIR_SORTIES, "tableau_departs_55plus_ze.csv"),
+           row.names = FALSE)
+
+# Mise en forme gt (mêmes conventions que 07) ; repli gracieux sans gt pour ne
+# pas casser la chaîne sur un poste où seul le CSV est attendu.
+if (requireNamespace("gt", quietly = TRUE)) {
+  library(gt)
+  gt_55plus_ze <- tableau_55plus_ze |>
+    mutate(fourchette = sprintf("%s – %s",
+                                format(round(bas),  big.mark = " ", trim = TRUE),
+                                format(round(haut), big.mark = " ", trim = TRUE))) |>
+    select(zone, effectif, departs, dont_retraite, dont_invalidite, dont_deces,
+           taux_pct, fourchette, est_total) |>
+    gt() |>
+    cols_hide(est_total) |>
+    tab_header(
+      title    = md(sprintf("**Départs attendus d'ici 2030 des salariés de %d ans et +, par %s**",
+                            AGE_SENIOR, tolower(LIBELLE_ZE))),
+      subtitle = md(sprintf("Champ : uniquement les %d ans et + en 2024 (%s salariés) — scénario central ; fourchette réglementaire δ",
+                            AGE_SENIOR,
+                            format(sum(synthese_ze$effectif_55plus), big.mark = " ")))
+    ) |>
+    tab_spanner(label = "dont, par cause",
+                columns = c(dont_retraite, dont_invalidite, dont_deces)) |>
+    cols_label(zone            = LIBELLE_ZE,
+               effectif        = sprintf("Effectif %d+", AGE_SENIOR),
+               departs         = "Départs attendus",
+               dont_retraite   = "retraite / fin de carrière",
+               dont_invalidite = "invalidité",
+               dont_deces      = "décès",
+               taux_pct        = "Taux de départ (%)",
+               fourchette      = "Fourchette") |>
+    fmt_number(columns = c(effectif, departs), decimals = 0, sep_mark = " ") |>
+    fmt_number(columns = c(dont_retraite, dont_invalidite, dont_deces, taux_pct),
+               decimals = 1, dec_mark = ",", sep_mark = " ") |>
+    cols_align(align = "left",  columns = zone) |>
+    cols_align(align = "right", columns = c(effectif, departs, dont_retraite,
+                                            dont_invalidite, dont_deces,
+                                            taux_pct, fourchette)) |>
+    tab_style(
+      style = list(cell_text(weight = "bold"),
+                   cell_fill(color = "#eef2f7")),
+      locations = cells_body(rows = est_total)
+    ) |>
+    tab_style(
+      style = cell_borders(sides = "top", weight = px(2), color = "#2f6da4"),
+      locations = cells_body(rows = est_total)
+    ) |>
+    tab_source_note(md(
+      "Lecture : classement par départs attendus décroissants. Sources : DREES, EACR invalidité, mortalité Insee — calculs propres. Données individuelles : table test."
+    )) |>
+    tab_options(table.font.size = px(14),
+                heading.title.font.size = px(16),
+                column_labels.font.weight = "bold",
+                table.border.top.style = "none")
+
+  gtsave(gt_55plus_ze, file.path(DIR_SORTIES, "tableau_departs_55plus_ze.html"))
+  if (requireNamespace("webshot2", quietly = TRUE))
+    gtsave(gt_55plus_ze, file.path(DIR_SORTIES, "tableau_departs_55plus_ze.png"),
+           vwidth = 1100, vheight = 1400)
+} else {
+  message("08 : package 'gt' absent -> tableau exporté en CSV seulement ",
+          "(install.packages(\"gt\") pour la version mise en forme).")
+}
+
+message("08 OK -> sorties/analyse_55plus_par_ze.csv, criticite_55plus_ze_cs.csv, ",
+        "quadrant_55plus_ze.png, tableau_departs_55plus_ze.csv (+ .html si gt)")
