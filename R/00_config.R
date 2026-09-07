@@ -159,6 +159,9 @@ AGE_SENIOR <- 55              # borne basse de la population « senior » étudi
 # En mode test (SOURCE_BTS = "test"), une ZE simulée est tirée par salarié.
 COL_GEO_BTS <- "ze"           # nom EXACT de la colonne géographique du Parquet
 GEO_NIVEAU  <- "ze"           # "ze" ou "commune"
+LIBELLE_ZE  <- "Zone d'emploi" # libellé de la variable géographique dans les
+                               # RESTITUTIONS (tableau, CSV) — adaptez-le si le
+                               # découpage retenu change (bassin d'emploi, EPCI...)
 FICHIER_COMMUNE_ZE <- file.path(DIR_DATA, "table_passage_commune_ze.csv")
 # Secret statistique : une cellule (ZE x CS) portant moins de SEUIL_DIFFUSION
 # salariés n'est pas diffusée dans les exports (convention statistique publique).
