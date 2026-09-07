@@ -89,7 +89,7 @@ criticite_ze_cs <- base_ze |>
 cellules_critiques <- criticite_ze_cs |>
   filter(effectif_43plus >= SEUIL_DIFFUSION, perte_seniors_pct >= 25)
 if (nrow(cellules_critiques) > 0) {
-  cat("\n--- Cellules ZE x CS critiques (>= 25 % de l'effectif perdu via les 55+) ---\n")
+  cat("\n--- Cellules ZE x CS les plus exposées (>= 25 % de l'effectif perdu via les 55+) ---\n")
   print(cellules_critiques |>
           mutate(across(where(is.numeric), ~ round(.x, 1))) |>
           as.data.frame(), row.names = FALSE)
@@ -141,12 +141,15 @@ n_q <- synthese_ze |>
   count(haut = taux_depart_55plus_pct >= med_taux, droite = part_55plus_pct >= med_part)
 n_de <- function(h, d) { v <- n_q$n[n_q$haut == h & n_q$droite == d]
                          if (length(v) == 0) 0L else v }
+# Intitulés FACTUELS : position par rapport aux médianes du périmètre, sans
+# qualificatif (« vieillie », « critique »...) — le classement est relatif,
+# pas un diagnostic absolu.
 quadrants <- tibble::tribble(
   ~x,   ~y,   ~hjust, ~lab,
-   Inf,  Inf, 1,      sprintf("VIEILLIES, DÉPARTS IMMINENTS — %d zones", n_de(TRUE,  TRUE)),
-  -Inf,  Inf, 0,      sprintf("JEUNES, DÉPARTS RAPIDES — %d zones",      n_de(TRUE,  FALSE)),
-   Inf, -Inf, 1,      sprintf("VIEILLIES, DÉPARTS ÉTALÉS — %d zones",    n_de(FALSE, TRUE)),
-  -Inf, -Inf, 0,      sprintf("PROFIL PRÉSERVÉ — %d zones",              n_de(FALSE, FALSE))) |>
+   Inf,  Inf, 1,      sprintf("Plus de seniors, départs plus élevés — %d zones",  n_de(TRUE,  TRUE)),
+  -Inf,  Inf, 0,      sprintf("Moins de seniors, départs plus élevés — %d zones", n_de(TRUE,  FALSE)),
+   Inf, -Inf, 1,      sprintf("Plus de seniors, départs plus modérés — %d zones", n_de(FALSE, TRUE)),
+  -Inf, -Inf, 0,      sprintf("Moins de seniors, départs plus modérés — %d zones", n_de(FALSE, FALSE))) |>
   mutate(vjust = ifelse(y > 0, 1.8, -1.2))
 
 g <- synthese_ze |>
@@ -154,7 +157,7 @@ g <- synthese_ze |>
   geom_hline(yintercept = med_taux, linetype = "42", color = GRIS, linewidth = 0.45) +
   geom_vline(xintercept = med_part, linetype = "42", color = GRIS, linewidth = 0.45) +
   geom_text(data = quadrants, aes(x = x, y = y, label = lab, hjust = hjust, vjust = vjust),
-            size = 3.4, fontface = "bold",
+            size = 3.2, fontface = "bold",
             color = c(ALERTE, GRIS, GRIS, GRIS)) +
   geom_point(aes(size = effectif_43plus, color = critique), alpha = 0.85) +
   ggrepel::geom_text_repel(data = ~ filter(.x, notable),
@@ -174,16 +177,20 @@ g <- synthese_ze |>
   scale_y_continuous(labels = label_percent(scale = 1, accuracy = 0.1),
                      expand = expansion(mult = 0.10)) +
   labs(
-    title = sprintf("Seniors : %d zones d'emploi en situation critique d'ici 2030",
+    title = sprintf("Départs des seniors d'ici 2030 : %d zones d'emploi à suivre en priorité",
                     n_de(TRUE, TRUE)),
     subtitle = sprintf(paste0("Chaque point est une zone d'emploi du périmètre (%d zones). ",
-                              "À droite : les plus vieillies (part des %d ans et +).\n",
-                              "En haut : celles où les seniors partent le plus vite d'ici 2030. ",
+                              "À droite : part des %d ans et + supérieure à la médiane.\n",
+                              "En haut : taux de départ des %d+ supérieur à la médiane. ",
                               "En rouge : les deux à la fois. Seules les zones notables sont nommées."),
-                       nrow(synthese_ze), AGE_SENIOR),
-    caption = sprintf(paste0("Champ : salariés de 43 ans et + en 2024, périmètre BITD. Lignes pointillées : médianes du périmètre. ",
-                             "Scénario central (δ = %.2f an).\n",
+                       nrow(synthese_ze), AGE_SENIOR, AGE_SENIOR),
+    caption = sprintf(paste0("Lecture : le classement est RELATIF aux médianes du périmètre — dans toutes les zones, la plupart des %d+ de 2024 ",
+                             "seront partis d'ici 2030 (taux de %.0f à %.0f %%).\n",
+                             "Champ : salariés de 43 ans et + en 2024, périmètre BITD. Scénario central (δ = %.2f an). ",
                              "Sources : DREES, EACR invalidité, mortalité Insee — calculs propres · données : table test"),
+                      AGE_SENIOR,
+                      min(synthese_ze$taux_depart_55plus_pct),
+                      max(synthese_ze$taux_depart_55plus_pct),
                       delta_central),
     x = sprintf("Part des %d ans et + dans l'effectif 43+ (2024)", AGE_SENIOR),
     y = sprintf("Départs attendus des %d+ d'ici 2030", AGE_SENIOR),
