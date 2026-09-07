@@ -1,0 +1,33 @@
+"ze";"cs1";"effectif_43plus";"effectif_55plus";"part_55plus_pct";"departs_55plus";"perte_seniors_pct";"sous_seuil"
+"Cherbourg-en-Cotentin";"Ouvriers";232;108;46,6;102,5;44,2;FALSE
+"Bourges";"Ouvriers";230;103;44,8;99,3;43,2;FALSE
+"Brest";"Employes";144;61;42,4;56,5;39,3;FALSE
+"Bourges";"Employes";160;68;42,5;62,6;39,1;FALSE
+"Cherbourg-en-Cotentin";"Prof. intermediaires";203;90;44,3;79,1;39;FALSE
+"Cherbourg-en-Cotentin";"Employes";154;64;41,6;59,3;38,5;FALSE
+"Bourges";"Prof. intermediaires";202;92;45,5;77;38,1;FALSE
+"Toulon";"Ouvriers";234;84;35,9;81;34,6;FALSE
+"Brest";"Ouvriers";218;67;30,7;63,5;29,1;FALSE
+"Saint-Nazaire";"Employes";134;43;32,1;38,6;28,8;FALSE
+"Brest";"Prof. intermediaires";201;64;31,8;56,2;27,9;FALSE
+"Cherbourg-en-Cotentin";"Cadres";205;84;41;56,2;27,4;FALSE
+"Toulon";"Employes";130;38;29,2;35,4;27,2;FALSE
+"Toulon";"Prof. intermediaires";203;59;29,1;53;26,1;FALSE
+"Toulon";"Cadres";198;65;32,8;51,1;25,8;FALSE
+"Saint-Nazaire";"Ouvriers";192;50;26;48,8;25,4;FALSE
+"Bourges";"Cadres";196;69;35,2;48,2;24,6;FALSE
+"Bordeaux";"Ouvriers";183;45;24,6;43;23,5;FALSE
+"Saint-Nazaire";"Prof. intermediaires";182;46;25,3;40,9;22,5;FALSE
+"Bordeaux";"Employes";162;38;23,5;35,1;21,6;FALSE
+"Brest";"Cadres";195;56;28,7;40,5;20,8;FALSE
+"Rennes";"Ouvriers";194;41;21,1;39,5;20,4;FALSE
+"Saint-Nazaire";"Cadres";168;47;28;33,3;19,8;FALSE
+"Bordeaux";"Prof. intermediaires";189;42;22,2;37,1;19,6;FALSE
+"Toulouse";"Employes";96;20;20,8;18,7;19,5;FALSE
+"Toulouse";"Ouvriers";176;34;19,3;32,7;18,6;FALSE
+"Rennes";"Prof. intermediaires";142;28;19,7;25,6;18;FALSE
+"Bordeaux";"Cadres";145;32;22,1;25,8;17,8;FALSE
+"Toulouse";"Prof. intermediaires";164;29;17,7;25,8;15,7;FALSE
+"Rennes";"Cadres";136;28;20,6;20,3;14,9;FALSE
+"Rennes";"Employes";106;16;15,1;14,7;13,8;FALSE
+"Toulouse";"Cadres";153;25;16,3;18,6;12,1;FALSE
