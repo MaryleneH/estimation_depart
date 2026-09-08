@@ -163,6 +163,13 @@ LIBELLE_ZE  <- "Zone d'emploi" # libellé de la variable géographique dans les
                                # RESTITUTIONS (tableau, CSV) — adaptez-le si le
                                # découpage retenu change (bassin d'emploi, EPCI...)
 FICHIER_COMMUNE_ZE <- file.path(DIR_DATA, "table_passage_commune_ze.csv")
+# Périmètre géographique de RESTITUTION du script 08 : liste des zones
+# d'emploi retenues. NULL = toutes les zones présentes dans la BTS. Sinon,
+# seules les ZE listées (orthographe EXACTE des valeurs de la colonne ze,
+# accents compris) sont analysées ; les salariés hors liste sont écartés du
+# 08 avec un décompte tracé, et toute ZE de la liste absente des données est
+# signalée (détection de faute de frappe).
+LISTE_ZE <- NULL   # ex. : c("Toulouse", "Bordeaux", "Brest", "Bourges")
 # Secret statistique : une cellule (ZE x CS) portant moins de SEUIL_DIFFUSION
 # salariés n'est pas diffusée dans les exports (convention statistique publique).
 SEUIL_DIFFUSION <- 20
