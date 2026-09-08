@@ -19,6 +19,8 @@ source("R/06_graphique_repartition.R")    # -> sorties/repartition_departs_par_a
 source("R/06b_graphique_repartition_cs.R")# -> sorties/repartition_par_cs.png (design par CS)
 source("R/06d_graphique_repartition_cs_regroupe.R") # -> sorties/repartition_par_cs_regroupe.png
                                           #    (06b avec invalidité + décès regroupés, note de lecture)
+source("R/06e_graphique_repartition_age_regroupe.R") # -> sorties/repartition_par_age_regroupe.png
+                                          #    + repartition_55plus_regroupe.png (regroupé par âge)
 source("R/07_tableau_contribution.R")     # -> sorties/tableau_contribution.html (+ .png)
 source("R/08_analyse_55plus_ze.R")        # -> sorties/analyse_55plus_par_ze.csv,
                                           #    criticite_55plus_ze_cs.csv,
