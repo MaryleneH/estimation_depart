@@ -119,24 +119,75 @@ if (n_masquees > 0)
 
 # --- E. Quadrant de vulnérabilité — restitution SOBRE (lecture d'état-major) --
 # Contraintes : ~42 zones sur le vrai périmètre, un décideur non statisticien,
-# 30 secondes de lecture. D'où : fond blanc, une seule couleur d'alerte, seules
-# les zones NOTABLES sont nommées (cadran critique, plus gros effectifs,
-# extrêmes), et chaque cadran affiche son COMPTE de zones — la répartition
-# d'ensemble se lit sans lire les 42 noms.
+# 30 secondes de lecture. Fond blanc, une seule couleur d'alerte, TOUTES les
+# zones nommées, et chaque cadran affiche son COMPTE de zones. Sans ggrepel
+# (absent des postes de production) : l'anti-chevauchement est déterministe —
+# étiquettes alternées dessus/dessous selon le rang en x, canevas élargi.
 NOIR   <- "#1A1A1A"; GRIS <- "#666666"; GRILLE <- "#E3E3E3"
 MARINE <- "#3D6480"                      # zones hors cadran critique
 ALERTE <- "#A63D2F"                      # cadran critique uniquement
 
 synthese_ze <- synthese_ze |>
-  mutate(critique = part_55plus_pct >= med_part & taux_depart_55plus_pct >= med_taux,
-         # zones nommées sur le graphique : critiques, 6 plus gros effectifs,
-         # et extrêmes des deux axes (bornes du nuage)
-         notable = critique |
-           rank(-effectif_43plus, ties.method = "first") <= 6 |
-           part_55plus_pct == max(part_55plus_pct) |
-           part_55plus_pct == min(part_55plus_pct) |
-           taux_depart_55plus_pct == max(taux_depart_55plus_pct) |
-           taux_depart_55plus_pct == min(taux_depart_55plus_pct))
+  mutate(critique = part_55plus_pct >= med_part & taux_depart_55plus_pct >= med_taux)
+
+# Placement des étiquettes SANS ggrepel : algorithme glouton déterministe.
+# Chaque étiquette (boîte approchée par nchar x hauteur de police, en unités
+# de données) essaie une liste ORDONNÉE de positions autour de son point
+# (dessous, dessus, côtés, diagonales, puis plus loin) et prend la première
+# qui ne recouvre aucune étiquette déjà posée. R pur, aucune dépendance,
+# résultat identique à chaque exécution.
+placer_etiquettes <- function(x, y, lab,
+                              cw = 0.21,   # largeur approx. d'un caractère (unités x)
+                              ch = 0.50,   # hauteur d'une étiquette (unités y)
+                              rx = 0.45,   # demi-largeur d'un point (obstacle)
+                              ry = 0.35) { # demi-hauteur d'un point (obstacle)
+  n <- length(x)
+  demi_l <- nchar(lab) * cw / 2 + 0.15
+  # positions candidates (facteurs appliqués à la demi-largeur / hauteur)
+  cand <- rbind(
+    c(0, -1), c(0, 1), c(0, -2), c(0, 2),          # dessous / dessus
+    c(1, 0), c(-1, 0),                             # à droite / à gauche
+    c(1, -1), c(-1, -1), c(1, 1), c(-1, 1),        # diagonales
+    c(0, -3), c(0, 3))                             # en dernier recours
+  # obstacles initiaux : TOUS les points (les étiquettes ne doivent recouvrir
+  # ni une autre étiquette, ni un marqueur)
+  boites <- rbind(cbind(x - rx, x + rx, y - ry, y + ry),
+                  matrix(NA_real_, nrow = n, ncol = 4))
+  lx <- numeric(n); ly <- numeric(n)
+  sx <- rep(NA_real_, n); ex <- rep(NA_real_, n)
+  for (i in order(x)) {
+    for (k in seq_len(nrow(cand))) {
+      dx <- cand[k, 1] * (demi_l[i] + rx + 0.2)
+      dy <- if (cand[k, 1] == 0) cand[k, 2] * (ry + 0.62 * ch) else cand[k, 2] * 0.95 * ch
+      bx <- c(x[i] + dx - demi_l[i], x[i] + dx + demi_l[i],
+              y[i] + dy - ch / 2,    y[i] + dy + ch / 2)
+      libre <- TRUE
+      for (j in which(!is.na(boites[, 1]))) {
+        if (bx[1] < boites[j, 2] && bx[2] > boites[j, 1] &&
+            bx[3] < boites[j, 4] && bx[4] > boites[j, 3]) { libre <- FALSE; break }
+      }
+      if (libre || k == nrow(cand)) {
+        boites[n + i, ] <- bx; lx[i] <- x[i] + dx; ly[i] <- y[i] + dy
+        # étiquette déportée latéralement -> trait de rappel du point au bord
+        # de l'étiquette (lève l'ambiguïté d'attribution dans les amas)
+        if (cand[k, 1] != 0) {
+          sx[i] <- x[i] + sign(dx) * rx
+          ex[i] <- lx[i] - sign(dx) * (demi_l[i] + 0.05)
+        }
+        break
+      }
+    }
+  }
+  list(x = lx, y = ly, seg_x = sx, seg_xend = ex)
+}
+
+pos_lab <- placer_etiquettes(synthese_ze$part_55plus_pct,
+                             synthese_ze$taux_depart_55plus_pct,
+                             synthese_ze$ze)
+synthese_ze$etiquette_x <- pos_lab$x
+synthese_ze$etiquette_y <- pos_lab$y
+synthese_ze$seg_x       <- pos_lab$seg_x
+synthese_ze$seg_xend    <- pos_lab$seg_xend
 
 # Compte de zones par cadran, affiché sous l'intitulé de chaque coin
 n_q <- synthese_ze |>
@@ -162,13 +213,12 @@ g <- synthese_ze |>
             size = 3.2, fontface = "bold",
             color = c(ALERTE, GRIS, GRIS, GRIS)) +
   geom_point(aes(size = effectif_43plus, color = critique), alpha = 0.85) +
-  ggrepel::geom_text_repel(data = ~ filter(.x, notable),
-                           aes(label = ze, color = critique), size = 3.2,
-                           fontface = "bold", seed = GRAINE, point.padding = 4,
-                           min.segment.length = 0.25, segment.color = "grey70",
-                           segment.size = 0.3, max.overlaps = Inf,
-                           show.legend = FALSE) +
-  scale_size_area(max_size = 9, labels = label_number(big.mark = " ")) +
+  geom_segment(data = ~ filter(.x, !is.na(seg_x)),
+               aes(x = seg_x, xend = seg_xend, yend = etiquette_y),
+               color = "grey65", linewidth = 0.25) +
+  geom_text(aes(x = etiquette_x, y = etiquette_y, label = ze, color = critique),
+            size = 2.7, fontface = "bold", show.legend = FALSE) +
+  scale_size_area(max_size = 7, labels = label_number(big.mark = " ")) +
   scale_color_manual(values = c(`TRUE` = ALERTE, `FALSE` = MARINE), guide = "none") +
   # expansion large : les intitulés de cadrans vivent dans les coins, il leur
   # faut de l'air pour ne pas mordre sur les points extrêmes
@@ -184,7 +234,7 @@ g <- synthese_ze |>
     subtitle = sprintf(paste0("Chaque point est une zone d'emploi du périmètre (%d zones). ",
                               "À droite : part des %d ans et + supérieure à la médiane.\n",
                               "En haut : taux de départ des %d+ supérieur à la médiane. ",
-                              "En rouge : les deux à la fois. Seules les zones notables sont nommées."),
+                              "En rouge : les deux à la fois."),
                        nrow(synthese_ze), AGE_SENIOR, AGE_SENIOR),
     caption = sprintf(paste0("Lecture : le classement est RELATIF aux médianes du périmètre — dans toutes les zones, la plupart des %d+ de 2024 ",
                              "seront partis d'ici 2030 (taux de %.0f à %.0f %%).\n",
@@ -220,8 +270,9 @@ g <- synthese_ze |>
     plot.margin     = margin(16, 20, 12, 16)
   )
 
+# canevas élargi : 42 étiquettes toutes affichées demandent de la place
 ggsave(file.path(DIR_SORTIES, "quadrant_55plus_ze.png"),
-       g, width = 11, height = 8, dpi = 300, device = ragg::agg_png,
+       g, width = 14, height = 9.5, dpi = 300, device = ragg::agg_png,
        background = "white")
 
 # --- F. Tableau des départs des 55+ par zone d'emploi, avec ligne de total ----
