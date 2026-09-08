@@ -29,8 +29,29 @@ library(dplyr); library(ggplot2); library(scales)
 # --- A. Base seniors : 55+ localisés, décomposition par cause ----------------
 # Les NA de zone (communes hors table de passage) sont REGROUPÉS, pas perdus.
 base_ze <- bts_projete |>
-  mutate(ze = ifelse(is.na(ze), "ZE inconnue", as.character(ze)),
-         senior = age_2024 >= AGE_SENIOR,
+  mutate(ze = ifelse(is.na(ze), "ZE inconnue", as.character(ze)))
+
+# Périmètre géographique de restitution (LISTE_ZE, 00_config) : seules les
+# zones de la liste sont analysées. Rien ne sort en silence : décompte des
+# salariés écartés, et alerte sur toute ZE de la liste absente des données
+# (le plus souvent une différence d'orthographe ou d'accent).
+if (exists("LISTE_ZE") && !is.null(LISTE_ZE)) {
+  introuvables <- setdiff(LISTE_ZE, unique(base_ze$ze))
+  if (length(introuvables) > 0)
+    warning("LISTE_ZE : ", length(introuvables), " zone(s) absente(s) des ",
+            "données (orthographe ?) : ", paste(introuvables, collapse = ", "))
+  n_avant <- nrow(base_ze)
+  base_ze <- base_ze |> filter(ze %in% LISTE_ZE)
+  if (nrow(base_ze) == 0)
+    stop("LISTE_ZE : aucune correspondance avec la colonne ze — ",
+         "vérifiez l'orthographe exacte des zones dans 00_config.R.")
+  message("08 : périmètre restreint aux ", n_distinct(base_ze$ze),
+          " ZE de LISTE_ZE — ", n_avant - nrow(base_ze),
+          " salarié(s) hors liste écarté(s) de l'analyse.")
+}
+
+base_ze <- base_ze |>
+  mutate(senior = age_2024 >= AGE_SENIOR,
          # parts espérées par cause chez p_central (mêmes maths que 06/06b :
          # risques concurrents, répartition additive à somme p_central)
          .brut_ret = p_cal_central * (1 - p_inval) * (1 - p_deces),
