@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0">
+
+<title>Départs des salariés de 55 ans et + d’ici 2030</title>
+
+<style>
+
+/* -------------------------------------------------------------------------- */
+/* PAGE                                                                       */
+/* -------------------------------------------------------------------------- */
+
+body {
+
+  margin: 0;
+  padding: 32px;
+
+  background: #ffffff;
+
+  font-family:
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    Helvetica,
+    Arial,
+    sans-serif;
+
+  color: #1f2937;
+
+}
+
+
+/* -------------------------------------------------------------------------- */
+/* CONTENEUR                                                                  */
+/* -------------------------------------------------------------------------- */
+
+.tableau-container {
+
+  max-width: 1100px;
+
+  margin: 0 auto;
+
+}
+
+
+/* -------------------------------------------------------------------------- */
+/* TITRE                                                                      */
+/* -------------------------------------------------------------------------- */
+
+.tableau-titre {
+
+  margin: 0 0 6px 0;
+
+  font-size: 22px;
+
+  font-weight: 700;
+
+  color: #1f2937;
+
+}
+
+
+.tableau-sous-titre {
+
+  margin: 0 0 24px 0;
+
+  font-size: 14px;
+
+  color: #64748b;
+
+}
+
+
+/* -------------------------------------------------------------------------- */
+/* TABLEAU                                                                    */
+/* -------------------------------------------------------------------------- */
+
+table {
+
+  width: 100%;
+
+  border-collapse: collapse;
+
+  table-layout: fixed;
+
+  font-size: 14px;
+
+}
+
+
+thead th {
+
+  padding: 12px 12px;
+
+  background: #f4f6f8;
+
+  border-bottom: 2px solid #cbd5e1;
+
+  color: #334155;
+
+  font-weight: 700;
+
+  text-align: left;
+
+}
+
+
+tbody td {
+
+  padding: 14px 12px;
+
+  border-bottom: 1px solid #e5e7eb;
+
+  vertical-align: middle;
+
+}
+
+
+/* -------------------------------------------------------------------------- */
+/* LARGEUR DES COLONNES                                                       */
+/* -------------------------------------------------------------------------- */
+
+.col-contribution {
+
+  width: 30%;
+
+}
+
+
+.col-departs {
+
+  width: 12%;
+
+  text-align: right;
+
+  font-variant-numeric: tabular-nums;
+
+}
+
+
+.col-lecture {
+
+  width: 38%;
+
+  color: #475569;
+
+}
+
+
+.col-part {
+
+  width: 20%;
+
+}
+
+
+/* -------------------------------------------------------------------------- */
+/* LIGNE TOTAL                                                                */
+/* -------------------------------------------------------------------------- */
+
+.ligne-total td {
+
+  background: #eef2f7;
+
+  font-weight: 700;
+
+  border-top: 2px solid #2f6da4;
+
+  border-bottom: none;
+
+}
+
+
+/* -------------------------------------------------------------------------- */
+/* BARRE DE PART                                                              */
+/* -------------------------------------------------------------------------- */
+
+.part-wrapper {
+
+  position: relative;
+
+  height: 28px;
+
+  background: #edf2f7;
+
+  border-radius: 4px;
+
+  overflow: hidden;
+
+}
+
+
+.part-bar {
+
+  position: absolute;
+
+  top: 0;
+  left: 0;
+
+  height: 100%;
+
+  background: #b8cee2;
+
+}
+
+
+.part-label {
+
+  position: relative;
+
+  z-index: 2;
+
+  display: block;
+
+  width: 100%;
+
+  line-height: 28px;
+
+  padding-right: 8px;
+
+  box-sizing: border-box;
+
+  text-align: right;
+
+  font-weight: 600;
+
+  color: #243746;
+
+}
+
+
+/* -------------------------------------------------------------------------- */
+/* SOURCE                                                                     */
+/* -------------------------------------------------------------------------- */
+
+.source {
+
+  margin-top: 14px;
+
+  padding-top: 10px;
+
+  border-top: 1px solid #e5e7eb;
+
+  font-size: 11px;
+
+  line-height: 1.5;
+
+  color: #64748b;
+
+}
+
+
+/* -------------------------------------------------------------------------- */
+/* IMPRESSION                                                                 */
+/* -------------------------------------------------------------------------- */
+
+@media print {
+
+  body {
+
+    padding: 0;
+
+  }
+
+  .tableau-container {
+
+    max-width: none;
+
+  }
+
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+<div class="tableau-container">
+
+
+<h1 class="tableau-titre">
+Départs des salariés de 55 ans et + d’ici 2030 : décomposition par cause
+</h1>
+
+
+<p class="tableau-sous-titre">
+Salariés de 55 ans et + en 2024 — scénario central —
+1 732 salariés
+</p>
+
+
+<table>
+
+<thead>
+
+<tr>
+
+<th class="col-contribution">
+Contribution
+</th>
+
+<th class="col-departs">
+Départs
+</th>
+
+<th class="col-lecture">
+Lecture
+</th>
+
+<th class="col-part">
+Part du total
+</th>
+
+</tr>
+
+</thead>
+
+
+<tbody>
+
+<tr class=""><td class="col-contribution">1. Législation seule (âge légal)</td><td class="col-departs">1 145</td><td class="col-lecture">Effet pur de l'âge légal de liquidation</td><td class="col-part"><div class="part-wrapper"><div class="part-bar" style="width:76%;"></div><span class="part-label">76 %</span></div></td></tr>
+<tr class=""><td class="col-contribution">2. + Apport du sas de fin de carrière</td><td class="col-departs">+346</td><td class="col-lecture">Cessations d'emploi avant liquidation</td><td class="col-part"><div class="part-wrapper"><div class="part-bar" style="width:23%;"></div><span class="part-label">23 %</span></div></td></tr>
+<tr class=""><td class="col-contribution">3. + Apport invalidité et décès</td><td class="col-departs">+23</td><td class="col-lecture">Accidents de la vie (invalidité, décès)</td><td class="col-part"><div class="part-wrapper"><div class="part-bar" style="width:2%;"></div><span class="part-label">2 %</span></div></td></tr>
+<tr class="ligne-total"><td class="col-contribution">Total (scénario central)</td><td class="col-departs">1 515</td><td class="col-lecture">Ensemble des sorties définitives d'ici 2030</td><td class="col-part"><div class="part-wrapper"><div class="part-bar" style="width:100%;"></div><span class="part-label">100 %</span></div></td></tr>
+
+</tbody>
+
+</table>
+
+
+<div class="source">
+
+<strong>Sources :</strong>
+DREES, jeu <em>departretraite_parcsp</em>
+(Insee, enquête Emploi) ;
+quotients de mortalité Insee —
+calculs propres SSM Défense.
+Données individuelles : Insee - BTS 2024.
+
+</div>
+
+
+</div>
+
+</body>
+
+</html>
