@@ -263,9 +263,9 @@ write.csv2(tableau_55plus_ze |>
 # Tableau MIS EN FORME sans dépendance : HTML écrit à la main (inline CSS,
 # style sobre aligné sur le quadrant). S'ouvre dans un navigateur, s'imprime,
 # se colle dans un document — sans gt ni aucun package supplémentaire.
+# 0 chiffre après la virgule dans le tableau HTML (demande de restitution) ;
+# le CSV, lui, garde une décimale pour les reprises de calcul.
 fmt0 <- function(x) formatC(round(x), format = "d", big.mark = " ")
-fmt1 <- function(x) formatC(x, format = "f", digits = 1,
-                            big.mark = " ", decimal.mark = ",")
 echap <- function(x) { x <- gsub("&", "&amp;", x, fixed = TRUE)
                        x <- gsub("<", "&lt;",  x, fixed = TRUE)
                        gsub(">", "&gt;", x, fixed = TRUE) }
@@ -274,10 +274,10 @@ lignes_html <- with(tableau_55plus_ze, paste0(
   "<td>", echap(zone), "</td>",
   "<td class=\"num\">", fmt0(effectif), "</td>",
   "<td class=\"num\">", fmt0(departs), "</td>",
-  "<td class=\"num\">", fmt1(dont_retraite), "</td>",
-  "<td class=\"num\">", fmt1(dont_invalidite), "</td>",
-  "<td class=\"num\">", fmt1(dont_deces), "</td>",
-  "<td class=\"num\">", fmt1(taux_pct), "</td>",
+  "<td class=\"num\">", fmt0(dont_retraite), "</td>",
+  "<td class=\"num\">", fmt0(dont_invalidite), "</td>",
+  "<td class=\"num\">", fmt0(dont_deces), "</td>",
+  "<td class=\"num\">", fmt0(taux_pct), "</td>",
   "<td class=\"num\">", fmt0(bas), " – ", fmt0(haut), "</td></tr>"))
 page_html <- c(
   "<!DOCTYPE html>",
