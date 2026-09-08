@@ -170,13 +170,16 @@ FICHIER_COMMUNE_ZE <- file.path(DIR_DATA, "table_passage_commune_ze.csv")
 # du 08 portent alors des NOMS de zones, et LISTE_ZE ci-dessous s'écrit en
 # libellés. Sans ce fichier, la colonne est utilisée telle quelle.
 FICHIER_LIBELLES_ZE <- file.path(DIR_DATA, "libelles_ze.csv")
-# Périmètre géographique de RESTITUTION du script 08 : liste des zones
-# d'emploi retenues. NULL = toutes les zones présentes dans la BTS. Sinon,
-# seules les ZE listées (orthographe EXACTE des valeurs de la colonne ze,
-# accents compris) sont analysées ; les salariés hors liste sont écartés du
-# 08 avec un décompte tracé, et toute ZE de la liste absente des données est
-# signalée (détection de faute de frappe).
-LISTE_ZE <- NULL   # ex. : c("Toulouse", "Bordeaux", "Brest", "Bourges")
+# Périmètre géographique de RESTITUTION du script 08 : CODES des zones
+# d'emploi retenues. NULL = toutes les zones présentes dans la BTS. Le filtre
+# s'applique sur le CODE (colonne ze_code, que le script 01 conserve même
+# après remplacement des codes par des libellés) ; les salariés hors liste
+# sont écartés avec un décompte tracé, et tout code absent des données est
+# signalé. Un vecteur NOMMÉ  code = libellé  sert AUSSI de table de
+# libellés, sans fichier CSV :
+#   ZE_INTERET <- c("8401" = "Val-des-Montagnes",
+#                   "2402" = "Porte-de-Berry")
+ZE_INTERET <- NULL   # ex. : c("8401", "2402")  ou vecteur nommé ci-dessus
 # Secret statistique : une cellule (ZE x CS) portant moins de SEUIL_DIFFUSION
 # salariés n'est pas diffusée dans les exports (convention statistique publique).
 SEUIL_DIFFUSION <- 20

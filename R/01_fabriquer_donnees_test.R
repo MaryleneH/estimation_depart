@@ -63,7 +63,8 @@ if (SOURCE_BTS == "parquet") {
            FICHIER_COMMUNE_ZE, " (attendu : codgeo;ze;libze).")
     passage <- readr::read_delim(FICHIER_COMMUNE_ZE, delim = ";",
                                  show_col_types = FALSE) |>
-      transmute(codgeo = as.character(codgeo), ze_lib = libze)
+      transmute(codgeo = as.character(codgeo),
+                ze_code = as.character(ze), ze_lib = libze)
     bts <- bts |>
       mutate(codgeo = as.character(ze)) |> select(-ze) |>
       left_join(passage, by = "codgeo") |>
@@ -120,6 +121,12 @@ if (SOURCE_BTS == "parquet") {
   message("01 OK (test) -> bts (", nrow(bts), " lignes simulées, PCS 4 chiffres)")
 }
 
+# Trace du CODE de zone d'emploi : le filtre ZE_INTERET du script 08
+# s'applique aux CODES (ze_code), y compris après remplacement de ze par
+# les libellés ci-dessous.
+if (!"ze_code" %in% names(bts))
+  bts <- bts |> mutate(ze_code = as.character(ze))
+
 # Codes ZE -> libellés (FICHIER_LIBELLES_ZE, 00_config), si le fichier est
 # présent : les restitutions porteront des NOMS de zones, pas des numéros.
 # Un code sans libellé est CONSERVÉ tel quel et compté (jamais perdu).
@@ -140,6 +147,20 @@ if (GEO_NIVEAU == "ze" && file.exists(FICHIER_LIBELLES_ZE)) {
   bts <- bts |> mutate(ze = dplyr::coalesce(libze, ze)) |> select(-libze)
   message("01 : codes ZE remplacés par les libellés (",
           basename(FICHIER_LIBELLES_ZE), ").")
+}
+
+# Libellés portés par ZE_INTERET lui-même (vecteur NOMMÉ code = libellé,
+# 00_config) : alternative sans fichier CSV — et prioritaire sur lui.
+if (exists("ZE_INTERET") && !is.null(ZE_INTERET) &&
+    !is.null(names(ZE_INTERET)) && any(nzchar(names(ZE_INTERET)))) {
+  idx <- match(bts$ze_code, names(ZE_INTERET))
+  ok  <- !is.na(idx)
+  if (any(ok)) {
+    bts$ze[ok] <- unname(ZE_INTERET[idx[ok]])
+    message("01 : libellés appliqués depuis ZE_INTERET (",
+            length(unique(bts$ze_code[ok])), " zones, ",
+            sum(ok), " salariés).")
+  }
 }
 
 # Normalisation commune du sexe -> H/F (le reste de la chaîne attend H/F)
