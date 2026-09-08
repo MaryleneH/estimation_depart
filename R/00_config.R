@@ -163,6 +163,13 @@ LIBELLE_ZE  <- "Zone d'emploi" # libellé de la variable géographique dans les
                                # RESTITUTIONS (tableau, CSV) — adaptez-le si le
                                # découpage retenu change (bassin d'emploi, EPCI...)
 FICHIER_COMMUNE_ZE <- file.path(DIR_DATA, "table_passage_commune_ze.csv")
+# Libellés des zones d'emploi : si la colonne géographique de la BTS contient
+# des CODES ZE (ex. « 7605 »), déposez data/libelles_ze.csv (deux colonnes
+# ze;libze , séparateur ';', codes en texte — table Insee ZE2020). Les codes
+# sont remplacés par les libellés dès le script 01 : toutes les restitutions
+# du 08 portent alors des NOMS de zones, et LISTE_ZE ci-dessous s'écrit en
+# libellés. Sans ce fichier, la colonne est utilisée telle quelle.
+FICHIER_LIBELLES_ZE <- file.path(DIR_DATA, "libelles_ze.csv")
 # Périmètre géographique de RESTITUTION du script 08 : liste des zones
 # d'emploi retenues. NULL = toutes les zones présentes dans la BTS. Sinon,
 # seules les ZE listées (orthographe EXACTE des valeurs de la colonne ze,
