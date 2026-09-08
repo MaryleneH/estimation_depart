@@ -120,5 +120,27 @@ if (SOURCE_BTS == "parquet") {
   message("01 OK (test) -> bts (", nrow(bts), " lignes simulées, PCS 4 chiffres)")
 }
 
+# Codes ZE -> libellés (FICHIER_LIBELLES_ZE, 00_config), si le fichier est
+# présent : les restitutions porteront des NOMS de zones, pas des numéros.
+# Un code sans libellé est CONSERVÉ tel quel et compté (jamais perdu).
+if (GEO_NIVEAU == "ze" && file.exists(FICHIER_LIBELLES_ZE)) {
+  libs_ze <- readr::read_delim(FICHIER_LIBELLES_ZE, delim = ";",
+                               show_col_types = FALSE)
+  if (!all(c("ze", "libze") %in% names(libs_ze)))
+    stop("Fichier ", FICHIER_LIBELLES_ZE, " : colonnes attendues  ze;libze  ",
+         "(trouvées : ", paste(names(libs_ze), collapse = ", "), ").")
+  bts <- bts |>
+    mutate(ze = as.character(ze)) |>
+    left_join(libs_ze |> mutate(ze = as.character(ze)) |> distinct(ze, libze),
+              by = "ze")
+  n_sans_lib <- sum(is.na(bts$libze) & !is.na(bts$ze))
+  if (n_sans_lib > 0)
+    message("01 : ", n_sans_lib, " salarié(s) avec un code ZE sans libellé ",
+            "dans ", basename(FICHIER_LIBELLES_ZE), " (code conservé).")
+  bts <- bts |> mutate(ze = dplyr::coalesce(libze, ze)) |> select(-libze)
+  message("01 : codes ZE remplacés par les libellés (",
+          basename(FICHIER_LIBELLES_ZE), ").")
+}
+
 # Normalisation commune du sexe -> H/F (le reste de la chaîne attend H/F)
 bts <- bts |> mutate(sexe = toupper(substr(sexe, 1, 1)))
