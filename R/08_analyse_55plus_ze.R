@@ -55,15 +55,20 @@ synthese_ze <- base_ze |>
     dep_55_invalidite   = sum(part_inv[senior]),
     dep_55_deces        = sum(part_dec[senior]),
     .groups = "drop") |>
-  mutate(taux_depart_55plus_pct = 100 * departs_55plus      / effectif_55plus,
-         taux_55plus_bas_pct    = 100 * departs_55plus_bas  / effectif_55plus,
-         taux_55plus_haut_pct   = 100 * departs_55plus_haut / effectif_55plus) |>
+  # taux NA (et non NaN) pour une zone SANS senior : le cas existe sur données
+  # réelles et doit traverser proprement quadrant, tableaux et exports
+  mutate(taux_depart_55plus_pct = ifelse(effectif_55plus > 0,
+           100 * departs_55plus      / effectif_55plus, NA_real_),
+         taux_55plus_bas_pct    = ifelse(effectif_55plus > 0,
+           100 * departs_55plus_bas  / effectif_55plus, NA_real_),
+         taux_55plus_haut_pct   = ifelse(effectif_55plus > 0,
+           100 * departs_55plus_haut / effectif_55plus, NA_real_)) |>
   arrange(desc(part_55plus_pct))
 
 # Médianes = frontières du quadrant (relatives au périmètre, pas de seuil
 # absolu à justifier ; les zones se comparent ENTRE ELLES)
-med_part <- median(synthese_ze$part_55plus_pct)
-med_taux <- median(synthese_ze$taux_depart_55plus_pct)
+med_part <- median(synthese_ze$part_55plus_pct, na.rm = TRUE)
+med_taux <- median(synthese_ze$taux_depart_55plus_pct, na.rm = TRUE)
 
 cat("\n--- Synthèse 55+ par zone d'emploi (scénario central) ---\n")
 print(synthese_ze |>
@@ -127,8 +132,15 @@ NOIR   <- "#1A1A1A"; GRIS <- "#666666"; GRILLE <- "#E3E3E3"
 MARINE <- "#3D6480"                      # zones hors cadran critique
 ALERTE <- "#A63D2F"                      # cadran critique uniquement
 
-synthese_ze <- synthese_ze |>
+# Zones TRAÇABLES : au moins un senior (taux défini). Une zone sans aucun 55+
+# n'a pas de position sur le quadrant ; elle reste dans les tableaux et CSV.
+quadrant_ze <- synthese_ze |>
+  filter(is.finite(taux_depart_55plus_pct)) |>
   mutate(critique = part_55plus_pct >= med_part & taux_depart_55plus_pct >= med_taux)
+n_hors_quadrant <- nrow(synthese_ze) - nrow(quadrant_ze)
+if (n_hors_quadrant > 0)
+  message("08 : ", n_hors_quadrant, " zone(s) sans salarié de ", AGE_SENIOR,
+          " ans et + — hors quadrant, conservée(s) dans les tableaux.")
 
 # Placement des étiquettes SANS ggrepel : algorithme glouton déterministe.
 # Chaque étiquette (boîte approchée par nchar x hauteur de police, en unités
@@ -162,7 +174,9 @@ placer_etiquettes <- function(x, y, lab,
       bx <- c(x[i] + dx - demi_l[i], x[i] + dx + demi_l[i],
               y[i] + dy - ch / 2,    y[i] + dy + ch / 2)
       libre <- TRUE
-      for (j in which(!is.na(boites[, 1]))) {
+      # garde : n'opposer que des boîtes complètes (une coordonnée manquante
+      # rendrait la comparaison NA et stopperait le script)
+      for (j in which(is.finite(boites[, 1]) & is.finite(boites[, 3]))) {
         if (bx[1] < boites[j, 2] && bx[2] > boites[j, 1] &&
             bx[3] < boites[j, 4] && bx[4] > boites[j, 3]) { libre <- FALSE; break }
       }
@@ -181,16 +195,16 @@ placer_etiquettes <- function(x, y, lab,
   list(x = lx, y = ly, seg_x = sx, seg_xend = ex)
 }
 
-pos_lab <- placer_etiquettes(synthese_ze$part_55plus_pct,
-                             synthese_ze$taux_depart_55plus_pct,
-                             synthese_ze$ze)
-synthese_ze$etiquette_x <- pos_lab$x
-synthese_ze$etiquette_y <- pos_lab$y
-synthese_ze$seg_x       <- pos_lab$seg_x
-synthese_ze$seg_xend    <- pos_lab$seg_xend
+pos_lab <- placer_etiquettes(quadrant_ze$part_55plus_pct,
+                             quadrant_ze$taux_depart_55plus_pct,
+                             quadrant_ze$ze)
+quadrant_ze$etiquette_x <- pos_lab$x
+quadrant_ze$etiquette_y <- pos_lab$y
+quadrant_ze$seg_x       <- pos_lab$seg_x
+quadrant_ze$seg_xend    <- pos_lab$seg_xend
 
 # Compte de zones par cadran, affiché sous l'intitulé de chaque coin
-n_q <- synthese_ze |>
+n_q <- quadrant_ze |>
   count(haut = taux_depart_55plus_pct >= med_taux, droite = part_55plus_pct >= med_part)
 n_de <- function(h, d) { v <- n_q$n[n_q$haut == h & n_q$droite == d]
                          if (length(v) == 0) 0L else v }
@@ -205,7 +219,7 @@ quadrants <- tibble::tribble(
   -Inf, -Inf, 0,      sprintf("Moins de seniors, départs plus modérés — %d zones", n_de(FALSE, FALSE))) |>
   mutate(vjust = ifelse(y > 0, 1.8, -1.2))
 
-g <- synthese_ze |>
+g <- quadrant_ze |>
   ggplot(aes(x = part_55plus_pct, y = taux_depart_55plus_pct)) +
   geom_hline(yintercept = med_taux, linetype = "42", color = GRIS, linewidth = 0.45) +
   geom_vline(xintercept = med_part, linetype = "42", color = GRIS, linewidth = 0.45) +
@@ -231,18 +245,22 @@ g <- synthese_ze |>
   labs(
     title = sprintf("Départs des seniors d'ici 2030 : %d zones d'emploi à suivre en priorité",
                     n_de(TRUE, TRUE)),
-    subtitle = sprintf(paste0("Chaque point est une zone d'emploi du périmètre (%d zones). ",
+    subtitle = sprintf(paste0("Chaque point est une zone d'emploi du périmètre (%d zones%s). ",
                               "À droite : part des %d ans et + supérieure à la médiane.\n",
                               "En haut : taux de départ des %d+ supérieur à la médiane. ",
                               "En rouge : les deux à la fois."),
-                       nrow(synthese_ze), AGE_SENIOR, AGE_SENIOR),
+                       nrow(synthese_ze),
+                       if (n_hors_quadrant > 0)
+                         sprintf(", dont %d sans aucun %d+, non tracée(s)",
+                                 n_hors_quadrant, AGE_SENIOR) else "",
+                       AGE_SENIOR, AGE_SENIOR),
     caption = sprintf(paste0("Lecture : le classement est RELATIF aux médianes du périmètre — dans toutes les zones, la plupart des %d+ de 2024 ",
                              "seront partis d'ici 2030 (taux de %.0f à %.0f %%).\n",
                              "Champ : salariés de 43 ans et + en 2024, périmètre BITD. Scénario central (δ = %.2f an). ",
                              "Sources : DREES, EACR invalidité, mortalité Insee — calculs propres · données : table test"),
                       AGE_SENIOR,
-                      min(synthese_ze$taux_depart_55plus_pct),
-                      max(synthese_ze$taux_depart_55plus_pct),
+                      min(quadrant_ze$taux_depart_55plus_pct),
+                      max(quadrant_ze$taux_depart_55plus_pct),
                       delta_central),
     x = sprintf("Part des %d ans et + dans l'effectif 43+ (2024)", AGE_SENIOR),
     y = sprintf("Départs attendus des %d+ d'ici 2030", AGE_SENIOR),
@@ -316,7 +334,10 @@ write.csv2(tableau_55plus_ze |>
 # se colle dans un document — sans gt ni aucun package supplémentaire.
 # 0 chiffre après la virgule dans le tableau HTML (demande de restitution) ;
 # le CSV, lui, garde une décimale pour les reprises de calcul.
-fmt0 <- function(x) formatC(round(x), format = "d", big.mark = " ")
+# Une valeur indéfinie (taux d'une zone sans senior) s'affiche « – ».
+fmt0 <- function(x) ifelse(is.finite(x),
+                           formatC(round(x), format = "d", big.mark = " "),
+                           "–")
 echap <- function(x) { x <- gsub("&", "&amp;", x, fixed = TRUE)
                        x <- gsub("<", "&lt;",  x, fixed = TRUE)
                        gsub(">", "&gt;", x, fixed = TRUE) }
