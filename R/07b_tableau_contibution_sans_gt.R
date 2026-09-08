@@ -199,15 +199,21 @@ lignes_html <- vapply(
 
       '<td class="col-part">',
 
-      '<div class="part-wrapper">',
+      '<div class="part-cell">',
+
+      '<span class="part-valeur">',
+      ligne$part_affichage,
+      '</span>',
+
+      '<div class="part-meter" role="img" aria-label="',
+      ligne$part_affichage,
+      ' du total">',
 
       '<div class="part-bar" style="width:',
       largeur_barre,
-      '%;"></div>',
+      '%;" aria-hidden="true"></div>',
 
-      '<span class="part-label">',
-      ligne$part_affichage,
-      '</span>',
+      '</div>',
 
       '</div>',
 
@@ -262,7 +268,7 @@ body {
     Arial,
     sans-serif;
 
-  color: #1f2937;
+  color: #111827;
 
 }
 
@@ -292,7 +298,7 @@ body {
 
   font-weight: 700;
 
-  color: #1f2937;
+  color: #111827;
 
 }
 
@@ -301,9 +307,9 @@ body {
 
   margin: 0 0 24px 0;
 
-  font-size: 14px;
+  font-size: 15px;
 
-  color: #64748b;
+  color: #3d4b5c;
 
 }
 
@@ -320,7 +326,7 @@ table {
 
   table-layout: fixed;
 
-  font-size: 14px;
+  font-size: 15px;
 
 }
 
@@ -329,11 +335,11 @@ thead th {
 
   padding: 12px 12px;
 
-  background: #f4f6f8;
+  background: #1e3a5f;
 
-  border-bottom: 2px solid #cbd5e1;
+  border-bottom: none;
 
-  color: #334155;
+  color: #ffffff;
 
   font-weight: 700;
 
@@ -346,7 +352,7 @@ tbody td {
 
   padding: 14px 12px;
 
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid #b9c4d0;
 
   vertical-align: middle;
 
@@ -379,7 +385,12 @@ tbody td {
 
   width: 38%;
 
-  color: #475569;
+}
+
+
+tbody td.col-lecture {
+
+  color: #3d4b5c;
 
 }
 
@@ -397,11 +408,13 @@ tbody td {
 
 .ligne-total td {
 
-  background: #eef2f7;
+  background: #dbe5f1;
+
+  color: #0f2a44;
 
   font-weight: 700;
 
-  border-top: 2px solid #2f6da4;
+  border-top: 3px solid #1e3a5f;
 
   border-bottom: none;
 
@@ -412,15 +425,46 @@ tbody td {
 /* BARRE DE PART                                                              */
 /* -------------------------------------------------------------------------- */
 
-.part-wrapper {
+/* Le pourcentage vit HORS de la barre : un texte posé sur une barre qui
+   grandit ne peut pas garantir son contraste ; posee a cote, si.        */
+
+.part-cell {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 10px;
+
+}
+
+
+.part-valeur {
+
+  min-width: 3.2em;
+
+  text-align: right;
+
+  font-weight: 700;
+
+  font-variant-numeric: tabular-nums;
+
+  color: #111827;
+
+}
+
+
+.part-meter {
 
   position: relative;
 
-  height: 28px;
+  flex: 1;
 
-  background: #edf2f7;
+  height: 12px;
 
-  border-radius: 4px;
+  background: #cfd8e3;
+
+  border-radius: 6px;
 
   overflow: hidden;
 
@@ -436,32 +480,32 @@ tbody td {
 
   height: 100%;
 
-  background: #b8cee2;
+  background: #1e5c8a;
+
+  border-radius: 6px;
 
 }
 
 
-.part-label {
+/* Masquage visuel accessible (caption lue par les lecteurs vocaux) */
 
-  position: relative;
+.sr-only {
 
-  z-index: 2;
+  position: absolute;
 
-  display: block;
+  width: 1px;
+  height: 1px;
 
-  width: 100%;
+  margin: -1px;
+  padding: 0;
 
-  line-height: 28px;
+  overflow: hidden;
 
-  padding-right: 8px;
+  clip: rect(0 0 0 0);
 
-  box-sizing: border-box;
+  white-space: nowrap;
 
-  text-align: right;
-
-  font-weight: 600;
-
-  color: #243746;
+  border: 0;
 
 }
 
@@ -476,13 +520,13 @@ tbody td {
 
   padding-top: 10px;
 
-  border-top: 1px solid #e5e7eb;
+  border-top: 1px solid #b9c4d0;
 
-  font-size: 11px;
+  font-size: 12.5px;
 
   line-height: 1.5;
 
-  color: #64748b;
+  color: #3d4b5c;
 
 }
 
@@ -532,23 +576,25 @@ format_nombre(effectif),
 
 <table>
 
+<caption class="sr-only">Décomposition par cause des départs attendus d’ici 2030 des salariés de 43 ans et plus</caption>
+
 <thead>
 
 <tr>
 
-<th class="col-contribution">
+<th scope="col" class="col-contribution">
 Contribution
 </th>
 
-<th class="col-departs">
+<th scope="col" class="col-departs">
 Départs
 </th>
 
-<th class="col-lecture">
+<th scope="col" class="col-lecture">
 Lecture
 </th>
 
-<th class="col-part">
+<th scope="col" class="col-part">
 Part du total
 </th>
 
