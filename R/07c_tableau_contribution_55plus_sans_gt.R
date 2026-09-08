@@ -125,13 +125,14 @@ tab_contribution_55plus <- tibble::tibble(
 # 4. Quelques fonctions de mise en forme
 # ------------------------------------------------------------------------------
 
+# formatC(format = "d") : affichage ENTIER garanti (0 chiffre après la
+# virgule), même si la valeur passée n'a pas été arrondie en amont.
 format_nombre <- function(x) {
 
-  format(
-    x,
-    big.mark = " ",
-    scientific = FALSE,
-    trim = TRUE
+  formatC(
+    round(x),
+    format = "d",
+    big.mark = " "
   )
 
 }
@@ -657,4 +658,12 @@ message(
 # 11. Contrôles dans la console
 # ------------------------------------------------------------------------------
 
-print(tab_contribution_55plus)
+# Affichage arrondi (0 chiffre après la virgule), part en % entier ; l'objet
+# `tab_contribution_55plus` garde ses valeurs exactes pour d'éventuels calculs.
+print(
+  tab_contribution_55plus |>
+    mutate(
+      departs = round(departs),
+      part = paste0(round(100 * part), " %")
+    )
+)
