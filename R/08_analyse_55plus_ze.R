@@ -31,22 +31,27 @@ library(dplyr); library(ggplot2); library(scales)
 base_ze <- bts_projete |>
   mutate(ze = ifelse(is.na(ze), "ZE inconnue", as.character(ze)))
 
-# Périmètre géographique de restitution (LISTE_ZE, 00_config) : seules les
-# zones de la liste sont analysées. Rien ne sort en silence : décompte des
-# salariés écartés, et alerte sur toute ZE de la liste absente des données
-# (le plus souvent une différence d'orthographe ou d'accent).
-if (exists("LISTE_ZE") && !is.null(LISTE_ZE)) {
-  introuvables <- setdiff(LISTE_ZE, unique(base_ze$ze))
+# Périmètre géographique de restitution (ZE_INTERET, 00_config) : seules les
+# zones dont le CODE est listé sont analysées (vecteur nommé : les codes sont
+# les names()). Rien ne sort en silence : décompte des salariés écartés, et
+# alerte sur tout code absent des données.
+if (exists("ZE_INTERET") && !is.null(ZE_INTERET)) {
+  codes_interet <- if (!is.null(names(ZE_INTERET)) &&
+                       any(nzchar(names(ZE_INTERET))))
+    names(ZE_INTERET) else unname(ZE_INTERET)
+  if (!"ze_code" %in% names(base_ze))   # sécurité : bts d'avant l'ajout de ze_code
+    base_ze <- base_ze |> mutate(ze_code = as.character(ze))
+  introuvables <- setdiff(codes_interet, unique(base_ze$ze_code))
   if (length(introuvables) > 0)
-    warning("LISTE_ZE : ", length(introuvables), " zone(s) absente(s) des ",
-            "données (orthographe ?) : ", paste(introuvables, collapse = ", "))
+    warning("ZE_INTERET : ", length(introuvables), " code(s) absent(s) des ",
+            "données : ", paste(introuvables, collapse = ", "))
   n_avant <- nrow(base_ze)
-  base_ze <- base_ze |> filter(ze %in% LISTE_ZE)
+  base_ze <- base_ze |> filter(ze_code %in% codes_interet)
   if (nrow(base_ze) == 0)
-    stop("LISTE_ZE : aucune correspondance avec la colonne ze — ",
-         "vérifiez l'orthographe exacte des zones dans 00_config.R.")
-  message("08 : périmètre restreint aux ", n_distinct(base_ze$ze),
-          " ZE de LISTE_ZE — ", n_avant - nrow(base_ze),
+    stop("ZE_INTERET : aucune correspondance avec la colonne ze_code — ",
+         "vérifiez les codes dans 00_config.R (texte, zéros initiaux compris).")
+  message("08 : périmètre restreint aux ", n_distinct(base_ze$ze_code),
+          " ZE de ZE_INTERET — ", n_avant - nrow(base_ze),
           " salarié(s) hors liste écarté(s) de l'analyse.")
 }
 
