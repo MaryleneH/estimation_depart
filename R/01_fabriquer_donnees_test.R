@@ -2,76 +2,36 @@
 # 01_fabriquer_donnees_test.R — Source des données BTS (test OU Parquet réel)
 # ------------------------------------------------------------------------------
 # PRÉREQUIS : 00_config.R (SOURCE_BTS, GRAINE, N_TEST ; ou FICHIER_BTS,
-#             FICHIER_SIREN, AGE_MIN_BTS, COL_BTS)
-# PRODUIT   : objet `bts` (id, siren, sexe, age_2024, pcs, generation, ze)
-#             -> contrat de colonnes IDENTIQUE quelle que soit la source.
-#             `ze` = zone d'emploi de l'ÉTABLISSEMENT (analyse 55+, script 08) ;
-#             simulée en mode test, lue (ou dérivée du code commune via la
-#             table de passage Insee) en mode parquet — voir 00_config.R.
+#             FICHIER_SIREN, AGE_MIN_BTS, COL_BTS) + bloc GEO_* ;
+#             00c_fonctions_geo.R (charger_bts_parquet, normaliser_geo)
+# PRODUIT   : objet `bts` (id, siren, sexe, age_2024, pcs, generation,
+#             geo_code, geo_nom, geo_type)
+#             -> contrat de colonnes IDENTIQUE quelle que soit la source ET
+#                quel que soit le zonage. Le reste de la chaîne ne connaît ni
+#                les noms des colonnes du fichier, ni le zonage (voir 00c).
 #
 # DEUX MODES (SOURCE_BTS dans 00_config.R) :
-#   "test"    : table simulée en mémoire (PCS-ESE 4 chiffres, indépendants + NR)
-#               -> développement, pas de fichier requis.
+#   "test"    : table simulée en mémoire (PCS-ESE 4 chiffres, indépendants + NR),
+#               géographie simulée selon GEO_ANALYSE (ze ou departement).
 #   "parquet" : vraie extraction BTS lue avec Arrow en LAZY. Le filtre (âge, SIREN
 #               du périmètre BITD) et la sélection de colonnes sont POUSSÉS au
 #               niveau du fichier : Arrow ne matérialise en RAM que le sous-
 #               ensemble utile (crucial si peu de mémoire). collect() en dernier.
 # ==============================================================================
 if (!exists("SOURCE_BTS")) stop("Exécutez d'abord R/00_config.R (ou main.R).")
+if (!exists("normaliser_geo")) stop("Exécutez d'abord R/00c_fonctions_geo.R (ou main.R).")
+garde_migration_geo()
 
 library(dplyr)
 
 if (SOURCE_BTS == "parquet") {
   # ------------------------------------------------------- lecture Parquet réel
-  if (!requireNamespace("arrow", quietly = TRUE))
-    stop("Le package 'arrow' est requis pour SOURCE_BTS='parquet' : install.packages('arrow').")
-  if (!file.exists(FICHIER_BTS)) stop("Fichier BTS introuvable : ", FICHIER_BTS)
   if (!file.exists(FICHIER_SIREN)) stop("Liste SIREN introuvable : ", FICHIER_SIREN)
-  library(arrow)
-
   sirens_bitd <- readr::read_lines(FICHIER_SIREN)
   sirens_bitd <- trimws(sirens_bitd[sirens_bitd != ""])
 
-  col_siren <- COL_BTS[["siren"]]; col_age <- COL_BTS[["age"]]
-  col_sexe  <- COL_BTS[["sexe"]];  col_pcs <- COL_BTS[["pcs"]]
-
-  ds <- open_dataset(FICHIER_BTS)            # LAZY : ne lit rien encore
-  # Contrôle de schéma : les colonnes déclarées existent-elles ?
-  manquantes <- setdiff(c(unname(COL_BTS), COL_GEO_BTS), names(ds))
-  if (length(manquantes) > 0)
-    stop("Colonnes absentes du Parquet : ", paste(manquantes, collapse = ", "),
-         " (schéma réel : ", paste(names(ds), collapse = ", "),
-         "). Ajustez COL_BTS / COL_GEO_BTS dans 00_config.R.")
-
-  bts <- ds |>
-    filter(.data[[col_age]] >= AGE_MIN_BTS,          # filtre âge poussé au disque
-           .data[[col_siren]] %in% sirens_bitd) |>    # filtre périmètre BITD
-    select(all_of(c(unname(COL_BTS), COL_GEO_BTS))) |># colonnes utiles seulement
-    collect() |>                                      # MATÉRIALISATION (RAM) ici
-    rename(siren = all_of(col_siren), sexe = all_of(col_sexe),
-           age_2024 = all_of(col_age), pcs = all_of(col_pcs),
-           ze = all_of(COL_GEO_BTS)) |>
-    mutate(id = sprintf("ID%08d", row_number()),
-           generation = 2024 - age_2024)             # exact si AGE = âge ds l'année
-
-  # Géographie en code commune -> zone d'emploi via la table de passage Insee.
-  # Les communes sans correspondance restent en NA (tracées ; le script 08 les
-  # regroupe sous « ZE inconnue » plutôt que de les perdre en silence).
-  if (GEO_NIVEAU == "commune") {
-    if (!file.exists(FICHIER_COMMUNE_ZE))
-      stop("GEO_NIVEAU='commune' mais table de passage introuvable : ",
-           FICHIER_COMMUNE_ZE, " (attendu : codgeo;ze;libze).")
-    passage <- readr::read_delim(FICHIER_COMMUNE_ZE, delim = ";",
-                                 show_col_types = FALSE) |>
-      transmute(codgeo = as.character(codgeo),
-                ze_code = as.character(ze), ze_lib = libze)
-    bts <- bts |>
-      mutate(codgeo = as.character(ze)) |> select(-ze) |>
-      left_join(passage, by = "codgeo") |>
-      rename(ze = ze_lib)
-    n_na <- sum(is.na(bts$ze))
-    if (n_na > 0) message("01 : ", n_na, " salariés sans ZE (commune hors table de passage).")
-  }
+  # Lecture lazy + renommage générique (COL_BTS -> contrat, COL_GEO -> geo_*).
+  bts <- charger_bts_parquet(FICHIER_BTS, COL_BTS, COL_GEO, AGE_MIN_BTS, sirens_bitd)
 
   message("01 OK (parquet) -> bts : ", format(nrow(bts), big.mark = " "),
           " salariés (>= ", AGE_MIN_BTS, " ans, périmètre BITD) chargés en RAM.")
@@ -91,10 +51,11 @@ if (SOURCE_BTS == "parquet") {
                   prob = c(0.24, 0.24, 0.18, 0.28, 0.04, 0.02))
     vapply(grp, function(g) sample(codes_pcs[[g]], 1), character(1))
   }
-  # Zones d'emploi simulées À L'ÉCHELLE RÉELLE du périmètre (42 zones) pour
-  # dimensionner la restitution du script 08 sur la vraie densité de points.
-  # Pyramides des âges volontairement CONTRASTÉES (poids senior ~0.55 à ~2.2),
-  # sinon toutes les zones s'empilent sur la moyenne.
+  # Territoires simulés, par zonage (même générateur, seule la liste change).
+  # ZE : 42 zones à l'échelle réelle du périmètre — code = nom (identité), ce
+  # qui conserve à l'identique les résultats de référence d'avant découplage.
+  # Département : 20 codes RÉELS (dont « 01 », « 2A », « 2B ») pour éprouver
+  # le traitement des codes en texte.
   zones_test <- c("Toulouse", "Bordeaux", "Brest", "Cherbourg-en-Cotentin",
                   "Bourges", "Toulon", "Rennes", "Saint-Nazaire", "Lorient",
                   "Nantes", "Paris", "Versailles", "Évry", "Créteil",
@@ -104,7 +65,22 @@ if (SOURCE_BTS == "parquet") {
                   "Orléans", "Le Mans", "Caen", "Rouen", "Le Havre", "Lille",
                   "Douai", "Valenciennes", "Metz", "Nancy", "Strasbourg",
                   "Mulhouse", "Belfort", "Dijon")
-  poids_senior_ze <- runif(length(zones_test), 0.55, 2.2)
+  zonages_test <- list(
+    ze = list(code = zones_test, nom = zones_test),
+    departement = list(
+      code = c("01", "03", "09", "18", "2A", "2B", "33", "35", "44", "56",
+               "59", "64", "69", "75", "78", "83", "86", "87", "91", "93"),
+      nom  = c("Ain", "Allier", "Ariège", "Cher", "Corse-du-Sud", "Haute-Corse",
+               "Gironde", "Ille-et-Vilaine", "Loire-Atlantique", "Morbihan",
+               "Nord", "Pyrénées-Atlantiques", "Rhône", "Paris", "Yvelines",
+               "Var", "Vienne", "Haute-Vienne", "Essonne", "Seine-Saint-Denis")))
+  if (!GEO_ANALYSE %in% names(zonages_test))
+    stop("Mode test : zonage simulé pour ", paste(names(zonages_test), collapse = ", "),
+         " seulement (GEO_ANALYSE = '", GEO_ANALYSE, "').")
+  zt <- zonages_test[[GEO_ANALYSE]]
+  # Pyramides des âges volontairement CONTRASTÉES entre territoires (poids
+  # senior ~0.55 à ~2.2), sinon tout s'empile sur la moyenne du quadrant.
+  poids_senior <- runif(length(zt$code), 0.55, 2.2)
   bts <- tibble(
     id       = sprintf("ID%05d", 1:N_TEST),
     siren    = sample(sprintf("ENT_%02d", 1:8), N_TEST, replace = TRUE),
@@ -113,55 +89,32 @@ if (SOURCE_BTS == "parquet") {
     pcs      = tirer_pcs(N_TEST)
   ) |>
     mutate(generation = 2024 - age_2024,
-           ze = ifelse(age_2024 >= 55,
-                       sample(zones_test, N_TEST, replace = TRUE,
-                              prob = poids_senior_ze),
-                       sample(zones_test, N_TEST, replace = TRUE)))
+           # tirage d'INDICES (mêmes tirages aléatoires qu'un sample() sur les noms)
+           .idx = ifelse(age_2024 >= 55,
+                         sample(seq_along(zt$code), N_TEST, replace = TRUE,
+                                prob = poids_senior),
+                         sample(seq_along(zt$code), N_TEST, replace = TRUE)),
+           geo_code = zt$code[.idx],
+           geo_nom  = zt$nom[.idx]) |>
+    select(-.idx)
   print(bts |> mutate(cs = substr(pcs, 1, 1)) |> count(cs))
-  message("01 OK (test) -> bts (", nrow(bts), " lignes simulées, PCS 4 chiffres)")
+  message("01 OK (test) -> bts (", nrow(bts), " lignes simulées, PCS 4 chiffres, ",
+          "géographie : ", GEO_ANALYSE, ")")
 }
 
-# Trace du CODE de zone d'emploi : le filtre ZE_INTERET du script 08
-# s'applique aux CODES (ze_code), y compris après remplacement de ze par
-# les libellés ci-dessous.
-if (!"ze_code" %in% names(bts))
-  bts <- bts |> mutate(ze_code = as.character(ze))
-
-# Codes ZE -> libellés (FICHIER_LIBELLES_ZE, 00_config), si le fichier est
-# présent : les restitutions porteront des NOMS de zones, pas des numéros.
-# Un code sans libellé est CONSERVÉ tel quel et compté (jamais perdu).
-if (GEO_NIVEAU == "ze" && file.exists(FICHIER_LIBELLES_ZE)) {
-  libs_ze <- readr::read_delim(FICHIER_LIBELLES_ZE, delim = ";",
-                               show_col_types = FALSE)
-  if (!all(c("ze", "libze") %in% names(libs_ze)))
-    stop("Fichier ", FICHIER_LIBELLES_ZE, " : colonnes attendues  ze;libze  ",
-         "(trouvées : ", paste(names(libs_ze), collapse = ", "), ").")
-  bts <- bts |>
-    mutate(ze = as.character(ze)) |>
-    left_join(libs_ze |> mutate(ze = as.character(ze)) |> distinct(ze, libze),
-              by = "ze")
-  n_sans_lib <- sum(is.na(bts$libze) & !is.na(bts$ze))
-  if (n_sans_lib > 0)
-    message("01 : ", n_sans_lib, " salarié(s) avec un code ZE sans libellé ",
-            "dans ", basename(FICHIER_LIBELLES_ZE), " (code conservé).")
-  bts <- bts |> mutate(ze = dplyr::coalesce(libze, ze)) |> select(-libze)
-  message("01 : codes ZE remplacés par les libellés (",
-          basename(FICHIER_LIBELLES_ZE), ").")
-}
-
-# Libellés portés par ZE_INTERET lui-même (vecteur NOMMÉ code = libellé,
-# 00_config) : alternative sans fichier CSV — et prioritaire sur lui.
-if (exists("ZE_INTERET") && !is.null(ZE_INTERET) &&
-    !is.null(names(ZE_INTERET)) && any(nzchar(names(ZE_INTERET)))) {
-  idx <- match(bts$ze_code, names(ZE_INTERET))
-  ok  <- !is.na(idx)
-  if (any(ok)) {
-    bts$ze[ok] <- unname(ZE_INTERET[idx[ok]])
-    message("01 : libellés appliqués depuis ZE_INTERET (",
-            length(unique(bts$ze_code[ok])), " zones, ",
-            sum(ok), " salariés).")
-  }
-}
+# --- Normalisation géographique -> contrat geo_code / geo_nom / geo_type ------
+# Codes en TEXTE (zéros à gauche via GEO_CODE_LARGEUR), passage éventuel
+# GEO_SOURCE -> GEO_ANALYSE, libellés (référentiel local, GEO_INTERET nommé).
+# En mode test la source est déjà au zonage d'analyse.
+bts <- normaliser_geo(
+  bts,
+  geo_source   = if (SOURCE_BTS == "parquet") GEO_SOURCE else GEO_ANALYSE,
+  geo_analyse  = GEO_ANALYSE,
+  largeur      = GEO_CODE_LARGEUR,
+  referentiels = GEO_REFERENTIELS,
+  passages     = GEO_PASSAGES,
+  geo_interet  = GEO_INTERET,
+  prefixe      = "01")
 
 # Normalisation commune du sexe -> H/F (le reste de la chaîne attend H/F)
 bts <- bts |> mutate(sexe = toupper(substr(sexe, 1, 1)))
