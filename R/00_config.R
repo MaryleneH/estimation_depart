@@ -148,38 +148,66 @@ SEUIL_PROBABLE <- 0.25        # 0.25-0.75  -> « Départ probable / envisageable
 MODE_GRAPHIQUE <- "attendu"   # "attendu" : parts espérées par cause (défaut)
                               # "classes" : classes individuelles par seuils
 
-# --- Analyse des seniors (55+) par zone d'emploi (script 08) -------------------
+# --- Analyse des seniors (55+) par territoire (script 08) ----------------------
 AGE_SENIOR <- 55              # borne basse de la population « senior » étudiée
-# Géographie : la BTS localise l'ÉTABLISSEMENT employeur. Deux cas selon
-# l'extraction (GEO_NIVEAU) :
-#   "ze"      : la colonne COL_GEO_BTS contient déjà la zone d'emploi ;
-#   "commune" : elle contient le code commune (codgeo) -> conversion via la
-#               table de passage Insee ZE2020 (data/table_passage_commune_ze.csv,
-#               colonnes  codgeo;ze;libze , séparateur ';').
-# En mode test (SOURCE_BTS = "test"), une ZE simulée est tirée par salarié.
-COL_GEO_BTS <- "ze"           # nom EXACT de la colonne géographique du Parquet
-GEO_NIVEAU  <- "ze"           # "ze" ou "commune"
-LIBELLE_ZE  <- "Zone d'emploi" # libellé de la variable géographique dans les
-                               # RESTITUTIONS (tableau, CSV) — adaptez-le si le
-                               # découpage retenu change (bassin d'emploi, EPCI...)
-FICHIER_COMMUNE_ZE <- file.path(DIR_DATA, "table_passage_commune_ze.csv")
-# Libellés des zones d'emploi : si la colonne géographique de la BTS contient
-# des CODES ZE (ex. « 7605 »), déposez data/libelles_ze.csv (deux colonnes
-# ze;libze , séparateur ';', codes en texte — table Insee ZE2020). Les codes
-# sont remplacés par les libellés dès le script 01 : toutes les restitutions
-# du 08 portent alors des NOMS de zones, et LISTE_ZE ci-dessous s'écrit en
-# libellés. Sans ce fichier, la colonne est utilisée telle quelle.
-FICHIER_LIBELLES_ZE <- file.path(DIR_DATA, "libelles_ze.csv")
-# Périmètre géographique de RESTITUTION du script 08 : CODES des zones
-# d'emploi retenues. NULL = toutes les zones présentes dans la BTS. Le filtre
-# s'applique sur le CODE (colonne ze_code, que le script 01 conserve même
-# après remplacement des codes par des libellés) ; les salariés hors liste
-# sont écartés avec un décompte tracé, et tout code absent des données est
-# signalé. Un vecteur NOMMÉ  code = libellé  sert AUSSI de table de
-# libellés, sans fichier CSV :
-#   ZE_INTERET <- c("8401" = "Val-des-Montagnes",
-#                   "2402" = "Porte-de-Berry")
-ZE_INTERET <- NULL   # ex. : c("8401", "2402")  ou vecteur nommé ci-dessus
-# Secret statistique : une cellule (ZE x CS) portant moins de SEUIL_DIFFUSION
-# salariés n'est pas diffusée dans les exports (convention statistique publique).
+# Secret statistique : une cellule (territoire x CS) portant moins de
+# SEUIL_DIFFUSION salariés n'est pas diffusée (convention statistique publique).
 SEUIL_DIFFUSION <- 20
+
+# ==============================================================================
+# GÉOGRAPHIE — trois couches, sur le modèle de COL_BTS (fonctions : R/00c)
+#   1. schéma SOURCE  : COL_GEO = noms RÉELS des colonnes du fichier reçu
+#   2. zonage         : GEO_SOURCE (porté par le fichier) / GEO_ANALYSE (restitué)
+#   3. contrat INTERNE: geo_code (texte), geo_nom, geo_type — seul connu de 01/04/08
+# Workflow à réception d'une nouvelle table :
+#   1. source("R/00_config.R"); source("R/00c_fonctions_geo.R")
+#   2. inspecter_schema(FICHIER_BTS)   -> colonnes, types, exemples de valeurs
+#   3. identifier la (les) colonne(s) géographique(s)
+#   4. renseigner le BLOC « À ADAPTER » ci-dessous
+#   5. source("main.R")
+# ==============================================================================
+
+# --- BLOC À ADAPTER à chaque extraction ---------------------------------------
+GEO_ANALYSE <- "ze"           # zonage des restitutions : clé de GEO_ZONAGES
+GEO_SOURCE  <- "ze"           # zonage porté par le fichier (= GEO_ANALYSE, sauf
+                              # géographie plus fine, ex. "commune" -> passage)
+COL_GEO <- c(                 # noms RÉELS dans le fichier (voir inspecter_schema)
+  code = "ze",                # colonne du CODE (obligatoire sauf cas « nom seul »)
+  nom  = NA                   # colonne du LIBELLÉ si elle existe, sinon NA
+)                             # Exemple département à venir :
+                              #   GEO_ANALYSE <- "departement"; GEO_SOURCE <- "departement"
+                              #   COL_GEO <- c(code = "<à renseigner après inspection>", nom = NA)
+GEO_CODE_LARGEUR <- NA        # zéros à gauche : 2 pour un département lu en
+                              # numérique (« 1 » -> « 01 »), NA = aucun complément
+# Périmètre de restitution : CODES des territoires retenus (NULL = tous). Un
+# vecteur NOMMÉ  code = libellé  sert AUSSI de table de libellés, sans fichier :
+#   GEO_INTERET <- c("8401" = "Val-des-Montagnes", "2402" = "Porte-de-Berry")
+# Les observations hors liste sont écartées AVEC décompte ; tout code absent
+# des données est signalé ; aucune correspondance = arrêt.
+GEO_INTERET <- NULL
+
+# --- Paramètres PAR ZONAGE : stables, à compléter seulement pour un nouveau
+#     zonage (région, EPCI...) — jamais à chaque extraction ---------------------
+GEO_ZONAGES <- list(
+  ze          = list(libelle = "Zone d'emploi", un = "une zone d'emploi",
+                     pluriel = "zones d'emploi", suffixe = "ze"),
+  departement = list(libelle = "Département",   un = "un département",
+                     pluriel = "départements",  suffixe = "departement"),
+  region      = list(libelle = "Région",        un = "une région",
+                     pluriel = "régions",       suffixe = "region"),
+  commune     = list(libelle = "Commune",       un = "une commune",
+                     pluriel = "communes",      suffixe = "commune")
+)
+# Référentiels LOCAUX  code;nom  (séparateur ';', codes en texte) : complètent
+# geo_nom quand le fichier n'a que des codes. Facultatifs (repli : code affiché).
+GEO_REFERENTIELS <- list(
+  ze          = file.path(DIR_DATA, "ref_ze.csv"),
+  departement = file.path(DIR_DATA, "ref_departement.csv"),
+  region      = file.path(DIR_DATA, "ref_region.csv")
+)
+# Tables de passage LOCALES  code_source;code_cible[;nom_cible]  quand la
+# source est plus fine que l'analyse. Obligatoires dans ce cas.
+GEO_PASSAGES <- list(
+  "commune->ze"          = file.path(DIR_DATA, "passage_commune_ze.csv"),
+  "commune->departement" = file.path(DIR_DATA, "passage_commune_departement.csv")
+)

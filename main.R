@@ -7,7 +7,8 @@
 # plutôt qu'avec rm(list = ls()) : c'est la seule vraie remise à zéro.
 # ==============================================================================
 source("R/00_config.R")
-source("R/01_fabriquer_donnees_test.R")   # -> objet : bts
+source("R/00c_fonctions_geo.R")           # -> fonctions géographiques génériques
+source("R/01_fabriquer_donnees_test.R")   # -> objet : bts (contrat geo_code/geo_nom/geo_type)
 source("R/01b_agreger_pcs.R")             # -> cs1 agrégée (si AGGREGER_PCS)
 source("R/02_importer_nettoyer_drees.R")  # -> objets : fdc, fdc_salaries
 source("R/02b_importer_mortalite_insee.R")# -> objet : table_mortalite
@@ -22,8 +23,9 @@ source("R/06d_graphique_repartition_cs_regroupe.R") # -> sorties/repartition_par
 source("R/06e_graphique_repartition_age_regroupe.R") # -> sorties/repartition_par_age_regroupe.png
                                           #    + repartition_55plus_regroupe.png (regroupé par âge)
 source("R/07_tableau_contribution.R")     # -> sorties/tableau_contribution.html (+ .png)
-source("R/08_analyse_55plus_ze.R")        # -> sorties/analyse_55plus_par_ze.csv,
-                                          #    criticite_55plus_ze_cs.csv,
-                                          #    quadrant_55plus_ze.png,
-                                          #    tableau_departs_55plus_ze.{csv,html}
+source("R/08_analyse_55plus_geo.R")       # -> sorties/analyse_55plus_par_<zonage>.csv,
+                                          #    criticite_55plus_<zonage>_cs.csv,
+                                          #    quadrant_55plus_<zonage>.png,
+                                          #    tableau_departs_55plus_<zonage>.{csv,html}
+                                          #    (<zonage> = GEO_ANALYSE : ze, departement...)
 message("Chaîne exécutée.")

@@ -5,7 +5,10 @@
 #             (scripts 01-03 + 02b) ; paramètres du modèle (00)
 # PRODUIT   : objet `bts_projete` — par individu : p_frott (invalidité + décès),
 #             p_cal_* (calendrier retraite/fin de carrière), p_bas/central/haut
-#             (combinés), et l'indicatrice seuil.
+#             (combinés), et l'indicatrice seuil. Toutes les colonnes de `bts`
+#             sont CONSERVÉES (aucun select), dont le contrat géographique
+#             geo_code / geo_nom / geo_type attendu par le script 08 : la
+#             projection ne dépend pas du zonage.
 # ==============================================================================
 if (!exists("bts"))             stop("Objet 'bts' introuvable : exécutez R/01 (ou main.R).")
 if (!exists("param_cs"))        stop("Objet 'param_cs' introuvable : exécutez R/03 (ou main.R).")
