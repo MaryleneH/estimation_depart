@@ -154,6 +154,23 @@ AGE_SENIOR <- 55              # borne basse de la population « senior » étudi
 # SEUIL_DIFFUSION salariés n'est pas diffusée (convention statistique publique).
 SEUIL_DIFFUSION <- 20
 
+# --- Fiches « chiffres clés » territoriales (script 09) ------------------------
+# Une page HTML autonome par territoire (aucune dépendance : HTML/CSS écrits
+# par R, barres en CSS). Lecture en une minute par un décideur non statisticien.
+GENERER_FICHES   <- TRUE          # FALSE = étape 09 ignorée, chaîne inchangée
+FICHES_MODE      <- "tous"        # "tous"      : tous les territoires du périmètre analysé
+                                  # "selection" : les codes de FICHES_SELECTION
+FICHES_SELECTION <- NULL          # codes (ex. c("03", "18", "33")) ; NULL en mode
+                                  # "selection" = les codes de GEO_INTERET.
+                                  # Doctrine : GEO_INTERET fixe le PÉRIMÈTRE d'analyse
+                                  # (médianes, quadrant) ; FICHES_SELECTION dit seulement
+                                  # pour QUI on édite une fiche.
+FICHES_DIR       <- NULL          # NULL = sorties/fiches_<suffixe du zonage>/
+FICHES_SEUIL_PROCHE <- NULL       # NULL = position « au-dessus / en dessous » de la
+                                  # médiane (même règle que le quadrant) ; sinon un
+                                  # nombre de POINTS (ex. 2) sous lequel on affiche
+                                  # « proche de la médiane » — règle imprimée en pied de fiche
+
 # ==============================================================================
 # GÉOGRAPHIE — trois couches, sur le modèle de COL_BTS (fonctions : R/00c)
 #   1. schéma SOURCE  : COL_GEO = noms RÉELS des colonnes du fichier reçu
