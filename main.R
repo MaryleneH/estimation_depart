@@ -8,6 +8,7 @@
 # ==============================================================================
 source("R/00_config.R")
 source("R/00c_fonctions_geo.R")           # -> fonctions géographiques génériques
+source("R/00d_fonctions_fiches.R")        # -> fonctions des fiches territoriales (09)
 source("R/01_fabriquer_donnees_test.R")   # -> objet : bts (contrat geo_code/geo_nom/geo_type)
 source("R/01b_agreger_pcs.R")             # -> cs1 agrégée (si AGGREGER_PCS)
 source("R/02_importer_nettoyer_drees.R")  # -> objets : fdc, fdc_salaries
@@ -28,4 +29,6 @@ source("R/08_analyse_55plus_geo.R")       # -> sorties/analyse_55plus_par_<zonag
                                           #    quadrant_55plus_<zonage>.png,
                                           #    tableau_departs_55plus_<zonage>.{csv,html}
                                           #    (<zonage> = GEO_ANALYSE : ze, departement...)
+source("R/09_fiches_territoriales.R")     # -> sorties/fiches_<zonage>/<code>_<nom>.html + index.html
+                                          #    (si GENERER_FICHES ; mode tous / selection)
 message("Chaîne exécutée.")

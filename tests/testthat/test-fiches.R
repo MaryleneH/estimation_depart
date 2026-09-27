@@ -1,0 +1,140 @@
+# ==============================================================================
+# Tests des fiches « chiffres clés » territoriales (R/00d_fonctions_fiches.R)
+# ==============================================================================
+
+test_that("mode « tous » : une fiche par territoire diffusable, index, journal", {
+  dir <- file.path(tempdir(), "fiches_tous"); unlink(dir, recursive = TRUE)
+  j <- suppressMessages(generer_fiches(BASE_FICHES, dir, mode = "tous", zonage = ZONAGE_DEP))
+  ok <- j |> dplyr::filter(statut == "ok")
+  expect_setequal(ok$code, c("01", "2A", "2B", "33", "09"))       # 48 sous seuil
+  expect_true(all(file.exists(file.path(dir, ok$fichier))))
+  expect_true(file.exists(file.path(dir, "index.html")))
+  ecarte <- j |> dplyr::filter(statut != "ok")
+  expect_identical(ecarte$code, "48")
+  expect_match(ecarte$motif, "seuil de diffusion")
+})
+
+test_that("mode « selection » : seulement les territoires demandés, noms de fichiers stables", {
+  dir <- file.path(tempdir(), "fiches_sel"); unlink(dir, recursive = TRUE)
+  j <- suppressMessages(generer_fiches(BASE_FICHES, dir, mode = "selection",
+                                       selection = c("33", "2A"), zonage = ZONAGE_DEP))
+  expect_setequal(list.files(dir, pattern = "\\.html$"),
+                  c("33_gironde.html", "2a_corse-du-sud.html", "index.html"))
+  expect_error(suppressMessages(generer_fiches(BASE_FICHES, dir, mode = "selection",
+                                               selection = NULL, zonage = ZONAGE_DEP)),
+               "aucun code")
+  expect_error(generer_fiches(BASE_FICHES, dir, mode = "autre", zonage = ZONAGE_DEP),
+               "FICHES_MODE")
+})
+
+test_that("codes département : 01, 2A, 2B, 33 intacts dans l'en-tête et le nom de fichier", {
+  expect_identical(slug_fiche(c("01", "2A", "2B", "33"), c("Ain", "Corse-du-Sud", "Haute-Corse", "Gironde")),
+                   c("01_ain", "2a_corse-du-sud", "2b_haute-corse", "33_gironde"))
+  ctx <- calculer_contexte_perimetre(BASE_FICHES)
+  ind <- calculer_indicateurs_territoire(BASE_FICHES, "01", ctx)
+  html <- paste(generer_html_fiche(ind, ctx, ZONAGE_DEP), collapse = "\n")
+  expect_match(html, "Département 01")
+  expect_identical(ind$code, "01")
+})
+
+test_that("les fiches ignorent le schéma source : seul le contrat geo_* est utilisé", {
+  # une table dont la colonne d'origine s'appelait DEP_ETAB, passée par la
+  # normalisation géographique, produit exactement la même fiche
+  src <- BASE_FICHES |> dplyr::rename(DEP_ETAB = geo_code) |> dplyr::select(-geo_type)
+  norm <- src |> dplyr::rename(dplyr::all_of(c(geo_code = "DEP_ETAB"))) |>
+    normaliser_geo("departement", "departement")
+  ctx1 <- calculer_contexte_perimetre(BASE_FICHES); ctx2 <- calculer_contexte_perimetre(norm)
+  i1 <- calculer_indicateurs_territoire(BASE_FICHES, "33", ctx1)
+  i2 <- calculer_indicateurs_territoire(norm, "33", ctx2)
+  expect_identical(i1$population, i2$population)
+  expect_identical(i1$departs, i2$departs)
+  # aucun nom de zonage ni de colonne source dans le code des fiches
+  code <- c(readLines(file.path(RACINE, "R", "00d_fonctions_fiches.R")),
+            readLines(file.path(RACINE, "R", "09_fiches_territoriales.R")))
+  code <- sub("#.*$", "", code)                                   # hors commentaires
+  expect_false(any(grepl("\\bze\\b|ze_code|ze_nom|COL_GEO|DEP_ETAB", code)))
+})
+
+test_that("secret statistique : cellule < seuil -> n.d., pas de barre, suppression secondaire", {
+  expect_identical(masquer_cellules(c(5, 30, 40, 50), 20), c(TRUE, TRUE, FALSE, FALSE))  # secondaire
+  expect_identical(masquer_cellules(c(5, 8, 40, 50), 20),  c(TRUE, TRUE, FALSE, FALSE))  # déjà 2 masquées
+  expect_identical(masquer_cellules(c(30, 40, 50), 20),    c(FALSE, FALSE, FALSE))
+  ctx <- calculer_contexte_perimetre(BASE_FICHES)
+  ind <- calculer_indicateurs_territoire(BASE_FICHES, "2B", ctx)
+  expect_true(ind$cs_masquee)
+  expect_identical(sum(ind$cs$masque), 2L)                        # Cadres (5) + la plus petite (Employés)
+  html <- paste(generer_html_fiche(ind, ctx, ZONAGE_DEP), collapse = "\n")
+  expect_match(html, "n\\.d\\. — effectif sous seuil")
+  # la ligne Cadres n'a pas de barre : aucun style="width" sur cette ligne
+  ligne_cadres <- regmatches(html, regexpr('<div class="ligne"><span class="lib">Cadres</span>[^\n]*', html))
+  expect_false(grepl("width:", ligne_cadres))
+  # et la phrase sur la catégorie la plus concernée n'est pas générée
+  expect_false(any(grepl("catégorie la plus concernée", phrases_a_retenir(ind))))
+})
+
+test_that("cohérence interne : total = somme des CS ; 55+ = sous-population", {
+  ctx <- calculer_contexte_perimetre(BASE_FICHES)
+  ind <- calculer_indicateurs_territoire(BASE_FICHES, "33", ctx)
+  expect_equal(sum(ind$cs$n), ind$population$n43)
+  expect_equal(sum(ind$cs$n55), ind$population$n55)
+  expect_equal(sum(ind$cs$departs), ind$departs$central)
+  expect_equal(sum(ind$ages$n), ind$population$n43)
+  expect_equal(sum(ind$causes$pct), 100, tolerance = 1e-9)
+  expect_true(ind$departs$seniors_central <= ind$departs$central)
+  d33 <- BASE_FICHES |> dplyr::filter(geo_code == "33")
+  expect_equal(ind$departs$seniors_central, sum(d33$p_central[d33$age_2024 >= 55]))
+})
+
+test_that("résilience : territoire absent signalé, autres fiches produites ; sans senior -> n.d.", {
+  dir <- file.path(tempdir(), "fiches_res"); unlink(dir, recursive = TRUE)
+  expect_warning(
+    j <- suppressMessages(generer_fiches(BASE_FICHES, dir, mode = "selection",
+                                         selection = c("33", "99"), zonage = ZONAGE_DEP)),
+    "absent")
+  expect_identical(j$statut[j$code == "33"], "ok")
+  expect_identical(j$motif[j$code == "99"], "absent des données")
+  ctx <- calculer_contexte_perimetre(BASE_FICHES)
+  ind <- calculer_indicateurs_territoire(BASE_FICHES, "09", ctx)
+  expect_true(is.na(ind$departs$taux_seniors))
+  html <- paste(generer_html_fiche(ind, ctx, ZONAGE_DEP), collapse = "\n")
+  expect_match(html, "aucun salarié de 55 ans et \\+")
+})
+
+test_that("règles textuelles : position, points d'attention, phrases", {
+  expect_identical(position_mediane(35, 30)$classe, "dessus")
+  expect_identical(position_mediane(25, 30)$classe, "dessous")
+  expect_identical(position_mediane(31, 30, seuil_proche = 2)$classe, "proche")
+  expect_identical(position_mediane(NA, 30)$libelle, "n.d.")
+  ctx <- calculer_contexte_perimetre(BASE_FICHES)
+  ind <- calculer_indicateurs_territoire(BASE_FICHES, "33", ctx)  # 40 % de seniors : au-dessus
+  pts <- points_attention(ind, ctx)
+  expect_true(any(grepl("supérieure à la médiane", pts)))
+  expect_lte(length(pts), 3)
+  expect_false(any(grepl("pénurie|recrut|doit|il faut", c(pts, phrases_a_retenir(ind)), ignore.case = TRUE)))
+  expect_match(phrases_a_retenir(ind)[1], "55 ans et plus représentent")
+})
+
+test_that("cohérence avec le 08 sur la chaîne (mode test département)", {
+  env <- new.env()
+  old <- setwd(RACINE); on.exit(setwd(old), add = TRUE)
+  sys.source(file.path("R", "00_config.R"), envir = env)
+  assign("GEO_ANALYSE", "departement", envir = env); assign("GEO_SOURCE", "departement", envir = env)
+  assign("DIR_SORTIES", tempdir(), envir = env)
+  for (s in c("00c_fonctions_geo.R", "00d_fonctions_fiches.R", "01_fabriquer_donnees_test.R",
+              "01b_agreger_pcs.R", "02_importer_nettoyer_drees.R", "02b_importer_mortalite_insee.R",
+              "02c_importer_invalidite_eacr.R", "03_parametres_csp.R", "04_projection_2030.R",
+              "08_analyse_55plus_geo.R", "09_fiches_territoriales.R"))
+    suppressMessages(suppressWarnings(invisible(capture.output(
+      sys.source(file.path("R", s), envir = env)))))
+  j  <- env$journal_fiches |> dplyr::filter(statut == "ok")
+  sg <- env$synthese_geo
+  expect_equal(nrow(j), nrow(sg))                                   # même nombre de territoires
+  cmp <- dplyr::inner_join(j, sg, by = c("code" = "geo_code"))
+  expect_equal(cmp$effectif,   cmp$effectif_43plus)
+  expect_equal(cmp$effectif55, cmp$effectif_55plus)
+  # départs des 55+ de la fiche == tableau territorial du 08
+  ctx <- env$calculer_contexte_perimetre(env$base_fiches)
+  ind <- env$calculer_indicateurs_territoire(env$base_fiches, "33", ctx)
+  expect_equal(ind$departs$seniors_central, sg$departs_55plus[sg$geo_code == "33"])
+  expect_equal(ctx$med_part, env$med_part); expect_equal(ctx$med_taux, env$med_taux)
+})
