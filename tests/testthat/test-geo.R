@@ -138,10 +138,10 @@ test_that("Arrow : seules les colonnes déclarées sont lues, renommage généri
     pcs = c("3812", "4620", "6543"), DEP_ETAB = c("33", "01", "2A"),
     inutile = c(1, 2, 3)), f)
   bts <- charger_bts_parquet(f, c(siren = "siren", sexe = "sexe", age = "age", pcs = "pcs"),
-                             c(code = "DEP_ETAB", nom = NA), age_min = 43, sirens = c("A", "B"))
+                             c(code = "DEP_ETAB", nom = NA), age_min = 45, sirens = c("A", "B"))
   expect_setequal(names(bts), c("siren", "sexe", "age_2024", "pcs", "geo_code", "id", "generation"))
   expect_identical(bts$geo_code, c("33", "2A"))     # filtre âge appliqué
   expect_error(charger_bts_parquet(f, c(siren = "siren", sexe = "sexe", age = "age", pcs = "pcs"),
-                                   c(code = "ABSENTE", nom = NA), 43, c("A")),
+                                   c(code = "ABSENTE", nom = NA), 45, c("A")),
                "absente du fichier")
 })

@@ -75,10 +75,10 @@ test_that("secret statistique : cellule < seuil -> n.d., pas de barre, suppressi
 test_that("cohérence interne : total = somme des CS ; 55+ = sous-population", {
   ctx <- calculer_contexte_perimetre(BASE_FICHES)
   ind <- calculer_indicateurs_territoire(BASE_FICHES, "33", ctx)
-  expect_equal(sum(ind$cs$n), ind$population$n43)
+  expect_equal(sum(ind$cs$n), ind$population$n_champ)
   expect_equal(sum(ind$cs$n55), ind$population$n55)
   expect_equal(sum(ind$cs$departs), ind$departs$central)
-  expect_equal(sum(ind$ages$n), ind$population$n43)
+  expect_equal(sum(ind$ages$n), ind$population$n_champ)
   expect_equal(sum(ind$causes$pct), 100, tolerance = 1e-9)
   expect_true(ind$departs$seniors_central <= ind$departs$central)
   d33 <- BASE_FICHES |> dplyr::filter(geo_code == "33")
@@ -130,7 +130,7 @@ test_that("cohérence avec le 08 sur la chaîne (mode test département)", {
   sg <- env$synthese_geo
   expect_equal(nrow(j), nrow(sg))                                   # même nombre de territoires
   cmp <- dplyr::inner_join(j, sg, by = c("code" = "geo_code"))
-  expect_equal(cmp$effectif,   cmp$effectif_43plus)
+  expect_equal(cmp$effectif,   cmp$effectif_45plus)
   expect_equal(cmp$effectif55, cmp$effectif_55plus)
   # départs des 55+ de la fiche == tableau territorial du 08
   ctx <- env$calculer_contexte_perimetre(env$base_fiches)
