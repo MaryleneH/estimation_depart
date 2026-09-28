@@ -70,3 +70,14 @@ BRANCHER LA VRAIE BTS EN PARQUET (Arrow, faible RAM)
    complète en ~40 s. Compatible faible mémoire.
 4. Conseil : valider d'abord sur un échantillon en ajoutant |> head(10000)
    avant collect(), puis retirer pour le run complet.
+
+============================================================================
+RÉFÉRENTIELS GÉOGRAPHIQUES (libellés des territoires)
+============================================================================
+- data/ref_departement.csv : livré, 101 départements (96 métropole dont 2A/2B
+  + 5 DROM), format  code;nom  UTF-8, codes en texte. Utilisé automatiquement
+  quand GEO_ANALYSE = "departement" et que la BTS ne porte que le code (dpt) :
+  les fiches, le quadrant et les tableaux affichent alors le nom du département.
+- data/ref_ze.csv, data/ref_region.csv : même format, à déposer si besoin
+  (voir GEO_REFERENTIELS dans 00_config.R). Un référentiel absent n'est jamais
+  bloquant : le code est affiché à la place du nom.
