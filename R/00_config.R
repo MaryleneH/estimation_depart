@@ -76,9 +76,12 @@ SCENARIO <- "B"
 HORIZON <- 6              # 2024 -> 2030
 
 # Correctif réglementaire δ : les μ sont mesurés sur 2018-2020, avant la
-# réforme 2023 et sa suspension (LFSS 2026). Ancrage bas : l'âge conjoncturel
-# tous régimes atteint 62 ans et 9 mois fin 2023 (DREES, panorama éd. 2025).
-AGE_CONJ_TOUS_REGIMES_2023 <- 62.75
+# réforme 2023 et sa suspension (LFSS 2026). Ancrage bas = âge conjoncturel
+# tous régimes le plus récent : 63,6 ans (chiffre actualisé ; l'édition 2025
+# du panorama DREES donnait 62 ans et 9 mois fin 2023). Ce paramètre pilote
+# δ = 63,6 − âge conjoncturel DREES 2018-2020 : le relever RETARDE les
+# sorties et baisse les départs (~-10 % entre 62,75 et 63,6).
+AGE_CONJ_TOUS_REGIMES_2023 <- 63.6
 # Montée résiduelle attendue d'ici 2030 (calendrier suspendu : générations
 # 1965-1969 passant de 63 à 64 ans + effets de comportement) — hypothèse haute.
 MONTEE_RESIDUELLE_2030 <- 1.0
