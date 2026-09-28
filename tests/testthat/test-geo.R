@@ -163,3 +163,21 @@ test_that("référentiel départemental livré : data/ref_departement.csv (code;
   out <- normaliser_geo(df, "departement", "departement", referentiels = list(departement = f))
   expect_identical(out$geo_nom, c("Gironde", "Haute-Corse", "Guadeloupe", "Ariège"))
 })
+
+test_that("encodage : un référentiel enregistré en Windows-1252 (latin1) est lu sans erreur, libellés corrects", {
+  f <- tempfile(fileext = ".csv")
+  con <- file(f, open = "wb")
+  writeBin(iconv("code;nom\n07;Ardèche\n2A;Corse-du-Sud\n33;Gironde\n", from = "UTF-8", to = "latin1", toRaw = TRUE)[[1]], con)
+  close(con)
+  expect_false(all(validUTF8(readLines(f, warn = FALSE))))            # le fichier n'est PAS en UTF-8
+  ref <- lire_referentiel_geo(f)
+  expect_identical(ref$nom[ref$code == "07"], "Ardèche")
+  expect_true(all(validUTF8(ref$nom)))
+  out <- normaliser_geo(tibble::tibble(geo_code = c("07", "33")), "departement", "departement",
+                        referentiels = list(departement = f))
+  expect_identical(out$geo_nom, c("Ardèche", "Gironde"))
+  # libellés portés par la source elle-même, en latin1
+  src <- tibble::tibble(geo_code = "07", geo_nom = iconv("Ardèche", "UTF-8", "latin1"))
+  expect_identical(normaliser_geo(src, "departement", "departement")$geo_nom, "Ardèche")
+  expect_identical(reparer_utf8(c("déjà valide", NA)), c("déjà valide", NA))
+})

@@ -151,7 +151,7 @@ charger_bts_parquet <- function(fichier, col_bts, col_geo, age_min, sirens) {
 
 # --- Codes : toujours en texte, zéros à gauche si demandé --------------------
 normaliser_codes_geo <- function(x, largeur = NA) {
-  x <- trimws(as.character(x))
+  x <- trimws(reparer_utf8(x))
   x[!is.na(x) & x == ""] <- NA_character_
   if (!is.na(largeur)) {
     court <- !is.na(x) & grepl("^[0-9]+$", x) & nchar(x) < largeur
@@ -163,6 +163,17 @@ normaliser_codes_geo <- function(x, largeur = NA) {
 # --- Référentiels locaux -----------------------------------------------------
 # Référentiel  code;nom  (séparateur ';', tout lu en texte). NULL si absent :
 # un référentiel manquant n'est jamais bloquant (repli : code affiché, tracé).
+# Robustesse d'encodage : un référentiel ou une table de passage enregistré
+# depuis Excel / un éditeur Windows arrive souvent en Windows-1252 (latin1).
+# Toute chaîne invalide en UTF-8 est réparée depuis latin1 ; les chaînes déjà
+# valides ne sont pas touchées. Jamais d'erreur « invalid UTF-8 » sur un libellé.
+reparer_utf8 <- function(x) {
+  x <- as.character(x)
+  bad <- !is.na(x) & !validUTF8(x)
+  if (any(bad)) x[bad] <- iconv(x[bad], from = "latin1", to = "UTF-8")
+  x
+}
+
 lire_referentiel_geo <- function(chemin) {
   if (is.null(chemin) || is.na(chemin) || !file.exists(chemin)) return(NULL)
   ref <- readr::read_delim(chemin, delim = ";", show_col_types = FALSE,
@@ -171,7 +182,7 @@ lire_referentiel_geo <- function(chemin) {
     stop("Référentiel ", chemin, " : colonnes attendues  code;nom  (trouvées : ",
          paste(names(ref), collapse = ", "), ").")
   ref |>
-    transmute(code = trimws(code), nom = trimws(nom)) |>
+    transmute(code = trimws(reparer_utf8(code)), nom = trimws(reparer_utf8(nom))) |>
     filter(!is.na(code), code != "") |>
     distinct(code, .keep_all = TRUE)
 }
@@ -191,8 +202,8 @@ lire_passage_geo <- function(chemin, cle) {
          "[;nom_cible]  (trouvées : ", paste(names(p), collapse = ", "), ").")
   if (!"nom_cible" %in% names(p)) p$nom_cible <- NA_character_
   p |>
-    transmute(code_source = trimws(code_source), code_cible = trimws(code_cible),
-              nom_cible = trimws(nom_cible)) |>
+    transmute(code_source = trimws(reparer_utf8(code_source)), code_cible = trimws(reparer_utf8(code_cible)),
+              nom_cible = trimws(reparer_utf8(nom_cible))) |>
     distinct(code_source, .keep_all = TRUE)
 }
 
@@ -255,7 +266,7 @@ normaliser_geo <- function(df, geo_source, geo_analyse, largeur = NA,
     df$geo_code <- normaliser_codes_geo(df$geo_code, largeur)
   }
   if (a_nom) {
-    df$geo_nom <- trimws(as.character(df$geo_nom))
+    df$geo_nom <- trimws(reparer_utf8(df$geo_nom))
     df$geo_nom[!is.na(df$geo_nom) & df$geo_nom == ""] <- NA_character_
   } else df$geo_nom <- NA_character_
 
