@@ -74,21 +74,23 @@ res_08b <- calculer_departs_geo_cs(base_geo_cs, SEUIL_DIFFUSION)
 departs_geo_cs <- res_08b$diffusable
 
 # --- Contrôles (arrêt si l'un échoue) ----------------------------------------
-brut <- res_08b$brut
+# Objets temporaires suffixés _08b : ce script ne doit ni écraser ni supprimer
+# un objet d'un autre script (ex. `brut` du 02c) — export SANS effet de bord.
+brut_08b <- res_08b$brut
 # 1. une ligne par territoire x CS
-if (anyDuplicated(brut[, c("geo_code", "cs1")]) > 0)
+if (anyDuplicated(brut_08b[, c("geo_code", "cs1")]) > 0)
   stop("08b : doublons territoire x CS dans le résultat.")
 # 2. cohérence des totaux avec la base (linéarité de l'espérance, comme 05/07/08)
-tot_cs <- inner_join(
+tot_cs_08b <- inner_join(
   base_geo_cs |> group_by(cs1) |> summarise(base = sum(p_central), .groups = "drop"),
-  brut |> group_by(cs1) |> summarise(agrege = sum(departs_2030), .groups = "drop"), by = "cs1")
-if (!isTRUE(all.equal(sum(brut$departs_2030), sum(base_geo_cs$p_central))) ||
-    nrow(tot_cs) != n_distinct(base_geo_cs$cs1) || !isTRUE(all.equal(tot_cs$base, tot_cs$agrege)))
+  brut_08b |> group_by(cs1) |> summarise(agrege = sum(departs_2030), .groups = "drop"), by = "cs1")
+if (!isTRUE(all.equal(sum(brut_08b$departs_2030), sum(base_geo_cs$p_central))) ||
+    nrow(tot_cs_08b) != n_distinct(base_geo_cs$cs1) || !isTRUE(all.equal(tot_cs_08b$base, tot_cs_08b$agrege)))
   stop("08b : la somme des départs territoire x CS ne retombe pas sur les totaux de la base.")
-if (sum(brut$effectif_champ) != nrow(base_geo_cs))
+if (sum(brut_08b$effectif_champ) != nrow(base_geo_cs))
   stop("08b : l'effectif agrégé ne retombe pas sur l'effectif du champ.")
 # 3. tous les territoires du périmètre sont présents
-if (!setequal(unique(brut$geo_code), unique(base_geo_cs$geo_code)))
+if (!setequal(unique(brut_08b$geo_code), unique(base_geo_cs$geo_code)))
   stop("08b : territoires manquants dans le résultat.")
 # 4. aucune modalité de CS inattendue (déjà bloqué dans la fonction) ; 5. secret
 if (any(!is.na(departs_geo_cs$effectif_champ) & departs_geo_cs$effectif_champ < SEUIL_DIFFUSION))
@@ -105,8 +107,8 @@ if (!file.exists(fichier_08b)) stop("08b : fichier non créé : ", fichier_08b)
 cat(sprintf("\n--- Départs attendus d'ici 2030 par %s x grande CS (scénario central) ---\n",
             tolower(ZON_08B$libelle)))
 print(head(as.data.frame(departs_geo_cs), 12), row.names = FALSE)
-n_masq <- sum(departs_geo_cs$masque)
+n_masq_08b <- sum(departs_geo_cs$masque)
 message("08b OK -> ", fichier_08b, " (", nrow(departs_geo_cs), " lignes, ",
         n_distinct(departs_geo_cs$geo_code), " ", ZON_08B$pluriel,
-        if (n_masq > 0) paste0(" ; ", n_masq, " cellule(s) masquée(s), secret statistique") else "", ")")
-rm(brut, tot_cs, res_08b, n_masq)
+        if (n_masq_08b > 0) paste0(" ; ", n_masq_08b, " cellule(s) masquée(s), secret statistique") else "", ")")
+rm(brut_08b, tot_cs_08b, res_08b, n_masq_08b)   # uniquement les temporaires de CE script
