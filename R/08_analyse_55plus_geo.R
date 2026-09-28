@@ -13,7 +13,7 @@
 #             sorties/tableau_departs_55plus_<suffixe>.csv / .html
 #             -> les résultats de plusieurs zonages coexistent dans sorties/.
 # LECTURE   : deux dimensions par territoire — le STOCK (part des 55+ dans
-#             l'effectif 43+ : le territoire a-t-il vieilli ?) et le FLUX (taux
+#             l'effectif du champ, 45+ : le territoire a-t-il vieilli ?) et le FLUX (taux
 #             de départ attendu des 55+ d'ici 2030). Le croisement des deux, en
 #             quadrant autour des médianes, classe les territoires ; le détail
 #             territoire x CS repère les cellules où une catégorie entière
@@ -62,7 +62,7 @@ base_geo <- base_geo |>
 synthese_geo <- base_geo |>
   group_by(geo_code, geo_nom) |>
   summarise(
-    effectif_43plus     = n(),
+    effectif_45plus     = n(),
     effectif_55plus     = sum(senior),
     part_55plus_pct     = 100 * mean(senior),
     departs_55plus      = sum(p_central[senior]),
@@ -89,7 +89,7 @@ med_taux <- median(synthese_geo$taux_depart_55plus_pct, na.rm = TRUE)
 
 cat(sprintf("\n--- Synthèse 55+ par %s (scénario central) ---\n", tolower(ZON$libelle)))
 print(synthese_geo |>
-        select(geo_code, geo_nom, effectif_43plus, effectif_55plus, part_55plus_pct,
+        select(geo_code, geo_nom, effectif_45plus, effectif_55plus, part_55plus_pct,
                departs_55plus, taux_depart_55plus_pct) |>
         mutate(across(where(is.numeric), ~ round(.x, 1))) |>
         as.data.frame(), row.names = FALSE)
@@ -100,18 +100,18 @@ cat(sprintf("Médianes du quadrant : part 55+ = %.1f %% | taux de départ 55+ = 
 criticite_geo_cs <- base_geo |>
   group_by(geo_code, geo_nom, cs1) |>
   summarise(
-    effectif_43plus    = n(),
+    effectif_45plus    = n(),
     effectif_55plus    = sum(senior),
     part_55plus_pct    = 100 * mean(senior),
     departs_55plus     = sum(p_central[senior]),
-    # criticité = part de l'effectif TOTAL (43+) de la cellule que représentent
+    # criticité = part de l'effectif TOTAL (champ 45+) de la cellule que représentent
     # les départs de seniors : ce que la cellule perd d'ici 2030 par sa tête
     perte_seniors_pct  = 100 * sum(p_central[senior]) / n(),
     .groups = "drop") |>
   arrange(desc(perte_seniors_pct))
 
 cellules_critiques <- criticite_geo_cs |>
-  filter(effectif_43plus >= SEUIL_DIFFUSION, perte_seniors_pct >= 25)
+  filter(effectif_45plus >= SEUIL_DIFFUSION, perte_seniors_pct >= 25)
 if (nrow(cellules_critiques) > 0) {
   cat(sprintf("\n--- Cellules %s x CS les plus exposées (>= 25 %% de l'effectif perdu via les 55+) ---\n",
               tolower(ZON$libelle)))
@@ -126,11 +126,11 @@ write.csv2(synthese_geo |> mutate(across(where(is.numeric), ~ round(.x, 1))),
 # Masquage : sous SEUIL_DIFFUSION salariés, les valeurs de la cellule sont
 # retirées (NA) mais la LIGNE reste, flaguée — l'absence se voit, ne se devine pas.
 criticite_diffusable <- criticite_geo_cs |>
-  mutate(sous_seuil = effectif_43plus < SEUIL_DIFFUSION,
+  mutate(sous_seuil = effectif_45plus < SEUIL_DIFFUSION,
          across(c(effectif_55plus, part_55plus_pct, departs_55plus,
                   perte_seniors_pct),
                 ~ ifelse(sous_seuil, NA_real_, round(.x, 1))),
-         effectif_43plus = ifelse(sous_seuil, NA_integer_, effectif_43plus))
+         effectif_45plus = ifelse(sous_seuil, NA_integer_, effectif_45plus))
 write.csv2(criticite_diffusable, sortie("criticite_55plus_%s_cs.csv"), row.names = FALSE)
 n_masquees <- sum(criticite_diffusable$sous_seuil)
 if (n_masquees > 0)
@@ -243,7 +243,7 @@ g <- quadrant_geo |>
   geom_text(data = quadrants, aes(x = x, y = y, label = lab, hjust = hjust, vjust = vjust),
             size = 3.2, fontface = "bold",
             color = c(ALERTE, GRIS, GRIS, GRIS)) +
-  geom_point(aes(size = effectif_43plus, color = critique), alpha = 0.85) +
+  geom_point(aes(size = effectif_45plus, color = critique), alpha = 0.85) +
   geom_segment(data = ~ filter(.x, !is.na(seg_x)),
                aes(x = seg_x, xend = seg_xend, yend = etiquette_y),
                color = "grey65", linewidth = 0.25) +
@@ -273,15 +273,15 @@ g <- quadrant_geo |>
                        AGE_SENIOR, AGE_SENIOR),
     caption = sprintf(paste0("Lecture : le classement est RELATIF aux médianes du périmètre — dans tous les territoires, la plupart des %d+ de 2024 ",
                              "seront partis d'ici 2030 (taux de %.0f à %.0f %%).\n",
-                             "Champ : salariés de 43 ans et + en 2024, périmètre BITD. Scénario central (δ = %.2f an). ",
+                             "Champ : salariés de %s en 2024, périmètre BITD. Scénario central (δ = %.2f an). ",
                              "Sources : DREES, EACR invalidité, mortalité Insee — calculs propres · données : table test"),
                       AGE_SENIOR,
                       min(quadrant_geo$taux_depart_55plus_pct),
                       max(quadrant_geo$taux_depart_55plus_pct),
-                      delta_central),
-    x = sprintf("Part des %d ans et + dans l'effectif 43+ (2024)", AGE_SENIOR),
+                      LIB_CHAMP, delta_central),
+    x = sprintf("Part des %d ans et + dans l'effectif %s (2024)", AGE_SENIOR, LIB_CHAMP_COURT),
     y = sprintf("Départs attendus des %d+ d'ici 2030", AGE_SENIOR),
-    size = "Effectif 43+"
+    size = paste("Effectif", LIB_CHAMP_COURT)
   ) +
   theme_minimal(base_size = 12.5) +
   theme(

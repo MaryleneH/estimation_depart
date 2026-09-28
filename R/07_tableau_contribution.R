@@ -45,7 +45,7 @@ gt_contribution <- tab |>
   cols_hide(est_total) |>
   tab_header(
     title    = md("**Départs de salariés d'ici 2030 : décomposition par cause**"),
-    subtitle = md(sprintf("Salariés de 43 ans et + en 2024 — scénario central — %s salariés",
+    subtitle = md(sprintf("Salariés de %s en 2024 — scénario central — %s salariés", LIB_CHAMP,
                           format(effectif, big.mark = "\u00a0")))
   ) |>
   cols_label(poste = "Contribution",

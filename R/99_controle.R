@@ -5,7 +5,7 @@
 #             Paramètres de restitution (00 : BREAKS_TRANCHES, LABELS_TRANCHES,
 #             ANNEE_REF_GRAPHIQUE).
 # PRODUIT   : impressions console + CSV dans sorties/ :
-#             A. Répartition observée par tranche d'âge des 43+ (BTS 2024)
+#             A. Répartition observée par tranche d'âge du champ (45+, BTS 2024)
 #             B. Âge maximum observé par CS (fins de carrière réelles)
 #             C. Antisèche des taux projetés (μ, sortie d'emploi, causes) par
 #                CS × tranche — pour comprendre/défendre le graphique 06/06b.
@@ -22,8 +22,8 @@ bts_tr <- bts |>
   mutate(age_affiche = age_2024 + decalage,
          tranche = cut(age_affiche, breaks = BREAKS_TRANCHES, labels = LABELS_TRANCHES))
 
-# ---- A. Répartition OBSERVÉE par tranche d'âge des 43+ (photo BTS 2024) ------
-cat("\n=== A. Répartition observée des 43+ par tranche d'âge (BTS", 2024, ") ===\n")
+# ---- A. Répartition OBSERVÉE par tranche d'âge du champ (photo BTS 2024) -----
+cat("\n=== A. Répartition observée des", LIB_CHAMP_COURT, "par tranche d'âge (BTS", 2024, ") ===\n")
 repartition_age <- bts_tr |>
   count(tranche, name = "effectif") |>
   mutate(part_pct = round(100 * effectif / sum(effectif), 1))
@@ -120,7 +120,7 @@ gA <- bts_tr |> count(cs1, tranche) |> group_by(cs1) |>
   facet_wrap(~ cs1, nrow = 1) +
   scale_x_continuous(labels = percent_format(accuracy = 1), expand = expansion(mult = c(0, .05))) +
   scale_fill_manual(values = PAL_CS, guide = "none") +
-  labs(title = "Structure d'âge observée des 43 ans et +",
+  labs(title = paste("Structure d'âge observée des", LIB_CHAMP),
        subtitle = paste0("Répartition par tranche au sein de chaque CS (BTS ", 2024, ")"),
        caption = "Source : BTS 2024 — données : table test", x = NULL, y = NULL) +
   theme_atelier()

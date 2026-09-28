@@ -1,5 +1,5 @@
 # ==============================================================================
-# DÉPARTS DES SALARIÉS 43+ À L'HORIZON 2030 — ORCHESTRATEUR
+# DÉPARTS DES SALARIÉS DU CHAMP (AGE_MIN_BTS ans et +, 45 par défaut) À L'HORIZON 2030 — ORCHESTRATEUR
 # ------------------------------------------------------------------------------
 # Exécute la chaîne dans l'ordre ; les scripts communiquent par les OBJETS de
 # la session (pas d'intermédiaires sur disque). À lancer depuis la racine du

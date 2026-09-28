@@ -85,7 +85,7 @@ g <- repartition_sas |>
   guides(fill = guide_legend(reverse = TRUE, nrow = 2, byrow = TRUE)) +
   labs(
     title = "Retraite ou sas ? La zone grise des fins de carrière",
-    subtitle = sprintf("Devenir en 2030 des salariés de 43 ans et + — sas = sorti de l'emploi mais sous l'âge légal (~%.1f ans)",
+    subtitle = sprintf("Devenir en 2030 des salariés de %s — sas = sorti de l'emploi mais sous l'âge légal (~%.1f ans)", LIB_CHAMP,
                        AGE_LEGAL_2030),
     caption = "Le sas (bleu pâle) distingue ceux qui ont quitté l'emploi sans pouvoir encore liquider leur retraite.\nDécoupage indicatif (âge légal approché) ; n'entre pas dans les décomptes. Sources : DREES, EACR, Insee — calculs propres · données : table test",
     x = sprintf("Âge en %d", ANNEE_REF_GRAPHIQUE), y = NULL, fill = NULL

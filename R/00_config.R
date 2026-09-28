@@ -14,7 +14,12 @@ FICHIER_DREES  <- file.path(DIR_DATA, "departretraite_parcsp.csv")
 SOURCE_BTS   <- "test"
 FICHIER_BTS  <- file.path(DIR_DATA, "bts_2024.parquet")   # extraction BTS
 FICHIER_SIREN<- file.path(DIR_DATA, "liste_entreprises_fictives.txt") # périmètre BITD (1 SIREN/ligne)
-AGE_MIN_BTS  <- 43        # borne d'âge du champ de l'étude (filtre poussé au disque)
+AGE_MIN_BTS  <- 45        # borne d'âge du CHAMP de l'étude (filtre Arrow poussé au
+                          # disque). SOURCE DE VÉRITÉ : les libellés ci-dessous et
+                          # toutes les restitutions (« 45 ans et + ») en dérivent.
+LIB_CHAMP       <- sprintf("%d ans et +", AGE_MIN_BTS)     # « 45 ans et + »
+LIB_CHAMP_LONG  <- sprintf("%d ans et plus", AGE_MIN_BTS)  # « 45 ans et plus »
+LIB_CHAMP_COURT <- sprintf("%d+", AGE_MIN_BTS)            # « 45+ »
 # Noms des colonnes DANS LE PARQUET (à adapter au schéma réel : voir schema()).
 # Elles seront renommées vers le contrat interne (siren, sexe, age_2024, pcs).
 COL_BTS <- c(siren = "siren", sexe = "sexe", age = "age", pcs = "pcs")
@@ -85,6 +90,10 @@ COEF_CSP_INVALIDITE <- c("Cadres"               = 0.5,
                          "Employes"             = 1.3,
                          "Ouvriers"             = 1.9)
 # Base de REPLI par tranche d'âge x sexe (niveau "moyen tous CSP"), utilisée
+# NB : la première tranche commence à 43 ans = borne de la SOURCE (tables
+# EIR/EACR et population active), PAS le champ : son taux s'applique aux
+# 45-49 ans de la BTS. Ne pas l'aligner sur AGE_MIN_BTS (cela changerait la
+# largeur du dénominateur reconstruit, donc le taux — modification méthodo).
 # UNIQUEMENT si le fichier EACR-invalidité est absent (mode dégradé). Les
 # tranches ci-dessous servent aussi de tranches PAR DÉFAUT quand aucun fichier
 # de population active n'est fourni (bornes incluses : borne_inf..borne_sup).
@@ -119,7 +128,7 @@ AGE_PLEIN_INVALIDITE <- 61   # au-delà : flux d'invalidité gelé (bascule retr
 FICHIER_POP_ACTIVE <- file.path(DIR_DATA, "pop_active_insee.csv")
 # À DÉFAUT : reconstruction approchée (cohorte x taux d'activité). PROVISOIRE,
 # à remplacer par le fichier Insee pour la version finale.
-COHORTE_PAR_SEXE   <- 410000     # taille approx. d'une génération / sexe (43-64)
+COHORTE_PAR_SEXE   <- 410000     # taille approx. d'une génération / sexe (45-64)
 # Taux d'activité par tranche d'âge et sexe (Insee 2024, ordres de grandeur) :
 TAUX_ACTIVITE <- tibble::tribble(
   ~sexe, ~a_43_49, ~a_50_54, ~a_55_59, ~a_60_61, ~a_62plus,
@@ -141,7 +150,8 @@ Q_DECES_ANNUEL <- c("H" = 0.0045, "F" = 0.0025)
 ANNEE_REF_GRAPHIQUE <- 2024   # année d'affichage = millésime de la photo BTS
                               # (tout aligné sur 2024 : cohérence heatmap/barres)
 BREAKS_TRANCHES <- c(-Inf, 48, 54, 60, Inf)
-LABELS_TRANCHES <- c("43-48 ans", "49-54 ans", "55-60 ans", "61 ans et +")
+# première tranche = du bas du champ (AGE_MIN_BTS) à 48 ans : « 45-48 ans »
+LABELS_TRANCHES <- c(sprintf("%d-48 ans", AGE_MIN_BTS), "49-54 ans", "55-60 ans", "61 ans et +")
 # Discrétisation de p_central en classes de lecture (convention de restitution)
 SEUIL_CERTAIN  <- 0.75        # p >= 0.75  -> « Départ certain d'ici 2030 »
 SEUIL_PROBABLE <- 0.25        # 0.25-0.75  -> « Départ probable / envisageable »

@@ -38,7 +38,7 @@ if (!isTRUE(GENERER_FICHES)) {
   journal_fiches <- generer_fiches(
     base_fiches, dir = dir_fiches, mode = FICHES_MODE, selection = selection_fiches,
     seuil = SEUIL_DIFFUSION, age_senior = AGE_SENIOR, zonage = ZON_FICHES,
-    seuil_proche = FICHES_SEUIL_PROCHE,
+    seuil_proche = FICHES_SEUIL_PROCHE, age_min = AGE_MIN_BTS,
     source_note = if (identical(SOURCE_BTS, "parquet")) "données individuelles : BTS 2024" else "données : table test")
 
   cat(sprintf("\n--- Fiches %s : journal ---\n", ZON_FICHES$pluriel))
