@@ -9,12 +9,13 @@
 #
 # Chaîne :  calculer_contexte_perimetre()   médianes + totaux, UNE fois
 #           calculer_indicateurs_territoire()  -> objet `ind` (seule source des chiffres)
-#           phrases_a_retenir() / points_attention()   règles déterministes
-#           generer_html_fiche()             HTML/CSS autonome (barres en CSS)
+#           phrases_a_retenir()              règles déterministes (2-3 phrases)
+#           generer_html_fiche()             page 1 en 5 zones + annexe optionnelle
+#                                            (HTML/CSS autonome, barres en CSS)
 #           selectionner_territoires() -> generer_fiches()   boucle + journal
 #
 # Dépendances : R de base, dplyr, tibble. Ni ggplot2, ni gt, ni navigateur.
-# Secret statistique : cellule < seuil -> « n.d. » (chiffre ET barre) ;
+# Secret statistique : cellule < seuil -> pas de barre, note discrète ;
 #   suppression secondaire quand une seule cellule d'un bloc est masquée.
 # ==============================================================================
 library(dplyr)
@@ -89,9 +90,13 @@ calculer_contexte_perimetre <- function(base, age_senior = AGE_SENIOR) {
               part_55plus_pct = 100 * mean(senior),
               departs_central = sum(p_central), departs_bas = sum(p_bas),
               departs_haut = sum(p_haut), departs_55plus = sum(p_central[senior]))
+  etendue <- function(v) { v <- v[is.finite(v)]; if (length(v) == 0) c(NA_real_, NA_real_) else range(v) }
   list(n_territoires = nrow(par_territoire),
        med_part = median(par_territoire$part_55plus_pct, na.rm = TRUE),
        med_taux = median(par_territoire$taux_depart_55plus_pct, na.rm = TRUE),
+       # étendue (min, max) du périmètre : échelle du repère de position des fiches
+       etendue = list(part = etendue(par_territoire$part_55plus_pct),
+                      taux = etendue(par_territoire$taux_depart_55plus_pct)),
        ensemble = ens,
        age_senior = age_senior)
 }
@@ -166,197 +171,262 @@ calculer_indicateurs_territoire <- function(base, code, contexte,
 }
 
 # --- Textes automatiques : règles déterministes, descriptives ----------------
-phrases_a_retenir <- function(ind) {
-  p <- ind$population; dep <- ind$departs
-  ph <- c(
-    sprintf("Les %d ans et plus représentent %s des salariés de %d ans et plus.",
-            ind$age_senior, fmt_pct(p$part55), ind$age_min),
-    sprintf("Environ %s départs sont attendus d'ici 2030 dans le scénario central (fourchette %s – %s).",
-            fmt_n(dep$central), fmt_n(dep$bas), fmt_n(dep$haut)))
-  # CS la plus concernée : seulement si aucune CS masquée ET écart net (> 10 %)
-  # avec la deuxième — sinon la primauté n'est pas certaine, on se tait.
-  if (!ind$cs_masquee && nrow(ind$cs) >= 2) {
+# UN seul bloc « À retenir » : deux ou trois phrases, factuelles, jamais
+# prescriptives, et jamais le chiffre HERO (les départs attendus sont déjà en
+# tête de fiche : chaque donnée n'apparaît qu'une fois).
+phrases_a_retenir <- function(ind, contexte = NULL) {
+  p <- ind$population; dep <- ind$departs; s <- ind$age_senior; a <- ind$age_min
+  ph <- sprintf("%s des salariés de %d ans et + ont %d ans ou plus.", fmt_pct(p$part55), a, s)
+  if (is.finite(dep$taux_seniors))
+    ph <- c(ph, sprintf("%s des salariés de %d ans et + devraient avoir quitté l’emploi d’ici 2030.",
+                        fmt_pct(dep$taux_seniors), s))
+  else
+    ph <- c(ph, sprintf("Le territoire ne compte aucun salarié de %d ans et + dans le champ.", s))
+  # Catégorie(s) concentrant les départs : seulement si aucune CS n'est masquée
+  # (sinon la primauté n'est pas certaine) et si l'écart avec la suivante est net.
+  if (!ind$cs_masquee && nrow(ind$cs) >= 2 && dep$central > 0) {
     o <- ind$cs |> arrange(desc(departs))
+    part1 <- 100 * o$departs[1] / dep$central
+    part2 <- 100 * sum(o$departs[1:2]) / dep$central
     if (o$departs[2] > 0 && (o$departs[1] - o$departs[2]) / o$departs[2] > 0.10)
-      ph <- c(ph, sprintf("%s sont la catégorie la plus concernée en volume (%s départs attendus).",
-                          cap1(libelle_cs(o$cs1[1])), fmt_n(o$departs[1])))
+      ph <- c(ph, sprintf("%s concentrent le plus grand nombre de départs attendus (%s du total).",
+                          cap1(libelle_cs(o$cs1[1])), fmt_pct(part1)))
+    else if (nrow(o) >= 3 && part2 >= 60)
+      ph <- c(ph, sprintf("Deux catégories, %s et %s, concentrent %s des départs attendus.",
+                          libelle_cs(o$cs1[1]), libelle_cs(o$cs1[2]), fmt_pct(part2)))
   }
-  ph
+  head(ph, 3)
 }
 cap1 <- function(s) paste0(toupper(substr(s, 1, 1)), substr(s, 2, nchar(s)))
 
-points_attention <- function(ind, contexte) {
-  pts <- character(0)
-  if (ind$position$part$classe == "dessus")
-    pts <- c(pts, sprintf("Part des %d ans et + supérieure à la médiane du périmètre (%s).",
-                          ind$age_senior, fmt_pts(ind$position$part$ecart)))
-  if (ind$position$taux$classe == "dessus")
-    pts <- c(pts, sprintf("Taux de départ des %d ans et + supérieur à la médiane du périmètre (%s).",
-                          ind$age_senior, fmt_pts(ind$position$taux$ecart)))
-  if (!ind$cs_masquee && nrow(ind$cs) >= 3 && ind$departs$central > 0) {
-    o <- ind$cs |> arrange(desc(departs))
-    part2 <- 100 * sum(o$departs[1:2]) / ind$departs$central
-    if (part2 >= 60)
-      pts <- c(pts, sprintf("Deux catégories (%s, %s) concentrent %s des départs attendus.",
-                            libelle_cs(o$cs1[1], TRUE), libelle_cs(o$cs1[2], TRUE), fmt_pct(part2)))
-  }
-  a61 <- ind$ages |> filter(!masque)
-  derniere <- a61 |> filter(tranche == tail(tranches_de(ind), 1))
-  if (nrow(derniere) == 1 && derniere$part >= 15)
-    pts <- c(pts, sprintf("%s des salariés ont %s : départs très rapprochés dans le temps.",
-                          fmt_pct(derniere$part), derniere$tranche))
-  head(pts, 3)
-}
-# dernière tranche d'âge disponible dans `ind` (évite de dépendre d'une globale)
-tranches_de <- function(ind) ind$ages$tranche
-
 # --- Briques HTML/CSS ---------------------------------------------------------
-# Une barre = un <div> à largeur proportionnelle ; une cellule masquée n'a PAS
-# de barre (rien à mesurer) et affiche « n.d. ».
-html_ligne_barre <- function(libelle, pct_largeur, valeur, classe = "b", masque = FALSE,
-                             note = "effectif sous seuil de diffusion") {
-  if (masque)
-    return(sprintf('<div class="ligne"><span class="lib">%s</span><span class="piste nd">n.d. — %s</span><span class="val">n.d.</span></div>',
-                   echap_html(libelle), note))
-  sprintf('<div class="ligne"><span class="lib">%s</span><span class="piste"><span class="%s" style="width:%.1f%%"></span></span><span class="val">%s</span></div>',
-          echap_html(libelle), classe, max(0, min(100, pct_largeur)), valeur)
+# Repère de position : piste = étendue du périmètre (min..max), trait = médiane,
+# point = ce territoire. Rien n'est dessiné si une valeur manque.
+html_echelle <- function(x, med, etendue) {
+  if (!is.finite(x) || !is.finite(med) || length(etendue) != 2 ||
+      !all(is.finite(etendue)) || diff(etendue) <= 0) return("")
+  rel <- function(v) max(0, min(100, 100 * (v - etendue[1]) / diff(etendue)))
+  sprintf(paste0('<div class="ech" aria-hidden="true"><span class="ech-med" style="left:%.1f%%"></span>',
+                 '<span class="ech-pt" style="left:%.1f%%"></span></div>'), rel(med), rel(x))
 }
+
+# Une ligne de barre générique (annexe) : cellule masquée = pas de barre.
+html_ligne_barre <- function(libelle, pct_largeur, valeur, masque = FALSE,
+                             note = "non diffusé (seuil)") {
+  if (masque)
+    return(sprintf('<div class="an-row"><span class="an-lib">%s</span><span class="an-nd">%s</span><span class="an-val"></span></div>',
+                   echap_html(libelle), note))
+  sprintf('<div class="an-row"><span class="an-lib">%s</span><span class="an-piste"><span class="an-bar" style="width:%.1f%%"></span></span><span class="an-val">%s</span></div>',
+          echap_html(libelle), max(0, min(100, pct_largeur)), valeur)
+}
+
+# --- Feuille de style : une seule, partagée par les fiches et l'index ---------
+# Note de direction + dataviz éditoriale : fond blanc, une couleur institution-
+# nelle, gris pour le secondaire, typographie système, pas de cartes ni d'ombres.
+css_fiches <- function() paste(
+  ':root{--encre:#1a1f2b;--texte:#4a5260;--gris:#8a919c;--filet:#e4e7ec;--bleu:#1e3a5f;--bleu-2:#a9bacd;--fond-2:#f3f5f8}',
+  '*{box-sizing:border-box}html{-webkit-text-size-adjust:100%}',
+  'body{margin:0;background:#fff;color:var(--encre);font-family:-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;font-size:15px;line-height:1.45}',
+  '.page{max-width:760px;margin:0 auto;padding:44px 36px 32px}',
+  'a{color:var(--bleu)}',
+  # zone 1
+  '.kicker{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--gris);margin:0 0 10px}',
+  'h1{font-size:46px;line-height:1.02;letter-spacing:-.022em;font-weight:700;margin:0 0 12px;overflow-wrap:anywhere}',
+  '.titre2{font-size:18px;color:var(--texte);margin:0}',
+  '.perim{font-size:13px;color:var(--gris);margin:6px 0 0}',
+  '.zone{padding:26px 0;border-top:1px solid var(--filet)}.zone:first-of-type{border-top:0;padding-top:0}',
+  # zone 2
+  '.hero{display:grid;grid-template-columns:1.25fr 1fr;gap:32px;align-items:start}',
+  '.hero-n{font-size:74px;line-height:.95;font-weight:700;letter-spacing:-.03em;color:var(--bleu);font-variant-numeric:tabular-nums;margin:2px 0 8px}',
+  '.hero-l{font-size:17px;font-weight:600;margin:0}',
+  '.hero-d{font-size:13px;color:var(--gris);margin:6px 0 0}',
+  '.hero-c{font-size:14px;color:var(--texte);margin:14px 0 0;max-width:34ch}',
+  '.ctx{border-left:1px solid var(--filet);padding-left:28px;display:flex;flex-direction:column;gap:18px;padding-top:6px}',
+  '.ctx-n{font-size:30px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums;letter-spacing:-.02em}',
+  '.ctx-l{font-size:14px;color:var(--texte);margin-top:5px}',
+  '.ctx-l b{color:var(--encre);font-weight:600}',
+  # titres de zone
+  'h2{font-size:21px;line-height:1.2;font-weight:600;letter-spacing:-.012em;margin:0 0 4px}',
+  '.sous{font-size:13.5px;color:var(--gris);margin:0 0 18px}',
+  # zone 3
+  '.cs-row{display:grid;grid-template-columns:172px 1fr 64px;gap:14px;align-items:center;margin:0 0 11px}',
+  '.cs-lib{font-size:15px}.cs-piste{height:26px;background:var(--fond-2)}',
+  '.cs-bar{display:block;height:100%;background:var(--bleu-2)}.cs-bar.premier{background:var(--bleu)}',
+  '.cs-val{text-align:right;font-weight:600;font-variant-numeric:tabular-nums;font-size:16px}',
+  '.note{font-size:12.5px;color:var(--gris);margin:10px 0 0}',
+  # zone 4
+  '.pos{margin:0 0 18px}.pos-tete{display:flex;justify-content:space-between;gap:16px;align-items:baseline}',
+  '.pos-lib{font-size:15px}.pos-val{font-weight:600;font-variant-numeric:tabular-nums;font-size:16px}',
+  '.pos-verdict{font-size:12px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;color:var(--bleu);margin:2px 0 8px}',
+  '.pos-verdict.dessous{color:var(--texte)}.pos-verdict.nd{color:var(--gris);text-transform:none;letter-spacing:0;font-weight:400}',
+  '.ech{position:relative;height:14px;margin:0 0 4px}.ech::before{content:"";position:absolute;left:0;right:0;top:6px;height:2px;background:var(--filet)}',
+  '.ech-med{position:absolute;top:0;width:2px;height:14px;background:var(--gris);transform:translateX(-1px)}',
+  '.ech-pt{position:absolute;top:2px;width:10px;height:10px;border-radius:50%;background:var(--bleu);transform:translateX(-5px)}',
+  '.pos-med{font-size:12px;color:var(--gris)}',
+  '.legende{font-size:12px;color:var(--gris);margin:-8px 0 16px}.legende i{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--bleu);margin:0 5px 0 0;vertical-align:-1px}.legende b{display:inline-block;width:2px;height:11px;background:var(--gris);margin:0 5px 0 14px;vertical-align:-2px}',
+  # zone 5
+  '.retenir{list-style:none;margin:0;padding:0}.retenir li{position:relative;padding-left:22px;margin:0 0 10px;font-size:16px;line-height:1.4}',
+  '.retenir li::before{content:"";position:absolute;left:0;top:.6em;width:10px;height:2px;background:var(--bleu)}',
+  # sources
+  'footer{margin-top:8px;padding-top:14px;border-top:1px solid var(--filet);font-size:11.5px;line-height:1.5;color:var(--gris)}',
+  # annexe
+  '.annexe{border-top:2px solid var(--filet);margin-top:28px;padding-top:24px}.annexe h2{font-size:17px}.annexe h3{font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--gris);margin:22px 0 8px}',
+  '.an-row{display:grid;grid-template-columns:150px 1fr 70px;gap:12px;align-items:center;margin:0 0 7px;font-size:14px}',
+  '.an-piste{height:12px;background:var(--fond-2)}.an-bar{display:block;height:100%;background:var(--bleu-2)}.an-val{text-align:right;font-variant-numeric:tabular-nums}.an-nd{font-size:12px;color:var(--gris);font-style:italic}',
+  '.an-txt{font-size:14px;color:var(--texte);margin:0 0 6px}',
+  # index
+  '.recherche{width:100%;font:inherit;font-size:16px;padding:10px 12px;border:1px solid var(--filet);margin:0 0 18px;background:#fff;color:var(--encre)}',
+  '.liste{list-style:none;margin:0;padding:0}.liste li{display:grid;grid-template-columns:52px 1fr auto;gap:14px;align-items:baseline;padding:9px 0;border-bottom:1px solid var(--filet)}',
+  '.liste .code{color:var(--gris);font-variant-numeric:tabular-nums}.liste a{text-decoration:none;color:var(--encre);font-size:16px}.liste a:hover{text-decoration:underline}.liste .n{font-variant-numeric:tabular-nums;color:var(--texte);font-size:14px;white-space:nowrap}',
+  '.vide{color:var(--gris);display:none}.methode{font-size:13px;color:var(--texte);line-height:1.5;margin-top:32px;padding-top:16px;border-top:1px solid var(--filet)}',
+  # petits écrans
+  '@media (max-width:640px){.page{padding:28px 18px 24px}h1{font-size:36px}.hero{grid-template-columns:1fr;gap:22px}',
+  '.ctx{border-left:0;padding-left:0;border-top:1px solid var(--filet);padding-top:18px;flex-direction:row;gap:28px;flex-wrap:wrap}.hero-n{font-size:60px}',
+  '.cs-row{grid-template-columns:1fr 56px;gap:6px 12px}.cs-lib{grid-column:1/-1;font-size:14px}.cs-piste{height:20px}',
+  '.an-row{grid-template-columns:1fr 60px}.an-lib{grid-column:1/-1}.liste li{grid-template-columns:44px 1fr auto}}',
+  # impression A4
+  '@page{size:A4;margin:15mm 16mm}',
+  '@media print{body{font-size:12px;line-height:1.35}.page{padding:0;max-width:none}.zone{padding:15px 0}',
+  'h1{font-size:34px;margin-bottom:8px}.titre2{font-size:15px}.perim{font-size:11.5px}.hero{gap:24px}.hero-n{font-size:56px;margin:0 0 6px}.hero-l{font-size:14px}.hero-d,.hero-c{font-size:11.5px}.hero-c{margin-top:8px}',
+  '.ctx{gap:12px;padding-top:2px}.ctx-n{font-size:24px}.ctx-l{font-size:12px;margin-top:3px}h2{font-size:17px}.sous{font-size:11.5px;margin-bottom:10px}',
+  '.cs-row{margin:0 0 6px;grid-template-columns:150px 1fr 56px}.cs-lib{font-size:12.5px}.cs-piste{height:17px}.cs-val{font-size:13px}.note{font-size:10.5px;margin-top:6px}',
+  '.legende{margin:-4px 0 8px;font-size:10.5px}.pos{margin:0 0 9px}.pos-lib{font-size:12.5px}.pos-val{font-size:13px}.pos-verdict{font-size:10px;margin:0 0 4px}.ech{height:12px;margin-bottom:2px}.pos-med{font-size:10.5px}',
+  '.retenir li{font-size:13px;margin:0 0 5px;padding-left:18px}footer{font-size:9.5px;line-height:1.4;padding-top:9px}',
+  '.zone,.pos,.cs-row{break-inside:avoid}.annexe{break-before:page;border-top:0;margin-top:0}.recherche{display:none}a{text-decoration:none;color:inherit}}',
+  sep = "\n")
 
 # --- La fiche HTML ------------------------------------------------------------
+# Page 1 = cinq zones : identité, message principal (HERO), départs par CS,
+# position dans le périmètre, à retenir. Annexe optionnelle (FICHES_ANNEXE).
 generer_html_fiche <- function(ind, contexte, zonage, seuil_proche = NULL,
-                               source_note = "données : table test") {
+                               source_note = "données : table test", annexe = FALSE) {
   p <- ind$population; dep <- ind$departs; s <- ind$age_senior; a <- ind$age_min
   nom <- echap_html(ind$nom); code <- echap_html(ind$code)
+  zl <- echap_html(zonage$libelle); zp <- echap_html(zonage$pluriel)
 
-  # Bloc 2 — âges : largeur relative à la tranche la plus peuplée
-  max_age <- max(ind$ages$part[!ind$ages$masque], 1)
-  bloc_ages <- paste(mapply(function(tr, part, sen, masq)
-    html_ligne_barre(tr, 100 * part / max_age, fmt_pct(part),
-                     classe = if (sen) "b senior" else "b", masque = masq),
-    ind$ages$tranche, ind$ages$part, ind$ages$senior, ind$ages$masque), collapse = "\n")
+  # ---- Zone 2 : cause dominante (retraite / fin de carrière), si elle domine
+  c_ret <- ind$causes$pct[1]
+  ligne_cause <- if (dep$central > 0 && is.finite(c_ret) && c_ret >= 50)
+    sprintf('<p class="hero-c">%s de ces départs relèvent de la retraite ou d’une fin de carrière.</p>', fmt_pct(c_ret)) else ""
 
-  # Bloc 3 — CS : barre = effectif 55+ (stock), chiffre à droite = départs (flux)
-  max_cs <- max(ind$cs$n55[!ind$cs$masque], 1)
-  bloc_cs <- paste(mapply(function(cs1, n55, departs, masq)
-    html_ligne_barre(libelle_cs(cs1, TRUE), 100 * n55 / max_cs,
-                     if (masq) "n.d." else sprintf('%s <small>salariés de %d+</small> · <b>%s</b> <small>départs</small>',
-                                                   fmt_n(n55), s, fmt_n(departs)),
-                     classe = "b senior", masque = masq),
-    ind$cs$cs1, ind$cs$n55, ind$cs$departs, ind$cs$masque), collapse = "\n")
+  # ---- Zone 3 : départs attendus par CS, décroissants ; cellule masquée = pas de barre
+  cs_ok <- ind$cs |> filter(!masque) |> arrange(desc(departs))
+  max_dep <- max(cs_ok$departs, 1)
+  lignes_cs <- if (nrow(cs_ok) == 0)
+    '<p class="note">Aucune catégorie ne peut être affichée en application du secret statistique.</p>' else
+    paste(sprintf('<div class="cs-row" role="img" aria-label="%s : %s départs attendus"><span class="cs-lib">%s</span><span class="cs-piste"><span class="cs-bar%s" style="width:%.1f%%"></span></span><span class="cs-val">%s</span></div>',
+                  echap_html(libelle_cs(cs_ok$cs1, TRUE)), fmt_n(cs_ok$departs),
+                  echap_html(libelle_cs(cs_ok$cs1, TRUE)),
+                  ifelse(seq_len(nrow(cs_ok)) == 1, " premier", ""),
+                  100 * cs_ok$departs / max_dep, fmt_n(cs_ok$departs)), collapse = "\n")
+  n_masq <- sum(ind$cs$masque)
+  note_masq <- if (n_masq > 0)
+    sprintf('<p class="note">%s en application du secret statistique (seuil de %d salariés).</p>',
+            if (n_masq == 1) "Une catégorie n’est pas affichée" else sprintf("%d catégories ne sont pas affichées", n_masq),
+            ind$seuil) else ""
 
-  # Bloc 4 — causes : une barre empilée 100 %
-  c3 <- ind$causes$pct
-  bloc_causes <- sprintf(paste0(
-    '<div class="empile"><span class="c1" style="width:%.1f%%"></span>',
-    '<span class="c2" style="width:%.1f%%"></span><span class="c3" style="width:%.1f%%"></span></div>',
-    '<div class="legende"><span><i class="c1"></i>Retraite / fin de carrière <b>%s</b></span>',
-    '<span><i class="c2"></i>Invalidité <b>%s</b></span><span><i class="c3"></i>Décès <b>%s</b></span></div>'),
-    c3[1], c3[2], c3[3], fmt_pct(c3[1]), fmt_pct(c3[2]), fmt_pct(c3[3]))
-
-  # Bloc 5 — position : deux paires de barres (territoire / médiane), même échelle
-  paire <- function(titre, x, med, pos, max_ech) {
-    paste0(
-      sprintf('<div class="paire"><div class="paire-titre">%s <span class="pos %s">%s%s</span></div>',
-              titre, pos$classe, pos$libelle,
-              if (is.finite(pos$ecart)) paste0(" (", fmt_pts(pos$ecart), ")") else ""),
-      html_ligne_barre(nom, 100 * x / max_ech, fmt_pct(x), "b senior", masque = !is.finite(x),
-                       note = "aucun salarié de 55 ans et +"),
-      html_ligne_barre("Médiane du périmètre", 100 * med / max_ech, fmt_pct(med), "b ref"),
-      "</div>")
+  # ---- Zone 4 : position, une ligne par indicateur, verdict en toutes lettres
+  ligne_pos <- function(libelle, x, pos, med, etendue, note_na) {
+    verdict <- if (pos$classe == "nd") note_na else pos$libelle
+    paste0(sprintf('<div class="pos"><div class="pos-tete"><span class="pos-lib">%s</span><span class="pos-val">%s</span></div>',
+                   libelle, if (is.finite(x)) fmt_pct(x, 1) else ""),
+           sprintf('<div class="pos-verdict %s">%s</div>', pos$classe, verdict),
+           html_echelle(x, med, etendue),
+           if (is.finite(med)) sprintf('<div class="pos-med">médiane des %d %s : %s</div>',
+                                        contexte$n_territoires, zp, fmt_pct(med, 1)) else "",
+           '</div>')
   }
-  ech_part <- max(p$part55, contexte$med_part, 1, na.rm = TRUE)
-  ech_taux <- max(dep$taux_seniors, contexte$med_taux, 1, na.rm = TRUE)
   bloc_pos <- paste0(
-    paire(sprintf("Part des %d ans et + (aujourd'hui)", s), p$part55, contexte$med_part,
-          ind$position$part, ech_part),
-    paire(sprintf("Taux de départ des %d ans et + (d'ici 2030)", s), dep$taux_seniors,
-          contexte$med_taux, ind$position$taux, ech_taux))
-
-  retenir <- phrases_a_retenir(ind)
-  attention <- points_attention(ind, contexte)
-  li <- function(v) if (length(v) == 0) "<li class=\"muet\">Aucun point d'attention au regard des règles retenues.</li>" else
-    paste0("<li>", echap_html(v), "</li>", collapse = "\n")
-
+    ligne_pos(sprintf("Part des salariés de %d ans et +", s), p$part55, ind$position$part,
+              contexte$med_part, contexte$etendue$part, "non calculable"),
+    ligne_pos(sprintf("Part des salariés de %d ans et + qui devraient avoir quitté l’emploi d’ici 2030", s),
+              dep$taux_seniors, ind$position$taux, contexte$med_taux, contexte$etendue$taux,
+              sprintf("non calculable : aucun salarié de %d ans et +", s)))
   regle_proche <- if (!is.null(seuil_proche))
     sprintf(" « Proche de la médiane » : écart inférieur ou égal à %s points.", format(seuil_proche)) else ""
 
+  # ---- Zone 5
+  retenir <- phrases_a_retenir(ind, contexte)
+
+  # ---- Annexe (optionnelle) : détails retirés de la page 1
+  bloc_annexe <- if (!isTRUE(annexe)) "" else {
+    max_age <- max(ind$ages$part[!ind$ages$masque], 1)
+    ages <- paste(mapply(function(tr, part, masq)
+      html_ligne_barre(tr, 100 * part / max_age, fmt_pct(part), masque = masq),
+      ind$ages$tranche, ind$ages$part, ind$ages$masque), collapse = "\n")
+    ca <- ind$causes
+    c('<section class="annexe">', '<h2>Annexe — éléments détaillés</h2>',
+      sprintf('<h3>Structure par âge <small>(part des salariés de %d ans et +)</small></h3>', a), ages,
+      '<h3>Origine des départs attendus</h3>',
+      sprintf('<p class="an-txt">Retraite ou fin de carrière : %s · Invalidité : %s · Décès : %s.</p>',
+              fmt_pct(ca$pct[1]), fmt_pct(ca$pct[2]), fmt_pct(ca$pct[3])),
+      '<h3>Scénarios</h3>',
+      sprintf('<p class="an-txt">Central : %s départs · hypothèse réglementaire basse : %s · haute : %s. Parmi les %d ans et + : %s (fourchette %s – %s).</p>',
+              fmt_n(dep$central), fmt_n(dep$bas), fmt_n(dep$haut), s,
+              fmt_n(dep$seniors_central), fmt_n(dep$seniors_bas), fmt_n(dep$seniors_haut)),
+      '<h3>Comparaison détaillée</h3>',
+      sprintf('<p class="an-txt">Part des %d ans et + : %s (médiane %s, écart %s). Part des %d ans et + ayant quitté l’emploi d’ici 2030 : %s (médiane %s, écart %s).</p>',
+              s, fmt_pct(p$part55), fmt_pct(contexte$med_part),
+              if (is.finite(ind$position$part$ecart)) fmt_pts(ind$position$part$ecart) else "n.d.",
+              s, fmt_pct(dep$taux_seniors), fmt_pct(contexte$med_taux),
+              if (is.finite(ind$position$taux$ecart)) fmt_pts(ind$position$taux$ecart) else "n.d."),
+      '</section>')
+  }
+
   c('<!DOCTYPE html>', '<html lang="fr"><head><meta charset="utf-8">',
-    sprintf('<title>%s (%s) — Chiffres clés</title>', nom, code),
+    sprintf('<title>%s — départs attendus à l’horizon 2030</title>', nom),
     '<meta name="viewport" content="width=device-width, initial-scale=1">',
-    '<style>',
-    ':root { --encre:#111827; --gris:#4b5563; --gris-clair:#e5e7eb; --bleu:#1e3a5f; --bleu-clair:#b8c9dc; --ref:#9aa5b1; --ambre:#b45309; }',
-    'body { margin:0; background:#fff; color:var(--encre); font-family:-apple-system,"Segoe UI",Roboto,Arial,sans-serif; font-size:14px; line-height:1.35; }',
-    '.page { max-width:860px; margin:0 auto; padding:28px 32px 20px; }',
-    'header { border-bottom:3px solid var(--bleu); padding-bottom:10px; margin-bottom:18px; display:flex; justify-content:space-between; align-items:flex-end; gap:16px; }',
-    'header h1 { margin:0; font-size:26px; letter-spacing:-.01em; } header h1 small { font-weight:400; color:var(--gris); font-size:15px; margin-left:8px; }',
-    'header .sous { color:var(--gris); margin-top:4px; font-size:14px; } header .meta { text-align:right; color:var(--gris); font-size:12px; line-height:1.4; }',
-    'h2 { font-size:12px; letter-spacing:.08em; text-transform:uppercase; color:var(--bleu); margin:22px 0 8px; padding-top:12px; border-top:1px solid var(--gris-clair); }',
-    'h2 small { text-transform:none; letter-spacing:0; color:var(--gris); font-weight:400; margin-left:8px; }',
-    '.kpis { display:grid; grid-template-columns:1fr 1fr 1.35fr; gap:14px; }',
-    '.groupe { grid-column:span 1; } .groupe-titre { font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--gris); margin-bottom:6px; }',
-    '.stock { grid-column:1 / span 2; display:grid; grid-template-columns:1fr 1fr; gap:14px; } .stock .groupe-titre { grid-column:1 / span 2; }',
-    '.flux .groupe-titre { color:var(--bleu); }',
-    '.kpi { border:1px solid var(--gris-clair); border-radius:8px; padding:12px 14px; min-height:86px; }',
-    '.kpi .n { font-size:30px; font-weight:700; line-height:1.05; font-variant-numeric:tabular-nums; } .kpi .l { color:var(--gris); margin-top:3px; }',
-    '.kpi .d { color:var(--gris); font-size:12px; margin-top:6px; } .kpi.flux { border-color:var(--bleu); background:#f5f8fb; } .kpi.flux .n { color:var(--bleu); }',
-    '.ligne { display:grid; grid-template-columns:170px 1fr 220px; gap:10px; align-items:center; margin:5px 0; }',
-    '.lib { color:var(--encre); } .val { text-align:right; font-variant-numeric:tabular-nums; } .val small, .kpi small { color:var(--gris); font-size:11px; }',
-    '.piste { height:14px; background:#f1f3f6; border-radius:3px; overflow:hidden; } .piste.nd { background:none; color:var(--gris); font-size:12px; font-style:italic; height:auto; }',
-    '.piste .b { display:block; height:100%; background:var(--bleu-clair); } .piste .senior { background:var(--bleu); } .piste .ref { background:var(--ref); }',
-    '.empile { display:flex; height:22px; border-radius:4px; overflow:hidden; margin-top:6px; } .empile span { display:block; height:100%; }',
-    '.c1 { background:var(--bleu); } .c2 { background:#7f9bb8; } .c3 { background:#c9d3de; }',
-    '.legende { display:flex; gap:22px; margin-top:8px; color:var(--gris); font-size:13px; flex-wrap:wrap; } .legende i { display:inline-block; width:10px; height:10px; border-radius:2px; margin-right:6px; vertical-align:-1px; }',
-    '.paire { margin:8px 0 12px; } .paire-titre { font-weight:600; margin-bottom:2px; }',
-    '.pos { font-weight:400; color:var(--gris); margin-left:8px; font-size:13px; } .pos.dessus { color:var(--ambre); }',
-    '.deux { display:grid; grid-template-columns:1fr 1fr; gap:24px; } .deux ul { margin:6px 0 0; padding-left:18px; } .deux li { margin:4px 0; } .muet { color:var(--gris); list-style:none; margin-left:-18px; }',
-    'footer { margin-top:20px; padding-top:10px; border-top:1px solid var(--gris-clair); color:var(--gris); font-size:11px; line-height:1.45; }',
-    '@page { size:A4; margin:12mm; } @media print { body { font-size:12.5px; } .page { padding:0; max-width:none; } h2, .kpis, .paire, .deux { break-inside:avoid; } .kpi .n { font-size:26px; } }',
-    '</style></head><body><div class="page">',
-    # ---- En-tête
-    '<header><div>',
-    sprintf('<h1>%s <small>%s %s</small></h1>', nom, echap_html(zonage$libelle), code),
-    '<div class="sous">Chiffres clés — départs attendus à l’horizon 2030</div></div>',
-    sprintf('<div class="meta">Salariés de %d ans et + en 2024<br>Périmètre BITD · scénario central</div></header>', a),
-    # ---- Bloc 1 : combien ?
-    '<div class="kpis">',
-    '<div class="stock"><div class="groupe-titre">Aujourd’hui (2024)</div>',
-    sprintf('<div class="kpi"><div class="n">%s</div><div class="l">salariés de %d ans et +</div>%s</div>',
-            fmt_n(p$n_champ), a, if (is.finite(p$n_entreprises)) sprintf('<div class="d">dans %s entreprises du périmètre</div>', fmt_n(p$n_entreprises)) else ""),
-    sprintf('<div class="kpi"><div class="n">%s</div><div class="l">salariés de %d ans et +</div><div class="d"><b>%s</b> des %d ans et +</div></div>',
-            fmt_n(p$n55), s, fmt_pct(p$part55), a),
+    '<style>', css_fiches(), '</style></head><body><div class="page">',
+    # ---- Zone 1 : identité
+    '<header class="zone">',
+    sprintf('<p class="kicker">%s · %s</p>', zl, code),
+    sprintf('<h1>%s</h1>', nom),
+    '<p class="titre2">Renouvellement des effectifs — départs attendus à l’horizon 2030</p>',
+    sprintf('<p class="perim">Périmètre étudié · salariés de %d ans et plus en 2024 · entreprises de la BITD</p>', a),
+    '</header>',
+    # ---- Zone 2 : message principal
+    '<section class="zone hero">',
+    '<div>',
+    sprintf('<div class="hero-n">%s</div>', fmt_n(dep$central)),
+    '<p class="hero-l">départs attendus d’ici 2030</p>',
+    sprintf('<p class="hero-d">Scénario central · fourchette %s – %s</p>', fmt_n(dep$bas), fmt_n(dep$haut)),
+    ligne_cause,
     '</div>',
-    '<div class="groupe flux"><div class="groupe-titre">D’ici 2030</div>',
-    sprintf('<div class="kpi flux"><div class="n">%s</div><div class="l">départs attendus (sorties définitives de l’emploi)</div><div class="d">fourchette %s – %s<br>dont <b>%s</b> parmi les %d ans et + (%s d’entre eux)</div></div>',
-            fmt_n(dep$central), fmt_n(dep$bas), fmt_n(dep$haut), fmt_n(dep$seniors_central), s, fmt_pct(dep$taux_seniors)),
-    '</div></div>',
-    # ---- Bloc 2 : âges
-    sprintf('<h2>Quel âge ont-ils ? <small>part des salariés de %d ans et + · en bleu foncé : %d ans et +</small></h2>', a, s),
-    bloc_ages,
-    # ---- Bloc 3 : CS
-    sprintf('<h2>Quelles catégories sont les plus concernées ? <small>barre : salariés de %d ans et + (aujourd’hui) · chiffre : départs attendus d’ici 2030</small></h2>', s),
-    bloc_cs,
-    # ---- Bloc 4 : causes
-    sprintf('<h2>D’où viendraient les départs ? <small>répartition des %s départs attendus</small></h2>', fmt_n(dep$central)),
-    bloc_causes,
-    # ---- Bloc 5 : position
-    sprintf('<h2>Comment se situe %s dans le périmètre ? <small>%d %s comparés</small></h2>',
-            nom, contexte$n_territoires, echap_html(zonage$pluriel)),
+    '<div class="ctx">',
+    sprintf('<div><div class="ctx-n">%s</div><div class="ctx-l">salariés de %d ans et +%s</div></div>',
+            fmt_n(p$n_champ), a,
+            if (is.finite(p$n_entreprises)) sprintf(" dans %s entreprises", fmt_n(p$n_entreprises)) else ""),
+    sprintf('<div><div class="ctx-n">%s</div><div class="ctx-l">ont %d ans et +, soit <b>%s</b></div></div>',
+            fmt_n(p$n55), s, fmt_pct(p$part55)),
+    '</div></section>',
+    # ---- Zone 3 : où se concentrent les départs
+    '<section class="zone">',
+    '<h2>Où se concentreraient les départs ?</h2>',
+    '<p class="sous">Nombre de départs attendus d’ici 2030 par catégorie sociale</p>',
+    lignes_cs, note_masq,
+    '</section>',
+    # ---- Zone 4 : position
+    '<section class="zone">',
+    sprintf('<h2>Par rapport aux autres %s du périmètre</h2>', zp),
+    sprintf('<p class="sous">Comparaison à la médiane des %d %s analysés</p>', contexte$n_territoires, zp),
+    sprintf('<p class="legende"><i></i>%s <b></b>médiane</p>', nom),
     bloc_pos,
-    # ---- Bloc 6 : textes
-    '<div class="deux"><div><h2>À retenir</h2><ul>', li(retenir), '</ul></div>',
-    '<div><h2>Points d’attention</h2><ul>', li(attention), '</ul></div></div>',
-    # ---- Pied
+    '</section>',
+    # ---- Zone 5 : à retenir
+    '<section class="zone">', '<h2>À retenir</h2>',
+    '<ul class="retenir">', paste0('<li>', echap_html(retenir), '</li>', collapse = "\n"), '</ul>',
+    '</section>',
+    # ---- Sources
     '<footer>',
     sprintf(paste0('Champ : salariés de %d ans et + en 2024 des entreprises du périmètre BITD, établissements situés dans le territoire. ',
                    'Départs = sorties définitives de l’emploi d’ici 2030 (retraite ou fin de carrière, invalidité, décès) ; ',
-                   'les mobilités vers d’autres employeurs ne sont pas comptées : les volumes sont un plancher. ',
-                   'Scénario central ; fourchette = hypothèses réglementaires basse et haute. ',
-                   'Secret statistique : cellules de moins de %d salariés non diffusées (n.d.), avec suppression secondaire. ',
-                   'Position : comparaison à la médiane des %d %s du périmètre analysé.%s ',
-                   'Points d’attention : règles fixes (au-dessus de la médiane ; deux catégories ≥ 60 %% des départs ; dernière tranche d’âge ≥ 15 %%). ',
+                   'les mobilités vers d’autres employeurs ne sont pas comptées. Scénario central, fourchette = hypothèses réglementaires basse et haute. ',
+                   'Secret statistique : cellules de moins de %d salariés non diffusées.%s ',
                    'Sources : BTS 2024, DREES, EACR invalidité, mortalité Insee — calculs propres · %s.'),
-            a, ind$seuil, contexte$n_territoires, echap_html(zonage$pluriel), regle_proche, source_note),
-    '</footer></div></body></html>')
+            a, ind$seuil, regle_proche, source_note),
+    '</footer>',
+    bloc_annexe,
+    '</div></body></html>')
 }
 
 # --- Sélection des territoires : tous / sélection, avec contrôles ------------
@@ -398,18 +468,50 @@ selectionner_territoires <- function(base, mode = "tous", selection = NULL,
 }
 
 # --- Page d'index -------------------------------------------------------------
-generer_html_index <- function(journal, zonage, age_min = AGE_MIN_BTS) {
-  j <- journal |> filter(statut == "ok") |> arrange(desc(departs))
-  lignes <- sprintf('<tr><td><a href="%s">%s</a></td><td>%s</td><td class="num">%s</td><td class="num">%s</td><td class="num">%s</td></tr>',
-                    j$fichier, echap_html(j$nom), echap_html(j$code), fmt_n(j$effectif), fmt_n(j$effectif55), fmt_n(j$departs))
+# Porte d'entrée : titre, recherche (JavaScript natif, facultatif), liste code ·
+# nom · départs, note méthodologique complète (retirée des fiches).
+generer_html_index <- function(journal, zonage, age_min = AGE_MIN_BTS, seuil = SEUIL_DIFFUSION,
+                               n_territoires = NA, source_note = "données : table test") {
+  j <- journal |> filter(statut == "ok") |> arrange(code)
+  zl <- echap_html(zonage$libelle); zp <- echap_html(zonage$pluriel)
+  cle <- tolower(iconv(paste(j$code, j$nom), from = "UTF-8", to = "ASCII//TRANSLIT", sub = ""))
+  lignes <- sprintf('<li data-cle="%s"><span class="code">%s</span><a href="%s">%s</a><span class="n">%s départs attendus</span></li>',
+                    echap_html(cle), echap_html(j$code), j$fichier, echap_html(j$nom), fmt_n(j$departs))
+  ecartes <- journal |> filter(statut != "ok")
+  note_ecartes <- if (nrow(ecartes) > 0)
+    sprintf('<p class="note">%d territoire(s) sans fiche : %s.</p>', nrow(ecartes),
+            echap_html(paste(sprintf("%s (%s)", ecartes$code, ecartes$motif), collapse = " ; "))) else ""
   c('<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8">',
-    sprintf('<title>Fiches chiffres clés — %s</title>', echap_html(zonage$pluriel)),
-    '<style>body{font-family:-apple-system,"Segoe UI",Roboto,Arial,sans-serif;color:#111827;margin:2em;} table{border-collapse:collapse;font-size:14px;} th{text-align:left;padding:.4em .8em;border-bottom:2px solid #1e3a5f;} td{padding:.35em .8em;border-bottom:1px solid #e5e7eb;} .num,th.num{text-align:right;font-variant-numeric:tabular-nums;} a{color:#1e3a5f;}</style></head><body>',
-    sprintf('<h1>Fiches chiffres clés — %s</h1><p>%d fiches · départs attendus à l’horizon 2030 · classement par départs décroissants</p>',
-            echap_html(zonage$pluriel), nrow(j)),
-    sprintf('<table><thead><tr><th>%s</th><th>Code</th><th class="num">Salariés %d+</th><th class="num">Salariés 55+</th><th class="num">Départs attendus</th></tr></thead><tbody>',
-            echap_html(zonage$libelle), age_min),
-    lignes, '</tbody></table></body></html>')
+    sprintf('<title>Fiches territoriales — %s</title>', zp),
+    '<meta name="viewport" content="width=device-width, initial-scale=1">',
+    '<style>', css_fiches(), '</style></head><body><div class="page">',
+    '<header class="zone"><p class="kicker">Fiches territoriales</p>',
+    '<h1>Départs attendus à l’horizon 2030</h1>',
+    sprintf('<p class="titre2">Une fiche par %s · %d fiches</p>', tolower(zl), nrow(j)),
+    sprintf('<p class="perim">Périmètre étudié · salariés de %d ans et plus en 2024 · entreprises de la BITD</p>', age_min),
+    '</header>',
+    '<section class="zone">',
+    sprintf('<input class="recherche" type="search" id="q" placeholder="Rechercher %s (nom ou code)" aria-label="Rechercher un territoire">', echap_html(zonage$un)),
+    '<ul class="liste" id="liste">', lignes, '</ul>',
+    '<p class="vide" id="vide">Aucun territoire ne correspond.</p>',
+    note_ecartes,
+    '</section>',
+    '<section class="methode">',
+    sprintf(paste0('<b>Méthode.</b> Champ : salariés de %d ans et + en 2024 des entreprises du périmètre BITD, rattachés à l’établissement employeur. ',
+                   'Départ = sortie définitive de l’emploi d’ici 2030 : retraite ou fin de carrière (calendrier par catégorie sociale, DREES), invalidité (EACR) et décès (Insee) ; ',
+                   'les mobilités vers d’autres employeurs ne sont pas comptées, les volumes sont un plancher. Les départs sont des espérances (somme de probabilités individuelles) ; ',
+                   'le scénario central est encadré par deux hypothèses réglementaires. Comparaison territoriale : position par rapport à la médiane des %s %s du périmètre. ',
+                   'Secret statistique : toute cellule de moins de %d salariés est retirée, avec suppression secondaire ; un territoire sous ce seuil n’a pas de fiche. ',
+                   'Sources : BTS 2024, DREES, EACR invalidité, mortalité Insee — calculs propres · %s.'),
+            age_min, if (is.finite(n_territoires)) n_territoires else nrow(j), zp, seuil, source_note),
+    '</section>',
+    '<script>',
+    '(function(){var q=document.getElementById("q"),l=document.getElementById("liste"),v=document.getElementById("vide");if(!q)return;',
+    'function n(s){return s.toLowerCase().normalize("NFD").replace(/[\\u0300-\\u036f]/g,"")}',
+    'q.addEventListener("input",function(){var t=n(q.value.trim()),k=0;Array.prototype.forEach.call(l.children,function(li){',
+    'var ok=!t||li.getAttribute("data-cle").indexOf(t)>=0;li.style.display=ok?"":"none";if(ok)k++});v.style.display=k?"none":"block"})})();',
+    '</script>',
+    '</div></body></html>')
 }
 
 # --- Boucle de génération -----------------------------------------------------
@@ -417,7 +519,8 @@ generer_fiches <- function(base, dir, mode = "tous", selection = NULL,
                            seuil = SEUIL_DIFFUSION, age_senior = AGE_SENIOR,
                            zonage = zonage_geo(GEO_ANALYSE), seuil_proche = NULL,
                            source_note = "données : table test", index = TRUE,
-                           prefixe = "09", age_min = AGE_MIN_BTS) {
+                           prefixe = "09", age_min = AGE_MIN_BTS,
+                           annexe = isTRUE(get0("FICHES_ANNEXE", ifnotfound = FALSE))) {
   dir.create(dir, showWarnings = FALSE, recursive = TRUE)
   contexte <- calculer_contexte_perimetre(base, age_senior)
   sel <- selectionner_territoires(base, mode, selection, seuil)
@@ -426,7 +529,7 @@ generer_fiches <- function(base, dir, mode = "tous", selection = NULL,
     ind  <- calculer_indicateurs_territoire(base, code, contexte, seuil, age_senior,
                                             seuil_proche = seuil_proche, age_min = age_min)
     fichier <- paste0(slug_fiche(ind$code, ind$nom), ".html")
-    writeLines(generer_html_fiche(ind, contexte, zonage, seuil_proche, source_note),
+    writeLines(generer_html_fiche(ind, contexte, zonage, seuil_proche, source_note, annexe = annexe),
                file.path(dir, fichier), useBytes = TRUE)
     tibble::tibble(code = ind$code, nom = ind$nom, fichier = fichier, statut = "ok",
                    effectif = ind$population$n_champ, effectif55 = ind$population$n55,
@@ -437,7 +540,8 @@ generer_fiches <- function(base, dir, mode = "tous", selection = NULL,
                            transmute(code, nom = NA_character_, fichier = NA_character_,
                                      statut = "écarté", effectif = NA_integer_,
                                      effectif55 = NA_integer_, departs = NA_real_, motif))
-  if (index) writeLines(generer_html_index(journal, zonage, age_min), file.path(dir, "index.html"), useBytes = TRUE)
+  if (index) writeLines(generer_html_index(journal, zonage, age_min, seuil, contexte$n_territoires, source_note),
+                        file.path(dir, "index.html"), useBytes = TRUE)
   message(prefixe, " : ", sum(journal$statut == "ok"), " fiche(s) écrite(s) dans ", dir,
           if (any(journal$statut != "ok")) paste0(" — ", sum(journal$statut != "ok"),
                                                   " territoire(s) écarté(s) : ",
