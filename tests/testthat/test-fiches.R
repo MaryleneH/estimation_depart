@@ -33,7 +33,7 @@ test_that("codes département : 01, 2A, 2B, 33 intacts dans l'en-tête et le nom
   ctx <- calculer_contexte_perimetre(BASE_FICHES)
   ind <- calculer_indicateurs_territoire(BASE_FICHES, "01", ctx)
   html <- paste(generer_html_fiche(ind, ctx, ZONAGE_DEP), collapse = "\n")
-  expect_match(html, "Département 01")
+  expect_match(html, "Département · 01")
   expect_identical(ind$code, "01")
 })
 
@@ -64,12 +64,12 @@ test_that("secret statistique : cellule < seuil -> n.d., pas de barre, suppressi
   expect_true(ind$cs_masquee)
   expect_identical(sum(ind$cs$masque), 2L)                        # Cadres (5) + la plus petite (Employés)
   html <- paste(generer_html_fiche(ind, ctx, ZONAGE_DEP), collapse = "\n")
-  expect_match(html, "n\\.d\\. — effectif sous seuil")
-  # la ligne Cadres n'a pas de barre : aucun style="width" sur cette ligne
-  ligne_cadres <- regmatches(html, regexpr('<div class="ligne"><span class="lib">Cadres</span>[^\n]*', html))
-  expect_false(grepl("width:", ligne_cadres))
-  # et la phrase sur la catégorie la plus concernée n'est pas générée
-  expect_false(any(grepl("catégorie la plus concernée", phrases_a_retenir(ind))))
+  # page 1 : aucune barre ni ligne pour une CS masquée, une note discrète, jamais « n.d. »
+  expect_false(grepl('cs-lib">Cadres', html))
+  expect_match(html, "2 catégories ne sont pas affichées en application du secret statistique")
+  expect_false(grepl("n\\.d\\.", html))
+  # et la phrase sur la catégorie concentrant les départs n'est pas générée
+  expect_false(any(grepl("concentrent", phrases_a_retenir(ind))))
 })
 
 test_that("cohérence interne : total = somme des CS ; 55+ = sous-population", {
@@ -100,18 +100,46 @@ test_that("résilience : territoire absent signalé, autres fiches produites ; s
   expect_match(html, "aucun salarié de 55 ans et \\+")
 })
 
-test_that("règles textuelles : position, points d'attention, phrases", {
+test_that("règles textuelles : position, « À retenir » en 2-3 phrases factuelles, sans répéter le chiffre clé", {
   expect_identical(position_mediane(35, 30)$classe, "dessus")
   expect_identical(position_mediane(25, 30)$classe, "dessous")
   expect_identical(position_mediane(31, 30, seuil_proche = 2)$classe, "proche")
   expect_identical(position_mediane(NA, 30)$libelle, "n.d.")
   ctx <- calculer_contexte_perimetre(BASE_FICHES)
   ind <- calculer_indicateurs_territoire(BASE_FICHES, "33", ctx)  # 40 % de seniors : au-dessus
-  pts <- points_attention(ind, ctx)
-  expect_true(any(grepl("supérieure à la médiane", pts)))
-  expect_lte(length(pts), 3)
-  expect_false(any(grepl("pénurie|recrut|doit|il faut", c(pts, phrases_a_retenir(ind)), ignore.case = TRUE)))
-  expect_match(phrases_a_retenir(ind)[1], "55 ans et plus représentent")
+  ph <- phrases_a_retenir(ind, ctx)
+  expect_gte(length(ph), 2); expect_lte(length(ph), 3)
+  expect_match(ph[1], sprintf("des salariés de %d ans et \\+ ont %d ans ou plus", AGE_MIN_BTS, AGE_SENIOR))
+  expect_match(ph[2], "devraient avoir quitté l’emploi d’ici 2030")
+  expect_false(any(grepl("pénurie|recrut|doit|il faut|tension|fragile", ph, ignore.case = TRUE)))
+  expect_false(any(grepl(paste0("\\b", fmt_n(ind$departs$central), "\\b"), ph)))   # le HERO n'est pas répété
+  html <- paste(generer_html_fiche(ind, ctx, ZONAGE_DEP), collapse = "\n")
+  expect_match(html, "au-dessus de la médiane")
+  expect_equal(sum(gregexpr("class=\"zone", html)[[1]] > 0), 5)                      # cinq zones
+  expect_false(grepl("Points d’attention|Quel âge ont-ils", html))
+})
+
+test_that("annexe optionnelle : absente par défaut, seconde page sur demande", {
+  ctx <- calculer_contexte_perimetre(BASE_FICHES)
+  ind <- calculer_indicateurs_territoire(BASE_FICHES, "33", ctx)
+  h0 <- paste(generer_html_fiche(ind, ctx, ZONAGE_DEP), collapse = "\n")
+  h1 <- paste(generer_html_fiche(ind, ctx, ZONAGE_DEP, annexe = TRUE), collapse = "\n")
+  expect_false(grepl("Annexe", h0))
+  expect_match(h1, "Annexe — éléments détaillés")
+  expect_match(h1, LABELS_TRANCHES[1], fixed = TRUE)                # structure par âge en annexe
+  expect_match(h1, "Retraite ou fin de carrière : ")
+})
+
+test_that("index : recherche native, une ligne par fiche, méthode complète, champ paramétré", {
+  dir <- file.path(tempdir(), "fiches_idx"); unlink(dir, recursive = TRUE)
+  j <- suppressMessages(generer_fiches(BASE_FICHES, dir, mode = "tous", zonage = ZONAGE_DEP))
+  idx <- paste(readLines(file.path(dir, "index.html"), warn = FALSE, encoding = "UTF-8"), collapse = "\n")
+  expect_match(idx, '<input class="recherche" type="search"')
+  expect_match(idx, "<script>")
+  for (k in j$code[j$statut == "ok"]) expect_match(idx, sprintf('<span class="code">%s</span>', k))
+  expect_match(idx, "Méthode\\.")
+  expect_match(idx, sprintf("salariés de %d ans et plus en 2024", AGE_MIN_BTS))
+  expect_match(idx, "1 territoire\\(s\\) sans fiche : 48")
 })
 
 test_that("cohérence avec le 08 sur la chaîne (mode test département)", {

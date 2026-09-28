@@ -1,70 +1,109 @@
 <!DOCTYPE html>
 <html lang="fr"><head><meta charset="utf-8">
-<title>Morbihan (56) — Chiffres clés</title>
+<title>Morbihan — départs attendus à l’horizon 2030</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
-:root { --encre:#111827; --gris:#4b5563; --gris-clair:#e5e7eb; --bleu:#1e3a5f; --bleu-clair:#b8c9dc; --ref:#9aa5b1; --ambre:#b45309; }
-body { margin:0; background:#fff; color:var(--encre); font-family:-apple-system,"Segoe UI",Roboto,Arial,sans-serif; font-size:14px; line-height:1.35; }
-.page { max-width:860px; margin:0 auto; padding:28px 32px 20px; }
-header { border-bottom:3px solid var(--bleu); padding-bottom:10px; margin-bottom:18px; display:flex; justify-content:space-between; align-items:flex-end; gap:16px; }
-header h1 { margin:0; font-size:26px; letter-spacing:-.01em; } header h1 small { font-weight:400; color:var(--gris); font-size:15px; margin-left:8px; }
-header .sous { color:var(--gris); margin-top:4px; font-size:14px; } header .meta { text-align:right; color:var(--gris); font-size:12px; line-height:1.4; }
-h2 { font-size:12px; letter-spacing:.08em; text-transform:uppercase; color:var(--bleu); margin:22px 0 8px; padding-top:12px; border-top:1px solid var(--gris-clair); }
-h2 small { text-transform:none; letter-spacing:0; color:var(--gris); font-weight:400; margin-left:8px; }
-.kpis { display:grid; grid-template-columns:1fr 1fr 1.35fr; gap:14px; }
-.groupe { grid-column:span 1; } .groupe-titre { font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--gris); margin-bottom:6px; }
-.stock { grid-column:1 / span 2; display:grid; grid-template-columns:1fr 1fr; gap:14px; } .stock .groupe-titre { grid-column:1 / span 2; }
-.flux .groupe-titre { color:var(--bleu); }
-.kpi { border:1px solid var(--gris-clair); border-radius:8px; padding:12px 14px; min-height:86px; }
-.kpi .n { font-size:30px; font-weight:700; line-height:1.05; font-variant-numeric:tabular-nums; } .kpi .l { color:var(--gris); margin-top:3px; }
-.kpi .d { color:var(--gris); font-size:12px; margin-top:6px; } .kpi.flux { border-color:var(--bleu); background:#f5f8fb; } .kpi.flux .n { color:var(--bleu); }
-.ligne { display:grid; grid-template-columns:170px 1fr 220px; gap:10px; align-items:center; margin:5px 0; }
-.lib { color:var(--encre); } .val { text-align:right; font-variant-numeric:tabular-nums; } .val small, .kpi small { color:var(--gris); font-size:11px; }
-.piste { height:14px; background:#f1f3f6; border-radius:3px; overflow:hidden; } .piste.nd { background:none; color:var(--gris); font-size:12px; font-style:italic; height:auto; }
-.piste .b { display:block; height:100%; background:var(--bleu-clair); } .piste .senior { background:var(--bleu); } .piste .ref { background:var(--ref); }
-.empile { display:flex; height:22px; border-radius:4px; overflow:hidden; margin-top:6px; } .empile span { display:block; height:100%; }
-.c1 { background:var(--bleu); } .c2 { background:#7f9bb8; } .c3 { background:#c9d3de; }
-.legende { display:flex; gap:22px; margin-top:8px; color:var(--gris); font-size:13px; flex-wrap:wrap; } .legende i { display:inline-block; width:10px; height:10px; border-radius:2px; margin-right:6px; vertical-align:-1px; }
-.paire { margin:8px 0 12px; } .paire-titre { font-weight:600; margin-bottom:2px; }
-.pos { font-weight:400; color:var(--gris); margin-left:8px; font-size:13px; } .pos.dessus { color:var(--ambre); }
-.deux { display:grid; grid-template-columns:1fr 1fr; gap:24px; } .deux ul { margin:6px 0 0; padding-left:18px; } .deux li { margin:4px 0; } .muet { color:var(--gris); list-style:none; margin-left:-18px; }
-footer { margin-top:20px; padding-top:10px; border-top:1px solid var(--gris-clair); color:var(--gris); font-size:11px; line-height:1.45; }
-@page { size:A4; margin:12mm; } @media print { body { font-size:12.5px; } .page { padding:0; max-width:none; } h2, .kpis, .paire, .deux { break-inside:avoid; } .kpi .n { font-size:26px; } }
+:root{--encre:#1a1f2b;--texte:#4a5260;--gris:#8a919c;--filet:#e4e7ec;--bleu:#1e3a5f;--bleu-2:#a9bacd;--fond-2:#f3f5f8}
+*{box-sizing:border-box}html{-webkit-text-size-adjust:100%}
+body{margin:0;background:#fff;color:var(--encre);font-family:-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;font-size:15px;line-height:1.45}
+.page{max-width:760px;margin:0 auto;padding:44px 36px 32px}
+a{color:var(--bleu)}
+.kicker{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--gris);margin:0 0 10px}
+h1{font-size:46px;line-height:1.02;letter-spacing:-.022em;font-weight:700;margin:0 0 12px;overflow-wrap:anywhere}
+.titre2{font-size:18px;color:var(--texte);margin:0}
+.perim{font-size:13px;color:var(--gris);margin:6px 0 0}
+.zone{padding:26px 0;border-top:1px solid var(--filet)}.zone:first-of-type{border-top:0;padding-top:0}
+.hero{display:grid;grid-template-columns:1.25fr 1fr;gap:32px;align-items:start}
+.hero-n{font-size:74px;line-height:.95;font-weight:700;letter-spacing:-.03em;color:var(--bleu);font-variant-numeric:tabular-nums;margin:2px 0 8px}
+.hero-l{font-size:17px;font-weight:600;margin:0}
+.hero-d{font-size:13px;color:var(--gris);margin:6px 0 0}
+.hero-c{font-size:14px;color:var(--texte);margin:14px 0 0;max-width:34ch}
+.ctx{border-left:1px solid var(--filet);padding-left:28px;display:flex;flex-direction:column;gap:18px;padding-top:6px}
+.ctx-n{font-size:30px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.ctx-l{font-size:14px;color:var(--texte);margin-top:5px}
+.ctx-l b{color:var(--encre);font-weight:600}
+h2{font-size:21px;line-height:1.2;font-weight:600;letter-spacing:-.012em;margin:0 0 4px}
+.sous{font-size:13.5px;color:var(--gris);margin:0 0 18px}
+.cs-row{display:grid;grid-template-columns:172px 1fr 64px;gap:14px;align-items:center;margin:0 0 11px}
+.cs-lib{font-size:15px}.cs-piste{height:26px;background:var(--fond-2)}
+.cs-bar{display:block;height:100%;background:var(--bleu-2)}.cs-bar.premier{background:var(--bleu)}
+.cs-val{text-align:right;font-weight:600;font-variant-numeric:tabular-nums;font-size:16px}
+.note{font-size:12.5px;color:var(--gris);margin:10px 0 0}
+.pos{margin:0 0 18px}.pos-tete{display:flex;justify-content:space-between;gap:16px;align-items:baseline}
+.pos-lib{font-size:15px}.pos-val{font-weight:600;font-variant-numeric:tabular-nums;font-size:16px}
+.pos-verdict{font-size:12px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;color:var(--bleu);margin:2px 0 8px}
+.pos-verdict.dessous{color:var(--texte)}.pos-verdict.nd{color:var(--gris);text-transform:none;letter-spacing:0;font-weight:400}
+.ech{position:relative;height:14px;margin:0 0 4px}.ech::before{content:"";position:absolute;left:0;right:0;top:6px;height:2px;background:var(--filet)}
+.ech-med{position:absolute;top:0;width:2px;height:14px;background:var(--gris);transform:translateX(-1px)}
+.ech-pt{position:absolute;top:2px;width:10px;height:10px;border-radius:50%;background:var(--bleu);transform:translateX(-5px)}
+.pos-med{font-size:12px;color:var(--gris)}
+.legende{font-size:12px;color:var(--gris);margin:-8px 0 16px}.legende i{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--bleu);margin:0 5px 0 0;vertical-align:-1px}.legende b{display:inline-block;width:2px;height:11px;background:var(--gris);margin:0 5px 0 14px;vertical-align:-2px}
+.retenir{list-style:none;margin:0;padding:0}.retenir li{position:relative;padding-left:22px;margin:0 0 10px;font-size:16px;line-height:1.4}
+.retenir li::before{content:"";position:absolute;left:0;top:.6em;width:10px;height:2px;background:var(--bleu)}
+footer{margin-top:8px;padding-top:14px;border-top:1px solid var(--filet);font-size:11.5px;line-height:1.5;color:var(--gris)}
+.annexe{border-top:2px solid var(--filet);margin-top:28px;padding-top:24px}.annexe h2{font-size:17px}.annexe h3{font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--gris);margin:22px 0 8px}
+.an-row{display:grid;grid-template-columns:150px 1fr 70px;gap:12px;align-items:center;margin:0 0 7px;font-size:14px}
+.an-piste{height:12px;background:var(--fond-2)}.an-bar{display:block;height:100%;background:var(--bleu-2)}.an-val{text-align:right;font-variant-numeric:tabular-nums}.an-nd{font-size:12px;color:var(--gris);font-style:italic}
+.an-txt{font-size:14px;color:var(--texte);margin:0 0 6px}
+.recherche{width:100%;font:inherit;font-size:16px;padding:10px 12px;border:1px solid var(--filet);margin:0 0 18px;background:#fff;color:var(--encre)}
+.liste{list-style:none;margin:0;padding:0}.liste li{display:grid;grid-template-columns:52px 1fr auto;gap:14px;align-items:baseline;padding:9px 0;border-bottom:1px solid var(--filet)}
+.liste .code{color:var(--gris);font-variant-numeric:tabular-nums}.liste a{text-decoration:none;color:var(--encre);font-size:16px}.liste a:hover{text-decoration:underline}.liste .n{font-variant-numeric:tabular-nums;color:var(--texte);font-size:14px;white-space:nowrap}
+.vide{color:var(--gris);display:none}.methode{font-size:13px;color:var(--texte);line-height:1.5;margin-top:32px;padding-top:16px;border-top:1px solid var(--filet)}
+@media (max-width:640px){.page{padding:28px 18px 24px}h1{font-size:36px}.hero{grid-template-columns:1fr;gap:22px}
+.ctx{border-left:0;padding-left:0;border-top:1px solid var(--filet);padding-top:18px;flex-direction:row;gap:28px;flex-wrap:wrap}.hero-n{font-size:60px}
+.cs-row{grid-template-columns:1fr 56px;gap:6px 12px}.cs-lib{grid-column:1/-1;font-size:14px}.cs-piste{height:20px}
+.an-row{grid-template-columns:1fr 60px}.an-lib{grid-column:1/-1}.liste li{grid-template-columns:44px 1fr auto}}
+@page{size:A4;margin:15mm 16mm}
+@media print{body{font-size:12px;line-height:1.35}.page{padding:0;max-width:none}.zone{padding:15px 0}
+h1{font-size:34px;margin-bottom:8px}.titre2{font-size:15px}.perim{font-size:11.5px}.hero{gap:24px}.hero-n{font-size:56px;margin:0 0 6px}.hero-l{font-size:14px}.hero-d,.hero-c{font-size:11.5px}.hero-c{margin-top:8px}
+.ctx{gap:12px;padding-top:2px}.ctx-n{font-size:24px}.ctx-l{font-size:12px;margin-top:3px}h2{font-size:17px}.sous{font-size:11.5px;margin-bottom:10px}
+.cs-row{margin:0 0 6px;grid-template-columns:150px 1fr 56px}.cs-lib{font-size:12.5px}.cs-piste{height:17px}.cs-val{font-size:13px}.note{font-size:10.5px;margin-top:6px}
+.legende{margin:-4px 0 8px;font-size:10.5px}.pos{margin:0 0 9px}.pos-lib{font-size:12.5px}.pos-val{font-size:13px}.pos-verdict{font-size:10px;margin:0 0 4px}.ech{height:12px;margin-bottom:2px}.pos-med{font-size:10.5px}
+.retenir li{font-size:13px;margin:0 0 5px;padding-left:18px}footer{font-size:9.5px;line-height:1.4;padding-top:9px}
+.zone,.pos,.cs-row{break-inside:avoid}.annexe{break-before:page;border-top:0;margin-top:0}.recherche{display:none}a{text-decoration:none;color:inherit}}
 </style></head><body><div class="page">
-<header><div>
-<h1>Morbihan <small>Département 56</small></h1>
-<div class="sous">Chiffres clés — départs attendus à l’horizon 2030</div></div>
-<div class="meta">Salariés de 45 ans et + en 2024<br>Périmètre BITD · scénario central</div></header>
-<div class="kpis">
-<div class="stock"><div class="groupe-titre">Aujourd’hui (2024)</div>
-<div class="kpi"><div class="n">252</div><div class="l">salariés de 45 ans et +</div><div class="d">dans 8 entreprises du périmètre</div></div>
-<div class="kpi"><div class="n">61</div><div class="l">salariés de 55 ans et +</div><div class="d"><b>24 %</b> des 45 ans et +</div></div>
+<header class="zone">
+<p class="kicker">Département · 56</p>
+<h1>Morbihan</h1>
+<p class="titre2">Renouvellement des effectifs — départs attendus à l’horizon 2030</p>
+<p class="perim">Périmètre étudié · salariés de 45 ans et plus en 2024 · entreprises de la BITD</p>
+</header>
+<section class="zone hero">
+<div>
+<div class="hero-n">74</div>
+<p class="hero-l">départs attendus d’ici 2030</p>
+<p class="hero-d">Scénario central · fourchette 70 – 79</p>
+<p class="hero-c">85 % de ces départs relèvent de la retraite ou d’une fin de carrière.</p>
 </div>
-<div class="groupe flux"><div class="groupe-titre">D’ici 2030</div>
-<div class="kpi flux"><div class="n">74</div><div class="l">départs attendus (sorties définitives de l’emploi)</div><div class="d">fourchette 70 – 79<br>dont <b>50</b> parmi les 55 ans et + (83 % d’entre eux)</div></div>
-</div></div>
-<h2>Quel âge ont-ils ? <small>part des salariés de 45 ans et + · en bleu foncé : 55 ans et +</small></h2>
-<div class="ligne"><span class="lib">45-48 ans</span><span class="piste"><span class="b" style="width:80.2%"></span></span><span class="val">34 %</span></div>
-<div class="ligne"><span class="lib">49-54 ans</span><span class="piste"><span class="b" style="width:100.0%"></span></span><span class="val">42 %</span></div>
-<div class="ligne"><span class="lib">55-60 ans</span><span class="piste"><span class="b senior" style="width:36.8%"></span></span><span class="val">15 %</span></div>
-<div class="ligne"><span class="lib">61 ans et +</span><span class="piste"><span class="b senior" style="width:20.8%"></span></span><span class="val">9 %</span></div>
-<h2>Quelles catégories sont les plus concernées ? <small>barre : salariés de 55 ans et + (aujourd’hui) · chiffre : départs attendus d’ici 2030</small></h2>
-<div class="ligne"><span class="lib">Cadres</span><span class="piste"><span class="b senior" style="width:100.0%"></span></span><span class="val">19 <small>salariés de 55+</small> · <b>15</b> <small>départs</small></span></div>
-<div class="ligne"><span class="lib">Prof. intermédiaires</span><span class="piste"><span class="b senior" style="width:84.2%"></span></span><span class="val">16 <small>salariés de 55+</small> · <b>18</b> <small>départs</small></span></div>
-<div class="ligne"><span class="lib">Ouvriers</span><span class="piste"><span class="b senior" style="width:73.7%"></span></span><span class="val">14 <small>salariés de 55+</small> · <b>25</b> <small>départs</small></span></div>
-<div class="ligne"><span class="lib">Employés</span><span class="piste"><span class="b senior" style="width:63.2%"></span></span><span class="val">12 <small>salariés de 55+</small> · <b>16</b> <small>départs</small></span></div>
-<h2>D’où viendraient les départs ? <small>répartition des 74 départs attendus</small></h2>
-<div class="empile"><span class="c1" style="width:85.3%"></span><span class="c2" style="width:9.6%"></span><span class="c3" style="width:5.1%"></span></div><div class="legende"><span><i class="c1"></i>Retraite / fin de carrière <b>85 %</b></span><span><i class="c2"></i>Invalidité <b>10 %</b></span><span><i class="c3"></i>Décès <b>5 %</b></span></div>
-<h2>Comment se situe Morbihan dans le périmètre ? <small>20 départements comparés</small></h2>
-<div class="paire"><div class="paire-titre">Part des 55 ans et + (aujourd'hui) <span class="pos dessous">en dessous de la médiane (−12,4 points)</span></div><div class="ligne"><span class="lib">Morbihan</span><span class="piste"><span class="b senior" style="width:66.2%"></span></span><span class="val">24 %</span></div><div class="ligne"><span class="lib">Médiane du périmètre</span><span class="piste"><span class="b ref" style="width:100.0%"></span></span><span class="val">37 %</span></div></div><div class="paire"><div class="paire-titre">Taux de départ des 55 ans et + (d'ici 2030) <span class="pos dessous">en dessous de la médiane (−0,0 point)</span></div><div class="ligne"><span class="lib">Morbihan</span><span class="piste"><span class="b senior" style="width:100.0%"></span></span><span class="val">83 %</span></div><div class="ligne"><span class="lib">Médiane du périmètre</span><span class="piste"><span class="b ref" style="width:100.0%"></span></span><span class="val">83 %</span></div></div>
-<div class="deux"><div><h2>À retenir</h2><ul>
-<li>Les 55 ans et plus représentent 24 % des salariés de 45 ans et plus.</li>
-<li>Environ 74 départs sont attendus d'ici 2030 dans le scénario central (fourchette 70 – 79).</li>
-<li>Les ouvriers sont la catégorie la plus concernée en volume (25 départs attendus).</li>
-</ul></div>
-<div><h2>Points d’attention</h2><ul>
-<li class="muet">Aucun point d'attention au regard des règles retenues.</li>
-</ul></div></div>
+<div class="ctx">
+<div><div class="ctx-n">252</div><div class="ctx-l">salariés de 45 ans et + dans 8 entreprises</div></div>
+<div><div class="ctx-n">61</div><div class="ctx-l">ont 55 ans et +, soit <b>24 %</b></div></div>
+</div></section>
+<section class="zone">
+<h2>Où se concentreraient les départs ?</h2>
+<p class="sous">Nombre de départs attendus d’ici 2030 par catégorie sociale</p>
+<div class="cs-row" role="img" aria-label="Ouvriers : 25 départs attendus"><span class="cs-lib">Ouvriers</span><span class="cs-piste"><span class="cs-bar premier" style="width:100.0%"></span></span><span class="cs-val">25</span></div>
+<div class="cs-row" role="img" aria-label="Prof. intermédiaires : 18 départs attendus"><span class="cs-lib">Prof. intermédiaires</span><span class="cs-piste"><span class="cs-bar" style="width:71.5%"></span></span><span class="cs-val">18</span></div>
+<div class="cs-row" role="img" aria-label="Employés : 16 départs attendus"><span class="cs-lib">Employés</span><span class="cs-piste"><span class="cs-bar" style="width:64.9%"></span></span><span class="cs-val">16</span></div>
+<div class="cs-row" role="img" aria-label="Cadres : 15 départs attendus"><span class="cs-lib">Cadres</span><span class="cs-piste"><span class="cs-bar" style="width:60.9%"></span></span><span class="cs-val">15</span></div>
+
+</section>
+<section class="zone">
+<h2>Par rapport aux autres départements du périmètre</h2>
+<p class="sous">Comparaison à la médiane des 20 départements analysés</p>
+<p class="legende"><i></i>Morbihan <b></b>médiane</p>
+<div class="pos"><div class="pos-tete"><span class="pos-lib">Part des salariés de 55 ans et +</span><span class="pos-val">24,2 %</span></div><div class="pos-verdict dessous">en dessous de la médiane</div><div class="ech" aria-hidden="true"><span class="ech-med" style="left:66.4%"></span><span class="ech-pt" style="left:14.7%"></span></div><div class="pos-med">médiane des 20 départements : 36,6 %</div></div><div class="pos"><div class="pos-tete"><span class="pos-lib">Part des salariés de 55 ans et + qui devraient avoir quitté l’emploi d’ici 2030</span><span class="pos-val">82,7 %</span></div><div class="pos-verdict dessous">en dessous de la médiane</div><div class="ech" aria-hidden="true"><span class="ech-med" style="left:30.2%"></span><span class="ech-pt" style="left:29.9%"></span></div><div class="pos-med">médiane des 20 départements : 82,7 %</div></div>
+</section>
+<section class="zone">
+<h2>À retenir</h2>
+<ul class="retenir">
+<li>24 % des salariés de 45 ans et + ont 55 ans ou plus.</li>
+<li>83 % des salariés de 55 ans et + devraient avoir quitté l’emploi d’ici 2030.</li>
+<li>Les ouvriers concentrent le plus grand nombre de départs attendus (34 % du total).</li>
+</ul>
+</section>
 <footer>
-Champ : salariés de 45 ans et + en 2024 des entreprises du périmètre BITD, établissements situés dans le territoire. Départs = sorties définitives de l’emploi d’ici 2030 (retraite ou fin de carrière, invalidité, décès) ; les mobilités vers d’autres employeurs ne sont pas comptées : les volumes sont un plancher. Scénario central ; fourchette = hypothèses réglementaires basse et haute. Secret statistique : cellules de moins de 20 salariés non diffusées (n.d.), avec suppression secondaire. Position : comparaison à la médiane des 20 départements du périmètre analysé. Points d’attention : règles fixes (au-dessus de la médiane ; deux catégories ≥ 60 % des départs ; dernière tranche d’âge ≥ 15 %). Sources : BTS 2024, DREES, EACR invalidité, mortalité Insee — calculs propres · données : table test.
-</footer></div></body></html>
+Champ : salariés de 45 ans et + en 2024 des entreprises du périmètre BITD, établissements situés dans le territoire. Départs = sorties définitives de l’emploi d’ici 2030 (retraite ou fin de carrière, invalidité, décès) ; les mobilités vers d’autres employeurs ne sont pas comptées. Scénario central, fourchette = hypothèses réglementaires basse et haute. Secret statistique : cellules de moins de 20 salariés non diffusées. Sources : BTS 2024, DREES, EACR invalidité, mortalité Insee — calculs propres · données : table test.
+</footer>
+
+</div></body></html>
