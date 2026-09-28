@@ -32,6 +32,8 @@ source("R/08_analyse_55plus_geo.R")       # -> sorties/analyse_55plus_par_<zonag
                                           #    quadrant_55plus_<zonage>.png,
                                           #    tableau_departs_55plus_<zonage>.{csv,html}
                                           #    (<zonage> = GEO_ANALYSE : ze, departement...)
+source("R/08b_departs_geo_cs.R")          # -> sorties/departs_par_<zonage>_cs.csv
+                                          #    (territoire x grande CS, tout le champ, secret appliqué)
 source("R/09_fiches_territoriales.R")     # -> sorties/fiches_<zonage>/<code>_<nom>.html + index.html
                                           #    (si GENERER_FICHES ; mode tous / selection)
 message("Chaîne exécutée.")
