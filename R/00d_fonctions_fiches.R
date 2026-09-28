@@ -79,13 +79,13 @@ calculer_contexte_perimetre <- function(base, age_senior = AGE_SENIOR) {
   base <- base |> mutate(senior = age_2024 >= age_senior)
   par_territoire <- base |>
     group_by(geo_code) |>
-    summarise(effectif_45plus = n(), effectif_55plus = sum(senior),
+    summarise(effectif_champ = n(), effectif_55plus = sum(senior),
               part_55plus_pct = 100 * mean(senior),
               departs_55plus  = sum(p_central[senior]), .groups = "drop") |>
     mutate(taux_depart_55plus_pct = ifelse(effectif_55plus > 0,
                                            100 * departs_55plus / effectif_55plus, NA_real_))
   ens <- base |>
-    summarise(effectif_45plus = n(), effectif_55plus = sum(senior),
+    summarise(effectif_champ = n(), effectif_55plus = sum(senior),
               part_55plus_pct = 100 * mean(senior),
               departs_central = sum(p_central), departs_bas = sum(p_bas),
               departs_haut = sum(p_haut), departs_55plus = sum(p_central[senior]))

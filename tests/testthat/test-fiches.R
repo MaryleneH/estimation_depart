@@ -130,7 +130,7 @@ test_that("cohérence avec le 08 sur la chaîne (mode test département)", {
   sg <- env$synthese_geo
   expect_equal(nrow(j), nrow(sg))                                   # même nombre de territoires
   cmp <- dplyr::inner_join(j, sg, by = c("code" = "geo_code"))
-  expect_equal(cmp$effectif,   cmp$effectif_45plus)
+  expect_equal(cmp$effectif,   cmp$effectif_champ)
   expect_equal(cmp$effectif55, cmp$effectif_55plus)
   # départs des 55+ de la fiche == tableau territorial du 08
   ctx <- env$calculer_contexte_perimetre(env$base_fiches)

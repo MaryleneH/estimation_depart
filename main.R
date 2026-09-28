@@ -1,5 +1,5 @@
 # ==============================================================================
-# DÉPARTS DES SALARIÉS DU CHAMP (AGE_MIN_BTS ans et +, 45 par défaut) À L'HORIZON 2030 — ORCHESTRATEUR
+# DÉPARTS DES SALARIÉS DU CHAMP (AGE_MIN_BTS ans et +, réglé dans 00_config.R) À L'HORIZON 2030 — ORCHESTRATEUR
 # ------------------------------------------------------------------------------
 # Exécute la chaîne dans l'ordre ; les scripts communiquent par les OBJETS de
 # la session (pas d'intermédiaires sur disque). À lancer depuis la racine du
@@ -23,7 +23,10 @@ source("R/06d_graphique_repartition_cs_regroupe.R") # -> sorties/repartition_par
                                           #    (06b avec invalidité + décès regroupés, note de lecture)
 source("R/06e_graphique_repartition_age_regroupe.R") # -> sorties/repartition_par_age_regroupe.png
                                           #    + repartition_55plus_regroupe.png (regroupé par âge)
-source("R/07_tableau_contribution.R")     # -> sorties/tableau_contribution.html (+ .png)
+if (requireNamespace("gt", quietly = TRUE)) {   # 07 = mise en forme gt, facultative :
+  source("R/07_tableau_contribution.R")   # -> sorties/tableau_contribution.html (+ .png)
+} else message("07 IGNORÉ : package 'gt' absent (install.packages(\"gt\")) — ",
+               "le même tableau sans gt est produit par R/07b (à sourcer à part).")
 source("R/08_analyse_55plus_geo.R")       # -> sorties/analyse_55plus_par_<zonage>.csv,
                                           #    criticite_55plus_<zonage>_cs.csv,
                                           #    quadrant_55plus_<zonage>.png,
