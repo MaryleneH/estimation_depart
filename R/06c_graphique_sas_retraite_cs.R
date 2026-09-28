@@ -27,10 +27,10 @@ library(tidyr)
 library(ggplot2)
 library(scales)
 
-# Seuil d'âge légal moyen atteint sur l'horizon 2030 (approximation). L'ancrage
-# tous régimes fin 2023 (62,75) + montée résiduelle : on prend ~63,5 ans, ordre
-# de grandeur de l'âge légal effectif des générations concernées d'ici 2030.
-AGE_LEGAL_2030 <- 63.5
+# Seuil d'âge légal moyen atteint sur l'horizon 2030 (approximation) : ancrage
+# tous régimes (AGE_CONJ_TOUS_REGIMES_2023, 00_config) + moitié de la montée
+# résiduelle = hypothèse centrale du 04. Dérivé des paramètres, jamais en dur.
+AGE_LEGAL_2030 <- AGE_CONJ_TOUS_REGIMES_2023 + MONTEE_RESIDUELLE_2030 / 2
 
 if (file.exists("R/00b_fonts.R")) source("R/00b_fonts.R") else {FONT_TITRE<-"sans";FONT_CORPS<-"sans"}
 
