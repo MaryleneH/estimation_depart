@@ -112,3 +112,43 @@ test_that("zonage : le même script produit departs_par_ze_cs.csv en mode ZE (sa
                  sum(e3$calculer_departs_geo_cs(e3$base_geo_cs, 0)$brut$effectif_champ[e3$departs_geo_cs$masque]),
                nrow(e3$bts_projete))
 })
+
+# --- 8. Invariance : l'export est une opération SANS effet de bord ------------
+test_that("8. sourcer 08b ne modifie, ne supprime ni ne regroupe aucun objet existant ; indicateurs identiques", {
+  env <- new.env()
+  old <- setwd(RACINE); on.exit(setwd(old), add = TRUE)
+  sys.source(file.path("R", "00_config.R"), envir = env)
+  assign("GEO_ANALYSE", "departement", envir = env); assign("GEO_SOURCE", "departement", envir = env)
+  assign("DIR_SORTIES", file.path(tempdir(), "s08b_invariance"), envir = env); dir.create(env$DIR_SORTIES, showWarnings = FALSE)
+  for (s in c("00c_fonctions_geo.R", "00d_fonctions_fiches.R", "01_fabriquer_donnees_test.R",
+              "01b_agreger_pcs.R", "02_importer_nettoyer_drees.R", "02b_importer_mortalite_insee.R",
+              "02c_importer_invalidite_eacr.R", "03_parametres_csp.R", "04_projection_2030.R",
+              "08_analyse_55plus_geo.R", "09_fiches_territoriales.R"))
+    suppressMessages(suppressWarnings(invisible(capture.output(sys.source(file.path("R", s), envir = env)))))
+  indicateurs <- function(e) {
+    b <- e$bts_projete
+    list(n_bts = nrow(e$bts), n_projete = nrow(b), n55 = sum(b$age_2024 >= e$AGE_SENIOR),
+         departs = sum(b$p_central), departs55 = sum(b$p_central[b$age_2024 >= e$AGE_SENIOR]),
+         departs55_08 = sum(e$synthese_geo$departs_55plus),
+         par_cs = b |> dplyr::group_by(cs1) |> dplyr::summarise(d = sum(p_central), .groups = "drop"),
+         par_terr = b |> dplyr::group_by(geo_code) |> dplyr::summarise(d = sum(p_central), .groups = "drop"),
+         groupes = dplyr::group_vars(b), fiches = e$journal_fiches)
+  }
+  avant_ind <- indicateurs(env)
+  avant <- mget(ls(env, all.names = TRUE), envir = env)          # TOUS les objets de la session
+  expect_true("brut" %in% names(avant))                            # l'objet du 02c existe (EACR présent)
+
+  suppressMessages(suppressWarnings(invisible(capture.output(
+    sys.source(file.path("R", "08b_departs_geo_cs.R"), envir = env)))))
+
+  apres <- mget(ls(env, all.names = TRUE), envir = env)
+  disparus <- setdiff(names(avant), names(apres))
+  modifies <- names(avant)[!vapply(names(avant), function(n) identical(avant[[n]], apres[[n]]), logical(1))]
+  expect_identical(disparus, character(0))                         # rien supprimé (ex. `brut` du 02c)
+  expect_identical(modifies, character(0))                         # rien modifié (bts_projete, synthese_geo, ...)
+  expect_setequal(setdiff(names(apres), names(avant)),             # seuls des objets NOUVEAUX
+                  c("ZON_08B", "base_geo_cs", "calculer_departs_geo_cs", "departs_geo_cs", "fichier_08b"))
+  expect_identical(indicateurs(env), avant_ind)                    # mêmes comptages, aucun grouping résiduel
+  expect_identical(dplyr::group_vars(env$bts_projete), character(0))
+  expect_true(file.exists(file.path(env$DIR_SORTIES, "departs_par_departement_cs.csv")))
+})
