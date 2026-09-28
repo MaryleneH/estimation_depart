@@ -1,4 +1,4 @@
-"geo_code";"geo_nom";"effectif_45plus";"effectif_55plus";"part_55plus_pct";"departs_55plus";"departs_55plus_bas";"departs_55plus_haut";"dep_55_retraite";"dep_55_invalidite";"dep_55_deces";"taux_depart_55plus_pct";"taux_55plus_bas_pct";"taux_55plus_haut_pct"
+"geo_code";"geo_nom";"effectif_champ";"effectif_55plus";"part_55plus_pct";"departs_55plus";"departs_55plus_bas";"departs_55plus_haut";"dep_55_retraite";"dep_55_invalidite";"dep_55_deces";"taux_depart_55plus_pct";"taux_55plus_bas_pct";"taux_55plus_haut_pct"
 "64";"Pyrénées-Atlantiques";314;140;44,6;124,8;121,2;127,9;122,9;1,3;0,6;89,2;86,6;91,4
 "01";"Ain";307;134;43,6;117,4;113,8;120,5;115,4;1,3;0,6;87,6;85;89,9
 "59";"Nord";334;140;41,9;121,8;118,3;125;119,8;1,3;0,7;87;84,5;89,3

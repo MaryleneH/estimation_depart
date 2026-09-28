@@ -81,12 +81,18 @@ if (SOURCE_BTS == "parquet") {
   # Pyramides des âges volontairement CONTRASTÉES entre territoires (poids
   # senior ~0.55 à ~2.2), sinon tout s'empile sur la moyenne du quadrant.
   poids_senior <- runif(length(zt$code), 0.55, 2.2)
+  # Le champ simulé suit AGE_MIN_BTS (comme le filtre Arrow en mode parquet) ;
+  # configuration incohérente = arrêt explicite, pas une table vide ou biaisée.
+  if (AGE_MIN_BTS >= AGE_MAX_TEST)
+    stop(sprintf("Mode test : AGE_MIN_BTS = %d >= AGE_MAX_TEST = %d, aucun âge à simuler.",
+                 AGE_MIN_BTS, AGE_MAX_TEST))
+  ages_test <- AGE_MIN_BTS:AGE_MAX_TEST
   bts <- tibble(
     id       = sprintf("ID%05d", 1:N_TEST),
     siren    = sample(sprintf("ENT_%02d", 1:8), N_TEST, replace = TRUE),
     sexe     = sample(c("Hommes", "Femmes"), N_TEST, replace = TRUE, prob = c(0.55, 0.45)),
-    age_2024 = sample(AGE_MIN_BTS:66, N_TEST, replace = TRUE,        # champ : AGE_MIN_BTS ans et +
-                      prob = rev(seq_along(AGE_MIN_BTS:66))^0.7),
+    age_2024 = sample(ages_test, N_TEST, replace = TRUE,             # champ : AGE_MIN_BTS ans et +
+                      prob = rev(seq_along(ages_test))^0.7),
     pcs      = tirer_pcs(N_TEST)
   ) |>
     mutate(generation = 2024 - age_2024,
