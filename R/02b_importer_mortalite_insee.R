@@ -5,9 +5,10 @@
 #             Q_DECES_ANNUEL)
 # ENTRÉE    : data/3_Quotients_mortalite.xlsx — classeur Insee au format natif :
 #             4 onglets {FR,FM}-{Femmes,Hommes}, table LARGE (1 ligne/année,
-#             1 colonne/âge "43 ans", ...), quotients POUR 100 000, 2 lignes
+#             1 colonne/âge "0 an", "1 an", ...), quotients POUR 100 000, 2 lignes
 #             de titre, suffixe "(p)" sur les années provisoires.
-# PRODUIT   : objet `table_mortalite` (age, sexe, q en proportion), 43-72 ans
+# PRODUIT   : objet `table_mortalite` (age, sexe, q en proportion), du bas du
+#             champ (AGE_MIN_BTS) à 72 ans — la table doit couvrir AU MOINS le champ
 # SECOURS   : fichier absent -> quotients plats Q_DECES_ANNUEL (message fort).
 # ==============================================================================
 if (!exists("FICHIER_MORTALITE")) stop("Exécutez d'abord R/00_config.R (ou main.R).")
@@ -49,16 +50,18 @@ if (file.exists(FICHIER_MORTALITE)) {
     lire_onglet(CHAMP_MORTALITE, "Hommes") |> mutate(sexe = "H"),
     lire_onglet(CHAMP_MORTALITE, "Femmes") |> mutate(sexe = "F")
   ) |>
-    filter(annee == ANNEE_MORTALITE, age %in% 43:72) |>
+    filter(annee == ANNEE_MORTALITE, age %in% AGE_MIN_BTS:72) |>
     transmute(age, sexe, q = q100k / 1e5) |>      # pour 100 000 -> proportion
     arrange(sexe, age)
 
   # Garde-fous : millésime présent, couverture complète, plausibilité
   if (nrow(table_mortalite) == 0)
     stop("Année ", ANNEE_MORTALITE, " absente du classeur : vérifiez ANNEE_MORTALITE.")
+  # la table doit couvrir AU MOINS le champ (AGE_MIN_BTS ans -> 72 ans)
+  if (nrow(table_mortalite) != 2 * length(AGE_MIN_BTS:72))
+    stop("couverture d'âges incomplète (", AGE_MIN_BTS, "-72 requis pour H et F) : ",
+         nrow(table_mortalite), " lignes lues.")
   stopifnot(
-    "couverture d'âges incomplète (43-72 requis pour H et F)" =
-      nrow(table_mortalite) == 2 * length(43:72),
     "quotients invraisemblables : vérifiez l'onglet / l'échelle" =
       all(table_mortalite$q > 0 & table_mortalite$q < 0.06)
   )
@@ -66,7 +69,7 @@ if (file.exists(FICHIER_MORTALITE)) {
           ANNEE_MORTALITE, ", ", nrow(table_mortalite), " lignes)")
 
 } else {
-  table_mortalite <- expand_grid(age = 43:72, sexe = c("H", "F")) |>
+  table_mortalite <- expand_grid(age = AGE_MIN_BTS:72, sexe = c("H", "F")) |>
     mutate(q = Q_DECES_ANNUEL[sexe]) |> arrange(sexe, age)
   message("02b ATTENTION : ", FICHIER_MORTALITE, " absent -> quotients PLATS ",
           "de secours. Déposez le classeur Insee pour la version finale.")

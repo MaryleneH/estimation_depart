@@ -567,7 +567,7 @@ Départs de salariés d’ici 2030 : décomposition par cause
 
 
 <p class="tableau-sous-titre">
-Salariés de 43 ans et + en 2024 — scénario central —
+Salariés de ', LIB_CHAMP, ' en 2024 — scénario central —
 ',
 format_nombre(effectif),
 ' salariés
@@ -576,7 +576,7 @@ format_nombre(effectif),
 
 <table>
 
-<caption class="sr-only">Décomposition par cause des départs attendus d’ici 2030 des salariés de 43 ans et plus</caption>
+<caption class="sr-only">Décomposition par cause des départs attendus d’ici 2030 des salariés de ', LIB_CHAMP_LONG, '</caption>
 
 <thead>
 

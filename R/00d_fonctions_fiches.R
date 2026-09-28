@@ -79,13 +79,13 @@ calculer_contexte_perimetre <- function(base, age_senior = AGE_SENIOR) {
   base <- base |> mutate(senior = age_2024 >= age_senior)
   par_territoire <- base |>
     group_by(geo_code) |>
-    summarise(effectif_43plus = n(), effectif_55plus = sum(senior),
+    summarise(effectif_45plus = n(), effectif_55plus = sum(senior),
               part_55plus_pct = 100 * mean(senior),
               departs_55plus  = sum(p_central[senior]), .groups = "drop") |>
     mutate(taux_depart_55plus_pct = ifelse(effectif_55plus > 0,
                                            100 * departs_55plus / effectif_55plus, NA_real_))
   ens <- base |>
-    summarise(effectif_43plus = n(), effectif_55plus = sum(senior),
+    summarise(effectif_45plus = n(), effectif_55plus = sum(senior),
               part_55plus_pct = 100 * mean(senior),
               departs_central = sum(p_central), departs_bas = sum(p_bas),
               departs_haut = sum(p_haut), departs_55plus = sum(p_central[senior]))
@@ -114,19 +114,20 @@ calculer_indicateurs_territoire <- function(base, code, contexte,
                                             age_senior = AGE_SENIOR,
                                             breaks = BREAKS_TRANCHES,
                                             labels = LABELS_TRANCHES,
-                                            seuil_proche = NULL) {
+                                            seuil_proche = NULL,
+                                            age_min = AGE_MIN_BTS) {
   d <- base |> filter(geo_code == code)
   if (nrow(d) == 0) stop("Territoire '", code, "' absent des données.")
   d <- d |> mutate(senior = age_2024 >= age_senior,
                    tranche = cut(age_2024, breaks = breaks, labels = labels)) |>
     ajouter_parts_causes()
-  n43 <- nrow(d); n55 <- sum(d$senior)
+  n_champ <- nrow(d); n55 <- sum(d$senior)
 
   # Âges (stock) — masquage + suppression secondaire. Une tranche est « senior »
   # si sa borne inférieure (borne cut exclue + 1) atteint age_senior.
   bornes_inf <- breaks[-length(breaks)] + 1
   ages <- d |> count(tranche, name = "n", .drop = FALSE) |>
-    mutate(tranche = as.character(tranche), part = 100 * n / n43,
+    mutate(tranche = as.character(tranche), part = 100 * n / n_champ,
            senior = (bornes_inf >= age_senior)[match(tranche, labels)],
            masque = masquer_cellules(n, seuil))
 
@@ -151,14 +152,14 @@ calculer_indicateurs_territoire <- function(base, code, contexte,
   cs_masquee <- any(cs$masque)
 
   # Position dans le périmètre
-  part55 <- 100 * n55 / n43
+  part55 <- 100 * n55 / n_champ
   pos <- list(part = position_mediane(part55, contexte$med_part, seuil_proche),
               taux = position_mediane(dep$taux_seniors, contexte$med_taux, seuil_proche))
 
   n_ent <- n_distinct(d$siren)
   list(code = code, nom = as.character(d$geo_nom[1]), geo_type = as.character(d$geo_type[1]),
-       diffusable = n43 >= seuil, seuil = seuil, age_senior = age_senior,
-       population = list(n43 = n43, n55 = n55, part55 = part55,
+       diffusable = n_champ >= seuil, seuil = seuil, age_senior = age_senior, age_min = age_min,
+       population = list(n_champ = n_champ, n55 = n55, part55 = part55,
                          n_entreprises = if (n_ent >= 3) n_ent else NA_integer_),
        ages = ages, departs = dep, causes = causes, cs = cs, cs_masquee = cs_masquee,
        position = pos)
@@ -168,8 +169,8 @@ calculer_indicateurs_territoire <- function(base, code, contexte,
 phrases_a_retenir <- function(ind) {
   p <- ind$population; dep <- ind$departs
   ph <- c(
-    sprintf("Les %d ans et plus représentent %s des salariés de 43 ans et plus.",
-            ind$age_senior, fmt_pct(p$part55)),
+    sprintf("Les %d ans et plus représentent %s des salariés de %d ans et plus.",
+            ind$age_senior, fmt_pct(p$part55), ind$age_min),
     sprintf("Environ %s départs sont attendus d'ici 2030 dans le scénario central (fourchette %s – %s).",
             fmt_n(dep$central), fmt_n(dep$bas), fmt_n(dep$haut)))
   # CS la plus concernée : seulement si aucune CS masquée ET écart net (> 10 %)
@@ -224,7 +225,7 @@ html_ligne_barre <- function(libelle, pct_largeur, valeur, classe = "b", masque 
 # --- La fiche HTML ------------------------------------------------------------
 generer_html_fiche <- function(ind, contexte, zonage, seuil_proche = NULL,
                                source_note = "données : table test") {
-  p <- ind$population; dep <- ind$departs; s <- ind$age_senior
+  p <- ind$population; dep <- ind$departs; s <- ind$age_senior; a <- ind$age_min
   nom <- echap_html(ind$nom); code <- echap_html(ind$code)
 
   # Bloc 2 — âges : largeur relative à la tranche la plus peuplée
@@ -315,21 +316,21 @@ generer_html_fiche <- function(ind, contexte, zonage, seuil_proche = NULL,
     '<header><div>',
     sprintf('<h1>%s <small>%s %s</small></h1>', nom, echap_html(zonage$libelle), code),
     '<div class="sous">Chiffres clés — départs attendus à l’horizon 2030</div></div>',
-    '<div class="meta">Salariés de 43 ans et + en 2024<br>Périmètre BITD · scénario central</div></header>',
+    sprintf('<div class="meta">Salariés de %d ans et + en 2024<br>Périmètre BITD · scénario central</div></header>', a),
     # ---- Bloc 1 : combien ?
     '<div class="kpis">',
     '<div class="stock"><div class="groupe-titre">Aujourd’hui (2024)</div>',
-    sprintf('<div class="kpi"><div class="n">%s</div><div class="l">salariés de 43 ans et +</div>%s</div>',
-            fmt_n(p$n43), if (is.finite(p$n_entreprises)) sprintf('<div class="d">dans %s entreprises du périmètre</div>', fmt_n(p$n_entreprises)) else ""),
-    sprintf('<div class="kpi"><div class="n">%s</div><div class="l">salariés de %d ans et +</div><div class="d"><b>%s</b> des 43 ans et +</div></div>',
-            fmt_n(p$n55), s, fmt_pct(p$part55)),
+    sprintf('<div class="kpi"><div class="n">%s</div><div class="l">salariés de %d ans et +</div>%s</div>',
+            fmt_n(p$n_champ), a, if (is.finite(p$n_entreprises)) sprintf('<div class="d">dans %s entreprises du périmètre</div>', fmt_n(p$n_entreprises)) else ""),
+    sprintf('<div class="kpi"><div class="n">%s</div><div class="l">salariés de %d ans et +</div><div class="d"><b>%s</b> des %d ans et +</div></div>',
+            fmt_n(p$n55), s, fmt_pct(p$part55), a),
     '</div>',
     '<div class="groupe flux"><div class="groupe-titre">D’ici 2030</div>',
     sprintf('<div class="kpi flux"><div class="n">%s</div><div class="l">départs attendus (sorties définitives de l’emploi)</div><div class="d">fourchette %s – %s<br>dont <b>%s</b> parmi les %d ans et + (%s d’entre eux)</div></div>',
             fmt_n(dep$central), fmt_n(dep$bas), fmt_n(dep$haut), fmt_n(dep$seniors_central), s, fmt_pct(dep$taux_seniors)),
     '</div></div>',
     # ---- Bloc 2 : âges
-    sprintf('<h2>Quel âge ont-ils ? <small>part des salariés de 43 ans et + · en bleu foncé : %d ans et +</small></h2>', s),
+    sprintf('<h2>Quel âge ont-ils ? <small>part des salariés de %d ans et + · en bleu foncé : %d ans et +</small></h2>', a, s),
     bloc_ages,
     # ---- Bloc 3 : CS
     sprintf('<h2>Quelles catégories sont les plus concernées ? <small>barre : salariés de %d ans et + (aujourd’hui) · chiffre : départs attendus d’ici 2030</small></h2>', s),
@@ -346,7 +347,7 @@ generer_html_fiche <- function(ind, contexte, zonage, seuil_proche = NULL,
     '<div><h2>Points d’attention</h2><ul>', li(attention), '</ul></div></div>',
     # ---- Pied
     '<footer>',
-    sprintf(paste0('Champ : salariés de 43 ans et + en 2024 des entreprises du périmètre BITD, établissements situés dans le territoire. ',
+    sprintf(paste0('Champ : salariés de %d ans et + en 2024 des entreprises du périmètre BITD, établissements situés dans le territoire. ',
                    'Départs = sorties définitives de l’emploi d’ici 2030 (retraite ou fin de carrière, invalidité, décès) ; ',
                    'les mobilités vers d’autres employeurs ne sont pas comptées : les volumes sont un plancher. ',
                    'Scénario central ; fourchette = hypothèses réglementaires basse et haute. ',
@@ -354,7 +355,7 @@ generer_html_fiche <- function(ind, contexte, zonage, seuil_proche = NULL,
                    'Position : comparaison à la médiane des %d %s du périmètre analysé.%s ',
                    'Points d’attention : règles fixes (au-dessus de la médiane ; deux catégories ≥ 60 %% des départs ; dernière tranche d’âge ≥ 15 %%). ',
                    'Sources : BTS 2024, DREES, EACR invalidité, mortalité Insee — calculs propres · %s.'),
-            ind$seuil, contexte$n_territoires, echap_html(zonage$pluriel), regle_proche, source_note),
+            a, ind$seuil, contexte$n_territoires, echap_html(zonage$pluriel), regle_proche, source_note),
     '</footer></div></body></html>')
 }
 
@@ -397,7 +398,7 @@ selectionner_territoires <- function(base, mode = "tous", selection = NULL,
 }
 
 # --- Page d'index -------------------------------------------------------------
-generer_html_index <- function(journal, zonage) {
+generer_html_index <- function(journal, zonage, age_min = AGE_MIN_BTS) {
   j <- journal |> filter(statut == "ok") |> arrange(desc(departs))
   lignes <- sprintf('<tr><td><a href="%s">%s</a></td><td>%s</td><td class="num">%s</td><td class="num">%s</td><td class="num">%s</td></tr>',
                     j$fichier, echap_html(j$nom), echap_html(j$code), fmt_n(j$effectif), fmt_n(j$effectif55), fmt_n(j$departs))
@@ -406,8 +407,8 @@ generer_html_index <- function(journal, zonage) {
     '<style>body{font-family:-apple-system,"Segoe UI",Roboto,Arial,sans-serif;color:#111827;margin:2em;} table{border-collapse:collapse;font-size:14px;} th{text-align:left;padding:.4em .8em;border-bottom:2px solid #1e3a5f;} td{padding:.35em .8em;border-bottom:1px solid #e5e7eb;} .num,th.num{text-align:right;font-variant-numeric:tabular-nums;} a{color:#1e3a5f;}</style></head><body>',
     sprintf('<h1>Fiches chiffres clés — %s</h1><p>%d fiches · départs attendus à l’horizon 2030 · classement par départs décroissants</p>',
             echap_html(zonage$pluriel), nrow(j)),
-    sprintf('<table><thead><tr><th>%s</th><th>Code</th><th class="num">Salariés 43+</th><th class="num">Salariés 55+</th><th class="num">Départs attendus</th></tr></thead><tbody>',
-            echap_html(zonage$libelle)),
+    sprintf('<table><thead><tr><th>%s</th><th>Code</th><th class="num">Salariés %d+</th><th class="num">Salariés 55+</th><th class="num">Départs attendus</th></tr></thead><tbody>',
+            echap_html(zonage$libelle), age_min),
     lignes, '</tbody></table></body></html>')
 }
 
@@ -416,19 +417,19 @@ generer_fiches <- function(base, dir, mode = "tous", selection = NULL,
                            seuil = SEUIL_DIFFUSION, age_senior = AGE_SENIOR,
                            zonage = zonage_geo(GEO_ANALYSE), seuil_proche = NULL,
                            source_note = "données : table test", index = TRUE,
-                           prefixe = "09") {
+                           prefixe = "09", age_min = AGE_MIN_BTS) {
   dir.create(dir, showWarnings = FALSE, recursive = TRUE)
   contexte <- calculer_contexte_perimetre(base, age_senior)
   sel <- selectionner_territoires(base, mode, selection, seuil)
   journal <- lapply(seq_len(nrow(sel$retenus)), function(i) {
     code <- sel$retenus$code[i]
     ind  <- calculer_indicateurs_territoire(base, code, contexte, seuil, age_senior,
-                                            seuil_proche = seuil_proche)
+                                            seuil_proche = seuil_proche, age_min = age_min)
     fichier <- paste0(slug_fiche(ind$code, ind$nom), ".html")
     writeLines(generer_html_fiche(ind, contexte, zonage, seuil_proche, source_note),
                file.path(dir, fichier), useBytes = TRUE)
     tibble::tibble(code = ind$code, nom = ind$nom, fichier = fichier, statut = "ok",
-                   effectif = ind$population$n43, effectif55 = ind$population$n55,
+                   effectif = ind$population$n_champ, effectif55 = ind$population$n55,
                    departs = ind$departs$central, motif = NA_character_)
   }) |> bind_rows()
   if (nrow(sel$ecartes) > 0)
@@ -436,7 +437,7 @@ generer_fiches <- function(base, dir, mode = "tous", selection = NULL,
                            transmute(code, nom = NA_character_, fichier = NA_character_,
                                      statut = "écarté", effectif = NA_integer_,
                                      effectif55 = NA_integer_, departs = NA_real_, motif))
-  if (index) writeLines(generer_html_index(journal, zonage), file.path(dir, "index.html"), useBytes = TRUE)
+  if (index) writeLines(generer_html_index(journal, zonage, age_min), file.path(dir, "index.html"), useBytes = TRUE)
   message(prefixe, " : ", sum(journal$statut == "ok"), " fiche(s) écrite(s) dans ", dir,
           if (any(journal$statut != "ok")) paste0(" — ", sum(journal$statut != "ok"),
                                                   " territoire(s) écarté(s) : ",

@@ -18,16 +18,16 @@ library(ggplot2)
 
 resultats_entreprises <- bts_projete |>
   group_by(siren) |>
-  summarise(effectif_43plus_2024 = n(),
+  summarise(effectif_45plus_2024 = n(),
             departs_2030 = sum(p_central),
             departs_bas  = sum(p_bas),
             departs_haut = sum(p_haut),
             .groups = "drop") |>
-  mutate(part_departs_pct = 100 * departs_2030 / effectif_43plus_2024) |>
+  mutate(part_departs_pct = 100 * departs_2030 / effectif_45plus_2024) |>
   arrange(desc(part_departs_pct))
 
 total <- resultats_entreprises |>
-  summarise(across(c(effectif_43plus_2024, departs_2030,
+  summarise(across(c(effectif_45plus_2024, departs_2030,
                      departs_bas, departs_haut), sum))
 
 print(resultats_entreprises |> mutate(across(where(is.numeric), ~ round(.x, 1))))
@@ -47,7 +47,7 @@ g <- resultats_entreprises |>
                 width = 0.2, linewidth = 0.6, color = "grey25") +
   coord_flip() +
   labs(title    = "Départs définitifs attendus d'ici 2030, par entreprise",
-       subtitle = sprintf("Salariés de 43 ans et + en 2024 — scénario central ; fourchette réglementaire δ ∈ [%.2f ; %.2f] an",
+       subtitle = sprintf("Salariés de %s en 2024 — scénario central ; fourchette réglementaire δ ∈ [%.2f ; %.2f] an", LIB_CHAMP,
                           delta_bas, delta_haut),
        caption  = "Sources : DREES, jeu departretraite_parcsp (Insee, enquête Emploi) — calculs propres. Données individuelles : table test.",
        x = NULL, y = "Nombre de départs attendus") +

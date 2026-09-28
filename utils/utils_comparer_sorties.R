@@ -11,7 +11,7 @@
 # présents d'un seul côté listés. Un écart max de 0 partout = non-régression.
 # ==============================================================================
 comparer_sorties <- function(avant, apres,
-                             indicateurs = c("effectif_43plus", "effectif_55plus",
+                             indicateurs = c("effectif_45plus", "effectif_55plus",
                                              "part_55plus_pct", "departs_55plus",
                                              "departs_55plus_bas", "departs_55plus_haut",
                                              "dep_55_retraite", "dep_55_invalidite",
