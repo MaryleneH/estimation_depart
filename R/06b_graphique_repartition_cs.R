@@ -71,7 +71,7 @@ g <- repartition_cs |>
   guides(fill = guide_legend(reverse = TRUE, nrow = 2, byrow = TRUE)) +
   labs(
     title = "Qui sera encore là en 2030 ?",
-    subtitle = sprintf("Devenir des salariés de 43 ans et + selon la catégorie sociale — scénario central (δ = %.2f an)",
+    subtitle = sprintf("Devenir des salariés de %s selon la catégorie sociale — scénario central (δ = %.2f an)", LIB_CHAMP,
                        delta_central),
     caption = "Lecture : à 55-60 ans, 23 % des cadres ont quitté l'emploi contre 60 % des ouvriers.\nSources : DREES (departretraite_parcsp, Insee enquête Emploi), EACR invalidité, mortalité Insee — calculs propres · données : table test",
     x = sprintf("Âge en %d", ANNEE_REF_GRAPHIQUE), y = NULL, fill = NULL

@@ -83,7 +83,7 @@ g <- repartition |>
                      expand = expansion(mult = c(0, 0.02))) +
   scale_fill_manual(values = couleurs) +
   guides(fill = guide_legend(reverse = TRUE)) +
-  labs(title = sprintf("Répartition des salariés de 43 ans et + (en %d)\nselon leur situation attendue à 2030",
+  labs(title = sprintf("Répartition des salariés de %s (en %d)\nselon leur situation attendue à 2030", LIB_CHAMP,
                        ANNEE_REF_GRAPHIQUE),
        subtitle = sous_titre,
        caption  = "Sources : DREES, jeu departretraite_parcsp (Insee, enquête Emploi) ; quotients de mortalité Insee — calculs propres. Données individuelles : table test.",

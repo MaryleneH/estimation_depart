@@ -95,7 +95,7 @@ g1 <- repartition_age_regroupe |>
   guides(fill = guide_legend(reverse = TRUE, nrow = 1)) +
   labs(
     title = "Qui sera encore là en 2030 ?",
-    subtitle = sprintf("Devenir des salariés de 43 ans et + par tranche d'âge, toutes catégories sociales — scénario central (δ = %.2f an) ; invalidité et décès regroupés",
+    subtitle = sprintf("Devenir des salariés de %s par tranche d'âge, toutes catégories sociales — scénario central (δ = %.2f an) ; invalidité et décès regroupés", LIB_CHAMP,
                        delta_central),
     caption = paste0(note_lecture, "\n",
                      "Sources : DREES (departretraite_parcsp, Insee enquête Emploi), EACR invalidité, mortalité Insee — calculs propres · données : table test"),

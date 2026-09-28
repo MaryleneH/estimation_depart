@@ -85,7 +85,8 @@ if (SOURCE_BTS == "parquet") {
     id       = sprintf("ID%05d", 1:N_TEST),
     siren    = sample(sprintf("ENT_%02d", 1:8), N_TEST, replace = TRUE),
     sexe     = sample(c("Hommes", "Femmes"), N_TEST, replace = TRUE, prob = c(0.55, 0.45)),
-    age_2024 = sample(43:66, N_TEST, replace = TRUE, prob = rev(seq_along(43:66))^0.7),
+    age_2024 = sample(AGE_MIN_BTS:66, N_TEST, replace = TRUE,        # champ : AGE_MIN_BTS ans et +
+                      prob = rev(seq_along(AGE_MIN_BTS:66))^0.7),
     pcs      = tirer_pcs(N_TEST)
   ) |>
     mutate(generation = 2024 - age_2024,

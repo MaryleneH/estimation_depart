@@ -30,7 +30,7 @@ library(tidyr)
 bornes_tranche <- function(lbl) {
   n <- as.integer(unlist(regmatches(lbl, gregexpr("[0-9]+", lbl))))
   if (length(n) >= 2) c(min(n), max(n))
-  else if (length(n) == 1 && grepl("moins", lbl, TRUE)) c(43, n)
+  else if (length(n) == 1 && grepl("moins", lbl, TRUE)) c(AGE_MIN_BTS, n)  # borne = bas du champ
   else if (length(n) == 1 && grepl("plus|\\+", lbl))    c(n, 72)
   else if (length(n) == 1)                              c(n, n)
   else c(NA, NA)
@@ -65,6 +65,8 @@ pop_active_tranches <- function() {
                        names_to = "bande", values_to = "taux_act") |>
       mutate(bande = sub("^a_", "", bande))
     # bandes de TAUX_ACTIVITE -> bornes, alignées sur TRANCHES_DEFAUT
+    # bandes de la SOURCE (43_49...) : conservées telles quelles, le taux 43-49
+    # s'applique aux 45-49 ans du champ (voir 00_config, T_INVALIDITE_BASE)
     corr <- tibble(bande = c("43_49","50_54","55_59","60_61","62plus"),
                    borne_inf = c(43,50,55,60,62), borne_sup = c(49,54,59,61,72))
     pa <- ta |> left_join(corr, by = "bande") |>

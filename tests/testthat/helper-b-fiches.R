@@ -2,9 +2,10 @@
 # 00d, et une petite base SYNTHÉTIQUE au contrat de bts_projete (geo_code /
 # geo_nom / geo_type + probabilités) — rapide et indépendante de la chaîne.
 AGE_SENIOR      <- 55
+AGE_MIN_BTS     <- 45
 SEUIL_DIFFUSION <- 20
 BREAKS_TRANCHES <- c(-Inf, 48, 54, 60, Inf)
-LABELS_TRANCHES <- c("43-48 ans", "49-54 ans", "55-60 ans", "61 ans et +")
+LABELS_TRANCHES <- c(sprintf("%d-48 ans", AGE_MIN_BTS), "49-54 ans", "55-60 ans", "61 ans et +")
 source(file.path(RACINE, "R", "00d_fonctions_fiches.R"), local = TRUE)
 
 # Un territoire = liste(code, nom, effectifs par CS, part de seniors).
@@ -15,7 +16,7 @@ fabriquer_base_fiches <- function(territoires, seed = 1) {
     cs <- rep(names(t$n_cs), t$n_cs)
     n  <- length(cs)
     senior <- runif(n) < t$part_senior
-    age <- ifelse(senior, sample(55:66, n, TRUE), sample(43:54, n, TRUE))
+    age <- ifelse(senior, sample(55:66, n, TRUE), sample(AGE_MIN_BTS:54, n, TRUE))
     p   <- ifelse(senior, 0.9, 0.2)
     tibble::tibble(
       geo_code = t$code, geo_nom = t$nom, geo_type = "departement",
