@@ -4,7 +4,7 @@
 # PRÉREQUIS : objet `bts_projete` (04) au contrat geo_code / geo_nom / geo_type ;
 #             fonctions 00c (géographie) et 00d (fiches) ; paramètres
 #             GENERER_FICHES, FICHES_MODE, FICHES_SELECTION, FICHES_DIR,
-#             FICHES_SEUIL_PROCHE, GEO_INTERET, SEUIL_DIFFUSION, AGE_SENIOR (00)
+#             FICHES_SEUIL_PROCHE, FICHES_ANNEXE, GEO_INTERET, SEUIL_DIFFUSION, AGE_SENIOR (00)
 # PRODUIT   : sorties/fiches_<suffixe du zonage>/<code>_<nom>.html (une page
 #             autonome par territoire) + index.html ; objet `journal_fiches`.
 # PÉRIMÈTRE : le MÊME que le 08 (recodage des territoires inconnus, filtre
@@ -39,6 +39,7 @@ if (!isTRUE(GENERER_FICHES)) {
     base_fiches, dir = dir_fiches, mode = FICHES_MODE, selection = selection_fiches,
     seuil = SEUIL_DIFFUSION, age_senior = AGE_SENIOR, zonage = ZON_FICHES,
     seuil_proche = FICHES_SEUIL_PROCHE, age_min = AGE_MIN_BTS,
+    annexe = isTRUE(get0("FICHES_ANNEXE", ifnotfound = FALSE)),
     source_note = if (identical(SOURCE_BTS, "parquet")) "données individuelles : BTS 2024" else "données : table test")
 
   cat(sprintf("\n--- Fiches %s : journal ---\n", ZON_FICHES$pluriel))

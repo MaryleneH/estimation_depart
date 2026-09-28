@@ -126,9 +126,9 @@ for (a in AGES_TEST) {
   txt_index  <- lire_tout(file.path(p, "sorties", "fiches_ze", "index.html"))
 
   test_that(sprintf("[%d] E. libellés : « %d+ », « %d ans et + », « %d-48 ans » ; jamais un autre âge", a, a, a, a), {
-    expect_match(txt_index,  sprintf("Salariés %d\\+", a))
+    expect_match(txt_index,  sprintf("salariés de %d ans et plus en 2024", a))
     expect_match(txt_fiches, sprintf("%d ans et \\+", a))
-    expect_match(txt_fiches, sprintf("%d-48 ans", a))
+    expect_match(txt_fiches, sprintf("salariés de %d ans et plus en 2024", a))
     expect_match(r$quadrant$size, sprintf("^Effectif %d\\+$", a))
     for (o in autres) {
       motif <- sprintf("\\b%d\\+|\\b%d ans et|\\b%d-48", o, o, o)
@@ -142,11 +142,11 @@ for (a in AGES_TEST) {
 
   test_that(sprintf("[%d] F. fiches : champ, tranche et phrase « À retenir » sur %d ans", a, a), {
     expect_gt(length(fiches), 1)
-    expect_match(txt_fiches, sprintf("Salariés de %d ans et \\+ en 2024", a))
-    expect_match(txt_fiches, sprintf("salariés de %d ans et \\+", a))
-    expect_match(txt_fiches, sprintf("des salariés de %d ans et plus", a))
-    expect_match(txt_fiches, sprintf("des %d ans et \\+", a))            # « x % des 44 ans et + »
-    expect_match(txt_fiches, sprintf("Champ : salariés de %d ans et \\+", a))
+    expect_match(txt_fiches, sprintf("Périmètre étudié · salariés de %d ans et plus en 2024", a))
+    expect_match(txt_fiches, sprintf("salariés de %d ans et \\+ dans", a))          # contexte du HERO
+    expect_match(txt_fiches, sprintf("des salariés de %d ans et \\+ ont 55 ans ou plus", a))  # « À retenir »
+    expect_match(txt_fiches, sprintf("Champ : salariés de %d ans et \\+", a))       # sources
+    expect_match(txt_index,  sprintf("salariés de %d ans et plus en 2024", a))
   })
 
   test_that(sprintf("[%d] G. quadrant : axe X, taille et caption sur %d+", a, a), {

@@ -200,6 +200,9 @@ FICHES_SELECTION <- NULL          # codes (ex. c("03", "18", "33")) ; NULL en mo
                                   # (médianes, quadrant) ; FICHES_SELECTION dit seulement
                                   # pour QUI on édite une fiche.
 FICHES_DIR       <- NULL          # NULL = sorties/fiches_<suffixe du zonage>/
+FICHES_ANNEXE    <- FALSE         # TRUE = seconde page par fiche (structure par âge,
+                                  # causes, scénarios bas/haut, comparaison détaillée) ;
+                                  # la page 1 se suffit toujours à elle-même.
 FICHES_SEUIL_PROCHE <- NULL       # NULL = position « au-dessus / en dessous » de la
                                   # médiane (même règle que le quadrant) ; sinon un
                                   # nombre de POINTS (ex. 2) sous lequel on affiche
