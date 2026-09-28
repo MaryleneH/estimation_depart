@@ -1,11 +1,13 @@
-# Helper testthat pour les fiches territoriales : paramètres minimaux, couche
-# 00d, et une petite base SYNTHÉTIQUE au contrat de bts_projete (geo_code /
-# geo_nom / geo_type + probabilités) — rapide et indépendante de la chaîne.
-AGE_SENIOR      <- 55
-AGE_MIN_BTS     <- 45
-SEUIL_DIFFUSION <- 20
-BREAKS_TRANCHES <- c(-Inf, 48, 54, 60, Inf)
-LABELS_TRANCHES <- c(sprintf("%d-48 ans", AGE_MIN_BTS), "49-54 ans", "55-60 ans", "61 ans et +")
+# Helper testthat pour les fiches territoriales : paramètres du projet (00_config,
+# source unique : AGE_MIN_BTS, tranches, seuils), couche 00d, et une petite base
+# SYNTHÉTIQUE au contrat de bts_projete (geo_code / geo_nom / geo_type +
+# probabilités) — rapide et indépendante de la chaîne.
+# 00_config.R est sourcé depuis la racine (chemins relatifs) ; DIR_SORTIES est
+# ensuite redirigé vers un dossier temporaire.
+.old_wd <- setwd(RACINE)
+source(file.path(RACINE, "R", "00_config.R"), local = TRUE)
+setwd(.old_wd)
+DIR_SORTIES <- tempdir()
 source(file.path(RACINE, "R", "00d_fonctions_fiches.R"), local = TRUE)
 
 # Un territoire = liste(code, nom, effectifs par CS, part de seniors).
@@ -16,7 +18,8 @@ fabriquer_base_fiches <- function(territoires, seed = 1) {
     cs <- rep(names(t$n_cs), t$n_cs)
     n  <- length(cs)
     senior <- runif(n) < t$part_senior
-    age <- ifelse(senior, sample(55:66, n, TRUE), sample(AGE_MIN_BTS:54, n, TRUE))
+    age <- ifelse(senior, sample(AGE_SENIOR:AGE_MAX_TEST, n, TRUE),
+                          sample(AGE_MIN_BTS:(AGE_SENIOR - 1), n, TRUE))
     p   <- ifelse(senior, 0.9, 0.2)
     tibble::tibble(
       geo_code = t$code, geo_nom = t$nom, geo_type = "departement",

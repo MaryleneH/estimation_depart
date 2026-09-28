@@ -14,12 +14,25 @@ FICHIER_DREES  <- file.path(DIR_DATA, "departretraite_parcsp.csv")
 SOURCE_BTS   <- "test"
 FICHIER_BTS  <- file.path(DIR_DATA, "bts_2024.parquet")   # extraction BTS
 FICHIER_SIREN<- file.path(DIR_DATA, "liste_entreprises_fictives.txt") # périmètre BITD (1 SIREN/ligne)
-AGE_MIN_BTS  <- 45        # borne d'âge du CHAMP de l'étude (filtre Arrow poussé au
-                          # disque). SOURCE DE VÉRITÉ : les libellés ci-dessous et
-                          # toutes les restitutions (« 45 ans et + ») en dérivent.
-LIB_CHAMP       <- sprintf("%d ans et +", AGE_MIN_BTS)     # « 45 ans et + »
-LIB_CHAMP_LONG  <- sprintf("%d ans et plus", AGE_MIN_BTS)  # « 45 ans et plus »
-LIB_CHAMP_COURT <- sprintf("%d+", AGE_MIN_BTS)            # « 45+ »
+# --- Âge minimal du champ étudié : SEULE SOURCE DE VÉRITÉ -----------------------
+# Toute la chaîne et toutes les restitutions en dépendent : filtre Arrow poussé
+# au disque (01), table test (01), tranches d'âge, dénominateurs (part des
+# seniors = AGE_SENIOR+ / AGE_MIN_BTS+), titres, axes, tableaux, fiches, tests.
+# Modifier UNIQUEMENT cette valeur puis relancer main.R suffit.
+# Valeurs usuelles testées : 43, 44, 45. Plage autorisée dans la version actuelle :
+# de 43 (borne basse des sources externes d'invalidité, TRANCHES_DEFAUT) à la
+# borne haute de la première tranche d'âge (BORNES_SUP_TRANCHES[1] = 48) —
+# contrôlé en fin de fichier, arrêt explicite sinon.
+# La valeur 45 n'est que le défaut ACTUEL, pas une règle méthodologique.
+AGE_MIN_BTS  <- 45
+if (!is.numeric(AGE_MIN_BTS) || length(AGE_MIN_BTS) != 1 || is.na(AGE_MIN_BTS) ||
+    AGE_MIN_BTS != round(AGE_MIN_BTS))
+  stop("AGE_MIN_BTS doit être un entier unique (âge en années révolues) ; reçu : ",
+       paste(deparse(AGE_MIN_BTS), collapse = ""), ". Les contrôles de plage sont en fin de fichier.")
+# Libellés du champ, dérivés (ne jamais écrire l'âge en dur dans un texte) :
+LIB_CHAMP       <- sprintf("%d ans et +", AGE_MIN_BTS)     # forme courante
+LIB_CHAMP_LONG  <- sprintf("%d ans et plus", AGE_MIN_BTS)  # forme rédigée
+LIB_CHAMP_COURT <- sprintf("%d+", AGE_MIN_BTS)            # forme compacte (axes, légendes)
 # Noms des colonnes DANS LE PARQUET (à adapter au schéma réel : voir schema()).
 # Elles seront renommées vers le contrat interne (siren, sexe, age_2024, pcs).
 COL_BTS <- c(siren = "siren", sexe = "sexe", age = "age", pcs = "pcs")
@@ -44,6 +57,7 @@ PCS_HORS_CHAMP <- c("1", "2")   # agriculteurs, artisans/commerçants/chefs d'en
 
 GRAINE         <- 2024        # reproductibilité de la table test
 N_TEST         <- 6000        # taille de la table test
+AGE_MAX_TEST   <- 66          # âge maximal simulé (table test : AGE_MIN_BTS..AGE_MAX_TEST)
 ANNEES_LISSAGE <- 2018:2020   # fenêtre de lissage DREES — à arbitrer au vu du
                               # tableau de stabilité affiché par 03 (Covid 2020)
 
@@ -92,8 +106,9 @@ COEF_CSP_INVALIDITE <- c("Cadres"               = 0.5,
 # Base de REPLI par tranche d'âge x sexe (niveau "moyen tous CSP"), utilisée
 # NB : la première tranche commence à 43 ans = borne de la SOURCE (tables
 # EIR/EACR et population active), PAS le champ : son taux s'applique aux
-# 45-49 ans de la BTS. Ne pas l'aligner sur AGE_MIN_BTS (cela changerait la
-# largeur du dénominateur reconstruit, donc le taux — modification méthodo).
+# premiers âges du champ (AGE_MIN_BTS à 49 ans). Ne pas l'aligner sur
+# AGE_MIN_BTS (cela changerait la largeur du dénominateur reconstruit, donc le
+# taux — modification méthodo). C'est aussi la borne BASSE admise pour AGE_MIN_BTS.
 # UNIQUEMENT si le fichier EACR-invalidité est absent (mode dégradé). Les
 # tranches ci-dessous servent aussi de tranches PAR DÉFAUT quand aucun fichier
 # de population active n'est fourni (bornes incluses : borne_inf..borne_sup).
@@ -128,7 +143,7 @@ AGE_PLEIN_INVALIDITE <- 61   # au-delà : flux d'invalidité gelé (bascule retr
 FICHIER_POP_ACTIVE <- file.path(DIR_DATA, "pop_active_insee.csv")
 # À DÉFAUT : reconstruction approchée (cohorte x taux d'activité). PROVISOIRE,
 # à remplacer par le fichier Insee pour la version finale.
-COHORTE_PAR_SEXE   <- 410000     # taille approx. d'une génération / sexe (45-64)
+COHORTE_PAR_SEXE   <- 410000     # taille approx. d'une génération / sexe (générations de la BTS)
 # Taux d'activité par tranche d'âge et sexe (Insee 2024, ordres de grandeur) :
 TAUX_ACTIVITE <- tibble::tribble(
   ~sexe, ~a_43_49, ~a_50_54, ~a_55_59, ~a_60_61, ~a_62plus,
@@ -149,9 +164,15 @@ Q_DECES_ANNUEL <- c("H" = 0.0045, "F" = 0.0025)
 # --- Paramètres de restitution graphique (script 06) --------------------------
 ANNEE_REF_GRAPHIQUE <- 2024   # année d'affichage = millésime de la photo BTS
                               # (tout aligné sur 2024 : cohérence heatmap/barres)
-BREAKS_TRANCHES <- c(-Inf, 48, 54, 60, Inf)
-# première tranche = du bas du champ (AGE_MIN_BTS) à 48 ans : « 45-48 ans »
-LABELS_TRANCHES <- c(sprintf("%d-48 ans", AGE_MIN_BTS), "49-54 ans", "55-60 ans", "61 ans et +")
+# Tranches d'âge de restitution : la PREMIÈRE commence au bas du champ
+# (AGE_MIN_BTS) ; seules les bornes HAUTES internes se règlent ici. Breaks et
+# libellés en dérivent (« <AGE_MIN_BTS>-48 ans », « 49-54 ans », « 55-60 ans »,
+# « 61 ans et + »). Un âge sous le champ tomberait en NA (visible).
+BORNES_SUP_TRANCHES <- c(48, 54, 60)
+BREAKS_TRANCHES <- c(AGE_MIN_BTS - 1, BORNES_SUP_TRANCHES, Inf)
+LABELS_TRANCHES <- c(sprintf("%d-%d ans", c(AGE_MIN_BTS, head(BORNES_SUP_TRANCHES, -1) + 1),
+                             BORNES_SUP_TRANCHES),
+                     sprintf("%d ans et +", tail(BORNES_SUP_TRANCHES, 1) + 1))
 # Discrétisation de p_central en classes de lecture (convention de restitution)
 SEUIL_CERTAIN  <- 0.75        # p >= 0.75  -> « Départ certain d'ici 2030 »
 SEUIL_PROBABLE <- 0.25        # 0.25-0.75  -> « Départ probable / envisageable »
@@ -238,3 +259,42 @@ GEO_PASSAGES <- list(
   "commune->ze"          = file.path(DIR_DATA, "passage_commune_ze.csv"),
   "commune->departement" = file.path(DIR_DATA, "passage_commune_departement.csv")
 )
+
+# ==============================================================================
+# CONTRÔLES DE COHÉRENCE DES PARAMÈTRES D'ÂGE — arrêt explicite, jamais un
+# résultat incohérent. Un message = la règle + comment la lever.
+# ==============================================================================
+# (le type d'AGE_MIN_BTS est contrôlé dès sa définition, en tête de fichier)
+if (!is.numeric(AGE_SENIOR) || length(AGE_SENIOR) != 1 || is.na(AGE_SENIOR) ||
+    AGE_SENIOR != round(AGE_SENIOR))
+  stop("AGE_SENIOR doit être un entier unique ; reçu : ",
+       paste(deparse(AGE_SENIOR), collapse = ""), ".")
+# Borne basse : les taux d'invalidité (EIR/EACR, population active) ne sont
+# connus qu'à partir de la première tranche source ; en dessous, le 02c
+# rabattrait les âges sur cette tranche sans le dire -> refus.
+if (AGE_MIN_BTS < min(TRANCHES_DEFAUT$borne_inf))
+  stop(sprintf(paste0("AGE_MIN_BTS = %d en dessous de la première tranche des sources ",
+                      "d'invalidité (%d ans, TRANCHES_DEFAUT) : aucun taux ne couvrirait ",
+                      "les %d-%d ans. Choisissez AGE_MIN_BTS >= %d ou fournissez des ",
+                      "sources couvrant ces âges."),
+               AGE_MIN_BTS, min(TRANCHES_DEFAUT$borne_inf), AGE_MIN_BTS,
+               min(TRANCHES_DEFAUT$borne_inf) - 1, min(TRANCHES_DEFAUT$borne_inf)))
+# Borne haute : la première tranche d'âge doit contenir au moins un âge.
+if (AGE_MIN_BTS > BORNES_SUP_TRANCHES[1])
+  stop(sprintf(paste0("AGE_MIN_BTS = %d incompatible avec les tranches configurées ",
+                      "(première tranche jusqu'à %d ans). Adaptez BORNES_SUP_TRANCHES."),
+               AGE_MIN_BTS, BORNES_SUP_TRANCHES[1]))
+if (any(diff(BREAKS_TRANCHES) <= 0))
+  stop("BORNES_SUP_TRANCHES doit être strictement croissant et > AGE_MIN_BTS.")
+# Le champ doit contenir les seniors : sinon « part des AGE_SENIOR+ dans le
+# champ » change de sens (toujours 100 %) et le quadrant n'a plus d'objet.
+if (AGE_MIN_BTS >= AGE_SENIOR)
+  stop(sprintf(paste0("AGE_MIN_BTS = %d >= AGE_SENIOR = %d : le champ doit commencer ",
+                      "sous la borne senior (part des %d+ = %d+ / %d+)."),
+               AGE_MIN_BTS, AGE_SENIOR, AGE_SENIOR, AGE_SENIOR, AGE_MIN_BTS))
+if (AGE_SENIOR > BORNES_SUP_TRANCHES[length(BORNES_SUP_TRANCHES)])
+  stop("AGE_SENIOR au-delà de la dernière borne des tranches : les fiches ne ",
+       "sauraient plus quelles tranches sont « seniors ». Adaptez BORNES_SUP_TRANCHES.")
+if (AGE_MIN_BTS >= AGE_MAX_TEST)
+  stop(sprintf("AGE_MIN_BTS = %d >= AGE_MAX_TEST = %d : la table test serait vide.",
+               AGE_MIN_BTS, AGE_MAX_TEST))
