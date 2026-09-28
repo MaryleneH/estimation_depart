@@ -18,16 +18,16 @@ library(ggplot2)
 
 resultats_entreprises <- bts_projete |>
   group_by(siren) |>
-  summarise(effectif_45plus_2024 = n(),
+  summarise(effectif_champ_2024 = n(),
             departs_2030 = sum(p_central),
             departs_bas  = sum(p_bas),
             departs_haut = sum(p_haut),
             .groups = "drop") |>
-  mutate(part_departs_pct = 100 * departs_2030 / effectif_45plus_2024) |>
+  mutate(part_departs_pct = 100 * departs_2030 / effectif_champ_2024) |>
   arrange(desc(part_departs_pct))
 
 total <- resultats_entreprises |>
-  summarise(across(c(effectif_45plus_2024, departs_2030,
+  summarise(across(c(effectif_champ_2024, departs_2030,
                      departs_bas, departs_haut), sum))
 
 print(resultats_entreprises |> mutate(across(where(is.numeric), ~ round(.x, 1))))

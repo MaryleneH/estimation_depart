@@ -1,4 +1,4 @@
-"geo_code";"geo_nom";"cs1";"effectif_45plus";"effectif_55plus";"part_55plus_pct";"departs_55plus";"perte_seniors_pct";"sous_seuil"
+"geo_code";"geo_nom";"cs1";"effectif_champ";"effectif_55plus";"part_55plus_pct";"departs_55plus";"perte_seniors_pct";"sous_seuil"
 "Bordeaux";"Bordeaux";"Ouvriers";41;23;56,1;22,3;54,5;FALSE
 "Poitiers";"Poitiers";"Ouvriers";28;15;53,6;14,6;52;FALSE
 "Lille";"Lille";"Employes";38;21;55,3;19,5;51,3;FALSE

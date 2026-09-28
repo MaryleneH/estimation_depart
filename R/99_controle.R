@@ -5,7 +5,7 @@
 #             Paramètres de restitution (00 : BREAKS_TRANCHES, LABELS_TRANCHES,
 #             ANNEE_REF_GRAPHIQUE).
 # PRODUIT   : impressions console + CSV dans sorties/ :
-#             A. Répartition observée par tranche d'âge du champ (45+, BTS 2024)
+#             A. Répartition observée par tranche d'âge du champ (AGE_MIN_BTS+, BTS 2024)
 #             B. Âge maximum observé par CS (fins de carrière réelles)
 #             C. Antisèche des taux projetés (μ, sortie d'emploi, causes) par
 #                CS × tranche — pour comprendre/défendre le graphique 06/06b.

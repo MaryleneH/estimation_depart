@@ -1,13 +1,13 @@
 # ==============================================================================
 # Non-régression du mode ZE : la chaîne complète (table test, graine 2024,
 # configuration par défaut) doit reproduire EXACTEMENT les résultats figés
-# dans tests/testthat/reference/ — référence établie sur le CHAMP 45 ANS ET +
-# (re-figée lors du passage 43+ -> 45+). Territoire à territoire, sur les 10
+# dans tests/testthat/reference/ — référence établie sur le champ par DÉFAUT de 00_config (AGE_MIN_BTS)
+# (re-figée à chaque changement volontaire de champ). Territoire à territoire, sur les 10
 # indicateurs du script 08. À re-figer volontairement à chaque changement de
 # champ ou de méthode ; jamais à cause d'un refactoring.
 # ==============================================================================
 
-test_that("mode ZE : résultats du 08 identiques à la référence figée (champ 45+)", {
+test_that("mode ZE : résultats du 08 identiques à la référence figée (champ par défaut)", {
   ref_csv <- file.path(RACINE, "tests", "testthat", "reference", "analyse_55plus_par_ze.csv")
   skip_if_not(file.exists(ref_csv), "référence absente")
 
@@ -25,12 +25,12 @@ test_that("mode ZE : résultats du 08 identiques à la référence figée (champ
 
   expect_identical(unique(env$bts_projete$geo_type), "ze")
 
-  indicateurs <- c("effectif_45plus", "effectif_55plus", "part_55plus_pct",
+  indicateurs <- c("effectif_champ", "effectif_55plus", "part_55plus_pct",
                    "departs_55plus", "departs_55plus_bas", "departs_55plus_haut",
                    "dep_55_retraite", "dep_55_invalidite", "dep_55_deces",
                    "taux_depart_55plus_pct")
   ref <- read.csv2(ref_csv, check.names = FALSE, stringsAsFactors = FALSE)
-  expect_true(all(indicateurs %in% names(ref)))   # la référence est bien au champ 45+
+  expect_true(all(indicateurs %in% names(ref)))   # noms internes stables (effectif_champ)
   nouveau <- env$synthese_geo |>
     dplyr::mutate(dplyr::across(dplyr::all_of(indicateurs), ~ round(.x, 1)))
 

@@ -7,11 +7,12 @@
 #   comparer_sorties("ancien/analyse_55plus_par_ze.csv",
 #                    "sorties/analyse_55plus_par_ze.csv")
 # Jointure sur le libellé du territoire (colonne `ze` des anciens fichiers,
-# `geo_nom` des nouveaux) ; écart maximal absolu par indicateur ; territoires
+# `geo_nom` des nouveaux ; anciennes colonnes effectif_4xplus lues comme
+# effectif_champ) ; écart maximal absolu par indicateur ; territoires
 # présents d'un seul côté listés. Un écart max de 0 partout = non-régression.
 # ==============================================================================
 comparer_sorties <- function(avant, apres,
-                             indicateurs = c("effectif_45plus", "effectif_55plus",
+                             indicateurs = c("effectif_champ", "effectif_55plus",
                                              "part_55plus_pct", "departs_55plus",
                                              "departs_55plus_bas", "departs_55plus_haut",
                                              "dep_55_retraite", "dep_55_invalidite",
@@ -20,6 +21,8 @@ comparer_sorties <- function(avant, apres,
     d <- read.csv2(f, check.names = FALSE, stringsAsFactors = FALSE)
     cle <- intersect(c("geo_nom", "ze"), names(d))[1]
     if (is.na(cle)) stop(f, " : aucune colonne territoire (geo_nom ou ze).")
+    # anciens fichiers : effectif_43plus / effectif_45plus -> nom interne stable
+    names(d) <- sub("^effectif_[0-9]+plus$", "effectif_champ", names(d))
     d$territoire <- d[[cle]]
     d
   }

@@ -66,7 +66,7 @@ pop_active_tranches <- function() {
       mutate(bande = sub("^a_", "", bande))
     # bandes de TAUX_ACTIVITE -> bornes, alignées sur TRANCHES_DEFAUT
     # bandes de la SOURCE (43_49...) : conservées telles quelles, le taux 43-49
-    # s'applique aux 45-49 ans du champ (voir 00_config, T_INVALIDITE_BASE)
+    # s'applique aux premiers âges du champ, AGE_MIN_BTS à 49 ans (voir 00_config)
     corr <- tibble(bande = c("43_49","50_54","55_59","60_61","62plus"),
                    borne_inf = c(43,50,55,60,62), borne_sup = c(49,54,59,61,72))
     pa <- ta |> left_join(corr, by = "bande") |>
@@ -139,6 +139,16 @@ if (file.exists(FICHIER_INVALIDITE)) {
   message("02c ATTENTION : ", FICHIER_INVALIDITE, " absent -> repli sur ",
           "T_INVALIDITE_BASE (config).")
 }
+
+# Le champ (AGE_MIN_BTS) doit être couvert par la première tranche de taux :
+# taux_invalidite_tranche() rabat les âges sous la première borne sur celle-ci,
+# ce qui serait un choix méthodologique silencieux -> refus explicite.
+if (AGE_MIN_BTS < min(inval_tranches$borne_inf))
+  stop(sprintf(paste0("02c : AGE_MIN_BTS = %d sous la première tranche des taux ",
+                      "d'invalidité disponibles (%d ans) : les %d-%d ans n'auraient ",
+                      "aucun taux. Relevez AGE_MIN_BTS ou fournissez une source couvrant ces âges."),
+               AGE_MIN_BTS, min(inval_tranches$borne_inf), AGE_MIN_BTS,
+               min(inval_tranches$borne_inf) - 1))
 
 # --- Aide pour le script 04 : taux d'invalidité d'un âge (via sa tranche) ------
 # VECTORISÉ : findInterval affecte chaque âge à sa tranche en une passe (pas de
