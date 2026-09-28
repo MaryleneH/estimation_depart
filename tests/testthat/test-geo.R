@@ -145,3 +145,21 @@ test_that("Arrow : seules les colonnes déclarées sont lues, renommage généri
                                    c(code = "ABSENTE", nom = NA), 45, c("A")),
                "absente du fichier")
 })
+
+test_that("référentiel départemental livré : data/ref_departement.csv (code;nom, 101 départements)", {
+  f <- file.path(RACINE, "data", "ref_departement.csv")
+  expect_true(file.exists(f))
+  ref <- lire_referentiel_geo(f)
+  expect_identical(names(ref), c("code", "nom"))
+  expect_equal(nrow(ref), 101)                                     # 96 métropole + 5 DROM
+  expect_equal(anyDuplicated(ref$code), 0)
+  expect_true(all(c("01", "2A", "2B", "75", "971", "976") %in% ref$code))
+  expect_identical(ref$nom[ref$code == "33"], "Gironde")
+  expect_identical(ref$nom[ref$code == "2A"], "Corse-du-Sud")
+  expect_identical(ref$nom[ref$code == "974"], "La Réunion")
+  expect_type(ref$code, "character")
+  # codes seuls dans la source -> libellés complétés par le référentiel du projet
+  df <- tibble::tibble(geo_code = c("33", "2B", "971", "09"))
+  out <- normaliser_geo(df, "departement", "departement", referentiels = list(departement = f))
+  expect_identical(out$geo_nom, c("Gironde", "Haute-Corse", "Guadeloupe", "Ariège"))
+})
