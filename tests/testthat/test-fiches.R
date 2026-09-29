@@ -228,3 +228,47 @@ test_that("STOCK_TOUS_AGES = FALSE : chaîne inchangée, fiches en repli, CSV 08
   expect_false(grepl("tous âges", f33))
   expect_match(f33, sprintf("Salariés de %d ans et \\+<small>aujourd’hui</small>", env$AGE_MIN_BTS))
 })
+
+test_that("usage interne (seuil 0) : toutes les fiches, aucun masquage, bloc entreprises par SIREN, bandeau ; diffusable inchangé", {
+  dir <- file.path(tempdir(), "fiches_interne"); unlink(dir, recursive = TRUE)
+  ref <- tibble::tibble(code = c("E01", "E02"), nom = c("Alpha Défense", "Bêta Systèmes"))
+  j <- suppressMessages(generer_fiches(BASE_FICHES, dir, mode = "tous", zonage = ZONAGE_DEP, seuil = 0,
+                                       detail_entreprises = TRUE, ref_siren = ref))
+  expect_setequal(j$code[j$statut == "ok"], c("01", "2A", "2B", "33", "09", "48"))   # 48 (12 salariés) a sa fiche
+  h2b <- paste(readLines(file.path(dir, "2b_haute-corse.html"), warn = FALSE, encoding = "UTF-8"), collapse = "\n")
+  expect_match(h2b, "usage interne · secret statistique non appliqué")
+  expect_match(h2b, '<th scope="row">Cadres</th>')                   # cellule de 5 : affichée
+  expect_false(grepl("ne sont pas affichées|n’est pas affichée", h2b))
+  expect_match(h2b, "<h2>Entreprises du territoire</h2>")
+  d2b <- BASE_FICHES |> dplyr::filter(geo_code == "2B")
+  for (s in unique(d2b$siren)) expect_match(h2b, sprintf('<td class="siren">%s</td>', s), fixed = TRUE)
+  expect_match(h2b, "Alpha Défense")
+  expect_match(h2b, sprintf("%d SIREN", dplyr::n_distinct(d2b$siren)))
+  idx <- paste(readLines(file.path(dir, "index.html"), warn = FALSE, encoding = "UTF-8"), collapse = "\n")
+  expect_match(idx, "USAGE INTERNE"); expect_match(idx, '<span class="code">48</span>')
+  # diffusable (défaut) : ni bandeau, ni entreprises, ni SIREN
+  ctx <- calculer_contexte_perimetre(BASE_FICHES)
+  h <- paste(generer_html_fiche(calculer_indicateurs_territoire(BASE_FICHES, "2B", ctx), ctx, ZONAGE_DEP), collapse = "\n")
+  expect_false(grepl("usage interne|Entreprises du territoire|class=\"siren\"", h))
+  # entreprise = SIREN : le compteur de la fiche est le nombre de SIREN distincts
+  ind <- calculer_indicateurs_territoire(BASE_FICHES, "33", ctx)
+  expect_equal(ind$population$n_entreprises, dplyr::n_distinct(BASE_FICHES$siren[BASE_FICHES$geo_code == "33"]))
+})
+
+test_that("FICHES_SECRET = FALSE sur la chaîne : dossier _interne, tous les territoires, journal sans écarté", {
+  env <- new.env()
+  old <- setwd(RACINE); on.exit(setwd(old), add = TRUE)
+  sys.source(file.path("R", "00_config.R"), envir = env)
+  assign("GEO_ANALYSE", "departement", envir = env); assign("GEO_SOURCE", "departement", envir = env)
+  assign("DIR_SORTIES", file.path(tempdir(), "interne_chaine"), envir = env); dir.create(env$DIR_SORTIES, showWarnings = FALSE)
+  assign("FICHES_SECRET", FALSE, envir = env)
+  for (s in c("00c_fonctions_geo.R", "00d_fonctions_fiches.R", "01_fabriquer_donnees_test.R",
+              "01b_agreger_pcs.R", "01c_stock_tous_ages.R", "02_importer_nettoyer_drees.R", "02b_importer_mortalite_insee.R",
+              "02c_importer_invalidite_eacr.R", "03_parametres_csp.R", "04_projection_2030.R", "09_fiches_territoriales.R"))
+    suppressMessages(suppressWarnings(invisible(capture.output(sys.source(file.path("R", s), envir = env)))))
+  expect_true(dir.exists(file.path(env$DIR_SORTIES, "fiches_departement_interne")))
+  expect_false(dir.exists(file.path(env$DIR_SORTIES, "fiches_departement")))
+  expect_true(all(env$journal_fiches$statut == "ok"))
+  f <- paste(readLines(file.path(env$DIR_SORTIES, "fiches_departement_interne", "33_gironde.html"), warn = FALSE, encoding = "UTF-8"), collapse = "\n")
+  expect_match(f, "Entreprises du territoire"); expect_match(f, "ne pas diffuser")
+})
