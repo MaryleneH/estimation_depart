@@ -196,6 +196,12 @@ STOCK_TOUS_AGES  <- TRUE          # effectifs ACTUELS tous âges par territoire 
                                   # des fiches et du CSV 08b. Exige une extraction NON
                                   # préfiltrée sur l'âge (sinon désactivé avec avertissement).
 GENERER_FICHES   <- TRUE          # FALSE = étape 09 ignorée, chaîne inchangée
+FICHES_SECRET    <- TRUE          # TRUE  = secret statistique appliqué (version DIFFUSABLE).
+                                  # FALSE = USAGE INTERNE : aucun masquage, tous les
+                                  # territoires, bloc des entreprises (SIREN) ; écrit dans
+                                  # fiches_<zonage>_interne/ avec bandeau d'avertissement.
+FICHIER_REF_SIREN <- file.path(DIR_DATA, "ref_siren.csv")  # facultatif, format  code;nom
+                                  # (code = SIREN) : noms des entreprises dans le bloc interne
 FICHES_MODE      <- "tous"        # "tous"      : tous les territoires du périmètre analysé
                                   # "selection" : les codes de FICHES_SELECTION
 FICHES_SELECTION <- NULL          # codes (ex. c("03", "18", "33")) ; NULL en mode
