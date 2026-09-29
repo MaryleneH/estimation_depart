@@ -11,6 +11,8 @@ source("R/00c_fonctions_geo.R")           # -> fonctions géographiques généri
 source("R/00d_fonctions_fiches.R")        # -> fonctions des fiches territoriales (09)
 source("R/01_fabriquer_donnees_test.R")   # -> objet : bts (contrat geo_code/geo_nom/geo_type)
 source("R/01b_agreger_pcs.R")             # -> cs1 agrégée (si AGGREGER_PCS)
+source("R/01c_stock_tous_ages.R")         # -> stock_tous_ages : effectifs actuels TOUS ÂGES par
+                                          #    territoire x CS (agrégation Arrow ; dénominateur des fiches)
 source("R/02_importer_nettoyer_drees.R")  # -> objets : fdc, fdc_salaries
 source("R/02b_importer_mortalite_insee.R")# -> objet : table_mortalite
 source("R/02c_importer_invalidite_eacr.R")# -> objet : inval_base

@@ -46,5 +46,8 @@ TERRITOIRES_TEST <- list(
   list(code = "48", nom = "Lozère",       n_cs = c(Ouvriers = 12), part_senior = 0.5, n_entreprises = 1)
 )
 BASE_FICHES <- fabriquer_base_fiches(TERRITOIRES_TEST)
+# Effectifs actuels tous âges (contrat du 01c) : trois fois le champ, par cellule
+STOCK_FICHES <- BASE_FICHES |> dplyr::count(geo_code, geo_nom, cs1) |>
+  dplyr::mutate(effectif_tous_ages = 3L * n) |> dplyr::select(-n)
 ZONAGE_DEP  <- list(libelle = "Département", un = "un département",
                     pluriel = "départements", suffixe = "departement", type = "departement")

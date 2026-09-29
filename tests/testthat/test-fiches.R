@@ -64,8 +64,8 @@ test_that("secret statistique : cellule < seuil -> n.d., pas de barre, suppressi
   expect_true(ind$cs_masquee)
   expect_identical(sum(ind$cs$masque), 2L)                        # Cadres (5) + la plus petite (Employés)
   html <- paste(generer_html_fiche(ind, ctx, ZONAGE_DEP), collapse = "\n")
-  # page 1 : aucune barre ni ligne pour une CS masquée, une note discrète, jamais « n.d. »
-  expect_false(grepl('cs-lib">Cadres', html))
+  # page 1 : aucune ligne du tableau pour une CS masquée, une note discrète, jamais « n.d. »
+  expect_false(grepl('<th scope="row">Cadres', html))
   expect_match(html, "2 catégories ne sont pas affichées en application du secret statistique")
   expect_false(grepl("n\\.d\\.", html))
   # et la phrase sur la catégorie concentrant les départs n'est pas générée
@@ -119,6 +119,41 @@ test_that("règles textuelles : position, « À retenir » en 2-3 phrases factue
   expect_false(grepl("Points d’attention|Quel âge ont-ils", html))
 })
 
+test_that("tableau des départs par CS : effectifs actuels tous âges (01c), part à remplacer, ligne Ensemble ; repli sans stock", {
+  ctx <- calculer_contexte_perimetre(BASE_FICHES)
+  ind <- calculer_indicateurs_territoire(BASE_FICHES, "33", ctx, stock = STOCK_FICHES)
+  expect_true(ind$stock_disponible)
+  expect_equal(ind$population$n_tous_ages, 3L * ind$population$n_champ)
+  expect_equal(ind$cs$n_tous, 3L * ind$cs$n)
+  html <- paste(generer_html_fiche(ind, ctx, ZONAGE_DEP), collapse = "\n")
+  expect_match(html, '<table class="tab"')
+  expect_match(html, "Salariés aujourd’hui<small>tous âges</small>")
+  expect_match(html, "Part de la catégorie<small>à remplacer d’ici 2030</small>")
+  expect_match(html, sprintf('<tr class="total"><th scope="row">Ensemble</th><td>%s</td><td class="fort">%s</td><td>%s</td></tr>',
+                             fmt_n(ind$population$n_tous_ages), fmt_n(ind$departs$central),
+                             fmt_pct(100 * ind$departs$central / ind$population$n_tous_ages)), fixed = TRUE)
+  o <- ind$cs |> dplyr::arrange(dplyr::desc(departs))               # lignes triées par départs décroissants
+  expect_match(html, sprintf('<th scope="row">%s</th><td>%s</td><td class="fort">%s</td><td>%s</td>',
+                             libelle_cs(o$cs1[1], TRUE), fmt_n(o$n_tous[1]), fmt_n(o$departs[1]),
+                             fmt_pct(100 * o$departs[1] / o$n_tous[1])), fixed = TRUE)
+  ph <- phrases_a_retenir(ind, ctx)
+  expect_match(ph[3], "des salariés actuels \\(tous âges\\) devraient être partis, jusqu’à")
+  expect_false(grepl("n\\.d\\.|NA", html))
+  # repli sans stock : dénominateur = salariés du champ, libellés explicites
+  ind0 <- calculer_indicateurs_territoire(BASE_FICHES, "33", ctx)
+  expect_false(ind0$stock_disponible)
+  h0 <- paste(generer_html_fiche(ind0, ctx, ZONAGE_DEP), collapse = "\n")
+  expect_match(h0, sprintf("Salariés de %d ans et \\+<small>aujourd’hui</small>", AGE_MIN_BTS))
+  expect_false(grepl("tous âges", h0))
+  expect_match(phrases_a_retenir(ind0, ctx)[3], "représentent .* des départs attendus du territoire")
+  # stock incomplet (une CS absente) : repli, jamais un taux faux
+  ind1 <- calculer_indicateurs_territoire(BASE_FICHES, "33", ctx, stock = STOCK_FICHES |> dplyr::filter(cs1 != "Cadres"))
+  expect_false(ind1$stock_disponible)
+  # CS masquée : la phrase ne nomme pas de catégorie
+  ind2 <- calculer_indicateurs_territoire(BASE_FICHES, "2B", ctx, stock = STOCK_FICHES)
+  expect_match(phrases_a_retenir(ind2, ctx)[3], "devraient être partis\\.$")
+})
+
 test_that("annexe optionnelle : absente par défaut, seconde page sur demande", {
   ctx <- calculer_contexte_perimetre(BASE_FICHES)
   ind <- calculer_indicateurs_territoire(BASE_FICHES, "33", ctx)
@@ -149,7 +184,7 @@ test_that("cohérence avec le 08 sur la chaîne (mode test département)", {
   assign("GEO_ANALYSE", "departement", envir = env); assign("GEO_SOURCE", "departement", envir = env)
   assign("DIR_SORTIES", tempdir(), envir = env)
   for (s in c("00c_fonctions_geo.R", "00d_fonctions_fiches.R", "01_fabriquer_donnees_test.R",
-              "01b_agreger_pcs.R", "02_importer_nettoyer_drees.R", "02b_importer_mortalite_insee.R",
+              "01b_agreger_pcs.R", "01c_stock_tous_ages.R", "02_importer_nettoyer_drees.R", "02b_importer_mortalite_insee.R",
               "02c_importer_invalidite_eacr.R", "03_parametres_csp.R", "04_projection_2030.R",
               "08_analyse_55plus_geo.R", "09_fiches_territoriales.R"))
     suppressMessages(suppressWarnings(invisible(capture.output(
@@ -165,4 +200,31 @@ test_that("cohérence avec le 08 sur la chaîne (mode test département)", {
   ind <- env$calculer_indicateurs_territoire(env$base_fiches, "33", ctx)
   expect_equal(ind$departs$seniors_central, sg$departs_55plus[sg$geo_code == "33"])
   expect_equal(ctx$med_part, env$med_part); expect_equal(ctx$med_taux, env$med_taux)
+  # 01c sur la chaîne : stock >= champ cellule à cellule, et les fiches l'utilisent
+  st <- env$stock_tous_ages
+  expect_true(all(c("geo_code", "geo_nom", "cs1", "effectif_tous_ages") %in% names(st)))
+  v <- env$bts_projete |> dplyr::count(geo_code, cs1) |> dplyr::inner_join(st, by = c("geo_code", "cs1"))
+  expect_equal(nrow(v), nrow(st)); expect_true(all(v$effectif_tous_ages >= v$n))
+  f33 <- paste(readLines(file.path(env$DIR_SORTIES, "fiches_departement", "33_gironde.html"), warn = FALSE, encoding = "UTF-8"), collapse = "\n")
+  expect_match(f33, "tous âges")
+  expect_match(f33, sprintf("<td>%s</td>", fmt_n(sum(st$effectif_tous_ages[st$geo_code == "33"]))), fixed = TRUE)
+})
+
+test_that("STOCK_TOUS_AGES = FALSE : chaîne inchangée, fiches en repli, CSV 08b sans colonnes tous âges", {
+  env <- new.env()
+  old <- setwd(RACINE); on.exit(setwd(old), add = TRUE)
+  sys.source(file.path("R", "00_config.R"), envir = env)
+  assign("GEO_ANALYSE", "departement", envir = env); assign("GEO_SOURCE", "departement", envir = env)
+  assign("DIR_SORTIES", file.path(tempdir(), "sans_stock"), envir = env); dir.create(env$DIR_SORTIES, showWarnings = FALSE)
+  assign("STOCK_TOUS_AGES", FALSE, envir = env)
+  for (s in c("00c_fonctions_geo.R", "00d_fonctions_fiches.R", "01_fabriquer_donnees_test.R",
+              "01b_agreger_pcs.R", "01c_stock_tous_ages.R", "02_importer_nettoyer_drees.R", "02b_importer_mortalite_insee.R",
+              "02c_importer_invalidite_eacr.R", "03_parametres_csp.R", "04_projection_2030.R",
+              "08b_departs_geo_cs.R", "09_fiches_territoriales.R"))
+    suppressMessages(suppressWarnings(invisible(capture.output(sys.source(file.path("R", s), envir = env)))))
+  expect_null(env$stock_tous_ages)
+  expect_false("effectif_tous_ages" %in% names(env$departs_geo_cs))
+  f33 <- paste(readLines(file.path(env$DIR_SORTIES, "fiches_departement", "33_gironde.html"), warn = FALSE, encoding = "UTF-8"), collapse = "\n")
+  expect_false(grepl("tous âges", f33))
+  expect_match(f33, sprintf("Salariés de %d ans et \\+<small>aujourd’hui</small>", env$AGE_MIN_BTS))
 })
