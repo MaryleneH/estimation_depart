@@ -13,7 +13,7 @@ lancer_chaine_08b <- function(geo = "departement", geo_interet = NULL, seuil = N
   assign("DIR_SORTIES", file.path(tempdir(), paste0("s08b_", geo, "_", length(geo_interet), "_", seuil %||% "d")), envir = env)
   dir.create(env$DIR_SORTIES, showWarnings = FALSE)
   for (s in c("00c_fonctions_geo.R", "00d_fonctions_fiches.R", "01_fabriquer_donnees_test.R",
-              "01b_agreger_pcs.R", "02_importer_nettoyer_drees.R", "02b_importer_mortalite_insee.R",
+              "01b_agreger_pcs.R", "01c_stock_tous_ages.R", "02_importer_nettoyer_drees.R", "02b_importer_mortalite_insee.R",
               "02c_importer_invalidite_eacr.R", "03_parametres_csp.R", "04_projection_2030.R",
               "08_analyse_55plus_geo.R", "08b_departs_geo_cs.R", "09_fiches_territoriales.R"))
     suppressMessages(suppressWarnings(invisible(capture.output(
@@ -29,7 +29,13 @@ test_that("fichier : créé dans DIR_SORTIES, suffixé par le zonage, colonnes a
   expect_true(file.exists(f))
   lu <- read.csv2(f, check.names = FALSE, stringsAsFactors = FALSE, colClasses = c(geo_code = "character"))
   expect_identical(names(lu), c("geo_code", "geo_nom", "cs1", "effectif_champ", "departs_2030",
-                                "departs_bas", "departs_haut", "part_departs_pct", "masque"))
+                                "departs_bas", "departs_haut", "part_departs_pct",
+                                "effectif_tous_ages", "part_a_remplacer_pct", "masque"))
+  # effectifs tous âges (01c) : jamais inférieurs au champ ; part = départs / tous âges
+  ok <- !lu$masque
+  expect_true(all(lu$effectif_tous_ages[ok] >= lu$effectif_champ[ok]))
+  expect_equal(lu$part_a_remplacer_pct[ok], round(100 * lu$departs_2030[ok] / lu$effectif_tous_ages[ok], 1), tolerance = 0.06)
+  expect_true(all(is.na(lu$effectif_tous_ages[!ok])))
   expect_type(lu$geo_code, "character")
   expect_true(all(c("01", "09", "2A") %in% lu$geo_code))            # zéros initiaux et codes corses
   expect_equal(nrow(lu), nrow(D))
@@ -121,7 +127,7 @@ test_that("8. sourcer 08b ne modifie, ne supprime ni ne regroupe aucun objet exi
   assign("GEO_ANALYSE", "departement", envir = env); assign("GEO_SOURCE", "departement", envir = env)
   assign("DIR_SORTIES", file.path(tempdir(), "s08b_invariance"), envir = env); dir.create(env$DIR_SORTIES, showWarnings = FALSE)
   for (s in c("00c_fonctions_geo.R", "00d_fonctions_fiches.R", "01_fabriquer_donnees_test.R",
-              "01b_agreger_pcs.R", "02_importer_nettoyer_drees.R", "02b_importer_mortalite_insee.R",
+              "01b_agreger_pcs.R", "01c_stock_tous_ages.R", "02_importer_nettoyer_drees.R", "02b_importer_mortalite_insee.R",
               "02c_importer_invalidite_eacr.R", "03_parametres_csp.R", "04_projection_2030.R",
               "08_analyse_55plus_geo.R", "09_fiches_territoriales.R"))
     suppressMessages(suppressWarnings(invisible(capture.output(sys.source(file.path("R", s), envir = env)))))
@@ -148,6 +154,7 @@ test_that("8. sourcer 08b ne modifie, ne supprime ni ne regroupe aucun objet exi
   expect_identical(modifies, character(0))                         # rien modifié (bts_projete, synthese_geo, ...)
   expect_setequal(setdiff(names(apres), names(avant)),             # seuls des objets NOUVEAUX
                   c("ZON_08B", "base_geo_cs", "calculer_departs_geo_cs", "departs_geo_cs", "fichier_08b"))
+  expect_true("stock_tous_ages" %in% names(avant))                 # le 01c a tourné avant, intact
   expect_identical(indicateurs(env), avant_ind)                    # mêmes comptages, aucun grouping résiduel
   expect_identical(dplyr::group_vars(env$bts_projete), character(0))
   expect_true(file.exists(file.path(env$DIR_SORTIES, "departs_par_departement_cs.csv")))

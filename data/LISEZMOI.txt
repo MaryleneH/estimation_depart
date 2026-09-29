@@ -64,6 +64,11 @@ BRANCHER LA VRAIE BTS EN PARQUET (Arrow, faible RAM)
      puis names() ou schema().
    - AGE_MIN_BTS (borne basse du champ : 43, 44, 45... toute la chaîne en dérive),
      COL_PCS <- "pcs" (pour l'agrégation).
+   - NE PAS préfiltrer l'extraction sur l'âge : le 01c compte les effectifs
+     ACTUELS tous âges par territoire x CS (agrégation Arrow, rien en RAM) pour
+     afficher dans les fiches la « part de la catégorie à remplacer d'ici 2030 ».
+     Si l'extraction ne contient aucun salarié sous AGE_MIN_BTS, cet indicateur
+     est désactivé avec un avertissement (STOCK_TOUS_AGES dans 00_config.R).
 3. Le script 01 lit en LAZY : filtre (âge, SIREN) et sélection de colonnes sont
    poussés au niveau du fichier ; seul le sous-ensemble utile est chargé en RAM.
    Test de charge : 2,4 M lignes -> 0,8 s de lecture, pic ~0,3 Go, chaîne
