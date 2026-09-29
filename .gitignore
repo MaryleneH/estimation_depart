@@ -1,1 +1,3 @@
 data/bts_2024.parquet
+# Sorties à usage interne (secret statistique non appliqué) : jamais versionnées
+sorties/fiches_*_interne/
