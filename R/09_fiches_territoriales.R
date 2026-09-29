@@ -23,7 +23,16 @@ if (!isTRUE(GENERER_FICHES)) {
   library(dplyr)
 
   ZON_FICHES <- zonage_geo(GEO_ANALYSE)
-  dir_fiches <- if (is.null(FICHES_DIR)) file.path(DIR_SORTIES, paste0("fiches_", ZON_FICHES$suffixe)) else FICHES_DIR
+  # Version diffusable (secret appliqué) ou usage interne (FICHES_SECRET = FALSE :
+  # seuil 0, tous les territoires, bloc entreprises, dossier _interne + bandeau)
+  secret_fiches <- isTRUE(get0("FICHES_SECRET", ifnotfound = TRUE))
+  seuil_fiches  <- if (secret_fiches) SEUIL_DIFFUSION else 0
+  dir_fiches <- if (is.null(FICHES_DIR))
+    file.path(DIR_SORTIES, paste0("fiches_", ZON_FICHES$suffixe, if (!secret_fiches) "_interne")) else FICHES_DIR
+  ref_siren <- if (!secret_fiches && exists("FICHIER_REF_SIREN") && file.exists(FICHIER_REF_SIREN))
+    lire_referentiel_geo(FICHIER_REF_SIREN) else NULL
+  if (!secret_fiches)
+    message("09 : USAGE INTERNE — secret statistique NON appliqué, fiches à ne pas diffuser (", dir_fiches, ")")
 
   # Même base que le 08 : territoires inconnus regroupés, périmètre GEO_INTERET
   base_fiches <- bts_projete |>
@@ -37,9 +46,10 @@ if (!isTRUE(GENERER_FICHES)) {
 
   journal_fiches <- generer_fiches(
     base_fiches, dir = dir_fiches, mode = FICHES_MODE, selection = selection_fiches,
-    seuil = SEUIL_DIFFUSION, age_senior = AGE_SENIOR, zonage = ZON_FICHES,
+    seuil = seuil_fiches, age_senior = AGE_SENIOR, zonage = ZON_FICHES,
     seuil_proche = FICHES_SEUIL_PROCHE, age_min = AGE_MIN_BTS,
     stock = if (exists("stock_tous_ages")) stock_tous_ages else NULL,
+    detail_entreprises = !secret_fiches, ref_siren = ref_siren,
     annexe = isTRUE(get0("FICHES_ANNEXE", ifnotfound = FALSE)),
     source_note = if (identical(SOURCE_BTS, "parquet")) "données individuelles : BTS 2024" else "données : table test")
 

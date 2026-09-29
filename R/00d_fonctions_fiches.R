@@ -121,7 +121,9 @@ calculer_indicateurs_territoire <- function(base, code, contexte,
                                             labels = LABELS_TRANCHES,
                                             seuil_proche = NULL,
                                             age_min = AGE_MIN_BTS,
-                                            stock = NULL) {
+                                            stock = NULL,
+                                            detail_entreprises = FALSE,
+                                            ref_siren = NULL) {
   d <- base |> filter(geo_code == code)
   if (nrow(d) == 0) stop("Territoire '", code, "' absent des données.")
   d <- d |> mutate(senior = age_2024 >= age_senior,
@@ -169,14 +171,27 @@ calculer_indicateurs_territoire <- function(base, code, contexte,
               taux = position_mediane(dep$taux_seniors, contexte$med_taux, seuil_proche))
 
   n_ent <- n_distinct(d$siren)
+  secret <- seuil > 0
+  # Bloc entreprises (usage INTERNE uniquement) : une ligne par SIREN, nom si
+  # un référentiel  code;nom  est fourni, sinon le numéro.
+  entreprises <- if (isTRUE(detail_entreprises)) {
+    e <- d |> group_by(siren = as.character(siren)) |>
+      summarise(n = n(), n55 = sum(senior), departs = sum(p_central), .groups = "drop") |>
+      arrange(desc(departs))
+    if (!is.null(ref_siren) && all(c("code", "nom") %in% names(ref_siren)))
+      e <- e |> left_join(ref_siren |> transmute(siren = as.character(code), nom), by = "siren")
+    else e$nom <- NA_character_
+    e
+  } else NULL
   list(code = code, nom = as.character(d$geo_nom[1]), geo_type = as.character(d$geo_type[1]),
-       diffusable = n_champ >= seuil, seuil = seuil, age_senior = age_senior, age_min = age_min,
+       diffusable = n_champ >= seuil, seuil = seuil, secret = secret,
+       age_senior = age_senior, age_min = age_min,
        population = list(n_champ = n_champ, n55 = n55, part55 = part55,
                          n_tous_ages = n_tous_ages,
-                         n_entreprises = if (n_ent >= 3) n_ent else NA_integer_),
+                         n_entreprises = if (n_ent >= 3 || !secret) n_ent else NA_integer_),
        stock_disponible = stock_disponible,
        ages = ages, departs = dep, causes = causes, cs = cs, cs_masquee = cs_masquee,
-       position = pos)
+       position = pos, entreprises = entreprises)
 }
 
 # --- Textes automatiques : règles déterministes, descriptives ----------------
@@ -266,6 +281,8 @@ css_fiches <- function() paste(
   # zone 3 (tableau)
   '.note{font-size:12.5px;color:var(--gris);margin:10px 0 0}',
   '.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}',
+  '.bandeau{background:#7a1f1f;color:#fff;font-size:13px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;padding:9px 14px;margin:0 0 22px}',
+  '.tab td.siren{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;text-align:left}',
   '.tab{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}',
   '.tab th,.tab td{padding:10px 8px;text-align:right;border-bottom:1px solid var(--filet);font-size:15px;vertical-align:bottom}',
   '.tab thead th{font-weight:500;color:var(--texte);font-size:12.5px;line-height:1.25;padding-bottom:8px}',
@@ -381,6 +398,23 @@ generer_html_fiche <- function(ind, contexte, zonage, seuil_proche = NULL,
   # ---- Zone 5
   retenir <- phrases_a_retenir(ind, contexte)
 
+  # ---- Usage interne : bandeau + bloc entreprises (SIREN)
+  interne <- !isTRUE(ind$secret)
+  bandeau <- if (interne) '<div class="bandeau" role="note">Document de travail · usage interne · secret statistique non appliqué · ne pas diffuser</div>' else ""
+  bloc_entreprises <- if (interne && !is.null(ind$entreprises) && nrow(ind$entreprises) > 0) {
+    e <- ind$entreprises
+    c('<section class="zone">',
+      sprintf('<h2>Entreprises du territoire</h2><p class="sous">%d SIREN · salariés de %d ans et + rattachés à un établissement du territoire · tri par départs attendus</p>',
+              nrow(e), a),
+      '<table class="tab"><thead><tr><th scope="col">SIREN</th><th scope="col">Nom</th>',
+      sprintf('<th scope="col">Salariés de %d ans et +</th><th scope="col">dont %d ans et +</th><th scope="col">Départs attendus<small>d’ici 2030</small></th></tr></thead><tbody>', a, s),
+      paste(sprintf('<tr><td class="siren">%s</td><td style="text-align:left">%s</td><td>%s</td><td>%s</td><td class="fort">%s</td></tr>',
+                    echap_html(e$siren), echap_html(ifelse(is.na(e$nom), "", e$nom)),
+                    fmt_n(e$n), fmt_n(e$n55), fmt_n(e$departs)), collapse = "\n"),
+      '</tbody></table></section>')
+  } else ""
+
+
   # ---- Annexe (optionnelle) : détails retirés de la page 1
   bloc_annexe <- if (!isTRUE(annexe)) "" else {
     max_age <- max(ind$ages$part[!ind$ages$masque], 1)
@@ -410,6 +444,7 @@ generer_html_fiche <- function(ind, contexte, zonage, seuil_proche = NULL,
     sprintf('<title>%s — départs attendus à l’horizon 2030</title>', nom),
     '<meta name="viewport" content="width=device-width, initial-scale=1">',
     '<style>', css_fiches(), '</style></head><body><div class="page">',
+    bandeau,
     # ---- Zone 1 : identité
     '<header class="zone">',
     sprintf('<p class="kicker">%s · %s</p>', zl, code),
@@ -445,6 +480,7 @@ generer_html_fiche <- function(ind, contexte, zonage, seuil_proche = NULL,
     sprintf('<p class="legende"><i></i>%s <b></b>médiane</p>', nom),
     bloc_pos,
     '</section>',
+    bloc_entreprises,
     # ---- Zone 5 : à retenir
     '<section class="zone">', '<h2>À retenir</h2>',
     '<ul class="retenir">', paste0('<li>', echap_html(retenir), '</li>', collapse = "\n"), '</ul>',
@@ -454,9 +490,10 @@ generer_html_fiche <- function(ind, contexte, zonage, seuil_proche = NULL,
     sprintf(paste0('Champ : salariés de %d ans et + en 2024 des entreprises du périmètre BITD, établissements situés dans le territoire. ',
                    'Départs = sorties définitives de l’emploi d’ici 2030 (retraite ou fin de carrière, invalidité, décès) ; ',
                    'les mobilités vers d’autres employeurs ne sont pas comptées. Scénario central, fourchette = hypothèses réglementaires basse et haute. ',
-                   'Secret statistique : cellules de moins de %d salariés non diffusées.%s%s ',
+                   '%s%s%s ',
                    'Sources : BTS 2024, DREES, EACR invalidité, mortalité Insee — calculs propres · %s.'),
-            a, ind$seuil, regle_proche,
+            a, if (interne) "USAGE INTERNE : secret statistique non appliqué, document à ne pas diffuser."
+               else sprintf("Secret statistique : cellules de moins de %d salariés non diffusées.", ind$seuil), regle_proche,
             if (avec_stock) sprintf(" Effectifs actuels : tous âges, même périmètre ; part à remplacer = départs attendus des %d ans et + rapportés à l’effectif actuel de la catégorie (plancher).", a) else "",
             source_note),
     '</footer>',
@@ -507,6 +544,7 @@ selectionner_territoires <- function(base, mode = "tous", selection = NULL,
 # nom · départs, note méthodologique complète (retirée des fiches).
 generer_html_index <- function(journal, zonage, age_min = AGE_MIN_BTS, seuil = SEUIL_DIFFUSION,
                                n_territoires = NA, source_note = "données : table test") {
+  interne <- !(seuil > 0)
   j <- journal |> filter(statut == "ok") |> arrange(code)
   zl <- echap_html(zonage$libelle); zp <- echap_html(zonage$pluriel)
   cle <- tolower(iconv(paste(j$code, j$nom), from = "UTF-8", to = "ASCII//TRANSLIT", sub = ""))
@@ -520,6 +558,7 @@ generer_html_index <- function(journal, zonage, age_min = AGE_MIN_BTS, seuil = S
     sprintf('<title>Fiches territoriales — %s</title>', zp),
     '<meta name="viewport" content="width=device-width, initial-scale=1">',
     '<style>', css_fiches(), '</style></head><body><div class="page">',
+    if (interne) '<div class="bandeau" role="note">Document de travail · usage interne · secret statistique non appliqué · ne pas diffuser</div>' else "",
     '<header class="zone"><p class="kicker">Fiches territoriales</p>',
     '<h1>Départs attendus à l’horizon 2030</h1>',
     sprintf('<p class="titre2">Une fiche par %s · %d fiches</p>', tolower(zl), nrow(j)),
@@ -536,9 +575,12 @@ generer_html_index <- function(journal, zonage, age_min = AGE_MIN_BTS, seuil = S
                    'Départ = sortie définitive de l’emploi d’ici 2030 : retraite ou fin de carrière (calendrier par catégorie sociale, DREES), invalidité (EACR) et décès (Insee) ; ',
                    'les mobilités vers d’autres employeurs ne sont pas comptées, les volumes sont un plancher. Les départs sont des espérances (somme de probabilités individuelles) ; ',
                    'le scénario central est encadré par deux hypothèses réglementaires. Comparaison territoriale : position par rapport à la médiane des %s %s du périmètre. ',
-                   'Secret statistique : toute cellule de moins de %d salariés est retirée, avec suppression secondaire ; un territoire sous ce seuil n’a pas de fiche. ',
+                   '%s ',
                    'Sources : BTS 2024, DREES, EACR invalidité, mortalité Insee — calculs propres · %s.'),
-            age_min, if (is.finite(n_territoires)) n_territoires else nrow(j), zp, seuil, source_note),
+            age_min, if (is.finite(n_territoires)) n_territoires else nrow(j), zp,
+            if (interne) "USAGE INTERNE : aucun secret statistique appliqué (tous les territoires, toutes les cellules, entreprises nommées par leur SIREN) ; document à ne pas diffuser."
+            else sprintf("Secret statistique : toute cellule de moins de %d salariés est retirée, avec suppression secondaire ; un territoire sous ce seuil n’a pas de fiche.", seuil),
+            source_note),
     '</section>',
     '<script>',
     '(function(){var q=document.getElementById("q"),l=document.getElementById("liste"),v=document.getElementById("vide");if(!q)return;',
@@ -556,14 +598,15 @@ generer_fiches <- function(base, dir, mode = "tous", selection = NULL,
                            source_note = "données : table test", index = TRUE,
                            prefixe = "09", age_min = AGE_MIN_BTS,
                            annexe = isTRUE(get0("FICHES_ANNEXE", ifnotfound = FALSE)),
-                           stock = NULL) {
+                           stock = NULL, detail_entreprises = FALSE, ref_siren = NULL) {
   dir.create(dir, showWarnings = FALSE, recursive = TRUE)
   contexte <- calculer_contexte_perimetre(base, age_senior)
   sel <- selectionner_territoires(base, mode, selection, seuil)
   journal <- lapply(seq_len(nrow(sel$retenus)), function(i) {
     code <- sel$retenus$code[i]
     ind  <- calculer_indicateurs_territoire(base, code, contexte, seuil, age_senior,
-                                            seuil_proche = seuil_proche, age_min = age_min, stock = stock)
+                                            seuil_proche = seuil_proche, age_min = age_min, stock = stock,
+                                            detail_entreprises = detail_entreprises, ref_siren = ref_siren)
     fichier <- paste0(slug_fiche(ind$code, ind$nom), ".html")
     writeLines(generer_html_fiche(ind, contexte, zonage, seuil_proche, source_note, annexe = annexe),
                file.path(dir, fichier), useBytes = TRUE)
