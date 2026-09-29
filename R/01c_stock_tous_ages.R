@@ -38,22 +38,37 @@ if (!isTRUE(get0("STOCK_TOUS_AGES", ifnotfound = TRUE))) {
   ds <- arrow::open_dataset(FICHIER_BTS)
   col_siren <- COL_BTS[["siren"]]; col_age <- COL_BTS[["age"]]; col_pcs <- COL_BTS[["pcs"]]
   col_geo <- COL_GEO[!is.na(COL_GEO)]
-  agg <- ds |>
+  # Contrat interne AVANT l'agrégation : Arrow traduit rename()/select() sur des
+  # noms fixes, mais pas .data[[variable]] dans un summarise().
+  contrat <- c(geo_code = unname(col_geo[["code"]]), pcs = unname(col_pcs), age = unname(col_age))
+  if ("nom" %in% names(col_geo)) contrat <- c(contrat, geo_nom = unname(col_geo[["nom"]]))
+  cles <- setdiff(names(contrat), "age")
+  requete <- ds |>
     filter(.data[[col_siren]] %in% sirens_bitd) |>            # même périmètre BITD, SANS filtre d'âge
-    group_by(across(all_of(unname(c(col_geo, col_pcs))))) |>
-    summarise(n = n(), age_min_cellule = min(.data[[col_age]], na.rm = TRUE), .groups = "drop") |>
-    collect()                                                   # quelques milliers de lignes au plus
+    select(all_of(unname(contrat))) |>
+    rename(all_of(contrat))
+  agg <- tryCatch(
+    requete |>
+      group_by(across(all_of(cles))) |>
+      summarise(n = n(), age_min_cellule = min(age, na.rm = TRUE), .groups = "drop") |>
+      collect(),                                                # quelques milliers de lignes au plus
+    error = function(e) {
+      # Repli : agrégation refusée par Arrow -> on rapatrie SEULEMENT les 3 ou 4
+      # colonnes clés (entiers / codes courts), puis on compte en R.
+      message("01c : agrégation Arrow non supportée (", conditionMessage(e),
+              ") -> comptage en R sur les colonnes clés uniquement.")
+      requete |> collect() |>
+        group_by(across(all_of(cles))) |>
+        summarise(n = n(), age_min_cellule = suppressWarnings(min(age, na.rm = TRUE)), .groups = "drop")
+    })
   age_min_obs <- suppressWarnings(min(agg$age_min_cellule, na.rm = TRUE))
   if (!is.finite(age_min_obs) || age_min_obs >= AGE_MIN_BTS) {
     warning("01c : l'extraction ne contient aucun salarié de moins de ", AGE_MIN_BTS,
             " ans (âge minimal observé : ", age_min_obs, "). Effectifs tous âges INDISPONIBLES : ",
             "fournissez l'extraction complète pour obtenir la part des effectifs à remplacer.")
   } else {
-    contrat <- c(geo_code = unname(col_geo[["code"]]))
-    if ("nom" %in% names(col_geo)) contrat <- c(contrat, geo_nom = unname(col_geo[["nom"]]))
     stock_tous_ages <- agg |>
-      rename(all_of(contrat)) |>
-      mutate(.pcs_txt = trimws(sub("\\.0$", "", as.character(.data[[col_pcs]]))),
+      mutate(.pcs_txt = trimws(sub("\\.0$", "", as.character(pcs))),
              cs1 = unname(PCS_VERS_CS1[substr(.pcs_txt, 1, 1)])) |>     # même règle que 01b
       filter(!is.na(cs1)) |>
       normaliser_geo(geo_source = GEO_SOURCE, geo_analyse = GEO_ANALYSE, largeur = GEO_CODE_LARGEUR,
