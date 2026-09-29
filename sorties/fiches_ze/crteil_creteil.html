@@ -24,11 +24,15 @@ h1{font-size:46px;line-height:1.02;letter-spacing:-.022em;font-weight:700;margin
 .ctx-l b{color:var(--encre);font-weight:600}
 h2{font-size:21px;line-height:1.2;font-weight:600;letter-spacing:-.012em;margin:0 0 4px}
 .sous{font-size:13.5px;color:var(--gris);margin:0 0 18px}
-.cs-row{display:grid;grid-template-columns:172px 1fr 64px;gap:14px;align-items:center;margin:0 0 11px}
-.cs-lib{font-size:15px}.cs-piste{height:26px;background:var(--fond-2)}
-.cs-bar{display:block;height:100%;background:var(--bleu-2)}.cs-bar.premier{background:var(--bleu)}
-.cs-val{text-align:right;font-weight:600;font-variant-numeric:tabular-nums;font-size:16px}
 .note{font-size:12.5px;color:var(--gris);margin:10px 0 0}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.tab{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+.tab th,.tab td{padding:10px 8px;text-align:right;border-bottom:1px solid var(--filet);font-size:15px;vertical-align:bottom}
+.tab thead th{font-weight:500;color:var(--texte);font-size:12.5px;line-height:1.25;padding-bottom:8px}
+.tab thead th small,.tab thead th{white-space:normal}.tab th small{display:block;color:var(--gris);font-weight:400;font-size:11.5px}
+.tab th[scope=row]{text-align:left;font-weight:400;color:var(--encre)}.tab thead th:first-child{text-align:left}
+.tab td.fort{font-weight:700;color:var(--bleu);font-size:17px}
+.tab tr.total th,.tab tr.total td{border-top:2px solid var(--encre);border-bottom:0;font-weight:600}.tab tr.total td.fort{font-weight:700}
 .pos{margin:0 0 18px}.pos-tete{display:flex;justify-content:space-between;gap:16px;align-items:baseline}
 .pos-lib{font-size:15px}.pos-val{font-weight:600;font-variant-numeric:tabular-nums;font-size:16px}
 .pos-verdict{font-size:12px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;color:var(--bleu);margin:2px 0 8px}
@@ -51,16 +55,16 @@ footer{margin-top:8px;padding-top:14px;border-top:1px solid var(--filet);font-si
 .vide{color:var(--gris);display:none}.methode{font-size:13px;color:var(--texte);line-height:1.5;margin-top:32px;padding-top:16px;border-top:1px solid var(--filet)}
 @media (max-width:640px){.page{padding:28px 18px 24px}h1{font-size:36px}.hero{grid-template-columns:1fr;gap:22px}
 .ctx{border-left:0;padding-left:0;border-top:1px solid var(--filet);padding-top:18px;flex-direction:row;gap:28px;flex-wrap:wrap}.hero-n{font-size:60px}
-.cs-row{grid-template-columns:1fr 56px;gap:6px 12px}.cs-lib{grid-column:1/-1;font-size:14px}.cs-piste{height:20px}
+.tab th,.tab td{padding:8px 4px;font-size:13px}.tab td.fort{font-size:15px}.tab thead th{font-size:11px}
 .an-row{grid-template-columns:1fr 60px}.an-lib{grid-column:1/-1}.liste li{grid-template-columns:44px 1fr auto}}
 @page{size:A4;margin:15mm 16mm}
 @media print{body{font-size:12px;line-height:1.35}.page{padding:0;max-width:none}.zone{padding:15px 0}
 h1{font-size:34px;margin-bottom:8px}.titre2{font-size:15px}.perim{font-size:11.5px}.hero{gap:24px}.hero-n{font-size:56px;margin:0 0 6px}.hero-l{font-size:14px}.hero-d,.hero-c{font-size:11.5px}.hero-c{margin-top:8px}
 .ctx{gap:12px;padding-top:2px}.ctx-n{font-size:24px}.ctx-l{font-size:12px;margin-top:3px}h2{font-size:17px}.sous{font-size:11.5px;margin-bottom:10px}
-.cs-row{margin:0 0 6px;grid-template-columns:150px 1fr 56px}.cs-lib{font-size:12.5px}.cs-piste{height:17px}.cs-val{font-size:13px}.note{font-size:10.5px;margin-top:6px}
+.tab th,.tab td{padding:5px 6px;font-size:11.5px}.tab td.fort{font-size:13px}.tab thead th{font-size:10.5px}.tab th small{font-size:9.5px}
 .legende{margin:-4px 0 8px;font-size:10.5px}.pos{margin:0 0 9px}.pos-lib{font-size:12.5px}.pos-val{font-size:13px}.pos-verdict{font-size:10px;margin:0 0 4px}.ech{height:12px;margin-bottom:2px}.pos-med{font-size:10.5px}
 .retenir li{font-size:13px;margin:0 0 5px;padding-left:18px}footer{font-size:9.5px;line-height:1.4;padding-top:9px}
-.zone,.pos,.cs-row{break-inside:avoid}.annexe{break-before:page;border-top:0;margin-top:0}.recherche{display:none}a{text-decoration:none;color:inherit}}
+.note{font-size:10.5px;margin-top:6px}.zone,.pos,.tab tr{break-inside:avoid}.annexe{break-before:page;border-top:0;margin-top:0}.recherche{display:none}a{text-decoration:none;color:inherit}}
 </style></head><body><div class="page">
 <header class="zone">
 <p class="kicker">Zone d'emploi · Créteil</p>
@@ -81,11 +85,11 @@ h1{font-size:34px;margin-bottom:8px}.titre2{font-size:15px}.perim{font-size:11.5
 </div></section>
 <section class="zone">
 <h2>Où se concentreraient les départs ?</h2>
-<p class="sous">Nombre de départs attendus d’ici 2030 par catégorie sociale</p>
-<div class="cs-row" role="img" aria-label="Ouvriers : 18 départs attendus"><span class="cs-lib">Ouvriers</span><span class="cs-piste"><span class="cs-bar premier" style="width:100.0%"></span></span><span class="cs-val">18</span></div>
-<div class="cs-row" role="img" aria-label="Employés : 11 départs attendus"><span class="cs-lib">Employés</span><span class="cs-piste"><span class="cs-bar" style="width:64.1%"></span></span><span class="cs-val">11</span></div>
-<div class="cs-row" role="img" aria-label="Cadres : 10 départs attendus"><span class="cs-lib">Cadres</span><span class="cs-piste"><span class="cs-bar" style="width:56.1%"></span></span><span class="cs-val">10</span></div>
-<div class="cs-row" role="img" aria-label="Prof. intermédiaires : 7 départs attendus"><span class="cs-lib">Prof. intermédiaires</span><span class="cs-piste"><span class="cs-bar" style="width:41.5%"></span></span><span class="cs-val">7</span></div>
+<p class="sous">Départs attendus d’ici 2030 par catégorie sociale, rapportés aux effectifs actuels</p>
+<table class="tab"><caption class="sr-only">Départs attendus par catégorie sociale</caption><thead><tr><th scope="col">Catégorie</th><th scope="col">Salariés aujourd’hui<small>tous âges</small></th><th scope="col">Départs attendus<small>d’ici 2030</small></th><th scope="col">Part de la catégorie<small>à remplacer d’ici 2030</small></th></tr></thead><tbody><tr><th scope="row">Ouvriers</th><td>164</td><td class="fort">18</td><td>11 %</td></tr>
+<tr><th scope="row">Employés</th><td>91</td><td class="fort">11</td><td>13 %</td></tr>
+<tr><th scope="row">Cadres</th><td>85</td><td class="fort">10</td><td>12 %</td></tr>
+<tr><th scope="row">Prof. intermédiaires</th><td>135</td><td class="fort">7</td><td>5 %</td></tr><tr class="total"><th scope="row">Ensemble</th><td>475</td><td class="fort">47</td><td>10 %</td></tr></tbody></table>
 
 </section>
 <section class="zone">
@@ -99,11 +103,11 @@ h1{font-size:34px;margin-bottom:8px}.titre2{font-size:15px}.perim{font-size:11.5
 <ul class="retenir">
 <li>31 % des salariés de 45 ans et + ont 55 ans ou plus.</li>
 <li>80 % des salariés de 55 ans et + devraient avoir quitté l’emploi d’ici 2030.</li>
-<li>Les ouvriers concentrent le plus grand nombre de départs attendus (38 % du total).</li>
+<li>D’ici 2030, 10 % des salariés actuels (tous âges) devraient être partis, jusqu’à 13 % chez les employés.</li>
 </ul>
 </section>
 <footer>
-Champ : salariés de 45 ans et + en 2024 des entreprises du périmètre BITD, établissements situés dans le territoire. Départs = sorties définitives de l’emploi d’ici 2030 (retraite ou fin de carrière, invalidité, décès) ; les mobilités vers d’autres employeurs ne sont pas comptées. Scénario central, fourchette = hypothèses réglementaires basse et haute. Secret statistique : cellules de moins de 20 salariés non diffusées. Sources : BTS 2024, DREES, EACR invalidité, mortalité Insee — calculs propres · données : table test.
+Champ : salariés de 45 ans et + en 2024 des entreprises du périmètre BITD, établissements situés dans le territoire. Départs = sorties définitives de l’emploi d’ici 2030 (retraite ou fin de carrière, invalidité, décès) ; les mobilités vers d’autres employeurs ne sont pas comptées. Scénario central, fourchette = hypothèses réglementaires basse et haute. Secret statistique : cellules de moins de 20 salariés non diffusées. Effectifs actuels : tous âges, même périmètre ; part à remplacer = départs attendus des 45 ans et + rapportés à l’effectif actuel de la catégorie (plancher). Sources : BTS 2024, DREES, EACR invalidité, mortalité Insee — calculs propres · données : table test.
 </footer>
 
 </div></body></html>

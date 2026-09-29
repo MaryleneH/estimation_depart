@@ -120,7 +120,8 @@ calculer_indicateurs_territoire <- function(base, code, contexte,
                                             breaks = BREAKS_TRANCHES,
                                             labels = LABELS_TRANCHES,
                                             seuil_proche = NULL,
-                                            age_min = AGE_MIN_BTS) {
+                                            age_min = AGE_MIN_BTS,
+                                            stock = NULL) {
   d <- base |> filter(geo_code == code)
   if (nrow(d) == 0) stop("Territoire '", code, "' absent des données.")
   d <- d |> mutate(senior = age_2024 >= age_senior,
@@ -155,6 +156,12 @@ calculer_indicateurs_territoire <- function(base, code, contexte,
     mutate(masque = masquer_cellules(n, seuil)) |>
     arrange(masque, desc(n55))
   cs_masquee <- any(cs$masque)
+  # Effectifs actuels TOUS ÂGES (01c) : dénominateur « part de la catégorie à
+  # remplacer ». Disponible seulement si le stock couvre toutes les CS du territoire.
+  st <- if (!is.null(stock)) stock |> filter(geo_code == code) |> select(cs1, n_tous = effectif_tous_ages) else NULL
+  cs <- cs |> left_join(if (is.null(st)) tibble::tibble(cs1 = character(0), n_tous = integer(0)) else st, by = "cs1")
+  stock_disponible <- !is.null(st) && all(is.finite(cs$n_tous)) && all(cs$n_tous >= cs$n)
+  n_tous_ages <- if (stock_disponible) sum(cs$n_tous) else NA_integer_
 
   # Position dans le périmètre
   part55 <- 100 * n55 / n_champ
@@ -165,7 +172,9 @@ calculer_indicateurs_territoire <- function(base, code, contexte,
   list(code = code, nom = as.character(d$geo_nom[1]), geo_type = as.character(d$geo_type[1]),
        diffusable = n_champ >= seuil, seuil = seuil, age_senior = age_senior, age_min = age_min,
        population = list(n_champ = n_champ, n55 = n55, part55 = part55,
+                         n_tous_ages = n_tous_ages,
                          n_entreprises = if (n_ent >= 3) n_ent else NA_integer_),
+       stock_disponible = stock_disponible,
        ages = ages, departs = dep, causes = causes, cs = cs, cs_masquee = cs_masquee,
        position = pos)
 }
@@ -182,18 +191,24 @@ phrases_a_retenir <- function(ind, contexte = NULL) {
                         fmt_pct(dep$taux_seniors), s))
   else
     ph <- c(ph, sprintf("Le territoire ne compte aucun salarié de %d ans et + dans le champ.", s))
-  # Catégorie(s) concentrant les départs : seulement si aucune CS n'est masquée
-  # (sinon la primauté n'est pas certaine) et si l'écart avec la suivante est net.
-  if (!ind$cs_masquee && nrow(ind$cs) >= 2 && dep$central > 0) {
+  # Troisième phrase : la part des effectifs ACTUELS à remplacer (stock tous
+  # âges, 01c). La précision par catégorie n'est donnée que si aucune CS n'est
+  # masquée (sinon le maximum n'est pas certain).
+  if (isTRUE(ind$stock_disponible) && is.finite(p$n_tous_ages) && p$n_tous_ages > 0 && dep$central > 0) {
+    part_tot <- 100 * dep$central / p$n_tous_ages
+    if (!ind$cs_masquee && nrow(ind$cs) >= 2) {
+      o <- ind$cs |> mutate(part = 100 * departs / n_tous) |> arrange(desc(part))
+      ph <- c(ph, sprintf("D’ici 2030, %s des salariés actuels (tous âges) devraient être partis, jusqu’à %s chez %s.",
+                          fmt_pct(part_tot), fmt_pct(o$part[1]), libelle_cs(o$cs1[1])))
+    } else
+      ph <- c(ph, sprintf("D’ici 2030, %s des salariés actuels (tous âges) devraient être partis.", fmt_pct(part_tot)))
+  } else if (!ind$cs_masquee && nrow(ind$cs) >= 2 && dep$central > 0) {
+    # Sans stock : part des départs attendus portée par la première catégorie
+    # (rang + part explicites), seulement si l'écart avec la suivante est net.
     o <- ind$cs |> arrange(desc(departs))
-    part1 <- 100 * o$departs[1] / dep$central
-    part2 <- 100 * sum(o$departs[1:2]) / dep$central
     if (o$departs[2] > 0 && (o$departs[1] - o$departs[2]) / o$departs[2] > 0.10)
-      ph <- c(ph, sprintf("%s concentrent le plus grand nombre de départs attendus (%s du total).",
-                          cap1(libelle_cs(o$cs1[1])), fmt_pct(part1)))
-    else if (nrow(o) >= 3 && part2 >= 60)
-      ph <- c(ph, sprintf("Deux catégories, %s et %s, concentrent %s des départs attendus.",
-                          libelle_cs(o$cs1[1]), libelle_cs(o$cs1[2]), fmt_pct(part2)))
+      ph <- c(ph, sprintf("%s représentent %s des départs attendus du territoire.",
+                          cap1(libelle_cs(o$cs1[1])), fmt_pct(100 * o$departs[1] / dep$central)))
   }
   head(ph, 3)
 }
@@ -248,12 +263,16 @@ css_fiches <- function() paste(
   # titres de zone
   'h2{font-size:21px;line-height:1.2;font-weight:600;letter-spacing:-.012em;margin:0 0 4px}',
   '.sous{font-size:13.5px;color:var(--gris);margin:0 0 18px}',
-  # zone 3
-  '.cs-row{display:grid;grid-template-columns:172px 1fr 64px;gap:14px;align-items:center;margin:0 0 11px}',
-  '.cs-lib{font-size:15px}.cs-piste{height:26px;background:var(--fond-2)}',
-  '.cs-bar{display:block;height:100%;background:var(--bleu-2)}.cs-bar.premier{background:var(--bleu)}',
-  '.cs-val{text-align:right;font-weight:600;font-variant-numeric:tabular-nums;font-size:16px}',
+  # zone 3 (tableau)
   '.note{font-size:12.5px;color:var(--gris);margin:10px 0 0}',
+  '.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}',
+  '.tab{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}',
+  '.tab th,.tab td{padding:10px 8px;text-align:right;border-bottom:1px solid var(--filet);font-size:15px;vertical-align:bottom}',
+  '.tab thead th{font-weight:500;color:var(--texte);font-size:12.5px;line-height:1.25;padding-bottom:8px}',
+  '.tab thead th small,.tab thead th{white-space:normal}.tab th small{display:block;color:var(--gris);font-weight:400;font-size:11.5px}',
+  '.tab th[scope=row]{text-align:left;font-weight:400;color:var(--encre)}.tab thead th:first-child{text-align:left}',
+  '.tab td.fort{font-weight:700;color:var(--bleu);font-size:17px}',
+  '.tab tr.total th,.tab tr.total td{border-top:2px solid var(--encre);border-bottom:0;font-weight:600}.tab tr.total td.fort{font-weight:700}',
   # zone 4
   '.pos{margin:0 0 18px}.pos-tete{display:flex;justify-content:space-between;gap:16px;align-items:baseline}',
   '.pos-lib{font-size:15px}.pos-val{font-weight:600;font-variant-numeric:tabular-nums;font-size:16px}',
@@ -282,17 +301,17 @@ css_fiches <- function() paste(
   # petits écrans
   '@media (max-width:640px){.page{padding:28px 18px 24px}h1{font-size:36px}.hero{grid-template-columns:1fr;gap:22px}',
   '.ctx{border-left:0;padding-left:0;border-top:1px solid var(--filet);padding-top:18px;flex-direction:row;gap:28px;flex-wrap:wrap}.hero-n{font-size:60px}',
-  '.cs-row{grid-template-columns:1fr 56px;gap:6px 12px}.cs-lib{grid-column:1/-1;font-size:14px}.cs-piste{height:20px}',
+  '.tab th,.tab td{padding:8px 4px;font-size:13px}.tab td.fort{font-size:15px}.tab thead th{font-size:11px}',
   '.an-row{grid-template-columns:1fr 60px}.an-lib{grid-column:1/-1}.liste li{grid-template-columns:44px 1fr auto}}',
   # impression A4
   '@page{size:A4;margin:15mm 16mm}',
   '@media print{body{font-size:12px;line-height:1.35}.page{padding:0;max-width:none}.zone{padding:15px 0}',
   'h1{font-size:34px;margin-bottom:8px}.titre2{font-size:15px}.perim{font-size:11.5px}.hero{gap:24px}.hero-n{font-size:56px;margin:0 0 6px}.hero-l{font-size:14px}.hero-d,.hero-c{font-size:11.5px}.hero-c{margin-top:8px}',
   '.ctx{gap:12px;padding-top:2px}.ctx-n{font-size:24px}.ctx-l{font-size:12px;margin-top:3px}h2{font-size:17px}.sous{font-size:11.5px;margin-bottom:10px}',
-  '.cs-row{margin:0 0 6px;grid-template-columns:150px 1fr 56px}.cs-lib{font-size:12.5px}.cs-piste{height:17px}.cs-val{font-size:13px}.note{font-size:10.5px;margin-top:6px}',
+  '.tab th,.tab td{padding:5px 6px;font-size:11.5px}.tab td.fort{font-size:13px}.tab thead th{font-size:10.5px}.tab th small{font-size:9.5px}',
   '.legende{margin:-4px 0 8px;font-size:10.5px}.pos{margin:0 0 9px}.pos-lib{font-size:12.5px}.pos-val{font-size:13px}.pos-verdict{font-size:10px;margin:0 0 4px}.ech{height:12px;margin-bottom:2px}.pos-med{font-size:10.5px}',
   '.retenir li{font-size:13px;margin:0 0 5px;padding-left:18px}footer{font-size:9.5px;line-height:1.4;padding-top:9px}',
-  '.zone,.pos,.cs-row{break-inside:avoid}.annexe{break-before:page;border-top:0;margin-top:0}.recherche{display:none}a{text-decoration:none;color:inherit}}',
+  '.note{font-size:10.5px;margin-top:6px}.zone,.pos,.tab tr{break-inside:avoid}.annexe{break-before:page;border-top:0;margin-top:0}.recherche{display:none}a{text-decoration:none;color:inherit}}',
   sep = "\n")
 
 # --- La fiche HTML ------------------------------------------------------------
@@ -309,16 +328,30 @@ generer_html_fiche <- function(ind, contexte, zonage, seuil_proche = NULL,
   ligne_cause <- if (dep$central > 0 && is.finite(c_ret) && c_ret >= 50)
     sprintf('<p class="hero-c">%s de ces départs relèvent de la retraite ou d’une fin de carrière.</p>', fmt_pct(c_ret)) else ""
 
-  # ---- Zone 3 : départs attendus par CS, décroissants ; cellule masquée = pas de barre
+  # ---- Zone 3 : tableau départs par CS, décroissants, rapportés aux effectifs
+  #      actuels tous âges (01c) — à défaut, aux salariés du champ. Une CS masquée
+  #      n'a pas de ligne ; la ligne « Ensemble » porte les totaux du territoire.
   cs_ok <- ind$cs |> filter(!masque) |> arrange(desc(departs))
-  max_dep <- max(cs_ok$departs, 1)
+  avec_stock <- isTRUE(ind$stock_disponible)
+  eff_cs  <- if (avec_stock) cs_ok$n_tous else cs_ok$n
+  eff_tot <- if (avec_stock) p$n_tous_ages else p$n_champ
+  lib_eff <- if (avec_stock) "Salariés aujourd’hui<small>tous âges</small>" else
+    sprintf("Salariés de %d ans et +<small>aujourd’hui</small>", a)
+  lib_part <- if (avec_stock) "Part de la catégorie<small>à remplacer d’ici 2030</small>" else
+    sprintf("Part des %d ans et +<small>de la catégorie, d’ici 2030</small>", a)
+  sous_titre_cs <- if (avec_stock) "Départs attendus d’ici 2030 par catégorie sociale, rapportés aux effectifs actuels" else
+    sprintf("Départs attendus d’ici 2030 par catégorie sociale, rapportés aux salariés de %d ans et +", a)
   lignes_cs <- if (nrow(cs_ok) == 0)
     '<p class="note">Aucune catégorie ne peut être affichée en application du secret statistique.</p>' else
-    paste(sprintf('<div class="cs-row" role="img" aria-label="%s : %s départs attendus"><span class="cs-lib">%s</span><span class="cs-piste"><span class="cs-bar%s" style="width:%.1f%%"></span></span><span class="cs-val">%s</span></div>',
-                  echap_html(libelle_cs(cs_ok$cs1, TRUE)), fmt_n(cs_ok$departs),
-                  echap_html(libelle_cs(cs_ok$cs1, TRUE)),
-                  ifelse(seq_len(nrow(cs_ok)) == 1, " premier", ""),
-                  100 * cs_ok$departs / max_dep, fmt_n(cs_ok$departs)), collapse = "\n")
+    paste0('<table class="tab"><caption class="sr-only">Départs attendus par catégorie sociale</caption><thead><tr>',
+           sprintf('<th scope="col">Catégorie</th><th scope="col">%s</th><th scope="col">Départs attendus<small>d’ici 2030</small></th><th scope="col">%s</th></tr></thead><tbody>',
+                   lib_eff, lib_part),
+           paste(sprintf('<tr><th scope="row">%s</th><td>%s</td><td class="fort">%s</td><td>%s</td></tr>',
+                         echap_html(libelle_cs(cs_ok$cs1, TRUE)), fmt_n(eff_cs), fmt_n(cs_ok$departs),
+                         fmt_pct(100 * cs_ok$departs / eff_cs)), collapse = "\n"),
+           sprintf('<tr class="total"><th scope="row">Ensemble</th><td>%s</td><td class="fort">%s</td><td>%s</td></tr>',
+                   fmt_n(eff_tot), fmt_n(dep$central), fmt_pct(100 * dep$central / eff_tot)),
+           '</tbody></table>')
   n_masq <- sum(ind$cs$masque)
   note_masq <- if (n_masq > 0)
     sprintf('<p class="note">%s en application du secret statistique (seuil de %d salariés).</p>',
@@ -402,7 +435,7 @@ generer_html_fiche <- function(ind, contexte, zonage, seuil_proche = NULL,
     # ---- Zone 3 : où se concentrent les départs
     '<section class="zone">',
     '<h2>Où se concentreraient les départs ?</h2>',
-    '<p class="sous">Nombre de départs attendus d’ici 2030 par catégorie sociale</p>',
+    sprintf('<p class="sous">%s</p>', sous_titre_cs),
     lignes_cs, note_masq,
     '</section>',
     # ---- Zone 4 : position
@@ -421,9 +454,11 @@ generer_html_fiche <- function(ind, contexte, zonage, seuil_proche = NULL,
     sprintf(paste0('Champ : salariés de %d ans et + en 2024 des entreprises du périmètre BITD, établissements situés dans le territoire. ',
                    'Départs = sorties définitives de l’emploi d’ici 2030 (retraite ou fin de carrière, invalidité, décès) ; ',
                    'les mobilités vers d’autres employeurs ne sont pas comptées. Scénario central, fourchette = hypothèses réglementaires basse et haute. ',
-                   'Secret statistique : cellules de moins de %d salariés non diffusées.%s ',
+                   'Secret statistique : cellules de moins de %d salariés non diffusées.%s%s ',
                    'Sources : BTS 2024, DREES, EACR invalidité, mortalité Insee — calculs propres · %s.'),
-            a, ind$seuil, regle_proche, source_note),
+            a, ind$seuil, regle_proche,
+            if (avec_stock) sprintf(" Effectifs actuels : tous âges, même périmètre ; part à remplacer = départs attendus des %d ans et + rapportés à l’effectif actuel de la catégorie (plancher).", a) else "",
+            source_note),
     '</footer>',
     bloc_annexe,
     '</div></body></html>')
@@ -520,14 +555,15 @@ generer_fiches <- function(base, dir, mode = "tous", selection = NULL,
                            zonage = zonage_geo(GEO_ANALYSE), seuil_proche = NULL,
                            source_note = "données : table test", index = TRUE,
                            prefixe = "09", age_min = AGE_MIN_BTS,
-                           annexe = isTRUE(get0("FICHES_ANNEXE", ifnotfound = FALSE))) {
+                           annexe = isTRUE(get0("FICHES_ANNEXE", ifnotfound = FALSE)),
+                           stock = NULL) {
   dir.create(dir, showWarnings = FALSE, recursive = TRUE)
   contexte <- calculer_contexte_perimetre(base, age_senior)
   sel <- selectionner_territoires(base, mode, selection, seuil)
   journal <- lapply(seq_len(nrow(sel$retenus)), function(i) {
     code <- sel$retenus$code[i]
     ind  <- calculer_indicateurs_territoire(base, code, contexte, seuil, age_senior,
-                                            seuil_proche = seuil_proche, age_min = age_min)
+                                            seuil_proche = seuil_proche, age_min = age_min, stock = stock)
     fichier <- paste0(slug_fiche(ind$code, ind$nom), ".html")
     writeLines(generer_html_fiche(ind, contexte, zonage, seuil_proche, source_note, annexe = annexe),
                file.path(dir, fichier), useBytes = TRUE)

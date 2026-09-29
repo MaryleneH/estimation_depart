@@ -39,6 +39,7 @@ if (!isTRUE(GENERER_FICHES)) {
     base_fiches, dir = dir_fiches, mode = FICHES_MODE, selection = selection_fiches,
     seuil = SEUIL_DIFFUSION, age_senior = AGE_SENIOR, zonage = ZON_FICHES,
     seuil_proche = FICHES_SEUIL_PROCHE, age_min = AGE_MIN_BTS,
+    stock = if (exists("stock_tous_ages")) stock_tous_ages else NULL,
     annexe = isTRUE(get0("FICHES_ANNEXE", ifnotfound = FALSE)),
     source_note = if (identical(SOURCE_BTS, "parquet")) "données individuelles : BTS 2024" else "données : table test")
 
