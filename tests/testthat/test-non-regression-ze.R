@@ -14,7 +14,7 @@ test_that("mode ZE : résultats du 08 identiques à la référence figée (champ
   env <- new.env()
   old <- setwd(RACINE); on.exit(setwd(old), add = TRUE)
   scripts <- c("00_config.R", "00c_fonctions_geo.R", "00d_fonctions_fiches.R",
-               "01_fabriquer_donnees_test.R", "01b_agreger_pcs.R",
+               "01_fabriquer_donnees_test.R", "01b_agreger_pcs.R", "01c_stock_tous_ages.R",
                "02_importer_nettoyer_drees.R", "02b_importer_mortalite_insee.R",
                "02c_importer_invalidite_eacr.R", "03_parametres_csp.R", "04_projection_2030.R")
   suppressMessages(suppressWarnings(invisible(capture.output(

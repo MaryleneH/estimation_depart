@@ -191,6 +191,10 @@ SEUIL_DIFFUSION <- 20
 # --- Fiches « chiffres clés » territoriales (script 09) ------------------------
 # Une page HTML autonome par territoire (aucune dépendance : HTML/CSS écrits
 # par R, barres en CSS). Lecture en une minute par un décideur non statisticien.
+STOCK_TOUS_AGES  <- TRUE          # effectifs ACTUELS tous âges par territoire x CS (01c),
+                                  # dénominateur de la « part de la catégorie à remplacer »
+                                  # des fiches et du CSV 08b. Exige une extraction NON
+                                  # préfiltrée sur l'âge (sinon désactivé avec avertissement).
 GENERER_FICHES   <- TRUE          # FALSE = étape 09 ignorée, chaîne inchangée
 FICHES_MODE      <- "tous"        # "tous"      : tous les territoires du périmètre analysé
                                   # "selection" : les codes de FICHES_SELECTION

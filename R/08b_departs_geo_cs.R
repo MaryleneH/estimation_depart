@@ -7,6 +7,8 @@
 #             (masquer_cellules) ; GEO_ANALYSE, GEO_INTERET, SEUIL_DIFFUSION,
 #             PCS_VERS_CS1 (00).
 # PRODUIT   : objet `departs_geo_cs` + sorties/departs_par_<zonage>_cs.csv
+#             (+ effectif_tous_ages et part_a_remplacer_pct si le 01c a fourni
+#             les effectifs actuels tous âges)
 #             (une ligne = un territoire x une grande CS ; avec GEO_ANALYSE =
 #             "departement" : departs_par_departement_cs.csv).
 # MÉTHODE   : AUCUNE nouvelle définition. Départ = p_central du script 04
@@ -36,7 +38,7 @@ library(dplyr)
 # ordre_cs : ordre métier des grandes CS (valeurs de PCS_VERS_CS1)
 # Retourne une liste : brut (non masqué, pour les contrôles) et diffusable.
 calculer_departs_geo_cs <- function(base, seuil = SEUIL_DIFFUSION,
-                                    ordre_cs = unname(PCS_VERS_CS1)) {
+                                    ordre_cs = unname(PCS_VERS_CS1), stock = NULL) {
   inconnues <- setdiff(unique(base$cs1), ordre_cs)
   if (length(inconnues) > 0)
     stop("Grande(s) CS hors nomenclature PCS_VERS_CS1 : ", paste(inconnues, collapse = ", "))
@@ -51,14 +53,19 @@ calculer_departs_geo_cs <- function(base, seuil = SEUIL_DIFFUSION,
     mutate(part_departs_pct = 100 * departs_2030 / effectif_champ) |>
     arrange(geo_code, cs1) |>
     mutate(cs1 = as.character(cs1))
+  # Effectifs actuels tous âges (01c) : part de la catégorie à remplacer
+  if (!is.null(stock))
+    brut <- brut |>
+      left_join(stock |> select(geo_code, cs1, effectif_tous_ages), by = c("geo_code", "cs1")) |>
+      mutate(part_a_remplacer_pct = 100 * departs_2030 / effectif_tous_ages)
   # Secret statistique : règle des fiches (primaire + secondaire), par territoire
   diffusable <- brut |>
     group_by(geo_code) |>
     mutate(masque = masquer_cellules(effectif_champ, seuil)) |>
     ungroup() |>
-    mutate(across(c(departs_2030, departs_bas, departs_haut, part_departs_pct),
+    mutate(across(any_of(c("departs_2030", "departs_bas", "departs_haut", "part_departs_pct", "part_a_remplacer_pct")),
                   ~ ifelse(masque, NA_real_, round(.x, 1))),
-           effectif_champ = ifelse(masque, NA_integer_, effectif_champ))
+           across(any_of(c("effectif_champ", "effectif_tous_ages")), ~ ifelse(masque, NA_integer_, .x)))
   list(brut = brut, diffusable = diffusable)
 }
 
@@ -70,7 +77,8 @@ base_geo_cs <- bts_projete |>
                            as.character(geo_nom))) |>
   filtrer_geo_interet(GEO_INTERET, prefixe = "08b")
 
-res_08b <- calculer_departs_geo_cs(base_geo_cs, SEUIL_DIFFUSION)
+res_08b <- calculer_departs_geo_cs(base_geo_cs, SEUIL_DIFFUSION,
+                                   stock = if (exists("stock_tous_ages")) stock_tous_ages else NULL)
 departs_geo_cs <- res_08b$diffusable
 
 # --- Contrôles (arrêt si l'un échoue) ----------------------------------------
