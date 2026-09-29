@@ -155,6 +155,22 @@ apport <- with(contribution,
 cat("\n--- Décomposition en pelures (nb de départs, central) ---\n")
 print(as.data.frame(apport), row.names = FALSE)
 
+# --- Garde-fou : aucune probabilité NA (une clé non appariée se voit ICI) ------
+if (anyNA(bts_projete$p_central)) {
+  na_par <- bts_projete |>
+    summarise(across(c(age_2024, sexe, cs1, mu_sortie, age_conj, p_cal_central, p_inval, p_deces, p_central),
+                     ~ round(100 * mean(is.na(.x)), 1)))
+  cat("\n--- 04 : part de NA (%) par composante ---\n"); print(as.data.frame(na_par), row.names = FALSE)
+  sexes_inconnus <- setdiff(unique(bts_projete$sexe), c("H", "F"))
+  stop("04 : p_central est NA pour ", sum(is.na(bts_projete$p_central)), " ligne(s) sur ", nrow(bts_projete),
+       ". Cause probable : ",
+       if (length(sexes_inconnus) > 0) paste0("sexe non codé H/F (valeurs : ", paste(sexes_inconnus, collapse = ", "), ")")
+       else if (anyNA(bts_projete$mu_sortie)) "cs1 sans paramètre DREES (mu_sortie NA)"
+       else if (anyNA(bts_projete$p_deces)) "âge hors de la table de mortalité"
+       else if (anyNA(bts_projete$p_inval)) "âge ou sexe hors des tranches d'invalidité"
+       else "voir le tableau ci-dessus", ".")
+}
+
 cat("\n--- Scénario ACTIF :", SCENARIO, "---\n")
 print(bts_projete |>
   summarise(departs_seuil  = sum(sortant_seuil),
