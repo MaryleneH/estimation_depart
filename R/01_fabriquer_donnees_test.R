@@ -123,5 +123,26 @@ bts <- normaliser_geo(
   geo_interet  = GEO_INTERET,
   prefixe      = "01")
 
-# Normalisation commune du sexe -> H/F (le reste de la chaîne attend H/F)
-bts <- bts |> mutate(sexe = toupper(substr(sexe, 1, 1)))
+# Normalisation commune du sexe -> H/F (le reste de la chaîne attend H/F).
+# Les extractions codent le sexe de bien des façons (1/2, H/F, M/F, Hommes/
+# Femmes, Masculin/Féminin...) : on recode par table, et toute valeur inconnue
+# ARRÊTE la chaîne avec la liste des valeurs rencontrées — jamais de NA
+# silencieux (un sexe non reconnu rendrait p_central NA pour toute la ligne).
+normaliser_sexe <- function(x) {
+  cle <- toupper(trimws(iconv(as.character(x), from = "", to = "ASCII//TRANSLIT")))
+  cle[is.na(cle)] <- toupper(trimws(as.character(x[is.na(cle)])))
+  hommes <- c("1", "H", "M", "HOMME", "HOMMES", "MASCULIN", "MALE", "MAN", "MEN")
+  femmes <- c("2", "F", "FEMME", "FEMMES", "FEMININ", "FEMALE", "WOMAN", "WOMEN")
+  out <- ifelse(cle %in% hommes, "H", ifelse(cle %in% femmes, "F", NA_character_))
+  inconnues <- table(x[is.na(out)], useNA = "ifany")
+  if (length(inconnues) > 0)
+    stop("01 : codage du sexe non reconnu pour ", sum(inconnues), " ligne(s). Valeurs rencontrées : ",
+         paste(sprintf("%s (%s)", names(inconnues), inconnues), collapse = ", "),
+         ". Valeurs acceptées : 1/2, H/F, M/F, Homme(s)/Femme(s), Masculin/Féminin.")
+  out
+}
+bts <- bts |> mutate(sexe = normaliser_sexe(sexe))
+# Âge : numérique, entier, dans le champ (un âge texte ou NA casserait le 04 en silence)
+if (!is.numeric(bts$age_2024) || anyNA(bts$age_2024))
+  stop("01 : la colonne d'âge (", COL_BTS[["age"]], ") doit être numérique et sans NA après filtrage (",
+       sum(is.na(bts$age_2024)), " NA, classe ", class(bts$age_2024)[1], ").")
