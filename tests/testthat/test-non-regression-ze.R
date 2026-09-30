@@ -18,10 +18,10 @@ test_that("mode ZE : résultats du 08 identiques à la référence figée (champ
                "02_importer_nettoyer_drees.R", "02b_importer_mortalite_insee.R",
                "02c_importer_invalidite_eacr.R", "03_parametres_csp.R", "04_projection_2030.R")
   suppressMessages(suppressWarnings(invisible(capture.output(
-    for (s in scripts) sys.source(file.path("R", s), envir = env)))))
+    for (s in scripts) sys.source(chemin_script(s), envir = env)))))
   assign("DIR_SORTIES", tempdir(), envir = env)      # pas d'écriture dans sorties/
   suppressMessages(suppressWarnings(invisible(capture.output(
-    sys.source(file.path("R", "08_analyse_55plus_geo.R"), envir = env)))))
+    sys.source(chemin_script("08_analyse_55plus_geo.R"), envir = env)))))
 
   expect_identical(unique(env$bts_projete$geo_type), "ze")
 
