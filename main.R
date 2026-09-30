@@ -9,6 +9,7 @@
 source("R/00_config_fonctions/00_config.R")
 source("R/00_config_fonctions/00c_fonctions_geo.R")           # -> fonctions géographiques génériques
 source("R/00_config_fonctions/00d_fonctions_fiches.R")        # -> fonctions des fiches territoriales (09)
+source("R/00_config_fonctions/00e_fonctions_departs_pcs.R")   # -> fonctions départs par PCS fine (08c)
 source("R/01_preparation/01_fabriquer_donnees_test.R")   # -> objet : bts (contrat geo_code/geo_nom/geo_type)
 source("R/01_preparation/01b_agreger_pcs.R")             # -> cs1 agrégée (si AGGREGER_PCS)
 source("R/01_preparation/01c_stock_tous_ages.R")         # -> stock_tous_ages : effectifs actuels TOUS ÂGES par
@@ -36,6 +37,8 @@ source("R/08_territoires/08_analyse_55plus_geo.R")       # -> sorties/analyse_55
                                           #    (<zonage> = GEO_ANALYSE : ze, departement...)
 source("R/08_territoires/08b_departs_geo_cs.R")          # -> sorties/departs_par_<zonage>_cs.csv
                                           #    (territoire x grande CS, tout le champ, secret appliqué)
+source("R/08_territoires/08c_departs_pcs.R")             # -> sorties/departs_pcs/{interne,diffusion}/departs_pcs_<niveau>.csv
+                                          #    (PCS fine : France, région, département) + pcs_hors_champ.csv
 source("R/08_territoires/09_fiches_territoriales.R")     # -> sorties/fiches_<zonage>/<code>_<nom>.html + index.html
                                           #    (si GENERER_FICHES ; mode tous / selection)
 message("Chaîne exécutée.")

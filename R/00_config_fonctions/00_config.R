@@ -196,6 +196,12 @@ STOCK_TOUS_AGES  <- TRUE          # effectifs ACTUELS tous âges par territoire 
                                   # des fiches et du CSV 08b. Exige une extraction NON
                                   # préfiltrée sur l'âge (sinon désactivé avec avertissement).
 GENERER_FICHES   <- TRUE          # FALSE = étape 09 ignorée, chaîne inchangée
+# --- Départs par PCS fine (script 08c) : France entière, région, département ---
+GENERER_DEPARTS_PCS <- TRUE                              # FALSE = étape 08c ignorée
+DEPARTS_PCS_NIVEAUX <- c("france", "region", "departement")   # région / département exigent
+                                                         # GEO_ANALYSE = "departement" (sinon ignorés)
+DEPARTS_PCS_SECRET  <- TRUE       # TRUE  = dossier diffusion/ avec secret statistique ;
+                                  # le dossier interne/ (tables complètes) existe TOUJOURS.
 FICHES_SECRET    <- TRUE          # TRUE  = secret statistique appliqué (version DIFFUSABLE).
                                   # FALSE = USAGE INTERNE : aucun masquage, tous les
                                   # territoires, bloc des entreprises (SIREN) ; écrit dans
@@ -273,7 +279,9 @@ GEO_REFERENTIELS <- list(
 # source est plus fine que l'analyse. Obligatoires dans ce cas.
 GEO_PASSAGES <- list(
   "commune->ze"          = file.path(DIR_DATA, "passage_commune_ze.csv"),
-  "commune->departement" = file.path(DIR_DATA, "passage_commune_departement.csv")
+  "commune->departement" = file.path(DIR_DATA, "passage_commune_departement.csv"),
+  # département -> région administrative (livrée : COG Insee, voir data/LISEZMOI.txt)
+  "departement->region"  = file.path(DIR_DATA, "passage_departement_region.csv")
 )
 
 # ==============================================================================

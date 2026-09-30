@@ -34,8 +34,13 @@ if (isTRUE(AGGREGER_PCS)) {
       cs1        = unname(PCS_VERS_CS1[.grande_cs])   # NA si hors table
     )
 
-  # Traçabilité de l'exclusion AVANT de filtrer (jamais de perte silencieuse)
+  # Traçabilité de l'exclusion AVANT de filtrer (jamais de perte silencieuse) :
+  # décompte AGRÉGÉ par code PCS conservé dans `pcs_exclues` (exporté par le 08c)
   exclus <- bts |> filter(is.na(cs1))
+  pcs_exclues <- exclus |>
+    count(pcs = .pcs_txt, premier_caractere = .grande_cs, name = "effectif_exclu") |>
+    arrange(desc(effectif_exclu))
+  n_exclus_01b <- nrow(exclus)
   if (nrow(exclus) > 0) {
     resume <- exclus |> count(.grande_cs, name = "n") |> arrange(desc(n))
     message("01b : exclusion de ", nrow(exclus), " lignes hors champ (",
@@ -54,6 +59,8 @@ if (isTRUE(AGGREGER_PCS)) {
   message("01b OK -> cs1 agrégée ; ", nrow(bts), " salariés retenus sur ",
           n_depart, " (", n_distinct(bts$cs1), " catégories).")
 } else {
+  pcs_exclues <- tibble::tibble(pcs = character(0), premier_caractere = character(0), effectif_exclu = integer(0))
+  n_exclus_01b <- 0L
   message("01b : agrégation PCS désactivée (AGGREGER_PCS = FALSE) -> ",
           "cs1 conservée telle quelle.")
 }
