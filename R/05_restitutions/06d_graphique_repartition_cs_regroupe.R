@@ -23,7 +23,7 @@ if (!exists("bts_projete")) stop("Objet 'bts_projete' introuvable : exécutez R/
 library(dplyr); library(tidyr); library(ggplot2); library(scales)
 
 # --- Typographie manuscrite (style Excalidraw) via ragg, comme 06b -----------
-if (file.exists("R/00b_fonts.R")) source("R/00b_fonts.R") else {FONT_TITRE<-"sans";FONT_CORPS<-"sans"}
+if (file.exists("R/00_config_fonctions/00b_fonts.R")) source("R/00_config_fonctions/00b_fonts.R") else {FONT_TITRE<-"sans";FONT_CORPS<-"sans"}
 
 # --- Données : mêmes maths de risques concurrents que le 06b, puis on SOMME
 #     les deux causes « événements de vie » en un seul poste ------------------
