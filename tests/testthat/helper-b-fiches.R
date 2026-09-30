@@ -5,10 +5,10 @@
 # 00_config.R est sourcé depuis la racine (chemins relatifs) ; DIR_SORTIES est
 # ensuite redirigé vers un dossier temporaire.
 .old_wd <- setwd(RACINE)
-source(file.path(RACINE, "R", "00_config.R"), local = TRUE)
+source(chemin_script("00_config.R"), local = TRUE)
 setwd(.old_wd)
 DIR_SORTIES <- tempdir()
-source(file.path(RACINE, "R", "00d_fonctions_fiches.R"), local = TRUE)
+source(chemin_script("00d_fonctions_fiches.R"), local = TRUE)
 
 # Un territoire = liste(code, nom, effectifs par CS, part de seniors).
 # Déterministe (graine fixe) ; p_* plausibles : seniors ~0.9, autres ~0.2.

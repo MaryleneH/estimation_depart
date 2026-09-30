@@ -1,0 +1,48 @@
+"cle";"valeur"
+"n_bts";5625
+"n_bts_projete";5625
+"n_siren";8
+"n_55plus";1984
+"departs_central";2080,864326
+"departs_bas";1967,573549
+"departs_haut";2198,914808
+"departs_55plus_central";1646,339665
+"cs1_Cadres_effectif";1396
+"cs1_Cadres_central";350,899748
+"cs1_Cadres_bas";326,903897
+"cs1_Cadres_haut";376,069584
+"cs1_Employes_effectif";1086
+"cs1_Employes_central";448,045404
+"cs1_Employes_bas";424,368468
+"cs1_Employes_haut";472,488845
+"cs1_Ouvriers_effectif";1655
+"cs1_Ouvriers_central";765,678784
+"cs1_Ouvriers_bas";729,324032
+"cs1_Ouvriers_haut";803,553588
+"cs1_Prof. intermediaires_effectif";1488
+"cs1_Prof. intermediaires_central";516,240389
+"cs1_Prof. intermediaires_bas";486,977152
+"cs1_Prof. intermediaires_haut";546,802792
+"geo_01_effectif_champ";307
+"geo_01_departs_55plus";111,102777
+"geo_03_effectif_champ";276
+"geo_03_departs_55plus";62,219464
+"geo_09_effectif_champ";296
+"geo_09_departs_55plus";87,486379
+"geo_18_effectif_champ";278
+"geo_18_departs_55plus";91,227568
+"geo_2A_effectif_champ";266
+"geo_2A_departs_55plus";63,98389
+"geo_2B_effectif_champ";321
+"geo_2B_departs_55plus";102,497211
+"geo_33_effectif_champ";277
+"geo_33_departs_55plus";82,501962
+"geo_35_effectif_champ";235
+"geo_35_departs_55plus";72,62278
+"geo_44_effectif_champ";306
+"geo_44_departs_55plus";99,185109
+"geo_56_effectif_champ";252
+"geo_56_departs_55plus";50,424072
+"n_territoires";20
+"08b_departs_total";2081,1
+"09_fiches_ok";20

@@ -6,7 +6,7 @@
 lancer_chaine_08b <- function(geo = "departement", geo_interet = NULL, seuil = NULL) {
   env <- new.env()
   old <- setwd(RACINE); on.exit(setwd(old), add = TRUE)
-  sys.source(file.path("R", "00_config.R"), envir = env)
+  sys.source(chemin_script("00_config.R"), envir = env)
   assign("GEO_ANALYSE", geo, envir = env); assign("GEO_SOURCE", geo, envir = env)
   assign("GEO_INTERET", geo_interet, envir = env)
   if (!is.null(seuil)) assign("SEUIL_DIFFUSION", seuil, envir = env)
@@ -17,7 +17,7 @@ lancer_chaine_08b <- function(geo = "departement", geo_interet = NULL, seuil = N
               "02c_importer_invalidite_eacr.R", "03_parametres_csp.R", "04_projection_2030.R",
               "08_analyse_55plus_geo.R", "08b_departs_geo_cs.R", "09_fiches_territoriales.R"))
     suppressMessages(suppressWarnings(invisible(capture.output(
-      sys.source(file.path("R", s), envir = env)))))
+      sys.source(chemin_script(s), envir = env)))))
   env
 }
 `%||%` <- function(a, b) if (is.null(a)) b else a
@@ -123,14 +123,14 @@ test_that("zonage : le même script produit departs_par_ze_cs.csv en mode ZE (sa
 test_that("8. sourcer 08b ne modifie, ne supprime ni ne regroupe aucun objet existant ; indicateurs identiques", {
   env <- new.env()
   old <- setwd(RACINE); on.exit(setwd(old), add = TRUE)
-  sys.source(file.path("R", "00_config.R"), envir = env)
+  sys.source(chemin_script("00_config.R"), envir = env)
   assign("GEO_ANALYSE", "departement", envir = env); assign("GEO_SOURCE", "departement", envir = env)
   assign("DIR_SORTIES", file.path(tempdir(), "s08b_invariance"), envir = env); dir.create(env$DIR_SORTIES, showWarnings = FALSE)
   for (s in c("00c_fonctions_geo.R", "00d_fonctions_fiches.R", "01_fabriquer_donnees_test.R",
               "01b_agreger_pcs.R", "01c_stock_tous_ages.R", "02_importer_nettoyer_drees.R", "02b_importer_mortalite_insee.R",
               "02c_importer_invalidite_eacr.R", "03_parametres_csp.R", "04_projection_2030.R",
               "08_analyse_55plus_geo.R", "09_fiches_territoriales.R"))
-    suppressMessages(suppressWarnings(invisible(capture.output(sys.source(file.path("R", s), envir = env)))))
+    suppressMessages(suppressWarnings(invisible(capture.output(sys.source(chemin_script(s), envir = env)))))
   indicateurs <- function(e) {
     b <- e$bts_projete
     list(n_bts = nrow(e$bts), n_projete = nrow(b), n55 = sum(b$age_2024 >= e$AGE_SENIOR),
@@ -145,7 +145,7 @@ test_that("8. sourcer 08b ne modifie, ne supprime ni ne regroupe aucun objet exi
   expect_true("brut" %in% names(avant))                            # l'objet du 02c existe (EACR présent)
 
   suppressMessages(suppressWarnings(invisible(capture.output(
-    sys.source(file.path("R", "08b_departs_geo_cs.R"), envir = env)))))
+    sys.source(chemin_script("08b_departs_geo_cs.R"), envir = env)))))
 
   apres <- mget(ls(env, all.names = TRUE), envir = env)
   disparus <- setdiff(names(avant), names(apres))

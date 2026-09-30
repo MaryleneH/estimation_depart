@@ -1,0 +1,48 @@
+"cle";"valeur"
+"n_bts";5622
+"n_bts_projete";5622
+"n_siren";8
+"n_55plus";1984
+"departs_central";2078,609404
+"departs_bas";1965,392171
+"departs_haut";2196,569168
+"departs_55plus_central";1644,98474
+"cs1_Cadres_effectif";1396
+"cs1_Cadres_central";350,14631
+"cs1_Cadres_bas";326,081652
+"cs1_Cadres_haut";375,397911
+"cs1_Employes_effectif";1083
+"cs1_Employes_central";447,956804
+"cs1_Employes_bas";424,437963
+"cs1_Employes_haut";472,224462
+"cs1_Ouvriers_effectif";1655
+"cs1_Ouvriers_central";765,022196
+"cs1_Ouvriers_bas";728,627383
+"cs1_Ouvriers_haut";802,934953
+"cs1_Prof. intermediaires_effectif";1488
+"cs1_Prof. intermediaires_central";515,484095
+"cs1_Prof. intermediaires_bas";486,245174
+"cs1_Prof. intermediaires_haut";546,011842
+"geo_Aix-en-Provence_effectif_champ";154
+"geo_Aix-en-Provence_departs_55plus";51,937893
+"geo_Angoulême_effectif_champ";115
+"geo_Angoulême_departs_55plus";35,3432
+"geo_Belfort_effectif_champ";152
+"geo_Belfort_departs_55plus";54,265663
+"geo_Bordeaux_effectif_champ";128
+"geo_Bordeaux_departs_55plus";43,056349
+"geo_Bourges_effectif_champ";134
+"geo_Bourges_departs_55plus";37,448126
+"geo_Brest_effectif_champ";149
+"geo_Brest_departs_55plus";42,984132
+"geo_Caen_effectif_champ";140
+"geo_Caen_departs_55plus";42,416228
+"geo_Cherbourg-en-Cotentin_effectif_champ";156
+"geo_Cherbourg-en-Cotentin_departs_55plus";55,510287
+"geo_Clermont-Ferrand_effectif_champ";124
+"geo_Clermont-Ferrand_departs_55plus";22,71641
+"geo_Créteil_effectif_champ";141
+"geo_Créteil_departs_55plus";35,091861
+"n_territoires";42
+"08b_departs_total";1971,2
+"09_fiches_ok";42

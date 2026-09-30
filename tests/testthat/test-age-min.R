@@ -14,12 +14,13 @@
 AGES_TEST <- c(43L, 44L, 45L)
 
 # --- Projet temporaire : copie conforme, une ligne changée ---------------------
+rel_racine <- function(f) sub(paste0("^", gsub("([.|()\\^{}+$*?\\[\\]])", "\\\\\\1", RACINE), "/"), "", f)
 projet_temporaire <- function(age_min, patch = identity) {
   tmp <- tempfile("projet_age_")
   dir.create(tmp)
   for (d in c("R", "data")) file.copy(file.path(RACINE, d), tmp, recursive = TRUE)
   file.copy(file.path(RACINE, "main.R"), tmp)
-  cfg <- file.path(tmp, "R", "00_config.R")
+  cfg <- file.path(tmp, rel_racine(chemin_script("00_config.R")))   # même chemin relatif que dans le dépôt
   l <- readLines(cfg, encoding = "UTF-8", warn = FALSE)
   i <- grep("^AGE_MIN_BTS\\s*<-", l)
   if (length(i) != 1) stop("00_config.R doit définir AGE_MIN_BTS exactement une fois.")
@@ -61,9 +62,9 @@ RES     <- lapply(PROJETS, lancer_main)
 test_that("même code, trois exécutions : seule la ligne AGE_MIN_BTS diffère du dépôt", {
   for (a in as.character(AGES_TEST)) {
     p <- PROJETS[[a]]
-    for (f in list.files(file.path(RACINE, "R"), full.names = TRUE)) {
+    for (f in list.files(file.path(RACINE, "R"), full.names = TRUE, recursive = TRUE)) {
       orig <- readLines(f, warn = FALSE, encoding = "UTF-8")
-      copie <- readLines(file.path(p, "R", basename(f)), warn = FALSE, encoding = "UTF-8")
+      copie <- readLines(file.path(p, rel_racine(f)), warn = FALSE, encoding = "UTF-8")
       n_diff <- sum(orig != copie)
       if (basename(f) == "00_config.R") {
         expect_equal(n_diff, if (a == "45") 0 else 1, label = paste(a, "lignes modifiées de 00_config.R"))
@@ -159,7 +160,7 @@ for (a in AGES_TEST) {
 # --- Contrôles de configuration : arrêt explicite ------------------------------
 sourcer_config <- function(age_min, patch = identity) {
   p <- tempfile("cfg_"); dir.create(p)
-  cfg <- file.path(RACINE, "R", "00_config.R")
+  cfg <- chemin_script("00_config.R")
   l <- readLines(cfg, encoding = "UTF-8", warn = FALSE)
   i <- grep("^AGE_MIN_BTS\\s*<-", l); l[i] <- sprintf("AGE_MIN_BTS  <- %s", age_min)
   f <- file.path(p, "00_config.R"); writeLines(patch(l), f, useBytes = TRUE)
@@ -194,16 +195,16 @@ test_that("configuration : valeurs refusées avec un message explicite", {
 test_that("mode test : AGE_MAX_TEST <= AGE_MIN_BTS refusé par le 01 lui-même", {
   env <- new.env()
   old <- setwd(RACINE); on.exit(setwd(old), add = TRUE)
-  sys.source(file.path("R", "00_config.R"), envir = env)
-  sys.source(file.path("R", "00c_fonctions_geo.R"), envir = env)
+  sys.source(chemin_script("00_config.R"), envir = env)
+  sys.source(chemin_script("00c_fonctions_geo.R"), envir = env)
   assign("AGE_MAX_TEST", env$AGE_MIN_BTS, envir = env)
-  expect_error(suppressMessages(capture.output(sys.source(file.path("R", "01_fabriquer_donnees_test.R"), envir = env))),
+  expect_error(suppressMessages(capture.output(sys.source(chemin_script("01_fabriquer_donnees_test.R"), envir = env))),
                "aucun âge à simuler")
 })
 
 # --- Grep exhaustif : plus aucun âge de champ en dur hors liste blanche --------
 test_that("aucun « 43 » / « 44 » / « 45 » de champ en dur dans le code (liste blanche nominative)", {
-  fichiers <- c(list.files(file.path(RACINE, "R"), pattern = "\\.R$", full.names = TRUE),
+  fichiers <- c(list.files(file.path(RACINE, "R"), pattern = "\\.R$", full.names = TRUE, recursive = TRUE),
                 list.files(file.path(RACINE, "utils"), pattern = "\\.R$", full.names = TRUE),
                 file.path(RACINE, "main.R"))
   # Occurrences LÉGITIMES : la valeur par défaut elle-même, sa documentation,
