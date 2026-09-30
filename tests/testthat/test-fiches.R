@@ -49,8 +49,8 @@ test_that("les fiches ignorent le schéma source : seul le contrat geo_* est uti
   expect_identical(i1$population, i2$population)
   expect_identical(i1$departs, i2$departs)
   # aucun nom de zonage ni de colonne source dans le code des fiches
-  code <- c(readLines(file.path(RACINE, "R", "00d_fonctions_fiches.R")),
-            readLines(file.path(RACINE, "R", "09_fiches_territoriales.R")))
+  code <- c(readLines(chemin_script("00d_fonctions_fiches.R")),
+            readLines(chemin_script("09_fiches_territoriales.R")))
   code <- sub("#.*$", "", code)                                   # hors commentaires
   expect_false(any(grepl("\\bze\\b|ze_code|ze_nom|COL_GEO|DEP_ETAB", code)))
 })
@@ -180,7 +180,7 @@ test_that("index : recherche native, une ligne par fiche, méthode complète, ch
 test_that("cohérence avec le 08 sur la chaîne (mode test département)", {
   env <- new.env()
   old <- setwd(RACINE); on.exit(setwd(old), add = TRUE)
-  sys.source(file.path("R", "00_config.R"), envir = env)
+  sys.source(chemin_script("00_config.R"), envir = env)
   assign("GEO_ANALYSE", "departement", envir = env); assign("GEO_SOURCE", "departement", envir = env)
   assign("DIR_SORTIES", tempdir(), envir = env)
   for (s in c("00c_fonctions_geo.R", "00d_fonctions_fiches.R", "01_fabriquer_donnees_test.R",
@@ -188,7 +188,7 @@ test_that("cohérence avec le 08 sur la chaîne (mode test département)", {
               "02c_importer_invalidite_eacr.R", "03_parametres_csp.R", "04_projection_2030.R",
               "08_analyse_55plus_geo.R", "09_fiches_territoriales.R"))
     suppressMessages(suppressWarnings(invisible(capture.output(
-      sys.source(file.path("R", s), envir = env)))))
+      sys.source(chemin_script(s), envir = env)))))
   j  <- env$journal_fiches |> dplyr::filter(statut == "ok")
   sg <- env$synthese_geo
   expect_equal(nrow(j), nrow(sg))                                   # même nombre de territoires
@@ -213,7 +213,7 @@ test_that("cohérence avec le 08 sur la chaîne (mode test département)", {
 test_that("STOCK_TOUS_AGES = FALSE : chaîne inchangée, fiches en repli, CSV 08b sans colonnes tous âges", {
   env <- new.env()
   old <- setwd(RACINE); on.exit(setwd(old), add = TRUE)
-  sys.source(file.path("R", "00_config.R"), envir = env)
+  sys.source(chemin_script("00_config.R"), envir = env)
   assign("GEO_ANALYSE", "departement", envir = env); assign("GEO_SOURCE", "departement", envir = env)
   assign("DIR_SORTIES", file.path(tempdir(), "sans_stock"), envir = env); dir.create(env$DIR_SORTIES, showWarnings = FALSE)
   assign("STOCK_TOUS_AGES", FALSE, envir = env)
@@ -221,7 +221,7 @@ test_that("STOCK_TOUS_AGES = FALSE : chaîne inchangée, fiches en repli, CSV 08
               "01b_agreger_pcs.R", "01c_stock_tous_ages.R", "02_importer_nettoyer_drees.R", "02b_importer_mortalite_insee.R",
               "02c_importer_invalidite_eacr.R", "03_parametres_csp.R", "04_projection_2030.R",
               "08b_departs_geo_cs.R", "09_fiches_territoriales.R"))
-    suppressMessages(suppressWarnings(invisible(capture.output(sys.source(file.path("R", s), envir = env)))))
+    suppressMessages(suppressWarnings(invisible(capture.output(sys.source(chemin_script(s), envir = env)))))
   expect_null(env$stock_tous_ages)
   expect_false("effectif_tous_ages" %in% names(env$departs_geo_cs))
   f33 <- paste(readLines(file.path(env$DIR_SORTIES, "fiches_departement", "33_gironde.html"), warn = FALSE, encoding = "UTF-8"), collapse = "\n")
@@ -258,14 +258,14 @@ test_that("usage interne (seuil 0) : toutes les fiches, aucun masquage, bloc ent
 test_that("FICHES_SECRET = FALSE sur la chaîne : dossier _interne, tous les territoires, journal sans écarté", {
   env <- new.env()
   old <- setwd(RACINE); on.exit(setwd(old), add = TRUE)
-  sys.source(file.path("R", "00_config.R"), envir = env)
+  sys.source(chemin_script("00_config.R"), envir = env)
   assign("GEO_ANALYSE", "departement", envir = env); assign("GEO_SOURCE", "departement", envir = env)
   assign("DIR_SORTIES", file.path(tempdir(), "interne_chaine"), envir = env); dir.create(env$DIR_SORTIES, showWarnings = FALSE)
   assign("FICHES_SECRET", FALSE, envir = env)
   for (s in c("00c_fonctions_geo.R", "00d_fonctions_fiches.R", "01_fabriquer_donnees_test.R",
               "01b_agreger_pcs.R", "01c_stock_tous_ages.R", "02_importer_nettoyer_drees.R", "02b_importer_mortalite_insee.R",
               "02c_importer_invalidite_eacr.R", "03_parametres_csp.R", "04_projection_2030.R", "09_fiches_territoriales.R"))
-    suppressMessages(suppressWarnings(invisible(capture.output(sys.source(file.path("R", s), envir = env)))))
+    suppressMessages(suppressWarnings(invisible(capture.output(sys.source(chemin_script(s), envir = env)))))
   expect_true(dir.exists(file.path(env$DIR_SORTIES, "fiches_departement_interne")))
   expect_false(dir.exists(file.path(env$DIR_SORTIES, "fiches_departement")))
   expect_true(all(env$journal_fiches$statut == "ok"))

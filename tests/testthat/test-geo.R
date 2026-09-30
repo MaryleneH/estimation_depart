@@ -185,10 +185,10 @@ test_that("encodage : un référentiel enregistré en Windows-1252 (latin1) est 
 test_that("codage du sexe : 1/2, H/F, M/F, Hommes/Femmes acceptés ; valeur inconnue = arrêt explicite", {
   env <- new.env()
   old <- setwd(RACINE); on.exit(setwd(old), add = TRUE)
-  sys.source(file.path("R", "00_config.R"), envir = env)
-  sys.source(file.path("R", "00c_fonctions_geo.R"), envir = env)
+  sys.source(chemin_script("00_config.R"), envir = env)
+  sys.source(chemin_script("00c_fonctions_geo.R"), envir = env)
   suppressMessages(suppressWarnings(invisible(capture.output(
-    sys.source(file.path("R", "01_fabriquer_donnees_test.R"), envir = env)))))
+    sys.source(chemin_script("01_fabriquer_donnees_test.R"), envir = env)))))
   f <- env$normaliser_sexe
   expect_identical(f(c("1", "2", "H", "F", "M", "f", " Hommes ", "Femmes", "Masculin", "Féminin")),
                    c("H", "F", "H", "F", "H", "F", "H", "F", "H", "F"))
@@ -201,12 +201,12 @@ test_that("codage du sexe : 1/2, H/F, M/F, Hommes/Femmes acceptés ; valeur inco
 test_that("04 : un sexe non apparié produit un arrêt explicite, pas des p_central NA", {
   env <- new.env()
   old <- setwd(RACINE); on.exit(setwd(old), add = TRUE)
-  sys.source(file.path("R", "00_config.R"), envir = env)
+  sys.source(chemin_script("00_config.R"), envir = env)
   for (s in c("00c_fonctions_geo.R", "01_fabriquer_donnees_test.R", "01b_agreger_pcs.R",
               "02_importer_nettoyer_drees.R", "02b_importer_mortalite_insee.R",
               "02c_importer_invalidite_eacr.R", "03_parametres_csp.R"))
-    suppressMessages(suppressWarnings(invisible(capture.output(sys.source(file.path("R", s), envir = env)))))
+    suppressMessages(suppressWarnings(invisible(capture.output(sys.source(chemin_script(s), envir = env)))))
   env$bts$sexe <- "1"                                               # contourne le recodage du 01
-  expect_error(suppressMessages(capture.output(sys.source(file.path("R", "04_projection_2030.R"), envir = env))),
+  expect_error(suppressMessages(capture.output(sys.source(chemin_script("04_projection_2030.R"), envir = env))),
                "p_central est NA .* sexe non codé H/F")
 })
