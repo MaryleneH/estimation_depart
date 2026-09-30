@@ -189,7 +189,10 @@ lire_referentiel_geo <- function(chemin) {
 
 # Table de passage  code_source;code_cible[;nom_cible]. BLOQUANTE si absente :
 # on ne peut pas analyser un zonage qu'on ne sait pas construire.
-lire_passage_geo <- function(chemin, cle) {
+# Une table de passage doit être SANS AMBIGUÏTÉ : chaque code_source exactement
+# une fois, aucun code vide, libellé cible présent si exigé. Tout écart ARRÊTE
+# la chaîne avec la liste des codes concernés (jamais de doublon silencieux).
+lire_passage_geo <- function(chemin, cle, nom_requis = FALSE) {
   if (is.null(chemin) || is.na(chemin) || !file.exists(chemin))
     stop("Table de passage '", cle, "' introuvable",
          if (!is.null(chemin) && !is.na(chemin)) paste0(" : ", chemin) else
@@ -201,10 +204,52 @@ lire_passage_geo <- function(chemin, cle) {
     stop("Table de passage ", chemin, " : colonnes attendues  code_source;code_cible",
          "[;nom_cible]  (trouvées : ", paste(names(p), collapse = ", "), ").")
   if (!"nom_cible" %in% names(p)) p$nom_cible <- NA_character_
-  p |>
+  p <- p |>
     transmute(code_source = trimws(reparer_utf8(code_source)), code_cible = trimws(reparer_utf8(code_cible)),
-              nom_cible = trimws(reparer_utf8(nom_cible))) |>
-    distinct(code_source, .keep_all = TRUE)
+              nom_cible = trimws(reparer_utf8(nom_cible)))
+  vide <- function(x) is.na(x) | x == ""
+  if (any(vide(p$code_source)))
+    stop("Table de passage '", cle, "' : ", sum(vide(p$code_source)), " ligne(s) avec un code_source vide.")
+  if (any(vide(p$code_cible)))
+    stop("Table de passage '", cle, "' : code_cible vide pour : ",
+         paste(p$code_source[vide(p$code_cible)], collapse = ", "), ".")
+  dbl <- unique(p$code_source[duplicated(p$code_source)])
+  if (length(dbl) > 0)
+    stop("Table de passage '", cle, "' : code_source en double (un code doit avoir UNE cible) : ",
+         paste(dbl, collapse = ", "), ".")
+  if (nom_requis && any(vide(p$nom_cible)))
+    stop("Table de passage '", cle, "' : nom_cible manquant pour : ",
+         paste(p$code_source[vide(p$nom_cible)], collapse = ", "), ".")
+  p
+}
+
+# --- Extension du contrat : région administrative à partir du département ------
+# Ajoute region_code / region_nom (texte) SANS toucher à geo_code : la table de
+# passage  departement->region  (code_source;code_cible;nom_cible) est lue et
+# contrôlée par lire_passage_geo(). Un territoire « inconnu » reste inconnu et
+# compté ; un vrai code de département absent de la table = référentiel
+# incomplet -> ARRÊT (aucune affectation inventée).
+ajouter_region <- function(df, chemin_passage, prefixe = "geo") {
+  if (!all(c("geo_code", "geo_type") %in% names(df)))
+    stop("ajouter_region : contrat geo_code / geo_type requis.")
+  if (!identical(unique(as.character(df$geo_type)), "departement"))
+    stop("ajouter_region : geo_type doit valoir \"departement\" (reçu : ",
+         paste(unique(df$geo_type), collapse = ", "), ").")
+  p <- lire_passage_geo(chemin_passage, "departement->region", nom_requis = TRUE)
+  code <- as.character(df$geo_code)
+  inconnu <- is.na(code) | code == "inconnu"
+  idx <- match(code, p$code_source)
+  sans <- is.na(idx) & !inconnu
+  if (any(sans))
+    stop(prefixe, " : ", sum(sans), " salarié(s) dans ", length(unique(code[sans])),
+         " département(s) sans région dans la table de passage : ",
+         paste(sort(unique(code[sans])), collapse = ", "),
+         " — complétez data/passage_departement_region.csv.")
+  df$region_code <- ifelse(inconnu, "inconnu", p$code_cible[idx])
+  df$region_nom  <- ifelse(inconnu, "Région inconnue", p$nom_cible[idx])
+  message(prefixe, " : région rattachée pour ", format(sum(!inconnu), big.mark = " "), " salarié(s) (",
+          length(unique(df$region_code[!inconnu])), " régions) ; ", sum(inconnu), " sans territoire connu.")
+  df
 }
 
 # --- Périmètre d'intérêt (GEO_INTERET) ----------------------------------------
