@@ -32,7 +32,7 @@ library(scales)
 # résiduelle = hypothèse centrale du 04. Dérivé des paramètres, jamais en dur.
 AGE_LEGAL_2030 <- AGE_CONJ_TOUS_REGIMES_2023 + MONTEE_RESIDUELLE_2030 / 2
 
-if (file.exists("R/00b_fonts.R")) source("R/00b_fonts.R") else {FONT_TITRE<-"sans";FONT_CORPS<-"sans"}
+if (file.exists("R/00_config_fonctions/00b_fonts.R")) source("R/00_config_fonctions/00b_fonts.R") else {FONT_TITRE<-"sans";FONT_CORPS<-"sans"}
 
 decalage <- ANNEE_REF_GRAPHIQUE - 2024
 niveaux <- c("Maintien en emploi", "En retraite (liquidée)",

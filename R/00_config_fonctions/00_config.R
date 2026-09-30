@@ -224,7 +224,7 @@ FICHES_SEUIL_PROCHE <- NULL       # NULL = position « au-dessus / en dessous »
 #   2. zonage         : GEO_SOURCE (porté par le fichier) / GEO_ANALYSE (restitué)
 #   3. contrat INTERNE: geo_code (texte), geo_nom, geo_type — seul connu de 01/04/08
 # Workflow à réception d'une nouvelle table :
-#   1. source("R/00_config.R"); source("R/00c_fonctions_geo.R")
+#   1. source("R/00_config_fonctions/00_config.R"); source("R/00_config_fonctions/00c_fonctions_geo.R")
 #   2. inspecter_schema(FICHIER_BTS)   -> colonnes, types, exemples de valeurs
 #   3. identifier la (les) colonne(s) géographique(s)
 #   4. renseigner le BLOC « À ADAPTER » ci-dessous

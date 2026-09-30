@@ -85,7 +85,7 @@ write.csv2(age_max_cs,      file.path(DIR_SORTIES, "controle_age_max_par_cs.csv"
 # DATAVIZ DIAGNOSTIQUES (3 graphiques de compréhension, style "atelier")
 # ==============================================================================
 suppressWarnings(suppressMessages({library(ggplot2); library(scales)}))
-if (file.exists("R/00b_fonts.R")) source("R/00b_fonts.R") else {FONT_TITRE<-"sans";FONT_CORPS<-"sans"}
+if (file.exists("R/00_config_fonctions/00b_fonts.R")) source("R/00_config_fonctions/00b_fonts.R") else {FONT_TITRE<-"sans";FONT_CORPS<-"sans"}
 FONT_T <- FONT_TITRE; FONT_C <- FONT_CORPS
 CREME <- "#FBF7EF"; ENCRE <- "#2B2622"; ENCRE2 <- "#6E655C"
 PAL_CS <- c("Cadres" = "#3E6E8E", "Prof. intermediaires" = "#8FB996",

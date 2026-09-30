@@ -17,7 +17,7 @@ library(dplyr); library(tidyr); library(ggplot2); library(scales)
 
 # --- Typographie manuscrite (style Excalidraw) via ragg ----------------------
 # ragg lit les polices système ; on déclare des familles nommées si présentes.
-if (file.exists("R/00b_fonts.R")) source("R/00b_fonts.R") else {FONT_TITRE<-"sans";FONT_CORPS<-"sans"}
+if (file.exists("R/00_config_fonctions/00b_fonts.R")) source("R/00_config_fonctions/00b_fonts.R") else {FONT_TITRE<-"sans";FONT_CORPS<-"sans"}
 
 # --- Données : parts espérées par cause, PAR CS et tranche -------------------
 decalage <- ANNEE_REF_GRAPHIQUE - 2024
