@@ -83,6 +83,16 @@ RÉFÉRENTIELS GÉOGRAPHIQUES (libellés des territoires)
   + 5 DROM), format  code;nom  UTF-8, codes en texte. Utilisé automatiquement
   quand GEO_ANALYSE = "departement" et que la BTS ne porte que le code (dpt) :
   les fiches, le quadrant et les tableaux affichent alors le nom du département.
+- data/passage_departement_region.csv : livré, table de passage département ->
+  région administrative, format  code_source;code_cible;nom_cible  UTF-8, codes
+  en texte. 101 lignes : 96 départements métropolitains (dont 2A, 2B) et les
+  cinq DROM 971, 972, 973, 974, 976 (codes région Insee 01, 02, 03, 04, 06).
+  PROVENANCE : Insee, Code officiel géographique (COG), table d'appartenance
+  des départements aux régions, millésime 2024 (découpage régional en vigueur
+  depuis le 1er janvier 2016, inchangé depuis) ; saisie locale le 30/09/2026,
+  aucune connexion Internet à l'exécution. Utilisée par le 08c (départs par PCS
+  fine par région) via ajouter_region() ; contrôles bloquants : un département =
+  une région, aucun code vide, libellé présent, département absent = arrêt.
 - data/ref_ze.csv, data/ref_region.csv : même format, à déposer si besoin
   (voir GEO_REFERENTIELS dans 00_config.R). Un référentiel absent n'est jamais
   bloquant : le code est affiché à la place du nom.
