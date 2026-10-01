@@ -207,6 +207,9 @@ STOCK_TOUS_AGES  <- TRUE          # effectifs ACTUELS tous âges par territoire 
                                   # des fiches et du CSV 08b. Exige une extraction NON
                                   # préfiltrée sur l'âge (sinon désactivé avec avertissement).
 GENERER_FICHES   <- TRUE          # FALSE = étape 09 ignorée, chaîne inchangée
+# --- Finalisation des CSV pour Excel (script 99b, fin de main.R) --------------
+NORMALISER_CSV_EXCEL <- TRUE      # TRUE = BOM UTF-8 ajouté à tous les CSV de DIR_SORTIES
+                                  # (contenu inchangé octet pour octet, idempotent).
 # --- Départs par PCS fine (script 08c) : France entière, région, département ---
 GENERER_DEPARTS_PCS <- TRUE                              # FALSE = étape 08c ignorée
 DEPARTS_PCS_NIVEAUX <- c("france", "region", "departement")   # région / département exigent

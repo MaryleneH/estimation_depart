@@ -1,4 +1,4 @@
-"region_code";"region_nom";"geo_code";"geo_nom";"pcs";"cs1";"effectif_champ";"departs_central";"departs_bas";"departs_haut";"dep_retraite";"dep_invalidite";"dep_deces";"taux_depart_central_pct";"masque";"motif_masque"
+﻿"region_code";"region_nom";"geo_code";"geo_nom";"pcs";"cs1";"effectif_champ";"departs_central";"departs_bas";"departs_haut";"dep_retraite";"dep_invalidite";"dep_deces";"taux_depart_central_pct";"masque";"motif_masque"
 "11";"Île-de-France";"75";"Paris";"3719";"Cadres";NA;NA;NA;NA;NA;NA;NA;NA;TRUE;"primaire"
 "11";"Île-de-France";"75";"Paris";"3753";"Cadres";NA;NA;NA;NA;NA;NA;NA;NA;TRUE;"primaire"
 "11";"Île-de-France";"75";"Paris";"3812";"Cadres";NA;NA;NA;NA;NA;NA;NA;NA;TRUE;"primaire"
