@@ -45,29 +45,10 @@ if (!isTRUE(get0("GENERER_DEPARTS_PCS", ifnotfound = FALSE))) {
   if (!"pcs" %in% names(bts_projete)) stop("08c : colonne 'pcs' absente de bts_projete.")
   library(dplyr)
 
-  niveaux <- unique(DEPARTS_PCS_NIVEAUX)
-  inconnus <- setdiff(niveaux, NIVEAUX_DEPARTS_PCS)
-  if (length(inconnus) > 0)
-    stop("DEPARTS_PCS_NIVEAUX : niveau(x) inconnu(s) : ", paste(inconnus, collapse = ", "),
-         " (attendus : ", paste(NIVEAUX_DEPARTS_PCS, collapse = ", "), ").")
-
-  # --- Base : TOUT le périmètre national, jamais restreint ----------------------
-  base_pcs <- bts_projete |>
-    mutate(geo_code = ifelse(is.na(geo_code), "inconnu", as.character(geo_code)),
-           geo_nom  = ifelse(geo_code == "inconnu", "Territoire inconnu", as.character(geo_nom)))
-  if (nrow(base_pcs) != nrow(bts_projete))
-    stop("08c : la base France x pcs doit contenir TOUT bts_projete (aucune restriction territoriale).")
-
-  geo_departemental <- identical(unique(as.character(bts_projete$geo_type)), "departement")
-  if (!geo_departemental && any(niveaux %in% c("region", "departement"))) {
-    message("08c : zonage d'analyse « ", paste(unique(bts_projete$geo_type), collapse = ","),
-            " » : les niveaux région et département exigent GEO_ANALYSE = \"departement\" -> ignorés, France seule produite.")
-    niveaux <- setdiff(niveaux, c("region", "departement"))
-  }
-  niveaux <- union("france", niveaux)     # France toujours calculée : c'est la référence des contrôles
-
-  if (any(niveaux %in% c("region", "departement")))
-    base_pcs <- ajouter_region(base_pcs, GEO_PASSAGES[["departement->region"]], prefixe = "08c")
+  # --- Base : TOUT le périmètre national, jamais restreint ; région rattachée ----
+  #     (preparer_base_departs, 00e : même base pour 08c et 08d)
+  prep_08c <- preparer_base_departs(bts_projete, DEPARTS_PCS_NIVEAUX, prefixe = "08c")
+  base_pcs <- prep_08c$base; niveaux <- prep_08c$niveaux; rm(prep_08c)
 
   # --- Tables ANALYTIQUES (complètes) --------------------------------------------
   analytique <- lapply(niveaux, function(n) calculer_departs_pcs(base_pcs, n))
