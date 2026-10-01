@@ -184,9 +184,20 @@ MODE_GRAPHIQUE <- "attendu"   # "attendu" : parts espérées par cause (défaut)
 
 # --- Analyse des seniors (55+) par territoire (script 08) ----------------------
 AGE_SENIOR <- 55              # borne basse de la population « senior » étudiée
-# Secret statistique : une cellule (territoire x CS) portant moins de
-# SEUIL_DIFFUSION salariés n'est pas diffusée (convention statistique publique).
-SEUIL_DIFFUSION <- 20
+# Secret statistique : règle OFFICIELLE Insee de la Base Tous salariés (source
+# de la BTS) — fiche « Confidentialité » de la source (insee.fr, métadonnées BTS)
+# et Guide du secret statistique Insee (sept. 2025), fondés sur la loi 51-711 du
+# 7 juin 1951 et le règlement (CE) 223/2009. La BTS porte à la fois sur des
+# personnes physiques (salariés) et morales (entreprises) : trois critères.
+# Une cellule est masquée (secret PRIMAIRE) dès que l'UNE des conditions est vraie :
+SECRET_MIN_SALARIES    <- 5    # moins de 5 salariés dans la cellule
+SECRET_MIN_ENTREPRISES <- 3    # moins de 3 entreprises (SIREN distincts) dans la cellule
+SECRET_DOMINANCE_PCT   <- 85   # une entreprise représente PLUS de 85 % d'une grandeur
+                               # de la cellule (effectif ou départs attendus)
+# puis secret SECONDAIRE : si une seule cellule d'un bloc dont la marge est
+# publiée est masquée, la plus petite cellule restante l'est aussi (sinon la
+# valeur se retrouve par différence). Cellule masquée = NA, jamais 0.
+# (Avant : seuil unique de 20 salariés, sans règle sur les entreprises.)
 
 # --- Fiches « chiffres clés » territoriales (script 09) ------------------------
 # Une page HTML autonome par territoire (aucune dépendance : HTML/CSS écrits

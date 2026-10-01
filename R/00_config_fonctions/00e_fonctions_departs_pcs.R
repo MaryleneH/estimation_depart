@@ -13,9 +13,12 @@
 #        et contribue à la ligne 311D).
 # Contrat : base = bts_projete (+ region_code / region_nom via ajouter_region()).
 #        Une fonction générique, trois niveaux : calculer_departs_pcs(base, niveau).
-# Secret : la table ANALYTIQUE reste complète ; appliquer_secret_pcs() produit
-#        la table de DIFFUSION (règle documentée dans le script 08c).
-# Dépendances : dplyr, tibble ; masquer_cellules() et ajouter_parts_causes() (00d).
+# Secret : la table ANALYTIQUE reste complète (avec les indicateurs de secret
+#        n_entreprises / part_dominante_pct, usage interne) ; appliquer_secret_pcs()
+#        produit la table de DIFFUSION selon la règle Insee (00d : secret_primaire,
+#        secret_secondaire ; blocs documentés dans le script 08c).
+# Dépendances : dplyr, tibble ; indicateurs_secret(), secret_primaire(),
+#        secret_secondaire() et ajouter_parts_causes() (00d).
 # ==============================================================================
 library(dplyr)
 
@@ -40,7 +43,7 @@ calculer_departs_pcs <- function(base, niveau = c("france", "region", "departeme
   niveau <- match.arg(niveau)
   if (!exists("ajouter_parts_causes")) stop("Exécutez d'abord 00d_fonctions_fiches.R (ajouter_parts_causes).")
   cles <- cles_niveau_pcs(niveau, base)
-  requis <- c(cles, "pcs", "cs1", "p_central", "p_bas", "p_haut", "p_cal_central", "p_inval", "p_deces")
+  requis <- c(cles, "pcs", "cs1", "siren", "p_central", "p_bas", "p_haut", "p_cal_central", "p_inval", "p_deces")
   manque <- setdiff(requis, names(base))
   if (length(manque) > 0)
     stop("calculer_departs_pcs(", niveau, ") : colonnes absentes : ", paste(manque, collapse = ", "),
@@ -63,6 +66,8 @@ calculer_departs_pcs <- function(base, niveau = c("france", "region", "departeme
               dep_deces        = sum(part_dec),
               .groups = "drop") |>
     mutate(taux_depart_central_pct = 100 * departs_central / effectif_champ) |>
+    # indicateurs de secret de la cellule (règle Insee : entreprises, dominance)
+    left_join(indicateurs_secret(base, c(cles, "pcs")), by = c(cles, "pcs")) |>
     arrange(across(all_of(c(cles, "pcs"))))
 }
 
@@ -118,16 +123,13 @@ controler_pcs_vs_cs <- function(france, base, tol = 1e-9) {
 }
 
 # --- Secret statistique : table de DIFFUSION --------------------------------
-# Primaire : effectif_champ < seuil. Secondaire : SEULEMENT dans les blocs dont
-# la marge est effectivement publiée (voir la règle dans 08c), et seulement
-# quand un bloc ne contient qu'UNE cellule masquée (sinon rien n'est déductible).
+# Primaire : règle Insee (00d secret_primaire : salariés, entreprises, dominance).
+# Secondaire (00d secret_secondaire) : SEULEMENT dans les blocs dont la marge
+# est effectivement publiée (voir la règle dans 08c), et seulement quand un
+# bloc ne contient qu'UNE cellule masquée (sinon rien n'est déductible).
 # Les cellules masquées passent à NA (jamais 0) ; masque / motif_masque tracent.
-completer_secondaire <- function(masque, n) {
-  if (sum(masque) == 1 && sum(!masque) > 1) {
-    cand <- which(!masque); masque[cand[which.min(n[cand])]] <- TRUE
-  }
-  masque
-}
+# Les indicateurs n_entreprises / part_dominante_pct sont RETIRÉS de la
+# diffusion (ils décriraient la structure des cellules masquées).
 blocs_secret_pcs <- function(niveau, table) {
   avec_region <- "region_code" %in% names(table)
   switch(niveau,
@@ -136,15 +138,17 @@ blocs_secret_pcs <- function(niveau, table) {
          departement = list(if (avec_region) c("region_code", "pcs") else c("pcs"),   # marge : région x pcs (ou France x pcs)
                             c("geo_code", "cs1")))                            # marge : département x cs1 (08b)
 }
-appliquer_secret_pcs <- function(table, niveau, seuil, max_iter = 20) {
+appliquer_secret_pcs <- function(table, niveau, regles = regles_secret(), max_iter = 20) {
   niveau <- match.arg(niveau, NIVEAUX_DEPARTS_PCS)
-  t <- table |> mutate(masque = effectif_champ < seuil,
+  if (!all(c("n_entreprises", "part_dominante_pct") %in% names(table)))
+    stop("appliquer_secret_pcs : indicateurs de secret absents (table issue de calculer_departs_pcs ?).")
+  t <- table |> mutate(masque = secret_primaire(effectif_champ, n_entreprises, part_dominante_pct, regles),
                        motif_masque = ifelse(masque, "primaire", NA_character_))
   for (bloc in blocs_secret_pcs(niveau, t)) {
     for (i in seq_len(max_iter)) {
       avant <- t$masque
       t <- t |> group_by(across(all_of(bloc))) |>
-        mutate(masque = completer_secondaire(masque, effectif_champ)) |> ungroup()
+        mutate(masque = secret_secondaire(masque, effectif_champ)) |> ungroup()
       if (identical(avant, t$masque)) break
     }
   }
@@ -154,17 +158,19 @@ appliquer_secret_pcs <- function(table, niveau, seuil, max_iter = 20) {
     avant <- t$masque
     for (bloc in blocs_secret_pcs(niveau, t))
       t <- t |> group_by(across(all_of(bloc))) |>
-        mutate(masque = completer_secondaire(masque, effectif_champ)) |> ungroup()
+        mutate(masque = secret_secondaire(masque, effectif_champ)) |> ungroup()
     if (identical(avant, t$masque)) break
   }
   t |>
     mutate(motif_masque = ifelse(masque & is.na(motif_masque), "secondaire", motif_masque),
            across(all_of(c(MESURES_DEPARTS_PCS, "taux_depart_central_pct")), ~ ifelse(masque, NA_real_, .x)),
-           effectif_champ = as.integer(effectif_champ))
+           effectif_champ = as.integer(effectif_champ)) |>
+    select(-n_entreprises, -part_dominante_pct)
 }
 
 # --- Export : arrondi 0,1 sur les mesures, conventions des autres CSV ---------
 arrondir_departs_pcs <- function(table) {
   table |> mutate(across(any_of(c("departs_central", "departs_bas", "departs_haut", "dep_retraite",
-                                  "dep_invalidite", "dep_deces", "taux_depart_central_pct")), ~ round(.x, 1)))
+                                  "dep_invalidite", "dep_deces", "taux_depart_central_pct",
+                                  "part_dominante_pct")), ~ round(.x, 1)))
 }

@@ -15,4 +15,4 @@ Règle de lecture : **le préfixe d’un répertoire est le numéro du premier s
 
 Ordre d’exécution de `main.R` : 00 → 01, 01b, 01c → 02, 02b, 02c → 03 → 04 → 05 → 06, 06b, 06d, 06e → 07 (si `gt` est installé) → 08 → 08b → 08c → 09. Les scripts 06c, 07b, 07c et 99 se lancent à part, après `main.R`, dans la même session.
 
-Où régler quoi : tout est dans `00_config_fonctions/00_config.R` (source, champ `AGE_MIN_BTS`, seuil de diffusion, géographie `GEO_*`, fiches, départs par PCS). Les utilitaires ponctuels sont dans `utils/`, les tests dans `tests/testthat/`, qui retrouvent chaque script par son nom.
+Où régler quoi : tout est dans `00_config_fonctions/00_config.R` (source, champ `AGE_MIN_BTS`, secret statistique `SECRET_*` selon la règle Insee de la Base Tous salariés : moins de 5 salariés, moins de 3 entreprises ou une entreprise à plus de 85 % d’une cellule, puis secret secondaire, géographie `GEO_*`, fiches, départs par PCS). Les fonctions de secret sont dans `00d_fonctions_fiches.R` et servent à 08, 08b, 08c et 09. Les utilitaires ponctuels sont dans `utils/`, les tests dans `tests/testthat/`, qui retrouvent chaque script par son nom.

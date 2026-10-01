@@ -15,8 +15,11 @@
 #           selectionner_territoires() -> generer_fiches()   boucle + journal
 #
 # Dépendances : R de base, dplyr, tibble. Ni ggplot2, ni gt, ni navigateur.
-# Secret statistique : cellule < seuil -> pas de barre, note discrète ;
-#   suppression secondaire quand une seule cellule d'un bloc est masquée.
+# Secret statistique : règle Insee de la Base Tous salariés (00_config :
+#   SECRET_MIN_SALARIES / SECRET_MIN_ENTREPRISES / SECRET_DOMINANCE_PCT), portée
+#   par les fonctions regles_secret(), indicateurs_secret(), secret_primaire(),
+#   secret_secondaire() et masquer_cellules() ci-dessous — utilisées aussi par
+#   08, 08b et 08c/00e. Cellule masquée -> pas de barre, note discrète.
 # ==============================================================================
 library(dplyr)
 
@@ -51,17 +54,78 @@ slug_fiche <- function(code, nom) {
   paste0(c, "_", ifelse(nzchar(s), s, "territoire"))
 }
 
-# --- Suppression secondaire ---------------------------------------------------
-# Si UNE seule cellule d'un bloc est sous le seuil alors que le total est
-# affiché, elle serait déductible par différence : on masque aussi la plus
-# petite cellule restante (règle standard de la statistique publique).
-masquer_cellules <- function(n, seuil) {
-  masque <- n < seuil
+# --- Secret statistique : règle Insee de la Base Tous salariés ---------------
+# Source : fiche « Confidentialité » Insee de la Base Tous salariés et Guide du
+# secret statistique Insee (sept. 2025). Une cellule est masquée (PRIMAIRE) si
+#   - elle porte sur moins de SECRET_MIN_SALARIES salariés, ou
+#   - sur moins de SECRET_MIN_ENTREPRISES entreprises (SIREN distincts), ou
+#   - une entreprise représente plus de SECRET_DOMINANCE_PCT % d'une grandeur
+#     étudiée (effectif de la cellule OU départs attendus).
+# Puis secret SECONDAIRE (secret_secondaire). Les trois paramètres vivent dans
+# 00_config.R ; `regles = NULL` = aucun secret (usage interne).
+regles_secret <- function(min_salaries = SECRET_MIN_SALARIES,
+                          min_entreprises = SECRET_MIN_ENTREPRISES,
+                          dominance_pct = SECRET_DOMINANCE_PCT) {
+  stopifnot(is.numeric(min_salaries), min_salaries >= 1,
+            is.numeric(min_entreprises), min_entreprises >= 1,
+            is.numeric(dominance_pct), dominance_pct > 0, dominance_pct <= 100)
+  list(min_salaries = min_salaries, min_entreprises = min_entreprises, dominance_pct = dominance_pct)
+}
+
+# Phrase unique décrivant la règle (fiches, index, notes de lecture).
+texte_regle_secret <- function(regles) {
+  if (is.null(regles)) return("Secret statistique non appliqué.")
+  sprintf(paste0("Secret statistique (règle Insee de la Base Tous salariés) : toute cellule de moins de %d salariés, ",
+                 "de moins de %d entreprises ou dont une entreprise représente plus de %s %% n’est pas diffusée, ",
+                 "avec suppression secondaire."),
+          regles$min_salaries, regles$min_entreprises, format(regles$dominance_pct))
+}
+
+# Indicateurs de secret d'une cellule, calculés sur les LIGNES INDIVIDUELLES
+# (contrat bts_projete : siren, p_central) : nombre d'entreprises et part de
+# l'entreprise dominante (max entre la part en effectif et la part en départs
+# attendus, « chaque grandeur étudiée »). `cles` = colonnes de la cellule
+# (vide = une seule cellule, ex. France entière).
+indicateurs_secret <- function(d, cles = character(0)) {
+  requis <- c(cles, "siren", "p_central")
+  manque <- setdiff(requis, names(d))
+  if (length(manque) > 0) stop("indicateurs_secret : colonnes absentes : ", paste(manque, collapse = ", "))
+  d |>
+    group_by(across(all_of(c(cles, "siren")))) |>
+    summarise(.n = n(), .dep = sum(p_central), .groups = "drop") |>
+    group_by(across(all_of(cles))) |>
+    summarise(n_entreprises = n(),
+              part_dominante_pct = 100 * max(max(.n) / sum(.n),
+                                             if (sum(.dep) > 0) max(.dep) / sum(.dep) else 0),
+              .groups = "drop")
+}
+
+# Secret primaire : TRUE si l'une des trois conditions est vraie. Vectorisé.
+secret_primaire <- function(n, n_entreprises, part_dominante_pct, regles = regles_secret()) {
+  if (is.null(regles)) return(rep(FALSE, length(n)))
+  if (length(n_entreprises) != length(n) || length(part_dominante_pct) != length(n))
+    stop("secret_primaire : n, n_entreprises et part_dominante_pct doivent avoir la même longueur.")
+  n < regles$min_salaries |
+    n_entreprises < regles$min_entreprises |
+    part_dominante_pct > regles$dominance_pct
+}
+
+# Secret secondaire : si UNE seule cellule d'un bloc est masquée alors que la
+# marge du bloc est publiée, elle se retrouve par différence : on masque aussi
+# la plus petite cellule restante (en salariés). Si deux cellules ou plus sont
+# déjà masquées, rien n'est déductible : on n'en masque pas davantage.
+secret_secondaire <- function(masque, n) {
   if (sum(masque) == 1 && sum(!masque) > 1) {
     cand <- which(!masque)
     masque[cand[which.min(n[cand])]] <- TRUE
   }
   masque
+}
+
+# Règle complète d'un bloc (primaire puis secondaire) : décision par cellule.
+masquer_cellules <- function(n, n_entreprises, part_dominante_pct, regles = regles_secret()) {
+  if (is.null(regles)) return(rep(FALSE, length(n)))
+  secret_secondaire(secret_primaire(n, n_entreprises, part_dominante_pct, regles), n)
 }
 
 # --- Décomposition par cause (mêmes maths que 06/08 : risques concurrents) ----
@@ -115,7 +179,7 @@ position_mediane <- function(x, med, seuil_proche = NULL) {
 
 # --- Indicateurs d'un territoire : l'objet `ind`, seule source des chiffres ---
 calculer_indicateurs_territoire <- function(base, code, contexte,
-                                            seuil = SEUIL_DIFFUSION,
+                                            regles = regles_secret(),
                                             age_senior = AGE_SENIOR,
                                             breaks = BREAKS_TRANCHES,
                                             labels = LABELS_TRANCHES,
@@ -131,13 +195,26 @@ calculer_indicateurs_territoire <- function(base, code, contexte,
     ajouter_parts_causes()
   n_champ <- nrow(d); n55 <- sum(d$senior)
 
+  # Secret statistique : indicateurs (entreprises, dominance) du territoire
+  # entier et de chaque cellule, puis règle Insee primaire + secondaire.
+  sec_terr <- indicateurs_secret(d)
+  n_ent <- sec_terr$n_entreprises
+  joindre_secret <- function(t, cle) {      # cellule absente (tranche vide) : 0 entreprise
+    s <- indicateurs_secret(d, cle) |> mutate(across(all_of(cle), as.character))
+    t |> left_join(s, by = cle) |>
+      mutate(n_entreprises = coalesce(n_entreprises, 0L),
+             part_dominante_pct = coalesce(part_dominante_pct, 0))
+  }
   # Âges (stock) — masquage + suppression secondaire. Une tranche est « senior »
   # si sa borne inférieure (borne cut exclue + 1) atteint age_senior.
   bornes_inf <- breaks[-length(breaks)] + 1
   ages <- d |> count(tranche, name = "n", .drop = FALSE) |>
-    mutate(tranche = as.character(tranche), part = 100 * n / n_champ,
+    mutate(tranche = as.character(tranche)) |>
+    joindre_secret("tranche") |>
+    mutate(part = 100 * n / n_champ,
            senior = (bornes_inf >= age_senior)[match(tranche, labels)],
-           masque = masquer_cellules(n, seuil))
+           masque = masquer_cellules(n, n_entreprises, part_dominante_pct, regles)) |>
+    select(-n_entreprises, -part_dominante_pct)
 
   # Départs (flux)
   dep <- list(central = sum(d$p_central), bas = sum(d$p_bas), haut = sum(d$p_haut),
@@ -151,11 +228,13 @@ calculer_indicateurs_territoire <- function(base, code, contexte,
     cause = c("Retraite / fin de carrière", "Invalidité", "Décès"),
     pct   = 100 * c(sum(d$part_ret), sum(d$part_inv), sum(d$part_dec)) / tot)
 
-  # Catégories sociales — masquage sur l'effectif de la cellule (règle du 08)
+  # Catégories sociales — même règle, cellule = territoire x CS (comme 08b)
   cs <- d |> group_by(cs1) |>
     summarise(n = n(), n55 = sum(senior), part55 = 100 * mean(senior),
               departs = sum(p_central), departs55 = sum(p_central[senior]), .groups = "drop") |>
-    mutate(masque = masquer_cellules(n, seuil)) |>
+    joindre_secret("cs1") |>
+    mutate(masque = masquer_cellules(n, n_entreprises, part_dominante_pct, regles)) |>
+    select(-n_entreprises, -part_dominante_pct) |>
     arrange(masque, desc(n55))
   cs_masquee <- any(cs$masque)
   # Effectifs actuels TOUS ÂGES (01c) : dénominateur « part de la catégorie à
@@ -170,8 +249,10 @@ calculer_indicateurs_territoire <- function(base, code, contexte,
   pos <- list(part = position_mediane(part55, contexte$med_part, seuil_proche),
               taux = position_mediane(dep$taux_seniors, contexte$med_taux, seuil_proche))
 
-  n_ent <- n_distinct(d$siren)
-  secret <- seuil > 0
+  secret <- !is.null(regles)
+  # Le territoire entier est une cellule : même règle (un département dont les
+  # salariés relèvent d'une ou deux entreprises n'a pas de fiche diffusable).
+  diffusable <- !secret_primaire(n_champ, n_ent, sec_terr$part_dominante_pct, regles)
   # Bloc entreprises (usage INTERNE uniquement) : une ligne par SIREN, nom si
   # un référentiel  code;nom  est fourni, sinon le numéro.
   entreprises <- if (isTRUE(detail_entreprises)) {
@@ -184,11 +265,11 @@ calculer_indicateurs_territoire <- function(base, code, contexte,
     e
   } else NULL
   list(code = code, nom = as.character(d$geo_nom[1]), geo_type = as.character(d$geo_type[1]),
-       diffusable = n_champ >= seuil, seuil = seuil, secret = secret,
+       diffusable = diffusable, regles = regles, secret = secret,
        age_senior = age_senior, age_min = age_min,
        population = list(n_champ = n_champ, n55 = n55, part55 = part55,
                          n_tous_ages = n_tous_ages,
-                         n_entreprises = if (n_ent >= 3 || !secret) n_ent else NA_integer_),
+                         n_entreprises = if (!secret || n_ent >= regles$min_entreprises) n_ent else NA_integer_),
        stock_disponible = stock_disponible,
        ages = ages, departs = dep, causes = causes, cs = cs, cs_masquee = cs_masquee,
        position = pos, entreprises = entreprises)
@@ -242,7 +323,7 @@ html_echelle <- function(x, med, etendue) {
 
 # Une ligne de barre générique (annexe) : cellule masquée = pas de barre.
 html_ligne_barre <- function(libelle, pct_largeur, valeur, masque = FALSE,
-                             note = "non diffusé (seuil)") {
+                             note = "non diffusé (secret statistique)") {
   if (masque)
     return(sprintf('<div class="an-row"><span class="an-lib">%s</span><span class="an-nd">%s</span><span class="an-val"></span></div>',
                    echap_html(libelle), note))
@@ -371,9 +452,8 @@ generer_html_fiche <- function(ind, contexte, zonage, seuil_proche = NULL,
            '</tbody></table>')
   n_masq <- sum(ind$cs$masque)
   note_masq <- if (n_masq > 0)
-    sprintf('<p class="note">%s en application du secret statistique (seuil de %d salariés).</p>',
-            if (n_masq == 1) "Une catégorie n’est pas affichée" else sprintf("%d catégories ne sont pas affichées", n_masq),
-            ind$seuil) else ""
+    sprintf('<p class="note">%s en application du secret statistique (règle Insee, voir sources).</p>',
+            if (n_masq == 1) "Une catégorie n’est pas affichée" else sprintf("%d catégories ne sont pas affichées", n_masq)) else ""
 
   # ---- Zone 4 : position, une ligne par indicateur, verdict en toutes lettres
   ligne_pos <- function(libelle, x, pos, med, etendue, note_na) {
@@ -493,7 +573,7 @@ generer_html_fiche <- function(ind, contexte, zonage, seuil_proche = NULL,
                    '%s%s%s ',
                    'Sources : BTS 2024, DREES, EACR invalidité, mortalité Insee — calculs propres · %s.'),
             a, if (interne) "USAGE INTERNE : secret statistique non appliqué, document à ne pas diffuser."
-               else sprintf("Secret statistique : cellules de moins de %d salariés non diffusées.", ind$seuil), regle_proche,
+               else texte_regle_secret(ind$regles), regle_proche,
             if (avec_stock) sprintf(" Effectifs actuels : tous âges, même périmètre ; part à remplacer = départs attendus des %d ans et + rapportés à l’effectif actuel de la catégorie (plancher).", a) else "",
             source_note),
     '</footer>',
@@ -503,10 +583,20 @@ generer_html_fiche <- function(ind, contexte, zonage, seuil_proche = NULL,
 
 # --- Sélection des territoires : tous / sélection, avec contrôles ------------
 selectionner_territoires <- function(base, mode = "tous", selection = NULL,
-                                     seuil = SEUIL_DIFFUSION) {
+                                     regles = regles_secret()) {
   if (!mode %in% c("tous", "selection"))
     stop("FICHES_MODE doit valoir \"tous\" ou \"selection\" (reçu : ", mode, ").")
-  dispo <- base |> count(geo_code, geo_nom, name = "n") |> arrange(geo_code)
+  # Le territoire entier est une cellule : règle Insee complète (salariés,
+  # entreprises, dominance) pour décider s'il a une fiche diffusable.
+  dispo <- base |> count(geo_code, geo_nom, name = "n") |>
+    left_join(indicateurs_secret(base, c("geo_code", "geo_nom")), by = c("geo_code", "geo_nom")) |>
+    mutate(secret = secret_primaire(n, n_entreprises, part_dominante_pct, regles),
+           motif = if (is.null(regles)) NA_character_ else
+             case_when(n < regles$min_salaries ~ sprintf("%d salarié(s) < %d", n, regles$min_salaries),
+                       n_entreprises < regles$min_entreprises ~ sprintf("%d entreprise(s) < %d", n_entreprises, regles$min_entreprises),
+                       part_dominante_pct > regles$dominance_pct ~ sprintf("une entreprise > %s %%", format(regles$dominance_pct)),
+                       TRUE ~ NA_character_)) |>
+    arrange(geo_code)
   # doublons code <-> nom : un code doit avoir un seul nom (l'inverse est toléré,
   # le nom de fichier étant préfixé du code)
   dbl <- dispo |> count(geo_code) |> filter(n > 1)
@@ -529,11 +619,11 @@ selectionner_territoires <- function(base, mode = "tous", selection = NULL,
   inconnu <- dispo |> filter(geo_code == "inconnu")
   if (nrow(inconnu) > 0)
     ecartes <- bind_rows(ecartes, tibble::tibble(code = "inconnu", motif = "territoire non identifié"))
-  sous <- dispo |> filter(geo_code != "inconnu", n < seuil)
+  sous <- dispo |> filter(geo_code != "inconnu", secret)
   if (nrow(sous) > 0)
     ecartes <- bind_rows(ecartes, tibble::tibble(code = sous$geo_code,
-                                                 motif = sprintf("effectif %d < seuil de diffusion %d", sous$n, seuil)))
-  retenus <- dispo |> filter(geo_code != "inconnu", n >= seuil) |> select(code = geo_code, nom = geo_nom, n)
+                                                 motif = paste0("secret statistique : ", sous$motif)))
+  retenus <- dispo |> filter(geo_code != "inconnu", !secret) |> select(code = geo_code, nom = geo_nom, n)
   if (nrow(retenus) == 0)
     stop("Fiches : aucun territoire diffusable (", nrow(ecartes), " écarté(s)).")
   list(retenus = retenus, ecartes = ecartes)
@@ -542,9 +632,9 @@ selectionner_territoires <- function(base, mode = "tous", selection = NULL,
 # --- Page d'index -------------------------------------------------------------
 # Porte d'entrée : titre, recherche (JavaScript natif, facultatif), liste code ·
 # nom · départs, note méthodologique complète (retirée des fiches).
-generer_html_index <- function(journal, zonage, age_min = AGE_MIN_BTS, seuil = SEUIL_DIFFUSION,
+generer_html_index <- function(journal, zonage, age_min = AGE_MIN_BTS, regles = regles_secret(),
                                n_territoires = NA, source_note = "données : table test") {
-  interne <- !(seuil > 0)
+  interne <- is.null(regles)
   j <- journal |> filter(statut == "ok") |> arrange(code)
   zl <- echap_html(zonage$libelle); zp <- echap_html(zonage$pluriel)
   cle <- tolower(iconv(paste(j$code, j$nom), from = "UTF-8", to = "ASCII//TRANSLIT", sub = ""))
@@ -579,7 +669,7 @@ generer_html_index <- function(journal, zonage, age_min = AGE_MIN_BTS, seuil = S
                    'Sources : BTS 2024, DREES, EACR invalidité, mortalité Insee — calculs propres · %s.'),
             age_min, if (is.finite(n_territoires)) n_territoires else nrow(j), zp,
             if (interne) "USAGE INTERNE : aucun secret statistique appliqué (tous les territoires, toutes les cellules, entreprises nommées par leur SIREN) ; document à ne pas diffuser."
-            else sprintf("Secret statistique : toute cellule de moins de %d salariés est retirée, avec suppression secondaire ; un territoire sous ce seuil n’a pas de fiche.", seuil),
+            else paste(texte_regle_secret(regles), "Un territoire qui ne respecte pas cette règle n’a pas de fiche."),
             source_note),
     '</section>',
     '<script>',
@@ -593,7 +683,7 @@ generer_html_index <- function(journal, zonage, age_min = AGE_MIN_BTS, seuil = S
 
 # --- Boucle de génération -----------------------------------------------------
 generer_fiches <- function(base, dir, mode = "tous", selection = NULL,
-                           seuil = SEUIL_DIFFUSION, age_senior = AGE_SENIOR,
+                           regles = regles_secret(), age_senior = AGE_SENIOR,
                            zonage = zonage_geo(GEO_ANALYSE), seuil_proche = NULL,
                            source_note = "données : table test", index = TRUE,
                            prefixe = "09", age_min = AGE_MIN_BTS,
@@ -601,10 +691,10 @@ generer_fiches <- function(base, dir, mode = "tous", selection = NULL,
                            stock = NULL, detail_entreprises = FALSE, ref_siren = NULL) {
   dir.create(dir, showWarnings = FALSE, recursive = TRUE)
   contexte <- calculer_contexte_perimetre(base, age_senior)
-  sel <- selectionner_territoires(base, mode, selection, seuil)
+  sel <- selectionner_territoires(base, mode, selection, regles)
   journal <- lapply(seq_len(nrow(sel$retenus)), function(i) {
     code <- sel$retenus$code[i]
-    ind  <- calculer_indicateurs_territoire(base, code, contexte, seuil, age_senior,
+    ind  <- calculer_indicateurs_territoire(base, code, contexte, regles, age_senior,
                                             seuil_proche = seuil_proche, age_min = age_min, stock = stock,
                                             detail_entreprises = detail_entreprises, ref_siren = ref_siren)
     fichier <- paste0(slug_fiche(ind$code, ind$nom), ".html")
@@ -619,7 +709,7 @@ generer_fiches <- function(base, dir, mode = "tous", selection = NULL,
                            transmute(code, nom = NA_character_, fichier = NA_character_,
                                      statut = "écarté", effectif = NA_integer_,
                                      effectif55 = NA_integer_, departs = NA_real_, motif))
-  if (index) writeLines(generer_html_index(journal, zonage, age_min, seuil, contexte$n_territoires, source_note),
+  if (index) writeLines(generer_html_index(journal, zonage, age_min, regles, contexte$n_territoires, source_note),
                         file.path(dir, "index.html"), useBytes = TRUE)
   message(prefixe, " : ", sum(journal$statut == "ok"), " fiche(s) écrite(s) dans ", dir,
           if (any(journal$statut != "ok")) paste0(" — ", sum(journal$statut != "ok"),

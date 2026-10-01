@@ -35,14 +35,14 @@ CS4 <- c(Cadres = 40, `Prof. intermediaires` = 40, Employes = 30, Ouvriers = 60)
 TERRITOIRES_TEST <- list(
   list(code = "01", nom = "Ain",          n_cs = CS4, part_senior = 0.35, n_entreprises = 6),
   list(code = "2A", nom = "Corse-du-Sud", n_cs = CS4, part_senior = 0.25, n_entreprises = 5),
-  # 2B : une CS de 5 salariés -> secret statistique (et suppression secondaire)
-  list(code = "2B", nom = "Haute-Corse",  n_cs = c(Cadres = 5, `Prof. intermediaires` = 40,
+  # 2B : une CS de 4 salariés (< 5, règle Insee) -> secret statistique (et suppression secondaire)
+  list(code = "2B", nom = "Haute-Corse",  n_cs = c(Cadres = 4, `Prof. intermediaires` = 40,
                                                    Employes = 30, Ouvriers = 60),
        part_senior = 0.30, n_entreprises = 4),
   list(code = "33", nom = "Gironde",      n_cs = CS4 * 2, part_senior = 0.40, n_entreprises = 9),
   # 09 : aucun senior -> taux de départ des 55+ indéfini
   list(code = "09", nom = "Ariège",       n_cs = CS4, part_senior = 0, n_entreprises = 3),
-  # 48 : territoire entier sous le seuil de diffusion
+  # 48 : territoire entier non diffusable (12 salariés d'UNE seule entreprise : règle des 3 entreprises)
   list(code = "48", nom = "Lozère",       n_cs = c(Ouvriers = 12), part_senior = 0.5, n_entreprises = 1)
 )
 BASE_FICHES <- fabriquer_base_fiches(TERRITOIRES_TEST)
