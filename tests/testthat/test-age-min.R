@@ -221,7 +221,8 @@ test_that("aucun « 43 » / « 44 » / « 45 » de champ en dur dans le code (li
     "02c_importer_invalidite_eacr.R" = c("43_49", "borne_inf = c(43,50,55,60,62)", "le taux 43-49"),
     "01_fabriquer_donnees_test.R" = c("\"6543\"",                 # code PCS-ESE (ouvriers)
                                       "\"33\", \"35\", \"44\", \"56\""),  # codes DÉPARTEMENT du zonage test
-    "utils_comparer_sorties.R" = c("effectif_43plus / effectif_45plus"))  # anciens fichiers
+    "utils_comparer_sorties.R" = c("effectif_43plus / effectif_45plus"),  # anciens fichiers
+    "00f_fonctions_cartes.R" = c("phi1 <- 44 * pi / 180"))              # parallèle standard Lambert-93 (projection), pas un âge
   residus <- character(0)
   for (f in fichiers) {
     l <- readLines(f, warn = FALSE, encoding = "UTF-8")
