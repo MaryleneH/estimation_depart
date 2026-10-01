@@ -1,4 +1,4 @@
-"geo_code";"geo_nom";"cs1";"effectif_champ";"departs_2030";"departs_bas";"departs_haut";"part_departs_pct";"effectif_tous_ages";"part_a_remplacer_pct";"masque"
+﻿"geo_code";"geo_nom";"cs1";"effectif_champ";"departs_2030";"departs_bas";"departs_haut";"part_departs_pct";"effectif_tous_ages";"part_a_remplacer_pct";"masque"
 "Aix-en-Provence";"Aix-en-Provence";"Cadres";44;10,6;10;11,2;24,1;158;6,7;FALSE
 "Aix-en-Provence";"Aix-en-Provence";"Prof. intermediaires";31;15,3;14,6;16;49,4;101;15,2;FALSE
 "Aix-en-Provence";"Aix-en-Provence";"Employes";30;10,8;10,3;11,4;36;96;11,3;FALSE
