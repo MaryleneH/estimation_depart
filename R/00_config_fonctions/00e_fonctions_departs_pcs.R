@@ -253,9 +253,7 @@ appliquer_secret_pcs <- function(table, niveau, regles = regles_secret(), max_it
     select(-n_entreprises, -part_dominante_pct)
 }
 
-# --- Export : arrondi 0,1 sur les mesures, conventions des autres CSV ---------
-arrondir_departs_pcs <- function(table) {
-  table |> mutate(across(any_of(c("departs_central", "departs_bas", "departs_haut", "dep_retraite",
-                                  "dep_invalidite", "dep_deces", "taux_depart_central_pct",
-                                  "part_dominante_pct")), ~ round(.x, 1)))
-}
+# --- Export : convention de restitution (00g) — personnes -> entier, causes
+#     cohérentes avec departs_central (plus forts restes), taux -> 1 décimale ;
+#     la table ANALYTIQUE en mémoire reste exacte. --------------------------------
+arrondir_departs_pcs <- function(table) formater_restitution(table)

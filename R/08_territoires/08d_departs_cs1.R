@@ -141,7 +141,7 @@ if (!isTRUE(get0("GENERER_DEPARTS_CS1", ifnotfound = FALSE))) {
                 if (!is.na(n_secondaire_hors_08b)) sprintf(" ; masquées ici (secondaire région x cs1) mais visibles dans le 08b : %d",
                                                            n_secondaire_hors_08b) else ""))
   print(analytique_cs1$france |>
-          transmute(cs1, effectif_champ, departs = round(departs_central, 1), taux = round(taux_depart_central_pct, 1)) |>
+          transmute(cs1, effectif_champ, departs = arrondir_nombre_personnes(departs_central), taux = arrondir_taux(taux_depart_central_pct)) |>
           as.data.frame(), row.names = FALSE)
   rm(analytique_cs1, diffusion_cs1, pcs_08d, n_cellules_08b, n_secondaire_hors_08b)
 }

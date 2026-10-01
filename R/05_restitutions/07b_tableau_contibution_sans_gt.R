@@ -76,7 +76,7 @@ tab_contribution <- tibble::tibble(
     "Total (scénario central)"
   ),
 
-  departs = round(
+  departs = arrondir_nombre_personnes(
     c(
       tot_legis,
       tot_sas - tot_legis,
