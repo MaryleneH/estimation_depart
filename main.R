@@ -39,6 +39,8 @@ source("R/08_territoires/08b_departs_geo_cs.R")          # -> sorties/departs_pa
                                           #    (territoire x grande CS, tout le champ, secret appliqué)
 source("R/08_territoires/08c_departs_pcs.R")             # -> sorties/departs_pcs/{interne,diffusion}/departs_pcs_<niveau>.csv
                                           #    (PCS fine : France, région, département) + pcs_hors_champ.csv
+source("R/08_territoires/08d_departs_cs1.R")             # -> sorties/departs_cs1/{interne,diffusion}/departs_cs1_<niveau>.csv
+                                          #    (grande CS : mêmes mailles, même méthode, même secret que 08c)
 source("R/08_territoires/09_fiches_territoriales.R")     # -> sorties/fiches_<zonage>/<code>_<nom>.html + index.html
                                           #    (si GENERER_FICHES ; mode tous / selection)
 message("Chaîne exécutée.")
