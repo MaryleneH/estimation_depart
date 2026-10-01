@@ -4,8 +4,8 @@
 # PRÉREQUIS : objet `bts_projete` (scripts 01-04 : champ AGE_MIN_BTS+, cs1 du
 #             01b, contrat geo_code/geo_nom/geo_type) ; fonctions 00c
 #             (filtrer_geo_interet, zonage_geo, fichier_sortie_geo) et 00d
-#             (masquer_cellules) ; GEO_ANALYSE, GEO_INTERET, SEUIL_DIFFUSION,
-#             PCS_VERS_CS1 (00).
+#             (indicateurs_secret, masquer_cellules) ; GEO_ANALYSE, GEO_INTERET,
+#             SECRET_* (règle Insee), PCS_VERS_CS1 (00).
 # PRODUIT   : objet `departs_geo_cs` + sorties/departs_par_<zonage>_cs.csv
 #             (+ effectif_tous_ages et part_a_remplacer_pct si le 01c a fourni
 #             les effectifs actuels tous âges)
@@ -19,8 +19,10 @@
 #             cs1 (01b), dans l'ordre métier de PCS_VERS_CS1.
 # PÉRIMÈTRE : exactement celui du 08 et du 09 (territoires inconnus regroupés,
 #             GEO_INTERET appliqué par filtrer_geo_interet).
-# SECRET    : cellule de moins de SEUIL_DIFFUSION salariés masquée, PLUS la
-#             suppression secondaire des fiches (masquer_cellules, 00d) pour
+# SECRET    : règle Insee de la Base Tous salariés (00_config SECRET_*) :
+#             cellule de moins de 5 salariés, de moins de 3 entreprises ou
+#             dominée (> 85 %) par une entreprise -> masquée, PLUS la
+#             suppression secondaire par territoire (masquer_cellules, 00d) pour
 #             que la cellule masquée ne se retrouve pas par différence. Valeurs
 #             -> NA, la ligne reste et porte masque = TRUE (l'absence se voit).
 # ==============================================================================
@@ -34,10 +36,12 @@ library(dplyr)
 
 # --- Fonction : agrégation territoire x CS, secret appliqué -------------------
 # base     : table au contrat de bts_projete, déjà au périmètre voulu
-# seuil    : SEUIL_DIFFUSION
+# regles   : règle Insee (regles_secret(), 00d) ; NULL = aucun secret
 # ordre_cs : ordre métier des grandes CS (valeurs de PCS_VERS_CS1)
-# Retourne une liste : brut (non masqué, pour les contrôles) et diffusable.
-calculer_departs_geo_cs <- function(base, seuil = SEUIL_DIFFUSION,
+# Retourne une liste : brut (non masqué, avec les indicateurs de secret
+# n_entreprises / part_dominante_pct, pour les contrôles — usage interne) et
+# diffusable (sans ces indicateurs, qui révéleraient la structure de la cellule).
+calculer_departs_geo_cs <- function(base, regles = regles_secret(),
                                     ordre_cs = unname(PCS_VERS_CS1), stock = NULL) {
   inconnues <- setdiff(unique(base$cs1), ordre_cs)
   if (length(inconnues) > 0)
@@ -52,20 +56,24 @@ calculer_departs_geo_cs <- function(base, seuil = SEUIL_DIFFUSION,
               .groups = "drop") |>
     mutate(part_departs_pct = 100 * departs_2030 / effectif_champ) |>
     arrange(geo_code, cs1) |>
-    mutate(cs1 = as.character(cs1))
+    mutate(cs1 = as.character(cs1)) |>
+    # indicateurs de secret de la cellule (entreprises, dominance) : règle Insee
+    left_join(indicateurs_secret(base, c("geo_code", "cs1")), by = c("geo_code", "cs1"))
   # Effectifs actuels tous âges (01c) : part de la catégorie à remplacer
   if (!is.null(stock))
     brut <- brut |>
       left_join(stock |> select(geo_code, cs1, effectif_tous_ages), by = c("geo_code", "cs1")) |>
       mutate(part_a_remplacer_pct = 100 * departs_2030 / effectif_tous_ages)
-  # Secret statistique : règle des fiches (primaire + secondaire), par territoire
+  # Secret statistique : règle Insee (primaire) + secondaire par territoire
+  # (bloc = les CS d'un territoire, dont le total est publié par 08 et 09)
   diffusable <- brut |>
     group_by(geo_code) |>
-    mutate(masque = masquer_cellules(effectif_champ, seuil)) |>
+    mutate(masque = masquer_cellules(effectif_champ, n_entreprises, part_dominante_pct, regles)) |>
     ungroup() |>
     mutate(across(any_of(c("departs_2030", "departs_bas", "departs_haut", "part_departs_pct", "part_a_remplacer_pct")),
                   ~ ifelse(masque, NA_real_, round(.x, 1))),
-           across(any_of(c("effectif_champ", "effectif_tous_ages")), ~ ifelse(masque, NA_integer_, .x)))
+           across(any_of(c("effectif_champ", "effectif_tous_ages")), ~ ifelse(masque, NA_integer_, .x))) |>
+    select(-n_entreprises, -part_dominante_pct)
   list(brut = brut, diffusable = diffusable)
 }
 
@@ -77,7 +85,7 @@ base_geo_cs <- bts_projete |>
                            as.character(geo_nom))) |>
   filtrer_geo_interet(GEO_INTERET, prefixe = "08b")
 
-res_08b <- calculer_departs_geo_cs(base_geo_cs, SEUIL_DIFFUSION,
+res_08b <- calculer_departs_geo_cs(base_geo_cs, regles_secret(),
                                    stock = if (exists("stock_tous_ages")) stock_tous_ages else NULL)
 departs_geo_cs <- res_08b$diffusable
 
@@ -100,9 +108,11 @@ if (sum(brut_08b$effectif_champ) != nrow(base_geo_cs))
 # 3. tous les territoires du périmètre sont présents
 if (!setequal(unique(brut_08b$geo_code), unique(base_geo_cs$geo_code)))
   stop("08b : territoires manquants dans le résultat.")
-# 4. aucune modalité de CS inattendue (déjà bloqué dans la fonction) ; 5. secret
-if (any(!is.na(departs_geo_cs$effectif_champ) & departs_geo_cs$effectif_champ < SEUIL_DIFFUSION))
-  stop("08b : une cellule sous SEUIL_DIFFUSION n'est pas masquée.")
+# 4. aucune modalité de CS inattendue (déjà bloqué dans la fonction) ; 5. secret :
+#    aucune cellule visible ne viole la règle Insee (salariés, entreprises, dominance)
+if (any(!departs_geo_cs$masque &
+        secret_primaire(brut_08b$effectif_champ, brut_08b$n_entreprises, brut_08b$part_dominante_pct, regles_secret())))
+  stop("08b : une cellule contraire à la règle de secret statistique n'est pas masquée.")
 if (any(is.na(departs_geo_cs$effectif_champ) & !departs_geo_cs$masque))
   stop("08b : NA sans indicateur de masquage.")
 

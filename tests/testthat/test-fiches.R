@@ -11,7 +11,7 @@ test_that("mode « tous » : une fiche par territoire diffusable, index, journal
   expect_true(file.exists(file.path(dir, "index.html")))
   ecarte <- j |> dplyr::filter(statut != "ok")
   expect_identical(ecarte$code, "48")
-  expect_match(ecarte$motif, "seuil de diffusion")
+  expect_match(ecarte$motif, "secret statistique : 1 entreprise\\(s\\) < 3")   # Lozère : 12 salariés d'UNE entreprise
 })
 
 test_that("mode « selection » : seulement les territoires demandés, noms de fichiers stables", {
@@ -55,18 +55,45 @@ test_that("les fiches ignorent le schéma source : seul le contrat geo_* est uti
   expect_false(any(grepl("\\bze\\b|ze_code|ze_nom|COL_GEO|DEP_ETAB", code)))
 })
 
-test_that("secret statistique : cellule < seuil -> n.d., pas de barre, suppression secondaire", {
-  expect_identical(masquer_cellules(c(5, 30, 40, 50), 20), c(TRUE, TRUE, FALSE, FALSE))  # secondaire
-  expect_identical(masquer_cellules(c(5, 8, 40, 50), 20),  c(TRUE, TRUE, FALSE, FALSE))  # déjà 2 masquées
-  expect_identical(masquer_cellules(c(30, 40, 50), 20),    c(FALSE, FALSE, FALSE))
+test_that("secret statistique, règle Insee BTS : < 5 salariés OU < 3 entreprises OU une entreprise > 85 %, puis secondaire", {
+  r <- regles_secret()
+  expect_equal(unlist(r), c(min_salaries = 5, min_entreprises = 3, dominance_pct = 85))   # 00_config
+  expect_error(regles_secret(dominance_pct = 120)); expect_error(regles_secret(min_salaries = 0))
+  ok3 <- c(3L, 3L, 3L, 3L); dom50 <- c(50, 50, 50, 50)
+  expect_identical(secret_primaire(c(4, 5, 30, 50), ok3, dom50), c(TRUE, FALSE, FALSE, FALSE))        # salariés : 5 passe, 4 non
+  expect_identical(secret_primaire(c(30, 30, 30), c(2L, 3L, 10L), c(50, 50, 50)), c(TRUE, FALSE, FALSE)) # entreprises : 3 passe, 2 non
+  expect_identical(secret_primaire(c(30, 30, 30), c(3L, 3L, 3L), c(85, 85.1, 100)), c(FALSE, TRUE, TRUE)) # dominance : 85 passe, > 85 non
+  expect_identical(secret_secondaire(c(TRUE, FALSE, FALSE, FALSE), c(4, 30, 40, 50)), c(TRUE, TRUE, FALSE, FALSE))
+  expect_identical(masquer_cellules(c(4, 30, 40, 50), ok3, dom50), c(TRUE, TRUE, FALSE, FALSE))   # secondaire : la plus petite
+  expect_identical(masquer_cellules(c(4, 2, 40, 50), ok3, dom50),  c(TRUE, TRUE, FALSE, FALSE))   # déjà 2 masquées : rien de plus
+  expect_identical(masquer_cellules(c(30, 40, 50), ok3[1:3], dom50[1:3]), c(FALSE, FALSE, FALSE))
+  expect_identical(masquer_cellules(c(40, 40, 50), c(3L, 2L, 3L), dom50[1:3]), c(TRUE, TRUE, FALSE)) # 2 entreprises -> masquée + secondaire
+  expect_identical(masquer_cellules(c(4, 2, 40), ok3[1:3], dom50[1:3], regles = NULL), c(FALSE, FALSE, FALSE))  # usage interne
+  expect_error(masquer_cellules(c(4, 30), 3L, 50), "même longueur")
+  # indicateurs d'une cellule : entreprises distinctes, dominance = max(part en effectif, part en départs)
+  d <- tibble::tibble(siren = c("A", "A", "A", "B", "C", "C"), p_central = c(.5, .5, .5, .1, .2, .2),
+                      cs1 = c("x", "x", "x", "x", "y", "y"))
+  i <- indicateurs_secret(d)
+  expect_equal(i$n_entreprises, 3L); expect_equal(i$part_dominante_pct, 75)        # départs : 1,5 / 2,0
+  ic <- indicateurs_secret(d, "cs1") |> dplyr::arrange(cs1)
+  expect_equal(ic$n_entreprises, c(2L, 1L)); expect_equal(ic$part_dominante_pct, c(100 * 1.5 / 1.6, 100))
+  expect_true(all(secret_primaire(c(4L, 2L), ic$n_entreprises, ic$part_dominante_pct)))
+  expect_error(indicateurs_secret(d |> dplyr::select(-siren)), "siren")
+  expect_match(texte_regle_secret(r), "moins de 5 salariés, de moins de 3 entreprises ou dont une entreprise représente plus de 85 %")
+  # sur la base synthétique : 2B, Cadres = 4 salariés -> masquée, + la plus petite (Employés)
   ctx <- calculer_contexte_perimetre(BASE_FICHES)
   ind <- calculer_indicateurs_territoire(BASE_FICHES, "2B", ctx)
   expect_true(ind$cs_masquee)
-  expect_identical(sum(ind$cs$masque), 2L)                        # Cadres (5) + la plus petite (Employés)
+  expect_identical(sum(ind$cs$masque), 2L)                        # Cadres (4) + la plus petite (Employés)
+  expect_false(any(c("n_entreprises", "part_dominante_pct") %in% names(ind$cs)))
+  expect_true(ind$diffusable)
+  expect_false(calculer_indicateurs_territoire(BASE_FICHES, "48", ctx)$diffusable)       # 1 entreprise
+  expect_true(calculer_indicateurs_territoire(BASE_FICHES, "48", ctx, regles = NULL)$diffusable)
   html <- paste(generer_html_fiche(ind, ctx, ZONAGE_DEP), collapse = "\n")
   # page 1 : aucune ligne du tableau pour une CS masquée, une note discrète, jamais « n.d. »
   expect_false(grepl('<th scope="row">Cadres', html))
   expect_match(html, "2 catégories ne sont pas affichées en application du secret statistique")
+  expect_match(html, "règle Insee de la Base Tous salariés")              # la règle est énoncée dans les sources
   expect_false(grepl("n\\.d\\.", html))
   # et la phrase sur la catégorie concentrant les départs n'est pas générée
   expect_false(any(grepl("concentrent", phrases_a_retenir(ind))))
@@ -232,7 +259,7 @@ test_that("STOCK_TOUS_AGES = FALSE : chaîne inchangée, fiches en repli, CSV 08
 test_that("usage interne (seuil 0) : toutes les fiches, aucun masquage, bloc entreprises par SIREN, bandeau ; diffusable inchangé", {
   dir <- file.path(tempdir(), "fiches_interne"); unlink(dir, recursive = TRUE)
   ref <- tibble::tibble(code = c("E01", "E02"), nom = c("Alpha Défense", "Bêta Systèmes"))
-  j <- suppressMessages(generer_fiches(BASE_FICHES, dir, mode = "tous", zonage = ZONAGE_DEP, seuil = 0,
+  j <- suppressMessages(generer_fiches(BASE_FICHES, dir, mode = "tous", zonage = ZONAGE_DEP, regles = NULL,
                                        detail_entreprises = TRUE, ref_siren = ref))
   expect_setequal(j$code[j$statut == "ok"], c("01", "2A", "2B", "33", "09", "48"))   # 48 (12 salariés) a sa fiche
   h2b <- paste(readLines(file.path(dir, "2b_haute-corse.html"), warn = FALSE, encoding = "UTF-8"), collapse = "\n")

@@ -4,7 +4,7 @@
 # PRÉREQUIS : objet `bts_projete` (04) au contrat geo_code / geo_nom / geo_type ;
 #             fonctions 00c (géographie) et 00d (fiches) ; paramètres
 #             GENERER_FICHES, FICHES_MODE, FICHES_SELECTION, FICHES_DIR,
-#             FICHES_SEUIL_PROCHE, FICHES_ANNEXE, GEO_INTERET, SEUIL_DIFFUSION, AGE_SENIOR (00)
+#             FICHES_SEUIL_PROCHE, FICHES_ANNEXE, GEO_INTERET, SECRET_* (règle Insee), AGE_SENIOR (00)
 # PRODUIT   : sorties/fiches_<suffixe du zonage>/<code>_<nom>.html (une page
 #             autonome par territoire) + index.html ; objet `journal_fiches`.
 # PÉRIMÈTRE : le MÊME que le 08 (recodage des territoires inconnus, filtre
@@ -23,10 +23,11 @@ if (!isTRUE(GENERER_FICHES)) {
   library(dplyr)
 
   ZON_FICHES <- zonage_geo(GEO_ANALYSE)
-  # Version diffusable (secret appliqué) ou usage interne (FICHES_SECRET = FALSE :
-  # seuil 0, tous les territoires, bloc entreprises, dossier _interne + bandeau)
+  # Version diffusable (règle Insee, 00_config SECRET_*) ou usage interne
+  # (FICHES_SECRET = FALSE : aucune règle, tous les territoires, bloc
+  # entreprises, dossier _interne + bandeau)
   secret_fiches <- isTRUE(get0("FICHES_SECRET", ifnotfound = TRUE))
-  seuil_fiches  <- if (secret_fiches) SEUIL_DIFFUSION else 0
+  regles_fiches <- if (secret_fiches) regles_secret() else NULL
   dir_fiches <- if (is.null(FICHES_DIR))
     file.path(DIR_SORTIES, paste0("fiches_", ZON_FICHES$suffixe, if (!secret_fiches) "_interne")) else FICHES_DIR
   ref_siren <- if (!secret_fiches && exists("FICHIER_REF_SIREN") && file.exists(FICHIER_REF_SIREN))
@@ -46,7 +47,7 @@ if (!isTRUE(GENERER_FICHES)) {
 
   journal_fiches <- generer_fiches(
     base_fiches, dir = dir_fiches, mode = FICHES_MODE, selection = selection_fiches,
-    seuil = seuil_fiches, age_senior = AGE_SENIOR, zonage = ZON_FICHES,
+    regles = regles_fiches, age_senior = AGE_SENIOR, zonage = ZON_FICHES,
     seuil_proche = FICHES_SEUIL_PROCHE, age_min = AGE_MIN_BTS,
     stock = if (exists("stock_tous_ages")) stock_tous_ages else NULL,
     detail_entreprises = !secret_fiches, ref_siren = ref_siren,

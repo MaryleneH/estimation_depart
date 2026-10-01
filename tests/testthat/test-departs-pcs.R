@@ -109,16 +109,21 @@ test_that("géographie : codes en texte (01, 2A, 2B, DROM), région correcte, d�
                "departement")
 })
 
-test_that("secret : primaire + secondaire minimale sur la diffusion ; tables internes complètes ; NA jamais 0", {
-  s <- E$SEUIL_DIFFUSION
+test_that("secret : règle Insee (primaire) + secondaire minimale sur la diffusion ; tables internes complètes ; NA jamais 0", {
+  r <- E$regles_secret()
   for (n in names(D)) {
-    d <- D[[n]]
-    expect_false(any(!is.na(d$effectif_champ) & d$effectif_champ < s), label = n)
+    d <- D[[n]]; a <- A[[n]]
+    prim <- E$secret_primaire(a$effectif_champ, a$n_entreprises, a$part_dominante_pct, r)
+    expect_false(any(!d$masque & prim), label = n)                           # rien de visible ne viole la règle
+    expect_identical(d$motif_masque %in% "primaire", prim, label = n)        # primaire = exactement la règle Insee
+    expect_false(any(!is.na(d$effectif_champ) & d$effectif_champ < r$min_salaries), label = n)
     expect_true(all(is.na(d$departs_central[d$masque])) && all(!is.na(d$departs_central[!d$masque])), label = n)
-    expect_false(any(d$departs_central[!d$masque] == 0 & A[[n]]$departs_central[!d$masque] > 0), label = n)
+    expect_false(any(d$departs_central[!d$masque] == 0 & a$departs_central[!d$masque] > 0), label = n)
     expect_true(all(d$motif_masque[d$masque] %in% c("primaire", "secondaire")))
-    expect_false(anyNA(A[[n]]$effectif_champ)); expect_false(anyNA(A[[n]]$departs_central))   # interne complète
-    expect_identical(A[[n]]$effectif_champ < s, d$motif_masque == "primaire" & !is.na(d$motif_masque) | FALSE | (d$motif_masque %in% "primaire"))
+    expect_false(anyNA(a$effectif_champ)); expect_false(anyNA(a$departs_central))   # interne complète
+    expect_true(all(c("n_entreprises", "part_dominante_pct") %in% names(a)))          # indicateurs : interne oui...
+    expect_false(any(c("n_entreprises", "part_dominante_pct") %in% names(d)))         # ...diffusion non
+    expect_true(all(a$n_entreprises >= 1L & a$part_dominante_pct > 0 & a$part_dominante_pct <= 100))
     for (bloc in E$blocs_secret_pcs(n, d)) {                          # aucun bloc avec UNE seule cellule masquée
       k <- d |> dplyr::group_by(dplyr::across(dplyr::all_of(bloc))) |> dplyr::summarise(m = sum(masque), t = dplyr::n(), .groups = "drop")
       expect_false(any(k$m == 1 & k$t > 2), label = paste(n, paste(bloc, collapse = "x")))
