@@ -1,401 +1,401 @@
 "region_code";"region_nom";"geo_code";"geo_nom";"pcs";"cs1";"effectif_champ";"departs_central";"departs_bas";"departs_haut";"dep_retraite";"dep_invalidite";"dep_deces";"taux_depart_central_pct";"n_entreprises";"part_dominante_pct"
-"11";"Île-de-France";"75";"Paris";"3719";"Cadres";16;2,2;2;2,4;1,7;0,2;0,3;13,7;6;44,9
-"11";"Île-de-France";"75";"Paris";"3753";"Cadres";15;5,9;5,6;6,3;5,5;0,2;0,3;39,5;6;26,7
-"11";"Île-de-France";"75";"Paris";"3812";"Cadres";14;4,4;4,2;4,6;4;0,2;0,2;31,4;7;28,6
-"11";"Île-de-France";"75";"Paris";"3822";"Cadres";6;1,1;1;1,2;0,8;0,1;0,1;18;3;77,9
-"11";"Île-de-France";"75";"Paris";"3892";"Cadres";19;3;2,7;3,3;2,4;0,3;0,3;15,9;7;42,1
-"11";"Île-de-France";"75";"Paris";"4611";"Prof. intermediaires";14;4,2;3,9;4,5;3,5;0,4;0,2;29,8;7;28,6
-"11";"Île-de-France";"75";"Paris";"4620";"Prof. intermediaires";18;6,9;6,6;7,3;6,3;0,4;0,2;38,5;8;38,6
-"11";"Île-de-France";"75";"Paris";"4631";"Prof. intermediaires";15;4,6;4,5;4,8;4;0,4;0,2;30,9;7;42,7
-"11";"Île-de-France";"75";"Paris";"4642";"Prof. intermediaires";16;7;6,7;7,4;6,4;0,4;0,2;43,9;8;29,1
-"11";"Île-de-France";"75";"Paris";"4652";"Prof. intermediaires";18;6,8;6,4;7,1;6,1;0,5;0,2;37,6;7;30,5
-"11";"Île-de-France";"75";"Paris";"5311";"Employes";8;4,6;4,3;4,8;4,3;0,2;0,1;57,1;4;42,9
-"11";"Île-de-France";"75";"Paris";"5411";"Employes";14;7,7;7,2;8,2;7,1;0,4;0,2;55,2;8;28,6
-"11";"Île-de-France";"75";"Paris";"5422";"Employes";8;4,5;4,3;4,7;4,2;0,2;0,1;56;4;50
-"11";"Île-de-France";"75";"Paris";"5511";"Employes";12;5;4,7;5,2;4,5;0,3;0,1;41,5;6;40,6
-"11";"Île-de-France";"75";"Paris";"5621";"Employes";10;2,5;2,3;2,8;2;0,3;0,2;25,4;6;37
-"11";"Île-de-France";"75";"Paris";"6210";"Ouvriers";14;4,8;4,6;5,1;4,1;0,6;0,1;34,4;6;38
-"11";"Île-de-France";"75";"Paris";"6234";"Ouvriers";15;6,7;6,1;7,2;5,8;0,7;0,2;44,5;7;33,3
-"11";"Île-de-France";"75";"Paris";"6543";"Ouvriers";19;6,4;6,1;6,7;5,4;0,7;0,3;33,6;7;41,7
-"11";"Île-de-France";"75";"Paris";"6712";"Ouvriers";20;8,5;8;9;7,5;0,7;0,3;42,5;8;27,6
-"11";"Île-de-France";"75";"Paris";"6821";"Ouvriers";16;7,2;7;7,4;6,5;0,5;0,2;44,9;5;55
-"11";"Île-de-France";"78";"Yvelines";"3719";"Cadres";8;1,8;1,7;2;1,6;0,1;0,2;23;6;57,3
-"11";"Île-de-France";"78";"Yvelines";"3753";"Cadres";13;4;3,8;4,2;3,7;0,2;0,2;31,1;8;32,9
-"11";"Île-de-France";"78";"Yvelines";"3812";"Cadres";11;2,4;2,4;2,5;2,1;0,1;0,2;22;5;45,7
-"11";"Île-de-France";"78";"Yvelines";"3822";"Cadres";11;4,2;4;4,3;3,8;0,1;0,2;38;7;44,5
-"11";"Île-de-France";"78";"Yvelines";"3892";"Cadres";10;3,8;3,7;3,9;3,5;0,1;0,1;37,9;6;51,9
-"11";"Île-de-France";"78";"Yvelines";"4611";"Prof. intermediaires";18;5,5;5,2;5,9;4,8;0,5;0,3;30,7;8;22,5
-"11";"Île-de-France";"78";"Yvelines";"4620";"Prof. intermediaires";17;4,1;3,8;4,5;3,3;0,5;0,3;24,3;8;29,9
-"11";"Île-de-France";"78";"Yvelines";"4631";"Prof. intermediaires";6;2,9;2,8;2,9;2,7;0,1;0,1;47,7;4;33,7
-"11";"Île-de-France";"78";"Yvelines";"4642";"Prof. intermediaires";19;4,8;4,4;5,1;4;0,5;0,3;25;8;22,1
-"11";"Île-de-France";"78";"Yvelines";"4652";"Prof. intermediaires";15;4,4;4;4,8;3,7;0,4;0,3;29,4;6;37,7
-"11";"Île-de-France";"78";"Yvelines";"5311";"Employes";11;5,1;4,8;5,4;4,6;0,3;0,1;46,1;6;36,4
-"11";"Île-de-France";"78";"Yvelines";"5411";"Employes";10;4,3;4,1;4,6;3,9;0,3;0,1;43;6;44,5
-"11";"Île-de-France";"78";"Yvelines";"5422";"Employes";10;4,9;4,7;5,1;4,5;0,3;0,1;48,7;6;40,6
-"11";"Île-de-France";"78";"Yvelines";"5511";"Employes";12;7,4;7,3;7,5;7,1;0,2;0,1;61,6;7;30,9
-"11";"Île-de-France";"78";"Yvelines";"5621";"Employes";8;1,7;1,5;1,9;1,3;0,3;0,1;21,2;4;59,4
-"11";"Île-de-France";"78";"Yvelines";"6210";"Ouvriers";13;7,3;7,1;7,6;6,8;0,4;0,1;56,5;5;38,5
-"11";"Île-de-France";"78";"Yvelines";"6234";"Ouvriers";16;7,3;6,8;7,8;6,4;0,6;0,2;45,5;6;31,2
-"11";"Île-de-France";"78";"Yvelines";"6543";"Ouvriers";16;6,9;6,5;7,3;6,1;0,6;0,2;43,4;6;36,5
-"11";"Île-de-France";"78";"Yvelines";"6712";"Ouvriers";18;6,8;6,4;7,3;5,8;0,8;0,2;37,9;6;32,7
-"11";"Île-de-France";"78";"Yvelines";"6821";"Ouvriers";15;7,4;7,1;7,8;6,7;0,6;0,2;49,5;7;26,7
-"11";"Île-de-France";"91";"Essonne";"3719";"Cadres";10;1,8;1,7;1,9;1,5;0,2;0,2;18,2;7;58
-"11";"Île-de-France";"91";"Essonne";"3753";"Cadres";12;2,6;2,6;2,8;2,3;0,2;0,2;22,1;5;80,6
-"11";"Île-de-France";"91";"Essonne";"3812";"Cadres";12;2,2;2,1;2,3;1,8;0,2;0,2;18,1;4;56,2
-"11";"Île-de-France";"91";"Essonne";"3822";"Cadres";14;3,7;3,6;3,9;3,3;0,2;0,2;26,6;8;50,2
-"11";"Île-de-France";"91";"Essonne";"3892";"Cadres";10;2,8;2,7;3;2,5;0,2;0,1;28,2;6;35,1
-"11";"Île-de-France";"91";"Essonne";"4611";"Prof. intermediaires";10;3,2;3,1;3,4;2,8;0,3;0,1;32,3;6;30,5
-"11";"Île-de-France";"91";"Essonne";"4620";"Prof. intermediaires";18;4,1;3,7;4,5;3,2;0,6;0,3;22,6;8;24
-"11";"Île-de-France";"91";"Essonne";"4631";"Prof. intermediaires";7;0,9;0,8;1;0,5;0,2;0,1;12,8;5;57,5
-"11";"Île-de-France";"91";"Essonne";"4642";"Prof. intermediaires";18;1,9;1,7;2,1;1;0,6;0,3;10,3;7;45
-"11";"Île-de-France";"91";"Essonne";"4652";"Prof. intermediaires";12;3,1;2,8;3,3;2,5;0,3;0,2;25,5;6;37,2
-"11";"Île-de-France";"91";"Essonne";"5311";"Employes";6;0,6;0,6;0,7;0,3;0,2;0,1;10,8;6;50,6
-"11";"Île-de-France";"91";"Essonne";"5411";"Employes";10;4,3;4,1;4,6;3,9;0,3;0,1;43,1;6;43,5
-"11";"Île-de-France";"91";"Essonne";"5422";"Employes";10;2,7;2,4;2,9;2,2;0,3;0,2;26,5;8;31,9
-"11";"Île-de-France";"91";"Essonne";"5511";"Employes";6;3;2,9;3,1;2,8;0,2;0;50;5;56,5
-"11";"Île-de-France";"91";"Essonne";"5621";"Employes";9;1,8;1,5;2,1;1,2;0,4;0,1;19,7;6;31,2
-"11";"Île-de-France";"91";"Essonne";"6210";"Ouvriers";14;6,2;5,8;6,6;5,5;0,6;0,2;44,2;6;31,6
-"11";"Île-de-France";"91";"Essonne";"6234";"Ouvriers";12;3,1;2,9;3,3;2,4;0,5;0,2;25,7;5;34,6
-"11";"Île-de-France";"91";"Essonne";"6543";"Ouvriers";12;4,5;4,2;4,9;3,9;0,5;0,2;37,7;6;52,2
-"11";"Île-de-France";"91";"Essonne";"6712";"Ouvriers";14;6,3;5,8;6,7;5,5;0,6;0,2;44,7;5;27,2
-"11";"Île-de-France";"91";"Essonne";"6821";"Ouvriers";17;6;5,8;6,2;5,2;0,7;0,2;35,3;7;35,6
-"11";"Île-de-France";"93";"Seine-Saint-Denis";"3719";"Cadres";21;4,9;4,5;5,2;4,2;0,3;0,4;23,1;8;27
-"11";"Île-de-France";"93";"Seine-Saint-Denis";"3753";"Cadres";12;0,5;0,5;0,5;0,1;0,2;0,2;4,1;6;42,8
-"11";"Île-de-France";"93";"Seine-Saint-Denis";"3812";"Cadres";11;1,8;1,7;1,9;1,4;0,2;0,2;16,3;5;57,5
-"11";"Île-de-France";"93";"Seine-Saint-Denis";"3822";"Cadres";12;2,7;2,4;3;2,3;0,2;0,2;22,3;6;48,4
-"11";"Île-de-France";"93";"Seine-Saint-Denis";"3892";"Cadres";9;2,9;2,7;3,2;2,6;0,2;0,2;32,6;5;51,4
-"11";"Île-de-France";"93";"Seine-Saint-Denis";"4611";"Prof. intermediaires";14;4;3,6;4,5;3,3;0,4;0,3;28,9;8;46,5
-"11";"Île-de-France";"93";"Seine-Saint-Denis";"4620";"Prof. intermediaires";7;2,6;2,5;2,8;2,4;0,1;0,1;37,8;3;42,9
-"11";"Île-de-France";"93";"Seine-Saint-Denis";"4631";"Prof. intermediaires";11;4,9;4,7;5,1;4,5;0,2;0,2;44,4;7;37,4
-"11";"Île-de-France";"93";"Seine-Saint-Denis";"4642";"Prof. intermediaires";14;3,6;3,4;3,8;3;0,4;0,2;25,5;7;30,1
-"11";"Île-de-France";"93";"Seine-Saint-Denis";"4652";"Prof. intermediaires";11;2,4;2,1;2,6;1,9;0,3;0,2;21,5;7;40
-"11";"Île-de-France";"93";"Seine-Saint-Denis";"5311";"Employes";8;1,8;1,6;1,9;1,4;0,3;0,1;21,9;5;54
-"11";"Île-de-France";"93";"Seine-Saint-Denis";"5411";"Employes";17;6;5,5;6,5;5,2;0,5;0,3;35,3;7;24,9
-"11";"Île-de-France";"93";"Seine-Saint-Denis";"5422";"Employes";14;6,1;5,8;6,5;5,5;0,4;0,2;43,6;6;35
-"11";"Île-de-France";"93";"Seine-Saint-Denis";"5511";"Employes";9;3,1;3;3,3;2,7;0,3;0,1;34,9;5;34,2
-"11";"Île-de-France";"93";"Seine-Saint-Denis";"5621";"Employes";5;2,1;1,9;2,3;1,9;0,1;0,1;42,5;3;76,5
-"11";"Île-de-France";"93";"Seine-Saint-Denis";"6210";"Ouvriers";17;7;6,7;7,4;6,1;0,7;0,2;41,4;6;35,3
-"11";"Île-de-France";"93";"Seine-Saint-Denis";"6234";"Ouvriers";13;5,8;5,4;6,2;5,1;0,6;0,2;44,7;7;31,7
-"11";"Île-de-France";"93";"Seine-Saint-Denis";"6543";"Ouvriers";16;6;5,7;6,4;5,2;0,7;0,2;37,6;7;30,6
-"11";"Île-de-France";"93";"Seine-Saint-Denis";"6712";"Ouvriers";14;3,8;3,7;3,9;3,1;0,5;0,2;27,3;6;32,1
-"11";"Île-de-France";"93";"Seine-Saint-Denis";"6821";"Ouvriers";8;3,4;3,1;3,7;3;0,3;0,1;42,8;4;37,5
-"24";"Centre-Val de Loire";"18";"Cher";"3719";"Cadres";14;4;3,8;4,2;3,5;0,2;0,2;28,5;5;27,6
-"24";"Centre-Val de Loire";"18";"Cher";"3753";"Cadres";17;3,9;3,5;4,2;3,2;0,3;0,4;22,7;7;51,9
-"24";"Centre-Val de Loire";"18";"Cher";"3812";"Cadres";13;4,4;4,2;4,6;4;0,1;0,2;33,6;6;44,2
-"24";"Centre-Val de Loire";"18";"Cher";"3822";"Cadres";12;2,5;2,3;2,7;2,1;0,2;0,2;20,7;6;39,4
-"24";"Centre-Val de Loire";"18";"Cher";"3892";"Cadres";16;4,9;4,5;5,3;4,4;0,3;0,3;30,5;6;52,9
-"24";"Centre-Val de Loire";"18";"Cher";"4611";"Prof. intermediaires";19;6,6;6,1;7;5,7;0,5;0,3;34,5;8;38,6
-"24";"Centre-Val de Loire";"18";"Cher";"4620";"Prof. intermediaires";18;7,2;6,8;7,7;6,5;0,5;0,2;40,2;7;43,8
-"24";"Centre-Val de Loire";"18";"Cher";"4631";"Prof. intermediaires";12;6,6;6,3;6,8;6,2;0,2;0,2;54,6;6;29,1
-"24";"Centre-Val de Loire";"18";"Cher";"4642";"Prof. intermediaires";13;3,5;3,3;3,7;3;0,3;0,2;27,1;7;29,1
-"24";"Centre-Val de Loire";"18";"Cher";"4652";"Prof. intermediaires";21;9,6;9,2;10,1;8,9;0,5;0,3;45,9;8;30,2
-"24";"Centre-Val de Loire";"18";"Cher";"5311";"Employes";7;2,2;2,2;2,2;2;0,2;0,1;31,7;4;45
-"24";"Centre-Val de Loire";"18";"Cher";"5411";"Employes";10;4,8;4,5;5,1;4,4;0,3;0,1;48;5;40
-"24";"Centre-Val de Loire";"18";"Cher";"5422";"Employes";12;5,3;5;5,7;4,8;0,4;0,2;44,4;5;49,4
-"24";"Centre-Val de Loire";"18";"Cher";"5511";"Employes";7;3,9;3,7;4,1;3,7;0,2;0,1;55,9;4;40,1
-"24";"Centre-Val de Loire";"18";"Cher";"5621";"Employes";10;2,6;2,3;3;2,1;0,4;0,2;26,5;6;43,9
-"24";"Centre-Val de Loire";"18";"Cher";"6210";"Ouvriers";8;4,7;4,3;5;4,2;0,3;0,1;58,2;6;25,6
-"24";"Centre-Val de Loire";"18";"Cher";"6234";"Ouvriers";20;7,7;7,3;8,1;6,6;0,8;0,3;38,3;8;32,7
-"24";"Centre-Val de Loire";"18";"Cher";"6543";"Ouvriers";15;9,7;9,5;9,9;9,3;0,3;0,1;64,8;7;21,2
-"24";"Centre-Val de Loire";"18";"Cher";"6712";"Ouvriers";20;10,4;10;10,9;9,5;0,8;0,2;52,1;8;25,6
-"24";"Centre-Val de Loire";"18";"Cher";"6821";"Ouvriers";14;7,5;7,3;7,8;7;0,4;0,1;53,8;7;41,1
-"32";"Hauts-de-France";"59";"Nord";"3719";"Cadres";18;2,6;2,3;2,8;1,8;0,3;0,4;14,2;8;38,6
-"32";"Hauts-de-France";"59";"Nord";"3753";"Cadres";23;6,4;5,9;6,9;5,6;0,4;0,4;27,9;8;26,8
-"32";"Hauts-de-France";"59";"Nord";"3812";"Cadres";12;4,4;4,1;4,8;4;0,2;0,2;36,8;7;53,2
-"32";"Hauts-de-France";"59";"Nord";"3822";"Cadres";13;3;2,7;3,3;2,5;0,3;0,3;23;7;34,6
-"32";"Hauts-de-France";"59";"Nord";"3892";"Cadres";11;2,8;2,6;3;2,4;0,2;0,2;25,4;5;44,7
-"32";"Hauts-de-France";"59";"Nord";"4611";"Prof. intermediaires";19;8,7;8,2;9,2;8;0,4;0,2;45,7;7;31,1
-"32";"Hauts-de-France";"59";"Nord";"4620";"Prof. intermediaires";17;7,4;7;7,8;6,8;0,4;0,2;43,5;7;29,2
-"32";"Hauts-de-France";"59";"Nord";"4631";"Prof. intermediaires";11;3;2,8;3,3;2,5;0,3;0,2;27,7;5;41,2
-"32";"Hauts-de-France";"59";"Nord";"4642";"Prof. intermediaires";17;6,2;5,9;6,5;5,5;0,4;0,2;36,3;6;34,3
-"32";"Hauts-de-France";"59";"Nord";"4652";"Prof. intermediaires";18;5,2;4,9;5,5;4,5;0,5;0,2;28,8;7;38,3
-"32";"Hauts-de-France";"59";"Nord";"5311";"Employes";9;5,7;5,4;6;5,4;0,2;0,1;63,2;5;46,5
-"32";"Hauts-de-France";"59";"Nord";"5411";"Employes";3;1,6;1,5;1,7;1,5;0,1;0;54,8;2;66,7
-"32";"Hauts-de-France";"59";"Nord";"5422";"Employes";21;12,8;12,4;13,1;12,2;0,4;0,2;60,9;8;25,7
-"32";"Hauts-de-France";"59";"Nord";"5511";"Employes";15;7,6;7,2;7,9;7;0,4;0,1;50,4;6;37,8
-"32";"Hauts-de-France";"59";"Nord";"5621";"Employes";16;8,1;7,7;8,5;7,4;0,4;0,2;50,5;6;28
-"32";"Hauts-de-France";"59";"Nord";"6210";"Ouvriers";22;10,8;10,2;11,3;9,7;0,8;0,2;48,9;8;31,8
-"32";"Hauts-de-France";"59";"Nord";"6234";"Ouvriers";17;10,1;9,9;10,4;9,6;0,4;0,1;59,7;8;35,3
-"32";"Hauts-de-France";"59";"Nord";"6543";"Ouvriers";18;8,5;8,2;8,8;7,8;0,5;0,2;47,3;6;34,2
-"32";"Hauts-de-France";"59";"Nord";"6712";"Ouvriers";26;13;12,6;13,5;11,9;0,9;0,2;50,1;8;31,7
-"32";"Hauts-de-France";"59";"Nord";"6821";"Ouvriers";28;12,1;11,4;12,8;10,6;1,1;0,3;43;8;25,2
-"52";"Pays de la Loire";"44";"Loire-Atlantique";"3719";"Cadres";14;4,2;3,9;4,5;3,7;0,2;0,2;29,9;7;38,2
-"52";"Pays de la Loire";"44";"Loire-Atlantique";"3753";"Cadres";11;1,9;1,7;2,1;1,5;0,2;0,2;17,4;5;66,4
-"52";"Pays de la Loire";"44";"Loire-Atlantique";"3812";"Cadres";16;5,6;5,3;5,9;5;0,2;0,3;35;8;51,9
-"52";"Pays de la Loire";"44";"Loire-Atlantique";"3822";"Cadres";22;6,2;5,9;6,5;5,6;0,3;0,3;28,1;8;38,2
-"52";"Pays de la Loire";"44";"Loire-Atlantique";"3892";"Cadres";15;4,3;3,9;4,6;3,8;0,2;0,3;28,4;7;41,3
-"52";"Pays de la Loire";"44";"Loire-Atlantique";"4611";"Prof. intermediaires";14;5,4;5,2;5,7;4,9;0,4;0,2;38,8;7;36,3
-"52";"Pays de la Loire";"44";"Loire-Atlantique";"4620";"Prof. intermediaires";16;3,5;3,2;3,8;2,8;0,4;0,3;21,7;6;31,2
-"52";"Pays de la Loire";"44";"Loire-Atlantique";"4631";"Prof. intermediaires";12;6;5,7;6,2;5,6;0,3;0,1;49,8;7;33,2
-"52";"Pays de la Loire";"44";"Loire-Atlantique";"4642";"Prof. intermediaires";8;1;0,9;1,2;0,6;0,3;0,1;13,1;5;63,9
-"52";"Pays de la Loire";"44";"Loire-Atlantique";"4652";"Prof. intermediaires";20;9,8;9,5;10;9,2;0,4;0,2;48,9;7;42
-"52";"Pays de la Loire";"44";"Loire-Atlantique";"5311";"Employes";15;5,5;5,1;5,8;4,8;0,4;0,2;36,5;8;24,7
-"52";"Pays de la Loire";"44";"Loire-Atlantique";"5411";"Employes";9;1,3;1,2;1,4;0,8;0,3;0,2;14,6;4;69
-"52";"Pays de la Loire";"44";"Loire-Atlantique";"5422";"Employes";14;5,3;4,9;5,6;4,7;0,4;0,2;37,7;7;42,6
-"52";"Pays de la Loire";"44";"Loire-Atlantique";"5511";"Employes";13;5,4;5,1;5,7;4,9;0,3;0,2;41,5;6;38,6
-"52";"Pays de la Loire";"44";"Loire-Atlantique";"5621";"Employes";19;6,8;6,4;7,3;6;0,6;0,2;35,8;8;27
-"52";"Pays de la Loire";"44";"Loire-Atlantique";"6210";"Ouvriers";12;6,1;5,9;6,4;5,6;0,4;0,1;51,2;6;33,6
-"52";"Pays de la Loire";"44";"Loire-Atlantique";"6234";"Ouvriers";26;12,5;11,8;13,2;11,2;1;0,3;48;7;25,9
-"52";"Pays de la Loire";"44";"Loire-Atlantique";"6543";"Ouvriers";15;9,1;8,7;9,4;8,4;0,5;0,2;60,4;6;28,4
-"52";"Pays de la Loire";"44";"Loire-Atlantique";"6712";"Ouvriers";21;15,9;15,4;16,4;15,3;0,5;0,2;75,9;8;26
-"52";"Pays de la Loire";"44";"Loire-Atlantique";"6821";"Ouvriers";14;6,9;6,7;7,1;6,4;0,4;0,1;49,5;7;21,9
-"53";"Bretagne";"35";"Ille-et-Vilaine";"3719";"Cadres";8;1,4;1,2;1,6;1,1;0,1;0,2;17,6;6;49,2
-"53";"Bretagne";"35";"Ille-et-Vilaine";"3753";"Cadres";16;4,6;4,2;5;4;0,3;0,3;28,8;7;42,7
-"53";"Bretagne";"35";"Ille-et-Vilaine";"3812";"Cadres";11;2,1;1,9;2,3;1,7;0,2;0,2;19;5;64,3
-"53";"Bretagne";"35";"Ille-et-Vilaine";"3822";"Cadres";9;1,3;1,2;1,4;1;0,1;0,2;14,2;7;70,1
-"53";"Bretagne";"35";"Ille-et-Vilaine";"3892";"Cadres";13;3;2,7;3,3;2,5;0,2;0,3;22,8;7;37,6
-"53";"Bretagne";"35";"Ille-et-Vilaine";"4611";"Prof. intermediaires";10;4,3;4,1;4,6;3,9;0,2;0,2;43,2;5;38,2
-"53";"Bretagne";"35";"Ille-et-Vilaine";"4620";"Prof. intermediaires";16;4,6;4,2;5;3,9;0,5;0,2;28,9;7;25
-"53";"Bretagne";"35";"Ille-et-Vilaine";"4631";"Prof. intermediaires";14;4,6;4,2;5;4;0,4;0,2;32,8;6;39
-"53";"Bretagne";"35";"Ille-et-Vilaine";"4642";"Prof. intermediaires";14;6,4;6,1;6,7;5,8;0,4;0,2;45,5;7;46,7
-"53";"Bretagne";"35";"Ille-et-Vilaine";"4652";"Prof. intermediaires";16;8,7;8,4;8,9;8,2;0,3;0,2;54,1;7;48,2
-"53";"Bretagne";"35";"Ille-et-Vilaine";"5311";"Employes";13;4,9;4,6;5,3;4,3;0,5;0,1;37,9;8;27,8
-"53";"Bretagne";"35";"Ille-et-Vilaine";"5411";"Employes";6;3,5;3,3;3,7;3,3;0,2;0,1;58,4;5;33,3
-"53";"Bretagne";"35";"Ille-et-Vilaine";"5422";"Employes";8;3,1;3;3,1;2,8;0,2;0,1;38,2;5;37,5
-"53";"Bretagne";"35";"Ille-et-Vilaine";"5511";"Employes";8;2,9;2,6;3,1;2,5;0,3;0,1;35,9;5;41,7
-"53";"Bretagne";"35";"Ille-et-Vilaine";"5621";"Employes";12;3,4;3,3;3,5;2,9;0,3;0,1;28,3;7;31
-"53";"Bretagne";"35";"Ille-et-Vilaine";"6210";"Ouvriers";7;3,2;3;3,4;2,8;0,3;0,1;45,5;6;30,7
-"53";"Bretagne";"35";"Ille-et-Vilaine";"6234";"Ouvriers";15;8,1;7,8;8,5;7,5;0,5;0,2;54,3;6;33,3
-"53";"Bretagne";"35";"Ille-et-Vilaine";"6543";"Ouvriers";16;6,2;6;6,5;5,4;0,6;0,2;39;7;31,9
-"53";"Bretagne";"35";"Ille-et-Vilaine";"6712";"Ouvriers";13;6,7;6,5;6,9;6,2;0,4;0,1;51,5;7;24
-"53";"Bretagne";"35";"Ille-et-Vilaine";"6821";"Ouvriers";10;6,3;5,9;6,6;5,8;0,3;0,1;62,6;4;59,8
-"53";"Bretagne";"56";"Morbihan";"3719";"Cadres";16;6,2;5,9;6,6;5,8;0,2;0,2;38,9;8;22,4
-"53";"Bretagne";"56";"Morbihan";"3753";"Cadres";11;1,3;1,1;1,5;0,9;0,2;0,2;12;4;58
-"53";"Bretagne";"56";"Morbihan";"3812";"Cadres";18;3,8;3,5;4,1;3,2;0,3;0,3;21,1;7;31
-"53";"Bretagne";"56";"Morbihan";"3822";"Cadres";9;2,1;2;2,3;1,8;0,2;0,1;23,8;6;48,6
-"53";"Bretagne";"56";"Morbihan";"3892";"Cadres";15;1,7;1,5;1,9;1,2;0,3;0,3;11,5;7;43,3
-"53";"Bretagne";"56";"Morbihan";"4611";"Prof. intermediaires";12;2,8;2,7;3;2,3;0,3;0,2;23,6;7;42,8
-"53";"Bretagne";"56";"Morbihan";"4620";"Prof. intermediaires";11;4,4;4,3;4,5;4,1;0,2;0,1;40,2;6;46,4
-"53";"Bretagne";"56";"Morbihan";"4631";"Prof. intermediaires";10;2,2;2,1;2,3;1,8;0,2;0,2;22,1;6;47,5
-"53";"Bretagne";"56";"Morbihan";"4642";"Prof. intermediaires";13;2,4;2,1;2,8;1,8;0,4;0,2;18,7;6;38,5
-"53";"Bretagne";"56";"Morbihan";"4652";"Prof. intermediaires";14;6;5,6;6,3;5,4;0,4;0,2;42,7;7;47,2
-"53";"Bretagne";"56";"Morbihan";"5311";"Employes";11;2,5;2,3;2,8;1,9;0,4;0,2;23;6;43,3
-"53";"Bretagne";"56";"Morbihan";"5411";"Employes";10;2;2;2,1;1,6;0,3;0,1;20,4;7;51,2
-"53";"Bretagne";"56";"Morbihan";"5422";"Employes";8;3,4;3,3;3,6;3,1;0,2;0,1;42,9;5;37,5
-"53";"Bretagne";"56";"Morbihan";"5511";"Employes";15;5,1;4,8;5,3;4,4;0,5;0,2;33,8;7;37,8
-"53";"Bretagne";"56";"Morbihan";"5621";"Employes";7;3,1;3;3,3;2,8;0,2;0,1;44,7;4;46,5
-"53";"Bretagne";"56";"Morbihan";"6210";"Ouvriers";17;7,3;7;7,5;6,5;0,5;0,2;42,7;6;35,6
-"53";"Bretagne";"56";"Morbihan";"6234";"Ouvriers";12;5,1;4,7;5,4;4,4;0,5;0,2;42,3;8;25
-"53";"Bretagne";"56";"Morbihan";"6543";"Ouvriers";15;3,1;2,8;3,4;2,2;0,7;0,2;20,7;6;35,1
-"53";"Bretagne";"56";"Morbihan";"6712";"Ouvriers";15;5,5;5,1;6;4,6;0,7;0,2;36,7;7;33,3
-"53";"Bretagne";"56";"Morbihan";"6821";"Ouvriers";13;4;3,7;4,4;3,3;0,5;0,2;31,1;8;40,1
-"75";"Nouvelle-Aquitaine";"33";"Gironde";"3719";"Cadres";13;3,3;3;3,5;2,8;0,2;0,3;25,3;6;56,9
-"75";"Nouvelle-Aquitaine";"33";"Gironde";"3753";"Cadres";12;4,2;4;4,4;3,9;0,1;0,2;35;6;44,5
-"75";"Nouvelle-Aquitaine";"33";"Gironde";"3812";"Cadres";12;2,8;2,6;3;2,4;0,2;0,2;23,2;5;58,4
-"75";"Nouvelle-Aquitaine";"33";"Gironde";"3822";"Cadres";15;5,7;5,3;6,1;5,2;0,2;0,3;38;7;36,8
-"75";"Nouvelle-Aquitaine";"33";"Gironde";"3892";"Cadres";10;2,4;2,3;2,4;2;0,1;0,2;23,5;6;46,1
-"75";"Nouvelle-Aquitaine";"33";"Gironde";"4611";"Prof. intermediaires";23;6,9;6,5;7,4;5,9;0,6;0,3;30,1;7;25,9
-"75";"Nouvelle-Aquitaine";"33";"Gironde";"4620";"Prof. intermediaires";15;3,4;3,1;3,6;2,7;0,4;0,2;22,4;6;35,6
-"75";"Nouvelle-Aquitaine";"33";"Gironde";"4631";"Prof. intermediaires";11;3,5;3,4;3,7;3,1;0,3;0,1;32,3;6;37,1
-"75";"Nouvelle-Aquitaine";"33";"Gironde";"4642";"Prof. intermediaires";16;6;5,6;6,5;5,4;0,4;0,2;37,6;7;32,5
-"75";"Nouvelle-Aquitaine";"33";"Gironde";"4652";"Prof. intermediaires";10;2,4;2,3;2,5;2;0,2;0,1;24,1;5;51,5
-"75";"Nouvelle-Aquitaine";"33";"Gironde";"5311";"Employes";11;5,4;5,2;5,7;5;0,3;0,1;49,4;6;44,8
-"75";"Nouvelle-Aquitaine";"33";"Gironde";"5411";"Employes";8;1,9;1,7;2;1,4;0,3;0,1;23,3;4;59
-"75";"Nouvelle-Aquitaine";"33";"Gironde";"5422";"Employes";12;6,4;6;6,8;5,9;0,3;0,1;53,5;7;25,1
-"75";"Nouvelle-Aquitaine";"33";"Gironde";"5511";"Employes";16;6,9;6,5;7,3;6,2;0,5;0,2;43;5;37,5
-"75";"Nouvelle-Aquitaine";"33";"Gironde";"5621";"Employes";9;3,2;2,9;3,5;2,7;0,3;0,1;35,7;6;35,5
-"75";"Nouvelle-Aquitaine";"33";"Gironde";"6210";"Ouvriers";11;5,3;4,9;5,6;4,7;0,4;0,1;47,9;7;42,6
-"75";"Nouvelle-Aquitaine";"33";"Gironde";"6234";"Ouvriers";19;7,3;7;7,7;6,3;0,8;0,2;38,6;7;36,9
-"75";"Nouvelle-Aquitaine";"33";"Gironde";"6543";"Ouvriers";15;6,7;6,5;7,1;6;0,6;0,2;45;7;31,5
-"75";"Nouvelle-Aquitaine";"33";"Gironde";"6712";"Ouvriers";19;8;7,7;8,4;7,1;0,7;0,2;42,2;7;31,6
-"75";"Nouvelle-Aquitaine";"33";"Gironde";"6821";"Ouvriers";20;10,7;10,3;11;9,9;0,6;0,2;53,4;8;25,9
-"75";"Nouvelle-Aquitaine";"64";"Pyrénées-Atlantiques";"3719";"Cadres";14;5,2;4,8;5,7;4,8;0,2;0,2;37,4;8;30,1
-"75";"Nouvelle-Aquitaine";"64";"Pyrénées-Atlantiques";"3753";"Cadres";18;6;5,5;6,5;5,4;0,3;0,3;33,4;7;34,8
-"75";"Nouvelle-Aquitaine";"64";"Pyrénées-Atlantiques";"3812";"Cadres";19;6,8;6,3;7,2;6,1;0,3;0,3;35,6;8;32,7
-"75";"Nouvelle-Aquitaine";"64";"Pyrénées-Atlantiques";"3822";"Cadres";14;1,4;1,2;1,6;0,9;0,2;0,3;10;6;54,3
-"75";"Nouvelle-Aquitaine";"64";"Pyrénées-Atlantiques";"3892";"Cadres";15;6,2;5,9;6,5;5,8;0,2;0,2;41,3;8;29,6
-"75";"Nouvelle-Aquitaine";"64";"Pyrénées-Atlantiques";"4611";"Prof. intermediaires";16;3,8;3,5;4,1;3,1;0,5;0,2;23,6;6;48,6
-"75";"Nouvelle-Aquitaine";"64";"Pyrénées-Atlantiques";"4620";"Prof. intermediaires";16;6,9;6,7;7,2;6,4;0,3;0,2;43,3;7;29,2
-"75";"Nouvelle-Aquitaine";"64";"Pyrénées-Atlantiques";"4631";"Prof. intermediaires";16;8,6;8,3;8,8;8,1;0,3;0,2;53,6;7;34,6
-"75";"Nouvelle-Aquitaine";"64";"Pyrénées-Atlantiques";"4642";"Prof. intermediaires";17;3,6;3,4;4;2,9;0,5;0,3;21,4;7;39,9
-"75";"Nouvelle-Aquitaine";"64";"Pyrénées-Atlantiques";"4652";"Prof. intermediaires";17;8,8;8,4;9,2;8,3;0,4;0,2;51,9;8;36,7
-"75";"Nouvelle-Aquitaine";"64";"Pyrénées-Atlantiques";"5311";"Employes";6;4,1;4,1;4,1;4;0,1;0;68,3;4;48,5
-"75";"Nouvelle-Aquitaine";"64";"Pyrénées-Atlantiques";"5411";"Employes";15;7,3;7;7,7;6,8;0,4;0,1;49;7;26,7
-"75";"Nouvelle-Aquitaine";"64";"Pyrénées-Atlantiques";"5422";"Employes";10;2,4;2,2;2,6;1,9;0,3;0,2;24,1;7;35,1
-"75";"Nouvelle-Aquitaine";"64";"Pyrénées-Atlantiques";"5511";"Employes";13;6,3;6;6,6;5,8;0,3;0,2;48,5;7;50,4
-"75";"Nouvelle-Aquitaine";"64";"Pyrénées-Atlantiques";"5621";"Employes";11;6,7;6,5;6,9;6,4;0,2;0,1;61;4;41,2
-"75";"Nouvelle-Aquitaine";"64";"Pyrénées-Atlantiques";"6210";"Ouvriers";21;12,3;11,7;12,9;11,4;0,7;0,2;58,5;8;34,5
-"75";"Nouvelle-Aquitaine";"64";"Pyrénées-Atlantiques";"6234";"Ouvriers";25;14;13,7;14,2;13,1;0,7;0,2;55,9;8;24
-"75";"Nouvelle-Aquitaine";"64";"Pyrénées-Atlantiques";"6543";"Ouvriers";17;9,4;8,9;9,9;8,6;0,6;0,2;55,2;7;23,5
-"75";"Nouvelle-Aquitaine";"64";"Pyrénées-Atlantiques";"6712";"Ouvriers";13;7,2;6,9;7,5;6,7;0,4;0,1;55,5;7;26,6
-"75";"Nouvelle-Aquitaine";"64";"Pyrénées-Atlantiques";"6821";"Ouvriers";21;11,9;11,2;12,6;10,8;0,8;0,2;56,6;8;28,6
-"75";"Nouvelle-Aquitaine";"86";"Vienne";"3719";"Cadres";9;0,5;0,4;0,5;0,2;0,1;0,2;5,2;5;54
-"75";"Nouvelle-Aquitaine";"86";"Vienne";"3753";"Cadres";12;1,6;1,5;1,7;1,2;0,2;0,2;13,3;5;56,1
-"75";"Nouvelle-Aquitaine";"86";"Vienne";"3812";"Cadres";17;3,9;3,6;4,2;3,3;0,3;0,3;22,8;7;33
-"75";"Nouvelle-Aquitaine";"86";"Vienne";"3822";"Cadres";17;3,3;3,1;3,5;2,7;0,2;0,3;19,3;6;45,4
-"75";"Nouvelle-Aquitaine";"86";"Vienne";"3892";"Cadres";13;1,6;1,5;1,7;1,2;0,2;0,2;12,6;6;61,6
-"75";"Nouvelle-Aquitaine";"86";"Vienne";"4611";"Prof. intermediaires";12;3,4;3,2;3,5;2,9;0,3;0,2;28;7;33,9
-"75";"Nouvelle-Aquitaine";"86";"Vienne";"4620";"Prof. intermediaires";10;2,7;2,6;2,9;2,3;0,3;0,1;27,1;6;38,4
-"75";"Nouvelle-Aquitaine";"86";"Vienne";"4631";"Prof. intermediaires";11;2,8;2,7;2,9;2,4;0,2;0,2;25,7;5;37
-"75";"Nouvelle-Aquitaine";"86";"Vienne";"4642";"Prof. intermediaires";8;0,8;0,7;0,9;0,4;0,2;0,2;9,5;6;41,8
-"75";"Nouvelle-Aquitaine";"86";"Vienne";"4652";"Prof. intermediaires";17;3,2;2,9;3,6;2,3;0,5;0,4;19;7;47,5
-"75";"Nouvelle-Aquitaine";"86";"Vienne";"5311";"Employes";5;2,2;2,1;2,4;2;0,1;0,1;44;4;45,2
-"75";"Nouvelle-Aquitaine";"86";"Vienne";"5411";"Employes";8;2,2;2;2,4;1,8;0,3;0,1;27,5;5;66,4
-"75";"Nouvelle-Aquitaine";"86";"Vienne";"5422";"Employes";12;3,5;3,4;3,6;3;0,3;0,2;29,3;6;33,8
-"75";"Nouvelle-Aquitaine";"86";"Vienne";"5511";"Employes";10;3;2,8;3,2;2,5;0,3;0,1;29,5;7;33,9
-"75";"Nouvelle-Aquitaine";"86";"Vienne";"5621";"Employes";6;0,3;0,3;0,3;0;0,2;0,1;4,5;4;36
-"75";"Nouvelle-Aquitaine";"86";"Vienne";"6210";"Ouvriers";13;6;5,6;6,4;5,4;0,5;0,1;46,2;7;50
-"75";"Nouvelle-Aquitaine";"86";"Vienne";"6234";"Ouvriers";14;3;2,8;3,2;2,1;0,6;0,2;21,1;7;39,8
-"75";"Nouvelle-Aquitaine";"86";"Vienne";"6543";"Ouvriers";18;7,9;7,5;8,3;6,9;0,8;0,2;43,7;8;38,9
-"75";"Nouvelle-Aquitaine";"86";"Vienne";"6712";"Ouvriers";8;2,4;2,1;2,6;1,8;0,4;0,1;29,6;5;31,6
-"75";"Nouvelle-Aquitaine";"86";"Vienne";"6821";"Ouvriers";12;3,6;3,4;3,9;2,9;0,5;0,2;30;7;42
-"75";"Nouvelle-Aquitaine";"87";"Haute-Vienne";"3719";"Cadres";17;3,4;3;3,8;2,8;0,3;0,3;19,9;7;48,9
-"75";"Nouvelle-Aquitaine";"87";"Haute-Vienne";"3753";"Cadres";15;4,7;4,3;5,1;4,1;0,2;0,3;31,1;7;39,3
-"75";"Nouvelle-Aquitaine";"87";"Haute-Vienne";"3812";"Cadres";16;3,7;3,4;4,1;3,1;0,2;0,3;23,3;6;43,8
-"75";"Nouvelle-Aquitaine";"87";"Haute-Vienne";"3822";"Cadres";17;4,2;3,8;4,6;3,6;0,3;0,3;24,8;7;41,7
-"75";"Nouvelle-Aquitaine";"87";"Haute-Vienne";"3892";"Cadres";17;1,8;1,7;1,9;1,2;0,2;0,3;10,4;7;58
-"75";"Nouvelle-Aquitaine";"87";"Haute-Vienne";"4611";"Prof. intermediaires";14;7,8;7,4;8,1;7,3;0,2;0,2;55,4;8;28,6
-"75";"Nouvelle-Aquitaine";"87";"Haute-Vienne";"4620";"Prof. intermediaires";15;6,7;6,5;7;6,3;0,3;0,1;44,9;8;29,5
-"75";"Nouvelle-Aquitaine";"87";"Haute-Vienne";"4631";"Prof. intermediaires";16;6,9;6,6;7,3;6,3;0,4;0,2;43,2;5;48,5
-"75";"Nouvelle-Aquitaine";"87";"Haute-Vienne";"4642";"Prof. intermediaires";14;4,8;4,4;5,2;4,2;0,4;0,2;34,2;7;29,5
-"75";"Nouvelle-Aquitaine";"87";"Haute-Vienne";"4652";"Prof. intermediaires";21;8,3;7,9;8,7;7,5;0,5;0,2;39,5;7;28,9
-"75";"Nouvelle-Aquitaine";"87";"Haute-Vienne";"5311";"Employes";12;3,1;2,9;3,3;2,5;0,4;0,2;25,5;6;35,6
-"75";"Nouvelle-Aquitaine";"87";"Haute-Vienne";"5411";"Employes";7;3,2;3;3,3;2,9;0,2;0,1;45,1;6;30,3
-"75";"Nouvelle-Aquitaine";"87";"Haute-Vienne";"5422";"Employes";11;5,5;5,3;5,6;5,1;0,2;0,1;49,7;6;27,3
-"75";"Nouvelle-Aquitaine";"87";"Haute-Vienne";"5511";"Employes";14;7,4;7,1;7,7;6,9;0,3;0,2;52,8;7;32,1
-"75";"Nouvelle-Aquitaine";"87";"Haute-Vienne";"5621";"Employes";17;5,3;5;5,7;4,5;0,5;0,3;31,3;8;34,2
-"75";"Nouvelle-Aquitaine";"87";"Haute-Vienne";"6210";"Ouvriers";21;11,6;11,1;12,1;10,7;0,7;0,2;55,3;7;33
-"75";"Nouvelle-Aquitaine";"87";"Haute-Vienne";"6234";"Ouvriers";21;8,5;7,9;9;7,3;0,9;0,3;40,3;8;32,5
-"75";"Nouvelle-Aquitaine";"87";"Haute-Vienne";"6543";"Ouvriers";17;8,8;8,6;9;8,2;0,5;0,1;52;6;38,7
-"75";"Nouvelle-Aquitaine";"87";"Haute-Vienne";"6712";"Ouvriers";22;9,6;9,1;10,2;8,4;0,9;0,3;43,7;7;32,2
-"75";"Nouvelle-Aquitaine";"87";"Haute-Vienne";"6821";"Ouvriers";17;9,3;8,9;9,6;8,6;0,5;0,1;54,5;8;30,9
-"76";"Occitanie";"09";"Ariège";"3719";"Cadres";20;4,6;4,2;5,1;4;0,3;0,4;23,1;8;30
-"76";"Occitanie";"09";"Ariège";"3753";"Cadres";13;4,1;3,9;4,3;3,7;0,2;0,2;31,5;8;36,1
-"76";"Occitanie";"09";"Ariège";"3812";"Cadres";20;5,9;5,6;6,2;5,3;0,3;0,3;29,4;8;49,4
-"76";"Occitanie";"09";"Ariège";"3822";"Cadres";16;3,6;3,5;3,8;3,2;0,2;0,2;22,8;6;53,4
-"76";"Occitanie";"09";"Ariège";"3892";"Cadres";13;2,9;2,7;3;2,4;0,2;0,2;21,9;8;35,3
-"76";"Occitanie";"09";"Ariège";"4611";"Prof. intermediaires";15;6,3;5,9;6,7;5,7;0,3;0,2;41,9;8;34,1
-"76";"Occitanie";"09";"Ariège";"4620";"Prof. intermediaires";19;7,6;7,1;8,1;6,8;0,5;0,3;40;7;26
-"76";"Occitanie";"09";"Ariège";"4631";"Prof. intermediaires";13;6,9;6,6;7,1;6,5;0,2;0,2;52,7;8;23,1
-"76";"Occitanie";"09";"Ariège";"4642";"Prof. intermediaires";17;4,1;3,7;4,5;3,3;0,5;0,3;24,2;7;48,3
-"76";"Occitanie";"09";"Ariège";"4652";"Prof. intermediaires";11;2,3;2,1;2,6;1,8;0,3;0,2;21,2;6;39,1
-"76";"Occitanie";"09";"Ariège";"5311";"Employes";13;5,8;5,5;6,1;5,3;0,3;0,2;44,9;7;23,1
-"76";"Occitanie";"09";"Ariège";"5411";"Employes";14;5,1;4,8;5,5;4,4;0,4;0,2;36,4;6;31,7
-"76";"Occitanie";"09";"Ariège";"5422";"Employes";10;3,8;3,6;3,9;3,4;0,3;0,1;37,8;6;53,2
-"76";"Occitanie";"09";"Ariège";"5511";"Employes";8;2,1;2;2,4;1,7;0,3;0,1;26,7;6;57
-"76";"Occitanie";"09";"Ariège";"5621";"Employes";7;4;4;4,1;3,9;0,1;0,1;57,6;6;28,6
-"76";"Occitanie";"09";"Ariège";"6210";"Ouvriers";20;10,8;10,3;11,3;10;0,6;0,2;54;7;26,3
-"76";"Occitanie";"09";"Ariège";"6234";"Ouvriers";16;6,1;5,7;6,5;5,2;0,7;0,2;38;7;25,3
-"76";"Occitanie";"09";"Ariège";"6543";"Ouvriers";16;7,6;7,2;8;6,8;0,6;0,2;47,4;7;37,5
-"76";"Occitanie";"09";"Ariège";"6712";"Ouvriers";21;10,4;9,9;11,1;9,3;0,9;0,2;49,7;8;28
-"76";"Occitanie";"09";"Ariège";"6821";"Ouvriers";14;7,3;7;7,7;6,7;0,5;0,2;52,4;7;39,6
-"84";"Auvergne-Rhône-Alpes";"01";"Ain";"3719";"Cadres";15;4,4;3,9;4,9;3,8;0,3;0,3;29,3;6;34,9
-"84";"Auvergne-Rhône-Alpes";"01";"Ain";"3753";"Cadres";18;5,2;4,7;5,7;4,6;0,3;0,3;28,9;8;43,8
-"84";"Auvergne-Rhône-Alpes";"01";"Ain";"3812";"Cadres";13;1,8;1,6;2,1;1,3;0,2;0,3;13,8;7;38,9
-"84";"Auvergne-Rhône-Alpes";"01";"Ain";"3822";"Cadres";10;1,7;1,6;1,8;1,4;0,1;0,2;17,2;6;49,2
-"84";"Auvergne-Rhône-Alpes";"01";"Ain";"3892";"Cadres";18;4,3;4,1;4,5;3,7;0,3;0,3;23,8;8;49,7
-"84";"Auvergne-Rhône-Alpes";"01";"Ain";"4611";"Prof. intermediaires";14;5,3;5;5,6;4,7;0,4;0,2;37,7;8;30,3
-"84";"Auvergne-Rhône-Alpes";"01";"Ain";"4620";"Prof. intermediaires";17;8,9;8,5;9,2;8,3;0,3;0,2;52,1;6;27,8
-"84";"Auvergne-Rhône-Alpes";"01";"Ain";"4631";"Prof. intermediaires";19;9,4;8,9;9,8;8,7;0,4;0,3;49,4;8;21,1
-"84";"Auvergne-Rhône-Alpes";"01";"Ain";"4642";"Prof. intermediaires";15;6;5,7;6,3;5,4;0,4;0,2;39,9;7;32,3
-"84";"Auvergne-Rhône-Alpes";"01";"Ain";"4652";"Prof. intermediaires";17;7,6;7,2;8;7;0,4;0,2;44,7;8;25,9
-"84";"Auvergne-Rhône-Alpes";"01";"Ain";"5311";"Employes";13;6,6;6,3;6,8;6,1;0,3;0,1;50,6;6;31,1
-"84";"Auvergne-Rhône-Alpes";"01";"Ain";"5411";"Employes";11;4,6;4,3;4,9;4,1;0,3;0,1;41,8;6;45,5
-"84";"Auvergne-Rhône-Alpes";"01";"Ain";"5422";"Employes";14;5,4;4,9;5,9;4,7;0,5;0,2;38,6;6;28
-"84";"Auvergne-Rhône-Alpes";"01";"Ain";"5511";"Employes";11;5,5;5,2;5,8;5,1;0,3;0,2;50;6;32,7
-"84";"Auvergne-Rhône-Alpes";"01";"Ain";"5621";"Employes";12;6,9;6,6;7,2;6,5;0,3;0,1;57,3;8;44,4
-"84";"Auvergne-Rhône-Alpes";"01";"Ain";"6210";"Ouvriers";21;11;10,4;11,6;10;0,8;0,2;52,3;8;26,6
-"84";"Auvergne-Rhône-Alpes";"01";"Ain";"6234";"Ouvriers";18;8,3;7,9;8,6;7,4;0,7;0,2;46;7;27,8
-"84";"Auvergne-Rhône-Alpes";"01";"Ain";"6543";"Ouvriers";14;6,9;6,7;7,1;6,3;0,4;0,1;49;8;29
-"84";"Auvergne-Rhône-Alpes";"01";"Ain";"6712";"Ouvriers";18;8,8;8,4;9,2;7,9;0,7;0,2;48,7;7;31,6
-"84";"Auvergne-Rhône-Alpes";"01";"Ain";"6821";"Ouvriers";19;12,5;12,2;12,8;11,9;0,5;0,1;65,9;8;30,7
-"84";"Auvergne-Rhône-Alpes";"03";"Allier";"3719";"Cadres";5;0,5;0,4;0,6;0,3;0,1;0,1;9,9;3;47,4
-"84";"Auvergne-Rhône-Alpes";"03";"Allier";"3753";"Cadres";12;2,7;2,6;2,9;2,4;0,2;0,2;22,8;6;34,8
-"84";"Auvergne-Rhône-Alpes";"03";"Allier";"3812";"Cadres";16;2,1;2;2,2;1,6;0,2;0,3;13,2;7;47,7
-"84";"Auvergne-Rhône-Alpes";"03";"Allier";"3822";"Cadres";23;5,4;5,3;5,6;4,8;0,3;0,3;23,7;8;21,7
-"84";"Auvergne-Rhône-Alpes";"03";"Allier";"3892";"Cadres";13;1,6;1,4;1,7;1,2;0,2;0,2;12;6;49,5
-"84";"Auvergne-Rhône-Alpes";"03";"Allier";"4611";"Prof. intermediaires";14;3,5;3,1;3,9;2,8;0,4;0,3;25,2;7;41,1
-"84";"Auvergne-Rhône-Alpes";"03";"Allier";"4620";"Prof. intermediaires";9;1,7;1,5;1,9;1,2;0,3;0,2;18,5;6;52,9
-"84";"Auvergne-Rhône-Alpes";"03";"Allier";"4631";"Prof. intermediaires";18;4,3;4;4,7;3,5;0,5;0,3;24,1;8;36,5
-"84";"Auvergne-Rhône-Alpes";"03";"Allier";"4642";"Prof. intermediaires";16;3,2;2,8;3,5;2,4;0,5;0,2;19,8;7;30,7
-"84";"Auvergne-Rhône-Alpes";"03";"Allier";"4652";"Prof. intermediaires";12;6,1;5,9;6,3;5,7;0,3;0,2;50,8;7;32
-"84";"Auvergne-Rhône-Alpes";"03";"Allier";"5311";"Employes";11;5,5;5,2;5,8;5,1;0,3;0,1;50;8;36
-"84";"Auvergne-Rhône-Alpes";"03";"Allier";"5411";"Employes";6;1,7;1,6;1,8;1,4;0,2;0,1;28,6;4;57,7
-"84";"Auvergne-Rhône-Alpes";"03";"Allier";"5422";"Employes";13;3,1;2,9;3,4;2,5;0,4;0,2;24,1;6;35,4
-"84";"Auvergne-Rhône-Alpes";"03";"Allier";"5511";"Employes";8;1;0,9;1,1;0,6;0,3;0,1;12,5;5;51,4
-"84";"Auvergne-Rhône-Alpes";"03";"Allier";"5621";"Employes";8;3,2;2,9;3,4;2,8;0,3;0,1;39,5;7;58,3
-"84";"Auvergne-Rhône-Alpes";"03";"Allier";"6210";"Ouvriers";21;10,3;9,9;10,8;9,3;0,7;0,2;49,2;7;32,2
-"84";"Auvergne-Rhône-Alpes";"03";"Allier";"6234";"Ouvriers";22;9,3;8,6;10,1;8;1;0,3;42,3;7;22,7
-"84";"Auvergne-Rhône-Alpes";"03";"Allier";"6543";"Ouvriers";19;7,5;7,1;8;6,5;0,8;0,2;39,7;7;29,5
-"84";"Auvergne-Rhône-Alpes";"03";"Allier";"6712";"Ouvriers";14;8,3;7,9;8,6;7,6;0,5;0,1;59;6;28,6
-"84";"Auvergne-Rhône-Alpes";"03";"Allier";"6821";"Ouvriers";16;6;5,7;6,4;5,1;0,7;0,2;37,6;6;28,1
-"84";"Auvergne-Rhône-Alpes";"69";"Rhône";"3719";"Cadres";18;4,8;4,4;5,3;4,2;0,4;0,3;26,9;7;32,3
-"84";"Auvergne-Rhône-Alpes";"69";"Rhône";"3753";"Cadres";7;3,5;3,2;3,8;3,3;0,1;0,1;50;4;57,1
-"84";"Auvergne-Rhône-Alpes";"69";"Rhône";"3812";"Cadres";17;4,4;4,1;4,7;3,8;0,3;0,3;25,7;8;42
-"84";"Auvergne-Rhône-Alpes";"69";"Rhône";"3822";"Cadres";11;3,8;3,6;3,9;3,4;0,1;0,2;34,1;7;27,3
-"84";"Auvergne-Rhône-Alpes";"69";"Rhône";"3892";"Cadres";11;2,9;2,5;3,3;2,4;0,2;0,2;25,9;6;33
-"84";"Auvergne-Rhône-Alpes";"69";"Rhône";"4611";"Prof. intermediaires";15;5,7;5,4;6;5,1;0,3;0,2;37,8;7;28,7
-"84";"Auvergne-Rhône-Alpes";"69";"Rhône";"4620";"Prof. intermediaires";14;3,6;3,3;3,9;3,1;0,4;0,2;26;7;35,7
-"84";"Auvergne-Rhône-Alpes";"69";"Rhône";"4631";"Prof. intermediaires";18;5,5;5;6;4,7;0,5;0,3;30,4;8;27,8
-"84";"Auvergne-Rhône-Alpes";"69";"Rhône";"4642";"Prof. intermediaires";16;6,3;6;6,5;5,7;0,3;0,2;39,2;8;37,2
-"84";"Auvergne-Rhône-Alpes";"69";"Rhône";"4652";"Prof. intermediaires";18;6,6;6,2;7,1;5,9;0,5;0,3;36,8;6;41,6
-"84";"Auvergne-Rhône-Alpes";"69";"Rhône";"5311";"Employes";6;2,6;2,5;2,7;2,4;0,1;0,1;43,2;4;40
-"84";"Auvergne-Rhône-Alpes";"69";"Rhône";"5411";"Employes";14;8,5;8,2;8,8;8;0,3;0,1;60,6;7;25
-"84";"Auvergne-Rhône-Alpes";"69";"Rhône";"5422";"Employes";10;2,2;2,1;2,4;1,7;0,4;0,1;22;5;61,7
-"84";"Auvergne-Rhône-Alpes";"69";"Rhône";"5511";"Employes";10;4,9;4,8;5;4,6;0,2;0,1;48,8;5;42,2
-"84";"Auvergne-Rhône-Alpes";"69";"Rhône";"5621";"Employes";12;4,4;4,1;4,7;3,9;0,4;0,1;36,8;8;25
-"84";"Auvergne-Rhône-Alpes";"69";"Rhône";"6210";"Ouvriers";15;7,3;6,9;7,8;6,5;0,6;0,2;49;6;26,7
-"84";"Auvergne-Rhône-Alpes";"69";"Rhône";"6234";"Ouvriers";17;9,6;9,1;10;8,8;0,6;0,2;56,2;8;24,4
-"84";"Auvergne-Rhône-Alpes";"69";"Rhône";"6543";"Ouvriers";16;7,7;7,3;8,1;6,9;0,6;0,2;48,1;8;25,8
-"84";"Auvergne-Rhône-Alpes";"69";"Rhône";"6712";"Ouvriers";13;5,9;5,6;6,2;5,2;0,6;0,1;45,3;7;31
-"84";"Auvergne-Rhône-Alpes";"69";"Rhône";"6821";"Ouvriers";19;8;7,6;8,3;7;0,8;0,2;41,9;7;26,3
-"93";"Provence-Alpes-Côte d'Azur";"83";"Var";"3719";"Cadres";18;4,6;4,2;5,1;4;0,3;0,3;25,8;6;33,6
-"93";"Provence-Alpes-Côte d'Azur";"83";"Var";"3753";"Cadres";12;3,2;3;3,4;2,8;0,2;0,2;26,8;6;58,1
-"93";"Provence-Alpes-Côte d'Azur";"83";"Var";"3812";"Cadres";14;6,5;6,1;6,9;6,1;0,2;0,2;46,4;7;31,1
-"93";"Provence-Alpes-Côte d'Azur";"83";"Var";"3822";"Cadres";17;4,3;3,9;4,7;3,6;0,3;0,3;25,2;8;23,9
-"93";"Provence-Alpes-Côte d'Azur";"83";"Var";"3892";"Cadres";16;5,7;5,4;6;5,2;0,2;0,2;35,6;8;40,2
-"93";"Provence-Alpes-Côte d'Azur";"83";"Var";"4611";"Prof. intermediaires";22;8,9;8,4;9,5;8,1;0,5;0,3;40,7;8;30,3
-"93";"Provence-Alpes-Côte d'Azur";"83";"Var";"4620";"Prof. intermediaires";19;7,8;7,4;8,2;7;0,5;0,3;40,9;6;31,6
-"93";"Provence-Alpes-Côte d'Azur";"83";"Var";"4631";"Prof. intermediaires";12;5,2;4,9;5,5;4,8;0,3;0,1;43,6;7;36,3
-"93";"Provence-Alpes-Côte d'Azur";"83";"Var";"4642";"Prof. intermediaires";16;4,2;3,7;4,7;3,4;0,5;0,3;26,1;8;25
-"93";"Provence-Alpes-Côte d'Azur";"83";"Var";"4652";"Prof. intermediaires";18;6,2;5,9;6,5;5,5;0,4;0,3;34,2;7;29,9
-"93";"Provence-Alpes-Côte d'Azur";"83";"Var";"5311";"Employes";14;8,2;7,8;8,5;7,7;0,3;0,1;58,3;7;28,6
-"93";"Provence-Alpes-Côte d'Azur";"83";"Var";"5411";"Employes";13;6;5,8;6,2;5,5;0,3;0,1;46;7;33,5
-"93";"Provence-Alpes-Côte d'Azur";"83";"Var";"5422";"Employes";10;4,4;4,2;4,7;4;0,3;0,1;44,1;6;40
-"93";"Provence-Alpes-Côte d'Azur";"83";"Var";"5511";"Employes";12;7,2;6,8;7,5;6,7;0,3;0,1;59,7;7;29,7
-"93";"Provence-Alpes-Côte d'Azur";"83";"Var";"5621";"Employes";11;3,8;3,6;4,1;3,3;0,3;0,2;34,8;7;26,1
-"93";"Provence-Alpes-Côte d'Azur";"83";"Var";"6210";"Ouvriers";15;8,2;8;8,4;7,7;0,4;0,1;54,6;7;34,4
-"93";"Provence-Alpes-Côte d'Azur";"83";"Var";"6234";"Ouvriers";14;5,9;5,4;6,3;5,1;0,6;0,2;42,1;7;38,5
-"93";"Provence-Alpes-Côte d'Azur";"83";"Var";"6543";"Ouvriers";20;6,9;6,5;7,4;5,8;0,8;0,3;34,5;7;37,9
-"93";"Provence-Alpes-Côte d'Azur";"83";"Var";"6712";"Ouvriers";17;10,4;10,2;10,6;9,9;0,4;0,1;61,4;7;35,3
-"93";"Provence-Alpes-Côte d'Azur";"83";"Var";"6821";"Ouvriers";23;12,8;12,2;13,5;11,8;0,8;0,2;55,8;8;21,8
-"94";"Corse";"2A";"Corse-du-Sud";"3719";"Cadres";10;1,6;1,5;1,8;1,3;0,2;0,2;16,3;5;58,4
-"94";"Corse";"2A";"Corse-du-Sud";"3753";"Cadres";12;2,8;2,5;3,1;2,4;0,2;0,2;23,7;7;30,6
-"94";"Corse";"2A";"Corse-du-Sud";"3812";"Cadres";15;4,2;3,9;4,4;3,7;0,2;0,3;27,8;6;31,8
-"94";"Corse";"2A";"Corse-du-Sud";"3822";"Cadres";14;2,7;2,4;3;2,2;0,2;0,2;19,3;7;33,9
-"94";"Corse";"2A";"Corse-du-Sud";"3892";"Cadres";13;4,8;4,6;5;4,5;0,2;0,2;37,1;7;38
-"94";"Corse";"2A";"Corse-du-Sud";"4611";"Prof. intermediaires";16;7;6,7;7,4;6,4;0,4;0,2;43,9;8;31,2
-"94";"Corse";"2A";"Corse-du-Sud";"4620";"Prof. intermediaires";11;2,5;2,2;2,8;1,9;0,3;0,2;22,5;7;34,1
-"94";"Corse";"2A";"Corse-du-Sud";"4631";"Prof. intermediaires";17;3,6;3,4;4;2,8;0,5;0,3;21,4;6;41,2
-"94";"Corse";"2A";"Corse-du-Sud";"4642";"Prof. intermediaires";12;4;3,8;4,1;3,5;0,3;0,2;32,9;5;33,3
-"94";"Corse";"2A";"Corse-du-Sud";"4652";"Prof. intermediaires";11;2,3;2,1;2,4;1,8;0,3;0,2;20,5;7;38,8
-"94";"Corse";"2A";"Corse-du-Sud";"5311";"Employes";11;5,1;4,9;5,3;4,8;0,3;0,1;46,7;6;58,5
-"94";"Corse";"2A";"Corse-du-Sud";"5411";"Employes";6;3,3;3,2;3,5;3,1;0,1;0,1;55,7;4;37,2
-"94";"Corse";"2A";"Corse-du-Sud";"5422";"Employes";19;4,4;4;4,8;3,4;0,7;0,3;22,9;7;33,7
-"94";"Corse";"2A";"Corse-du-Sud";"5511";"Employes";8;1,9;1,7;2,1;1,5;0,3;0,1;23,9;5;63,4
-"94";"Corse";"2A";"Corse-du-Sud";"5621";"Employes";14;6,4;6,1;6,7;5,8;0,4;0,2;45,6;6;21,4
-"94";"Corse";"2A";"Corse-du-Sud";"6210";"Ouvriers";12;6,1;5,8;6,4;5,5;0,4;0,1;50,5;5;39
-"94";"Corse";"2A";"Corse-du-Sud";"6234";"Ouvriers";18;6,5;6,3;6,8;5,6;0,8;0,2;36,2;8;32,1
-"94";"Corse";"2A";"Corse-du-Sud";"6543";"Ouvriers";19;7,7;7,3;8,1;6,8;0,7;0,2;40,5;8;32,7
-"94";"Corse";"2A";"Corse-du-Sud";"6712";"Ouvriers";16;5;4,7;5,3;4,1;0,6;0,2;31,2;8;25
-"94";"Corse";"2A";"Corse-du-Sud";"6821";"Ouvriers";12;4,6;4,3;4,9;3,9;0,5;0,2;38,2;7;43,5
-"94";"Corse";"2B";"Haute-Corse";"3719";"Cadres";11;5,5;5,3;5,7;5,3;0,1;0,1;50,2;6;47,5
-"94";"Corse";"2B";"Haute-Corse";"3753";"Cadres";14;1,5;1,5;1,6;1,1;0,2;0,2;11;7;59,5
-"94";"Corse";"2B";"Haute-Corse";"3812";"Cadres";19;5,6;5,2;6;4,9;0,3;0,4;29,4;8;23,7
-"94";"Corse";"2B";"Haute-Corse";"3822";"Cadres";14;3,2;3,2;3,3;2,9;0,2;0,2;23,1;8;30,9
-"94";"Corse";"2B";"Haute-Corse";"3892";"Cadres";17;4,5;4,2;4,9;4;0,3;0,3;26,6;7;43,8
-"94";"Corse";"2B";"Haute-Corse";"4611";"Prof. intermediaires";23;7,1;6,7;7,5;6,2;0,5;0,3;30,8;7;50,5
-"94";"Corse";"2B";"Haute-Corse";"4620";"Prof. intermediaires";13;4,7;4,6;4,8;4,3;0,3;0,2;36,2;7;49,8
-"94";"Corse";"2B";"Haute-Corse";"4631";"Prof. intermediaires";22;10,4;10;10,9;9,7;0,5;0,3;47,3;8;27,3
-"94";"Corse";"2B";"Haute-Corse";"4642";"Prof. intermediaires";14;5,3;5;5,6;4,8;0,3;0,2;38;8;21,4
-"94";"Corse";"2B";"Haute-Corse";"4652";"Prof. intermediaires";17;7,1;6,7;7,4;6,4;0,4;0,2;41,5;7;23,5
-"94";"Corse";"2B";"Haute-Corse";"5311";"Employes";17;8,7;8,2;9,2;8;0,5;0,2;51;7;23,5
-"94";"Corse";"2B";"Haute-Corse";"5411";"Employes";12;3,9;3,6;4,2;3,3;0,4;0,2;32,6;6;39,4
-"94";"Corse";"2B";"Haute-Corse";"5422";"Employes";12;4,8;4,6;5;4,3;0,3;0,1;40;6;49,5
-"94";"Corse";"2B";"Haute-Corse";"5511";"Employes";13;7,9;7,5;8,2;7,4;0,3;0,1;60,5;7;24,2
-"94";"Corse";"2B";"Haute-Corse";"5621";"Employes";15;7;6,7;7,2;6,4;0,4;0,1;46,5;7;26,4
-"94";"Corse";"2B";"Haute-Corse";"6210";"Ouvriers";22;8,1;7,7;8,5;6,9;0,8;0,3;36,6;8;26,4
-"94";"Corse";"2B";"Haute-Corse";"6234";"Ouvriers";19;7,2;6,8;7,5;6,2;0,7;0,3;37,6;8;42,9
-"94";"Corse";"2B";"Haute-Corse";"6543";"Ouvriers";17;7,1;6,8;7,3;6,2;0,7;0,1;41,5;7;29,4
-"94";"Corse";"2B";"Haute-Corse";"6712";"Ouvriers";17;6,9;6,6;7,2;6,1;0,6;0,2;40,6;6;40,9
-"94";"Corse";"2B";"Haute-Corse";"6821";"Ouvriers";13;7,4;7;7,8;6,8;0,5;0,1;57;7;23,1
+"11";"Île-de-France";"75";"Paris";"3719";"Cadres";16;2;2;2;2;0;0;13,7;6;44,9
+"11";"Île-de-France";"75";"Paris";"3753";"Cadres";15;6;6;6;6;0;0;39,5;6;26,7
+"11";"Île-de-France";"75";"Paris";"3812";"Cadres";14;4;4;5;4;0;0;31,4;7;28,6
+"11";"Île-de-France";"75";"Paris";"3822";"Cadres";6;1;1;1;1;0;0;18;3;77,9
+"11";"Île-de-France";"75";"Paris";"3892";"Cadres";19;3;3;3;3;0;0;15,9;7;42,1
+"11";"Île-de-France";"75";"Paris";"4611";"Prof. intermediaires";14;4;4;5;4;0;0;29,8;7;28,6
+"11";"Île-de-France";"75";"Paris";"4620";"Prof. intermediaires";18;7;7;7;6;1;0;38,5;8;38,6
+"11";"Île-de-France";"75";"Paris";"4631";"Prof. intermediaires";15;5;4;5;4;1;0;30,9;7;42,7
+"11";"Île-de-France";"75";"Paris";"4642";"Prof. intermediaires";16;7;7;7;7;0;0;43,9;8;29,1
+"11";"Île-de-France";"75";"Paris";"4652";"Prof. intermediaires";18;7;6;7;6;1;0;37,6;7;30,5
+"11";"Île-de-France";"75";"Paris";"5311";"Employes";8;5;4;5;5;0;0;57,1;4;42,9
+"11";"Île-de-France";"75";"Paris";"5411";"Employes";14;8;7;8;7;1;0;55,2;8;28,6
+"11";"Île-de-France";"75";"Paris";"5422";"Employes";8;4;4;5;4;0;0;56;4;50
+"11";"Île-de-France";"75";"Paris";"5511";"Employes";12;5;5;5;5;0;0;41,5;6;40,6
+"11";"Île-de-France";"75";"Paris";"5621";"Employes";10;3;2;3;2;1;0;25,4;6;37
+"11";"Île-de-France";"75";"Paris";"6210";"Ouvriers";14;5;5;5;4;1;0;34,4;6;38
+"11";"Île-de-France";"75";"Paris";"6234";"Ouvriers";15;7;6;7;6;1;0;44,5;7;33,3
+"11";"Île-de-France";"75";"Paris";"6543";"Ouvriers";19;6;6;7;5;1;0;33,6;7;41,7
+"11";"Île-de-France";"75";"Paris";"6712";"Ouvriers";20;8;8;9;7;1;0;42,5;8;27,6
+"11";"Île-de-France";"75";"Paris";"6821";"Ouvriers";16;7;7;7;6;1;0;44,9;5;55
+"11";"Île-de-France";"78";"Yvelines";"3719";"Cadres";8;2;2;2;2;0;0;23;6;57,3
+"11";"Île-de-France";"78";"Yvelines";"3753";"Cadres";13;4;4;4;4;0;0;31,1;8;32,9
+"11";"Île-de-France";"78";"Yvelines";"3812";"Cadres";11;2;2;2;2;0;0;22;5;45,7
+"11";"Île-de-France";"78";"Yvelines";"3822";"Cadres";11;4;4;4;4;0;0;38;7;44,5
+"11";"Île-de-France";"78";"Yvelines";"3892";"Cadres";10;4;4;4;4;0;0;37,9;6;51,9
+"11";"Île-de-France";"78";"Yvelines";"4611";"Prof. intermediaires";18;6;5;6;5;1;0;30,7;8;22,5
+"11";"Île-de-France";"78";"Yvelines";"4620";"Prof. intermediaires";17;4;4;5;3;1;0;24,3;8;29,9
+"11";"Île-de-France";"78";"Yvelines";"4631";"Prof. intermediaires";6;3;3;3;3;0;0;47,7;4;33,7
+"11";"Île-de-France";"78";"Yvelines";"4642";"Prof. intermediaires";19;5;4;5;4;1;0;25;8;22,1
+"11";"Île-de-France";"78";"Yvelines";"4652";"Prof. intermediaires";15;4;4;5;4;0;0;29,4;6;37,7
+"11";"Île-de-France";"78";"Yvelines";"5311";"Employes";11;5;5;5;5;0;0;46,1;6;36,4
+"11";"Île-de-France";"78";"Yvelines";"5411";"Employes";10;4;4;5;4;0;0;43;6;44,5
+"11";"Île-de-France";"78";"Yvelines";"5422";"Employes";10;5;5;5;5;0;0;48,7;6;40,6
+"11";"Île-de-France";"78";"Yvelines";"5511";"Employes";12;7;7;8;7;0;0;61,6;7;30,9
+"11";"Île-de-France";"78";"Yvelines";"5621";"Employes";8;2;2;2;1;1;0;21,2;4;59,4
+"11";"Île-de-France";"78";"Yvelines";"6210";"Ouvriers";13;7;7;8;7;0;0;56,5;5;38,5
+"11";"Île-de-France";"78";"Yvelines";"6234";"Ouvriers";16;7;7;8;6;1;0;45,5;6;31,2
+"11";"Île-de-France";"78";"Yvelines";"6543";"Ouvriers";16;7;7;7;6;1;0;43,4;6;36,5
+"11";"Île-de-France";"78";"Yvelines";"6712";"Ouvriers";18;7;6;7;6;1;0;37,9;6;32,7
+"11";"Île-de-France";"78";"Yvelines";"6821";"Ouvriers";15;7;7;8;7;0;0;49,5;7;26,7
+"11";"Île-de-France";"91";"Essonne";"3719";"Cadres";10;2;2;2;2;0;0;18,2;7;58
+"11";"Île-de-France";"91";"Essonne";"3753";"Cadres";12;3;3;3;3;0;0;22,1;5;80,6
+"11";"Île-de-France";"91";"Essonne";"3812";"Cadres";12;2;2;2;2;0;0;18,1;4;56,2
+"11";"Île-de-France";"91";"Essonne";"3822";"Cadres";14;4;4;4;4;0;0;26,6;8;50,2
+"11";"Île-de-France";"91";"Essonne";"3892";"Cadres";10;3;3;3;3;0;0;28,2;6;35,1
+"11";"Île-de-France";"91";"Essonne";"4611";"Prof. intermediaires";10;3;3;3;3;0;0;32,3;6;30,5
+"11";"Île-de-France";"91";"Essonne";"4620";"Prof. intermediaires";18;4;4;5;3;1;0;22,6;8;24
+"11";"Île-de-France";"91";"Essonne";"4631";"Prof. intermediaires";7;1;1;1;1;0;0;12,8;5;57,5
+"11";"Île-de-France";"91";"Essonne";"4642";"Prof. intermediaires";18;2;2;2;1;1;0;10,3;7;45
+"11";"Île-de-France";"91";"Essonne";"4652";"Prof. intermediaires";12;3;3;3;3;0;0;25,5;6;37,2
+"11";"Île-de-France";"91";"Essonne";"5311";"Employes";6;1;1;1;1;0;0;10,8;6;50,6
+"11";"Île-de-France";"91";"Essonne";"5411";"Employes";10;4;4;5;4;0;0;43,1;6;43,5
+"11";"Île-de-France";"91";"Essonne";"5422";"Employes";10;3;2;3;2;1;0;26,5;8;31,9
+"11";"Île-de-France";"91";"Essonne";"5511";"Employes";6;3;3;3;3;0;0;50;5;56,5
+"11";"Île-de-France";"91";"Essonne";"5621";"Employes";9;2;2;2;1;1;0;19,7;6;31,2
+"11";"Île-de-France";"91";"Essonne";"6210";"Ouvriers";14;6;6;7;5;1;0;44,2;6;31,6
+"11";"Île-de-France";"91";"Essonne";"6234";"Ouvriers";12;3;3;3;2;1;0;25,7;5;34,6
+"11";"Île-de-France";"91";"Essonne";"6543";"Ouvriers";12;5;4;5;4;1;0;37,7;6;52,2
+"11";"Île-de-France";"91";"Essonne";"6712";"Ouvriers";14;6;6;7;5;1;0;44,7;5;27,2
+"11";"Île-de-France";"91";"Essonne";"6821";"Ouvriers";17;6;6;6;5;1;0;35,3;7;35,6
+"11";"Île-de-France";"93";"Seine-Saint-Denis";"3719";"Cadres";21;5;5;5;4;0;1;23,1;8;27
+"11";"Île-de-France";"93";"Seine-Saint-Denis";"3753";"Cadres";12;0;0;1;0;0;0;4,1;6;42,8
+"11";"Île-de-France";"93";"Seine-Saint-Denis";"3812";"Cadres";11;2;2;2;2;0;0;16,3;5;57,5
+"11";"Île-de-France";"93";"Seine-Saint-Denis";"3822";"Cadres";12;3;2;3;3;0;0;22,3;6;48,4
+"11";"Île-de-France";"93";"Seine-Saint-Denis";"3892";"Cadres";9;3;3;3;3;0;0;32,6;5;51,4
+"11";"Île-de-France";"93";"Seine-Saint-Denis";"4611";"Prof. intermediaires";14;4;4;5;3;1;0;28,9;8;46,5
+"11";"Île-de-France";"93";"Seine-Saint-Denis";"4620";"Prof. intermediaires";7;3;3;3;3;0;0;37,8;3;42,9
+"11";"Île-de-France";"93";"Seine-Saint-Denis";"4631";"Prof. intermediaires";11;5;5;5;5;0;0;44,4;7;37,4
+"11";"Île-de-France";"93";"Seine-Saint-Denis";"4642";"Prof. intermediaires";14;4;3;4;3;1;0;25,5;7;30,1
+"11";"Île-de-France";"93";"Seine-Saint-Denis";"4652";"Prof. intermediaires";11;2;2;3;2;0;0;21,5;7;40
+"11";"Île-de-France";"93";"Seine-Saint-Denis";"5311";"Employes";8;2;2;2;2;0;0;21,9;5;54
+"11";"Île-de-France";"93";"Seine-Saint-Denis";"5411";"Employes";17;6;5;7;5;1;0;35,3;7;24,9
+"11";"Île-de-France";"93";"Seine-Saint-Denis";"5422";"Employes";14;6;6;6;6;0;0;43,6;6;35
+"11";"Île-de-France";"93";"Seine-Saint-Denis";"5511";"Employes";9;3;3;3;3;0;0;34,9;5;34,2
+"11";"Île-de-France";"93";"Seine-Saint-Denis";"5621";"Employes";5;2;2;2;2;0;0;42,5;3;76,5
+"11";"Île-de-France";"93";"Seine-Saint-Denis";"6210";"Ouvriers";17;7;7;7;6;1;0;41,4;6;35,3
+"11";"Île-de-France";"93";"Seine-Saint-Denis";"6234";"Ouvriers";13;6;5;6;5;1;0;44,7;7;31,7
+"11";"Île-de-France";"93";"Seine-Saint-Denis";"6543";"Ouvriers";16;6;6;6;5;1;0;37,6;7;30,6
+"11";"Île-de-France";"93";"Seine-Saint-Denis";"6712";"Ouvriers";14;4;4;4;3;1;0;27,3;6;32,1
+"11";"Île-de-France";"93";"Seine-Saint-Denis";"6821";"Ouvriers";8;3;3;4;3;0;0;42,8;4;37,5
+"24";"Centre-Val de Loire";"18";"Cher";"3719";"Cadres";14;4;4;4;4;0;0;28,5;5;27,6
+"24";"Centre-Val de Loire";"18";"Cher";"3753";"Cadres";17;4;4;4;3;0;1;22,7;7;51,9
+"24";"Centre-Val de Loire";"18";"Cher";"3812";"Cadres";13;4;4;5;4;0;0;33,6;6;44,2
+"24";"Centre-Val de Loire";"18";"Cher";"3822";"Cadres";12;2;2;3;2;0;0;20,7;6;39,4
+"24";"Centre-Val de Loire";"18";"Cher";"3892";"Cadres";16;5;4;5;5;0;0;30,5;6;52,9
+"24";"Centre-Val de Loire";"18";"Cher";"4611";"Prof. intermediaires";19;7;6;7;6;1;0;34,5;8;38,6
+"24";"Centre-Val de Loire";"18";"Cher";"4620";"Prof. intermediaires";18;7;7;8;7;0;0;40,2;7;43,8
+"24";"Centre-Val de Loire";"18";"Cher";"4631";"Prof. intermediaires";12;7;6;7;6;1;0;54,6;6;29,1
+"24";"Centre-Val de Loire";"18";"Cher";"4642";"Prof. intermediaires";13;4;3;4;3;1;0;27,1;7;29,1
+"24";"Centre-Val de Loire";"18";"Cher";"4652";"Prof. intermediaires";21;10;9;10;9;1;0;45,9;8;30,2
+"24";"Centre-Val de Loire";"18";"Cher";"5311";"Employes";7;2;2;2;2;0;0;31,7;4;45
+"24";"Centre-Val de Loire";"18";"Cher";"5411";"Employes";10;5;4;5;5;0;0;48;5;40
+"24";"Centre-Val de Loire";"18";"Cher";"5422";"Employes";12;5;5;6;5;0;0;44,4;5;49,4
+"24";"Centre-Val de Loire";"18";"Cher";"5511";"Employes";7;4;4;4;4;0;0;55,9;4;40,1
+"24";"Centre-Val de Loire";"18";"Cher";"5621";"Employes";10;3;2;3;2;1;0;26,5;6;43,9
+"24";"Centre-Val de Loire";"18";"Cher";"6210";"Ouvriers";8;5;4;5;4;1;0;58,2;6;25,6
+"24";"Centre-Val de Loire";"18";"Cher";"6234";"Ouvriers";20;8;7;8;7;1;0;38,3;8;32,7
+"24";"Centre-Val de Loire";"18";"Cher";"6543";"Ouvriers";15;10;10;10;9;1;0;64,8;7;21,2
+"24";"Centre-Val de Loire";"18";"Cher";"6712";"Ouvriers";20;10;10;11;9;1;0;52,1;8;25,6
+"24";"Centre-Val de Loire";"18";"Cher";"6821";"Ouvriers";14;8;7;8;7;1;0;53,8;7;41,1
+"32";"Hauts-de-France";"59";"Nord";"3719";"Cadres";18;3;2;3;2;0;1;14,2;8;38,6
+"32";"Hauts-de-France";"59";"Nord";"3753";"Cadres";23;6;6;7;6;0;0;27,9;8;26,8
+"32";"Hauts-de-France";"59";"Nord";"3812";"Cadres";12;4;4;5;4;0;0;36,8;7;53,2
+"32";"Hauts-de-France";"59";"Nord";"3822";"Cadres";13;3;3;3;3;0;0;23;7;34,6
+"32";"Hauts-de-France";"59";"Nord";"3892";"Cadres";11;3;3;3;3;0;0;25,4;5;44,7
+"32";"Hauts-de-France";"59";"Nord";"4611";"Prof. intermediaires";19;9;8;9;8;1;0;45,7;7;31,1
+"32";"Hauts-de-France";"59";"Nord";"4620";"Prof. intermediaires";17;7;7;8;7;0;0;43,5;7;29,2
+"32";"Hauts-de-France";"59";"Nord";"4631";"Prof. intermediaires";11;3;3;3;3;0;0;27,7;5;41,2
+"32";"Hauts-de-France";"59";"Nord";"4642";"Prof. intermediaires";17;6;6;6;6;0;0;36,3;6;34,3
+"32";"Hauts-de-France";"59";"Nord";"4652";"Prof. intermediaires";18;5;5;5;5;0;0;28,8;7;38,3
+"32";"Hauts-de-France";"59";"Nord";"5311";"Employes";9;6;5;6;6;0;0;63,2;5;46,5
+"32";"Hauts-de-France";"59";"Nord";"5411";"Employes";3;2;2;2;2;0;0;54,8;2;66,7
+"32";"Hauts-de-France";"59";"Nord";"5422";"Employes";21;13;12;13;12;1;0;60,9;8;25,7
+"32";"Hauts-de-France";"59";"Nord";"5511";"Employes";15;8;7;8;7;1;0;50,4;6;37,8
+"32";"Hauts-de-France";"59";"Nord";"5621";"Employes";16;8;8;8;7;1;0;50,5;6;28
+"32";"Hauts-de-France";"59";"Nord";"6210";"Ouvriers";22;11;10;11;10;1;0;48,9;8;31,8
+"32";"Hauts-de-France";"59";"Nord";"6234";"Ouvriers";17;10;10;10;10;0;0;59,7;8;35,3
+"32";"Hauts-de-France";"59";"Nord";"6543";"Ouvriers";18;9;8;9;8;1;0;47,3;6;34,2
+"32";"Hauts-de-France";"59";"Nord";"6712";"Ouvriers";26;13;13;13;12;1;0;50,1;8;31,7
+"32";"Hauts-de-France";"59";"Nord";"6821";"Ouvriers";28;12;11;13;11;1;0;43;8;25,2
+"52";"Pays de la Loire";"44";"Loire-Atlantique";"3719";"Cadres";14;4;4;4;4;0;0;29,9;7;38,2
+"52";"Pays de la Loire";"44";"Loire-Atlantique";"3753";"Cadres";11;2;2;2;2;0;0;17,4;5;66,4
+"52";"Pays de la Loire";"44";"Loire-Atlantique";"3812";"Cadres";16;6;5;6;5;0;1;35;8;51,9
+"52";"Pays de la Loire";"44";"Loire-Atlantique";"3822";"Cadres";22;6;6;6;6;0;0;28,1;8;38,2
+"52";"Pays de la Loire";"44";"Loire-Atlantique";"3892";"Cadres";15;4;4;5;4;0;0;28,4;7;41,3
+"52";"Pays de la Loire";"44";"Loire-Atlantique";"4611";"Prof. intermediaires";14;5;5;6;5;0;0;38,8;7;36,3
+"52";"Pays de la Loire";"44";"Loire-Atlantique";"4620";"Prof. intermediaires";16;3;3;4;3;0;0;21,7;6;31,2
+"52";"Pays de la Loire";"44";"Loire-Atlantique";"4631";"Prof. intermediaires";12;6;6;6;6;0;0;49,8;7;33,2
+"52";"Pays de la Loire";"44";"Loire-Atlantique";"4642";"Prof. intermediaires";8;1;1;1;1;0;0;13,1;5;63,9
+"52";"Pays de la Loire";"44";"Loire-Atlantique";"4652";"Prof. intermediaires";20;10;10;10;9;1;0;48,9;7;42
+"52";"Pays de la Loire";"44";"Loire-Atlantique";"5311";"Employes";15;5;5;6;5;0;0;36,5;8;24,7
+"52";"Pays de la Loire";"44";"Loire-Atlantique";"5411";"Employes";9;1;1;1;1;0;0;14,6;4;69
+"52";"Pays de la Loire";"44";"Loire-Atlantique";"5422";"Employes";14;5;5;6;5;0;0;37,7;7;42,6
+"52";"Pays de la Loire";"44";"Loire-Atlantique";"5511";"Employes";13;5;5;6;5;0;0;41,5;6;38,6
+"52";"Pays de la Loire";"44";"Loire-Atlantique";"5621";"Employes";19;7;6;7;6;1;0;35,8;8;27
+"52";"Pays de la Loire";"44";"Loire-Atlantique";"6210";"Ouvriers";12;6;6;6;6;0;0;51,2;6;33,6
+"52";"Pays de la Loire";"44";"Loire-Atlantique";"6234";"Ouvriers";26;12;12;13;11;1;0;48;7;25,9
+"52";"Pays de la Loire";"44";"Loire-Atlantique";"6543";"Ouvriers";15;9;9;9;8;1;0;60,4;6;28,4
+"52";"Pays de la Loire";"44";"Loire-Atlantique";"6712";"Ouvriers";21;16;15;16;15;1;0;75,9;8;26
+"52";"Pays de la Loire";"44";"Loire-Atlantique";"6821";"Ouvriers";14;7;7;7;6;1;0;49,5;7;21,9
+"53";"Bretagne";"35";"Ille-et-Vilaine";"3719";"Cadres";8;1;1;2;1;0;0;17,6;6;49,2
+"53";"Bretagne";"35";"Ille-et-Vilaine";"3753";"Cadres";16;5;4;5;4;0;1;28,8;7;42,7
+"53";"Bretagne";"35";"Ille-et-Vilaine";"3812";"Cadres";11;2;2;2;2;0;0;19;5;64,3
+"53";"Bretagne";"35";"Ille-et-Vilaine";"3822";"Cadres";9;1;1;1;1;0;0;14,2;7;70,1
+"53";"Bretagne";"35";"Ille-et-Vilaine";"3892";"Cadres";13;3;3;3;3;0;0;22,8;7;37,6
+"53";"Bretagne";"35";"Ille-et-Vilaine";"4611";"Prof. intermediaires";10;4;4;5;4;0;0;43,2;5;38,2
+"53";"Bretagne";"35";"Ille-et-Vilaine";"4620";"Prof. intermediaires";16;5;4;5;4;1;0;28,9;7;25
+"53";"Bretagne";"35";"Ille-et-Vilaine";"4631";"Prof. intermediaires";14;5;4;5;4;1;0;32,8;6;39
+"53";"Bretagne";"35";"Ille-et-Vilaine";"4642";"Prof. intermediaires";14;6;6;7;6;0;0;45,5;7;46,7
+"53";"Bretagne";"35";"Ille-et-Vilaine";"4652";"Prof. intermediaires";16;9;8;9;8;1;0;54,1;7;48,2
+"53";"Bretagne";"35";"Ille-et-Vilaine";"5311";"Employes";13;5;5;5;4;1;0;37,9;8;27,8
+"53";"Bretagne";"35";"Ille-et-Vilaine";"5411";"Employes";6;4;3;4;4;0;0;58,4;5;33,3
+"53";"Bretagne";"35";"Ille-et-Vilaine";"5422";"Employes";8;3;3;3;3;0;0;38,2;5;37,5
+"53";"Bretagne";"35";"Ille-et-Vilaine";"5511";"Employes";8;3;3;3;3;0;0;35,9;5;41,7
+"53";"Bretagne";"35";"Ille-et-Vilaine";"5621";"Employes";12;3;3;3;3;0;0;28,3;7;31
+"53";"Bretagne";"35";"Ille-et-Vilaine";"6210";"Ouvriers";7;3;3;3;3;0;0;45,5;6;30,7
+"53";"Bretagne";"35";"Ille-et-Vilaine";"6234";"Ouvriers";15;8;8;8;8;0;0;54,3;6;33,3
+"53";"Bretagne";"35";"Ille-et-Vilaine";"6543";"Ouvriers";16;6;6;7;5;1;0;39;7;31,9
+"53";"Bretagne";"35";"Ille-et-Vilaine";"6712";"Ouvriers";13;7;7;7;6;1;0;51,5;7;24
+"53";"Bretagne";"35";"Ille-et-Vilaine";"6821";"Ouvriers";10;6;6;7;6;0;0;62,6;4;59,8
+"53";"Bretagne";"56";"Morbihan";"3719";"Cadres";16;6;6;7;6;0;0;38,9;8;22,4
+"53";"Bretagne";"56";"Morbihan";"3753";"Cadres";11;1;1;2;1;0;0;12;4;58
+"53";"Bretagne";"56";"Morbihan";"3812";"Cadres";18;4;4;4;3;1;0;21,1;7;31
+"53";"Bretagne";"56";"Morbihan";"3822";"Cadres";9;2;2;2;2;0;0;23,8;6;48,6
+"53";"Bretagne";"56";"Morbihan";"3892";"Cadres";15;2;2;2;1;0;1;11,5;7;43,3
+"53";"Bretagne";"56";"Morbihan";"4611";"Prof. intermediaires";12;3;3;3;3;0;0;23,6;7;42,8
+"53";"Bretagne";"56";"Morbihan";"4620";"Prof. intermediaires";11;4;4;5;4;0;0;40,2;6;46,4
+"53";"Bretagne";"56";"Morbihan";"4631";"Prof. intermediaires";10;2;2;2;2;0;0;22,1;6;47,5
+"53";"Bretagne";"56";"Morbihan";"4642";"Prof. intermediaires";13;2;2;3;2;0;0;18,7;6;38,5
+"53";"Bretagne";"56";"Morbihan";"4652";"Prof. intermediaires";14;6;6;6;6;0;0;42,7;7;47,2
+"53";"Bretagne";"56";"Morbihan";"5311";"Employes";11;3;2;3;2;1;0;23;6;43,3
+"53";"Bretagne";"56";"Morbihan";"5411";"Employes";10;2;2;2;2;0;0;20,4;7;51,2
+"53";"Bretagne";"56";"Morbihan";"5422";"Employes";8;3;3;4;3;0;0;42,9;5;37,5
+"53";"Bretagne";"56";"Morbihan";"5511";"Employes";15;5;5;5;4;1;0;33,8;7;37,8
+"53";"Bretagne";"56";"Morbihan";"5621";"Employes";7;3;3;3;3;0;0;44,7;4;46,5
+"53";"Bretagne";"56";"Morbihan";"6210";"Ouvriers";17;7;7;7;7;0;0;42,7;6;35,6
+"53";"Bretagne";"56";"Morbihan";"6234";"Ouvriers";12;5;5;5;4;1;0;42,3;8;25
+"53";"Bretagne";"56";"Morbihan";"6543";"Ouvriers";15;3;3;3;2;1;0;20,7;6;35,1
+"53";"Bretagne";"56";"Morbihan";"6712";"Ouvriers";15;5;5;6;4;1;0;36,7;7;33,3
+"53";"Bretagne";"56";"Morbihan";"6821";"Ouvriers";13;4;4;4;3;1;0;31,1;8;40,1
+"75";"Nouvelle-Aquitaine";"33";"Gironde";"3719";"Cadres";13;3;3;4;3;0;0;25,3;6;56,9
+"75";"Nouvelle-Aquitaine";"33";"Gironde";"3753";"Cadres";12;4;4;4;4;0;0;35;6;44,5
+"75";"Nouvelle-Aquitaine";"33";"Gironde";"3812";"Cadres";12;3;3;3;3;0;0;23,2;5;58,4
+"75";"Nouvelle-Aquitaine";"33";"Gironde";"3822";"Cadres";15;6;5;6;5;0;1;38;7;36,8
+"75";"Nouvelle-Aquitaine";"33";"Gironde";"3892";"Cadres";10;2;2;2;2;0;0;23,5;6;46,1
+"75";"Nouvelle-Aquitaine";"33";"Gironde";"4611";"Prof. intermediaires";23;7;6;7;6;1;0;30,1;7;25,9
+"75";"Nouvelle-Aquitaine";"33";"Gironde";"4620";"Prof. intermediaires";15;3;3;4;3;0;0;22,4;6;35,6
+"75";"Nouvelle-Aquitaine";"33";"Gironde";"4631";"Prof. intermediaires";11;4;3;4;3;1;0;32,3;6;37,1
+"75";"Nouvelle-Aquitaine";"33";"Gironde";"4642";"Prof. intermediaires";16;6;6;6;5;1;0;37,6;7;32,5
+"75";"Nouvelle-Aquitaine";"33";"Gironde";"4652";"Prof. intermediaires";10;2;2;2;2;0;0;24,1;5;51,5
+"75";"Nouvelle-Aquitaine";"33";"Gironde";"5311";"Employes";11;5;5;6;5;0;0;49,4;6;44,8
+"75";"Nouvelle-Aquitaine";"33";"Gironde";"5411";"Employes";8;2;2;2;2;0;0;23,3;4;59
+"75";"Nouvelle-Aquitaine";"33";"Gironde";"5422";"Employes";12;6;6;7;6;0;0;53,5;7;25,1
+"75";"Nouvelle-Aquitaine";"33";"Gironde";"5511";"Employes";16;7;6;7;6;1;0;43;5;37,5
+"75";"Nouvelle-Aquitaine";"33";"Gironde";"5621";"Employes";9;3;3;4;3;0;0;35,7;6;35,5
+"75";"Nouvelle-Aquitaine";"33";"Gironde";"6210";"Ouvriers";11;5;5;6;5;0;0;47,9;7;42,6
+"75";"Nouvelle-Aquitaine";"33";"Gironde";"6234";"Ouvriers";19;7;7;8;6;1;0;38,6;7;36,9
+"75";"Nouvelle-Aquitaine";"33";"Gironde";"6543";"Ouvriers";15;7;6;7;6;1;0;45;7;31,5
+"75";"Nouvelle-Aquitaine";"33";"Gironde";"6712";"Ouvriers";19;8;8;8;7;1;0;42,2;7;31,6
+"75";"Nouvelle-Aquitaine";"33";"Gironde";"6821";"Ouvriers";20;11;10;11;10;1;0;53,4;8;25,9
+"75";"Nouvelle-Aquitaine";"64";"Pyrénées-Atlantiques";"3719";"Cadres";14;5;5;6;5;0;0;37,4;8;30,1
+"75";"Nouvelle-Aquitaine";"64";"Pyrénées-Atlantiques";"3753";"Cadres";18;6;6;7;6;0;0;33,4;7;34,8
+"75";"Nouvelle-Aquitaine";"64";"Pyrénées-Atlantiques";"3812";"Cadres";19;7;6;7;6;0;1;35,6;8;32,7
+"75";"Nouvelle-Aquitaine";"64";"Pyrénées-Atlantiques";"3822";"Cadres";14;1;1;2;1;0;0;10;6;54,3
+"75";"Nouvelle-Aquitaine";"64";"Pyrénées-Atlantiques";"3892";"Cadres";15;6;6;6;6;0;0;41,3;8;29,6
+"75";"Nouvelle-Aquitaine";"64";"Pyrénées-Atlantiques";"4611";"Prof. intermediaires";16;4;3;4;3;1;0;23,6;6;48,6
+"75";"Nouvelle-Aquitaine";"64";"Pyrénées-Atlantiques";"4620";"Prof. intermediaires";16;7;7;7;7;0;0;43,3;7;29,2
+"75";"Nouvelle-Aquitaine";"64";"Pyrénées-Atlantiques";"4631";"Prof. intermediaires";16;9;8;9;8;1;0;53,6;7;34,6
+"75";"Nouvelle-Aquitaine";"64";"Pyrénées-Atlantiques";"4642";"Prof. intermediaires";17;4;3;4;3;1;0;21,4;7;39,9
+"75";"Nouvelle-Aquitaine";"64";"Pyrénées-Atlantiques";"4652";"Prof. intermediaires";17;9;8;9;8;1;0;51,9;8;36,7
+"75";"Nouvelle-Aquitaine";"64";"Pyrénées-Atlantiques";"5311";"Employes";6;4;4;4;4;0;0;68,3;4;48,5
+"75";"Nouvelle-Aquitaine";"64";"Pyrénées-Atlantiques";"5411";"Employes";15;7;7;8;7;0;0;49;7;26,7
+"75";"Nouvelle-Aquitaine";"64";"Pyrénées-Atlantiques";"5422";"Employes";10;2;2;3;2;0;0;24,1;7;35,1
+"75";"Nouvelle-Aquitaine";"64";"Pyrénées-Atlantiques";"5511";"Employes";13;6;6;7;6;0;0;48,5;7;50,4
+"75";"Nouvelle-Aquitaine";"64";"Pyrénées-Atlantiques";"5621";"Employes";11;7;7;7;7;0;0;61;4;41,2
+"75";"Nouvelle-Aquitaine";"64";"Pyrénées-Atlantiques";"6210";"Ouvriers";21;12;12;13;11;1;0;58,5;8;34,5
+"75";"Nouvelle-Aquitaine";"64";"Pyrénées-Atlantiques";"6234";"Ouvriers";25;14;14;14;13;1;0;55,9;8;24
+"75";"Nouvelle-Aquitaine";"64";"Pyrénées-Atlantiques";"6543";"Ouvriers";17;9;9;10;8;1;0;55,2;7;23,5
+"75";"Nouvelle-Aquitaine";"64";"Pyrénées-Atlantiques";"6712";"Ouvriers";13;7;7;8;7;0;0;55,5;7;26,6
+"75";"Nouvelle-Aquitaine";"64";"Pyrénées-Atlantiques";"6821";"Ouvriers";21;12;11;13;11;1;0;56,6;8;28,6
+"75";"Nouvelle-Aquitaine";"86";"Vienne";"3719";"Cadres";9;0;0;1;0;0;0;5,2;5;54
+"75";"Nouvelle-Aquitaine";"86";"Vienne";"3753";"Cadres";12;2;1;2;1;0;1;13,3;5;56,1
+"75";"Nouvelle-Aquitaine";"86";"Vienne";"3812";"Cadres";17;4;4;4;4;0;0;22,8;7;33
+"75";"Nouvelle-Aquitaine";"86";"Vienne";"3822";"Cadres";17;3;3;4;3;0;0;19,3;6;45,4
+"75";"Nouvelle-Aquitaine";"86";"Vienne";"3892";"Cadres";13;2;2;2;2;0;0;12,6;6;61,6
+"75";"Nouvelle-Aquitaine";"86";"Vienne";"4611";"Prof. intermediaires";12;3;3;4;3;0;0;28;7;33,9
+"75";"Nouvelle-Aquitaine";"86";"Vienne";"4620";"Prof. intermediaires";10;3;3;3;3;0;0;27,1;6;38,4
+"75";"Nouvelle-Aquitaine";"86";"Vienne";"4631";"Prof. intermediaires";11;3;3;3;3;0;0;25,7;5;37
+"75";"Nouvelle-Aquitaine";"86";"Vienne";"4642";"Prof. intermediaires";8;1;1;1;1;0;0;9,5;6;41,8
+"75";"Nouvelle-Aquitaine";"86";"Vienne";"4652";"Prof. intermediaires";17;3;3;4;2;1;0;19;7;47,5
+"75";"Nouvelle-Aquitaine";"86";"Vienne";"5311";"Employes";5;2;2;2;2;0;0;44;4;45,2
+"75";"Nouvelle-Aquitaine";"86";"Vienne";"5411";"Employes";8;2;2;2;2;0;0;27,5;5;66,4
+"75";"Nouvelle-Aquitaine";"86";"Vienne";"5422";"Employes";12;4;3;4;3;1;0;29,3;6;33,8
+"75";"Nouvelle-Aquitaine";"86";"Vienne";"5511";"Employes";10;3;3;3;3;0;0;29,5;7;33,9
+"75";"Nouvelle-Aquitaine";"86";"Vienne";"5621";"Employes";6;0;0;0;0;0;0;4,5;4;36
+"75";"Nouvelle-Aquitaine";"86";"Vienne";"6210";"Ouvriers";13;6;6;6;5;1;0;46,2;7;50
+"75";"Nouvelle-Aquitaine";"86";"Vienne";"6234";"Ouvriers";14;3;3;3;2;1;0;21,1;7;39,8
+"75";"Nouvelle-Aquitaine";"86";"Vienne";"6543";"Ouvriers";18;8;7;8;7;1;0;43,7;8;38,9
+"75";"Nouvelle-Aquitaine";"86";"Vienne";"6712";"Ouvriers";8;2;2;3;2;0;0;29,6;5;31,6
+"75";"Nouvelle-Aquitaine";"86";"Vienne";"6821";"Ouvriers";12;4;3;4;3;1;0;30;7;42
+"75";"Nouvelle-Aquitaine";"87";"Haute-Vienne";"3719";"Cadres";17;3;3;4;3;0;0;19,9;7;48,9
+"75";"Nouvelle-Aquitaine";"87";"Haute-Vienne";"3753";"Cadres";15;5;4;5;4;0;1;31,1;7;39,3
+"75";"Nouvelle-Aquitaine";"87";"Haute-Vienne";"3812";"Cadres";16;4;3;4;3;0;1;23,3;6;43,8
+"75";"Nouvelle-Aquitaine";"87";"Haute-Vienne";"3822";"Cadres";17;4;4;5;4;0;0;24,8;7;41,7
+"75";"Nouvelle-Aquitaine";"87";"Haute-Vienne";"3892";"Cadres";17;2;2;2;1;0;1;10,4;7;58
+"75";"Nouvelle-Aquitaine";"87";"Haute-Vienne";"4611";"Prof. intermediaires";14;8;7;8;8;0;0;55,4;8;28,6
+"75";"Nouvelle-Aquitaine";"87";"Haute-Vienne";"4620";"Prof. intermediaires";15;7;6;7;6;1;0;44,9;8;29,5
+"75";"Nouvelle-Aquitaine";"87";"Haute-Vienne";"4631";"Prof. intermediaires";16;7;7;7;6;1;0;43,2;5;48,5
+"75";"Nouvelle-Aquitaine";"87";"Haute-Vienne";"4642";"Prof. intermediaires";14;5;4;5;4;1;0;34,2;7;29,5
+"75";"Nouvelle-Aquitaine";"87";"Haute-Vienne";"4652";"Prof. intermediaires";21;8;8;9;8;0;0;39,5;7;28,9
+"75";"Nouvelle-Aquitaine";"87";"Haute-Vienne";"5311";"Employes";12;3;3;3;3;0;0;25,5;6;35,6
+"75";"Nouvelle-Aquitaine";"87";"Haute-Vienne";"5411";"Employes";7;3;3;3;3;0;0;45,1;6;30,3
+"75";"Nouvelle-Aquitaine";"87";"Haute-Vienne";"5422";"Employes";11;5;5;6;5;0;0;49,7;6;27,3
+"75";"Nouvelle-Aquitaine";"87";"Haute-Vienne";"5511";"Employes";14;7;7;8;7;0;0;52,8;7;32,1
+"75";"Nouvelle-Aquitaine";"87";"Haute-Vienne";"5621";"Employes";17;5;5;6;4;1;0;31,3;8;34,2
+"75";"Nouvelle-Aquitaine";"87";"Haute-Vienne";"6210";"Ouvriers";21;12;11;12;11;1;0;55,3;7;33
+"75";"Nouvelle-Aquitaine";"87";"Haute-Vienne";"6234";"Ouvriers";21;8;8;9;7;1;0;40,3;8;32,5
+"75";"Nouvelle-Aquitaine";"87";"Haute-Vienne";"6543";"Ouvriers";17;9;9;9;8;1;0;52;6;38,7
+"75";"Nouvelle-Aquitaine";"87";"Haute-Vienne";"6712";"Ouvriers";22;10;9;10;9;1;0;43,7;7;32,2
+"75";"Nouvelle-Aquitaine";"87";"Haute-Vienne";"6821";"Ouvriers";17;9;9;10;9;0;0;54,5;8;30,9
+"76";"Occitanie";"09";"Ariège";"3719";"Cadres";20;5;4;5;4;0;1;23,1;8;30
+"76";"Occitanie";"09";"Ariège";"3753";"Cadres";13;4;4;4;4;0;0;31,5;8;36,1
+"76";"Occitanie";"09";"Ariège";"3812";"Cadres";20;6;6;6;5;0;1;29,4;8;49,4
+"76";"Occitanie";"09";"Ariège";"3822";"Cadres";16;4;3;4;3;0;1;22,8;6;53,4
+"76";"Occitanie";"09";"Ariège";"3892";"Cadres";13;3;3;3;3;0;0;21,9;8;35,3
+"76";"Occitanie";"09";"Ariège";"4611";"Prof. intermediaires";15;6;6;7;6;0;0;41,9;8;34,1
+"76";"Occitanie";"09";"Ariège";"4620";"Prof. intermediaires";19;8;7;8;7;1;0;40;7;26
+"76";"Occitanie";"09";"Ariège";"4631";"Prof. intermediaires";13;7;7;7;7;0;0;52,7;8;23,1
+"76";"Occitanie";"09";"Ariège";"4642";"Prof. intermediaires";17;4;4;5;3;1;0;24,2;7;48,3
+"76";"Occitanie";"09";"Ariège";"4652";"Prof. intermediaires";11;2;2;3;2;0;0;21,2;6;39,1
+"76";"Occitanie";"09";"Ariège";"5311";"Employes";13;6;6;6;6;0;0;44,9;7;23,1
+"76";"Occitanie";"09";"Ariège";"5411";"Employes";14;5;5;5;4;1;0;36,4;6;31,7
+"76";"Occitanie";"09";"Ariège";"5422";"Employes";10;4;4;4;4;0;0;37,8;6;53,2
+"76";"Occitanie";"09";"Ariège";"5511";"Employes";8;2;2;2;2;0;0;26,7;6;57
+"76";"Occitanie";"09";"Ariège";"5621";"Employes";7;4;4;4;4;0;0;57,6;6;28,6
+"76";"Occitanie";"09";"Ariège";"6210";"Ouvriers";20;11;10;11;10;1;0;54;7;26,3
+"76";"Occitanie";"09";"Ariège";"6234";"Ouvriers";16;6;6;6;5;1;0;38;7;25,3
+"76";"Occitanie";"09";"Ariège";"6543";"Ouvriers";16;8;7;8;7;1;0;47,4;7;37,5
+"76";"Occitanie";"09";"Ariège";"6712";"Ouvriers";21;10;10;11;9;1;0;49,7;8;28
+"76";"Occitanie";"09";"Ariège";"6821";"Ouvriers";14;7;7;8;7;0;0;52,4;7;39,6
+"84";"Auvergne-Rhône-Alpes";"01";"Ain";"3719";"Cadres";15;4;4;5;4;0;0;29,3;6;34,9
+"84";"Auvergne-Rhône-Alpes";"01";"Ain";"3753";"Cadres";18;5;5;6;5;0;0;28,9;8;43,8
+"84";"Auvergne-Rhône-Alpes";"01";"Ain";"3812";"Cadres";13;2;2;2;2;0;0;13,8;7;38,9
+"84";"Auvergne-Rhône-Alpes";"01";"Ain";"3822";"Cadres";10;2;2;2;2;0;0;17,2;6;49,2
+"84";"Auvergne-Rhône-Alpes";"01";"Ain";"3892";"Cadres";18;4;4;5;4;0;0;23,8;8;49,7
+"84";"Auvergne-Rhône-Alpes";"01";"Ain";"4611";"Prof. intermediaires";14;5;5;6;5;0;0;37,7;8;30,3
+"84";"Auvergne-Rhône-Alpes";"01";"Ain";"4620";"Prof. intermediaires";17;9;9;9;9;0;0;52,1;6;27,8
+"84";"Auvergne-Rhône-Alpes";"01";"Ain";"4631";"Prof. intermediaires";19;9;9;10;9;0;0;49,4;8;21,1
+"84";"Auvergne-Rhône-Alpes";"01";"Ain";"4642";"Prof. intermediaires";15;6;6;6;6;0;0;39,9;7;32,3
+"84";"Auvergne-Rhône-Alpes";"01";"Ain";"4652";"Prof. intermediaires";17;8;7;8;7;1;0;44,7;8;25,9
+"84";"Auvergne-Rhône-Alpes";"01";"Ain";"5311";"Employes";13;7;6;7;6;1;0;50,6;6;31,1
+"84";"Auvergne-Rhône-Alpes";"01";"Ain";"5411";"Employes";11;5;4;5;4;1;0;41,8;6;45,5
+"84";"Auvergne-Rhône-Alpes";"01";"Ain";"5422";"Employes";14;5;5;6;5;0;0;38,6;6;28
+"84";"Auvergne-Rhône-Alpes";"01";"Ain";"5511";"Employes";11;5;5;6;5;0;0;50;6;32,7
+"84";"Auvergne-Rhône-Alpes";"01";"Ain";"5621";"Employes";12;7;7;7;7;0;0;57,3;8;44,4
+"84";"Auvergne-Rhône-Alpes";"01";"Ain";"6210";"Ouvriers";21;11;10;12;10;1;0;52,3;8;26,6
+"84";"Auvergne-Rhône-Alpes";"01";"Ain";"6234";"Ouvriers";18;8;8;9;7;1;0;46;7;27,8
+"84";"Auvergne-Rhône-Alpes";"01";"Ain";"6543";"Ouvriers";14;7;7;7;6;1;0;49;8;29
+"84";"Auvergne-Rhône-Alpes";"01";"Ain";"6712";"Ouvriers";18;9;8;9;8;1;0;48,7;7;31,6
+"84";"Auvergne-Rhône-Alpes";"01";"Ain";"6821";"Ouvriers";19;13;12;13;12;1;0;65,9;8;30,7
+"84";"Auvergne-Rhône-Alpes";"03";"Allier";"3719";"Cadres";5;0;0;1;0;0;0;9,9;3;47,4
+"84";"Auvergne-Rhône-Alpes";"03";"Allier";"3753";"Cadres";12;3;3;3;3;0;0;22,8;6;34,8
+"84";"Auvergne-Rhône-Alpes";"03";"Allier";"3812";"Cadres";16;2;2;2;2;0;0;13,2;7;47,7
+"84";"Auvergne-Rhône-Alpes";"03";"Allier";"3822";"Cadres";23;5;5;6;5;0;0;23,7;8;21,7
+"84";"Auvergne-Rhône-Alpes";"03";"Allier";"3892";"Cadres";13;2;1;2;1;1;0;12;6;49,5
+"84";"Auvergne-Rhône-Alpes";"03";"Allier";"4611";"Prof. intermediaires";14;4;3;4;3;1;0;25,2;7;41,1
+"84";"Auvergne-Rhône-Alpes";"03";"Allier";"4620";"Prof. intermediaires";9;2;1;2;1;1;0;18,5;6;52,9
+"84";"Auvergne-Rhône-Alpes";"03";"Allier";"4631";"Prof. intermediaires";18;4;4;5;4;0;0;24,1;8;36,5
+"84";"Auvergne-Rhône-Alpes";"03";"Allier";"4642";"Prof. intermediaires";16;3;3;4;2;1;0;19,8;7;30,7
+"84";"Auvergne-Rhône-Alpes";"03";"Allier";"4652";"Prof. intermediaires";12;6;6;6;6;0;0;50,8;7;32
+"84";"Auvergne-Rhône-Alpes";"03";"Allier";"5311";"Employes";11;5;5;6;5;0;0;50;8;36
+"84";"Auvergne-Rhône-Alpes";"03";"Allier";"5411";"Employes";6;2;2;2;2;0;0;28,6;4;57,7
+"84";"Auvergne-Rhône-Alpes";"03";"Allier";"5422";"Employes";13;3;3;3;3;0;0;24,1;6;35,4
+"84";"Auvergne-Rhône-Alpes";"03";"Allier";"5511";"Employes";8;1;1;1;1;0;0;12,5;5;51,4
+"84";"Auvergne-Rhône-Alpes";"03";"Allier";"5621";"Employes";8;3;3;3;3;0;0;39,5;7;58,3
+"84";"Auvergne-Rhône-Alpes";"03";"Allier";"6210";"Ouvriers";21;10;10;11;9;1;0;49,2;7;32,2
+"84";"Auvergne-Rhône-Alpes";"03";"Allier";"6234";"Ouvriers";22;9;9;10;8;1;0;42,3;7;22,7
+"84";"Auvergne-Rhône-Alpes";"03";"Allier";"6543";"Ouvriers";19;8;7;8;7;1;0;39,7;7;29,5
+"84";"Auvergne-Rhône-Alpes";"03";"Allier";"6712";"Ouvriers";14;8;8;9;8;0;0;59;6;28,6
+"84";"Auvergne-Rhône-Alpes";"03";"Allier";"6821";"Ouvriers";16;6;6;6;5;1;0;37,6;6;28,1
+"84";"Auvergne-Rhône-Alpes";"69";"Rhône";"3719";"Cadres";18;5;4;5;4;1;0;26,9;7;32,3
+"84";"Auvergne-Rhône-Alpes";"69";"Rhône";"3753";"Cadres";7;4;3;4;4;0;0;50;4;57,1
+"84";"Auvergne-Rhône-Alpes";"69";"Rhône";"3812";"Cadres";17;4;4;5;4;0;0;25,7;8;42
+"84";"Auvergne-Rhône-Alpes";"69";"Rhône";"3822";"Cadres";11;4;4;4;4;0;0;34,1;7;27,3
+"84";"Auvergne-Rhône-Alpes";"69";"Rhône";"3892";"Cadres";11;3;2;3;3;0;0;25,9;6;33
+"84";"Auvergne-Rhône-Alpes";"69";"Rhône";"4611";"Prof. intermediaires";15;6;5;6;5;1;0;37,8;7;28,7
+"84";"Auvergne-Rhône-Alpes";"69";"Rhône";"4620";"Prof. intermediaires";14;4;3;4;3;1;0;26;7;35,7
+"84";"Auvergne-Rhône-Alpes";"69";"Rhône";"4631";"Prof. intermediaires";18;5;5;6;5;0;0;30,4;8;27,8
+"84";"Auvergne-Rhône-Alpes";"69";"Rhône";"4642";"Prof. intermediaires";16;6;6;7;6;0;0;39,2;8;37,2
+"84";"Auvergne-Rhône-Alpes";"69";"Rhône";"4652";"Prof. intermediaires";18;7;6;7;6;1;0;36,8;6;41,6
+"84";"Auvergne-Rhône-Alpes";"69";"Rhône";"5311";"Employes";6;3;3;3;3;0;0;43,2;4;40
+"84";"Auvergne-Rhône-Alpes";"69";"Rhône";"5411";"Employes";14;8;8;9;8;0;0;60,6;7;25
+"84";"Auvergne-Rhône-Alpes";"69";"Rhône";"5422";"Employes";10;2;2;2;2;0;0;22;5;61,7
+"84";"Auvergne-Rhône-Alpes";"69";"Rhône";"5511";"Employes";10;5;5;5;5;0;0;48,8;5;42,2
+"84";"Auvergne-Rhône-Alpes";"69";"Rhône";"5621";"Employes";12;4;4;5;4;0;0;36,8;8;25
+"84";"Auvergne-Rhône-Alpes";"69";"Rhône";"6210";"Ouvriers";15;7;7;8;6;1;0;49;6;26,7
+"84";"Auvergne-Rhône-Alpes";"69";"Rhône";"6234";"Ouvriers";17;10;9;10;9;1;0;56,2;8;24,4
+"84";"Auvergne-Rhône-Alpes";"69";"Rhône";"6543";"Ouvriers";16;8;7;8;7;1;0;48,1;8;25,8
+"84";"Auvergne-Rhône-Alpes";"69";"Rhône";"6712";"Ouvriers";13;6;6;6;5;1;0;45,3;7;31
+"84";"Auvergne-Rhône-Alpes";"69";"Rhône";"6821";"Ouvriers";19;8;8;8;7;1;0;41,9;7;26,3
+"93";"Provence-Alpes-Côte d'Azur";"83";"Var";"3719";"Cadres";18;5;4;5;4;0;1;25,8;6;33,6
+"93";"Provence-Alpes-Côte d'Azur";"83";"Var";"3753";"Cadres";12;3;3;3;3;0;0;26,8;6;58,1
+"93";"Provence-Alpes-Côte d'Azur";"83";"Var";"3812";"Cadres";14;6;6;7;6;0;0;46,4;7;31,1
+"93";"Provence-Alpes-Côte d'Azur";"83";"Var";"3822";"Cadres";17;4;4;5;4;0;0;25,2;8;23,9
+"93";"Provence-Alpes-Côte d'Azur";"83";"Var";"3892";"Cadres";16;6;5;6;6;0;0;35,6;8;40,2
+"93";"Provence-Alpes-Côte d'Azur";"83";"Var";"4611";"Prof. intermediaires";22;9;8;10;8;1;0;40,7;8;30,3
+"93";"Provence-Alpes-Côte d'Azur";"83";"Var";"4620";"Prof. intermediaires";19;8;7;8;7;1;0;40,9;6;31,6
+"93";"Provence-Alpes-Côte d'Azur";"83";"Var";"4631";"Prof. intermediaires";12;5;5;6;5;0;0;43,6;7;36,3
+"93";"Provence-Alpes-Côte d'Azur";"83";"Var";"4642";"Prof. intermediaires";16;4;4;5;3;1;0;26,1;8;25
+"93";"Provence-Alpes-Côte d'Azur";"83";"Var";"4652";"Prof. intermediaires";18;6;6;6;6;0;0;34,2;7;29,9
+"93";"Provence-Alpes-Côte d'Azur";"83";"Var";"5311";"Employes";14;8;8;9;8;0;0;58,3;7;28,6
+"93";"Provence-Alpes-Côte d'Azur";"83";"Var";"5411";"Employes";13;6;6;6;6;0;0;46;7;33,5
+"93";"Provence-Alpes-Côte d'Azur";"83";"Var";"5422";"Employes";10;4;4;5;4;0;0;44,1;6;40
+"93";"Provence-Alpes-Côte d'Azur";"83";"Var";"5511";"Employes";12;7;7;8;7;0;0;59,7;7;29,7
+"93";"Provence-Alpes-Côte d'Azur";"83";"Var";"5621";"Employes";11;4;4;4;3;1;0;34,8;7;26,1
+"93";"Provence-Alpes-Côte d'Azur";"83";"Var";"6210";"Ouvriers";15;8;8;8;8;0;0;54,6;7;34,4
+"93";"Provence-Alpes-Côte d'Azur";"83";"Var";"6234";"Ouvriers";14;6;5;6;5;1;0;42,1;7;38,5
+"93";"Provence-Alpes-Côte d'Azur";"83";"Var";"6543";"Ouvriers";20;7;6;7;6;1;0;34,5;7;37,9
+"93";"Provence-Alpes-Côte d'Azur";"83";"Var";"6712";"Ouvriers";17;10;10;11;10;0;0;61,4;7;35,3
+"93";"Provence-Alpes-Côte d'Azur";"83";"Var";"6821";"Ouvriers";23;13;12;13;12;1;0;55,8;8;21,8
+"94";"Corse";"2A";"Corse-du-Sud";"3719";"Cadres";10;2;1;2;2;0;0;16,3;5;58,4
+"94";"Corse";"2A";"Corse-du-Sud";"3753";"Cadres";12;3;3;3;3;0;0;23,7;7;30,6
+"94";"Corse";"2A";"Corse-du-Sud";"3812";"Cadres";15;4;4;4;4;0;0;27,8;6;31,8
+"94";"Corse";"2A";"Corse-du-Sud";"3822";"Cadres";14;3;2;3;3;0;0;19,3;7;33,9
+"94";"Corse";"2A";"Corse-du-Sud";"3892";"Cadres";13;5;5;5;5;0;0;37,1;7;38
+"94";"Corse";"2A";"Corse-du-Sud";"4611";"Prof. intermediaires";16;7;7;7;6;1;0;43,9;8;31,2
+"94";"Corse";"2A";"Corse-du-Sud";"4620";"Prof. intermediaires";11;2;2;3;2;0;0;22,5;7;34,1
+"94";"Corse";"2A";"Corse-du-Sud";"4631";"Prof. intermediaires";17;4;3;4;3;1;0;21,4;6;41,2
+"94";"Corse";"2A";"Corse-du-Sud";"4642";"Prof. intermediaires";12;4;4;4;4;0;0;32,9;5;33,3
+"94";"Corse";"2A";"Corse-du-Sud";"4652";"Prof. intermediaires";11;2;2;2;2;0;0;20,5;7;38,8
+"94";"Corse";"2A";"Corse-du-Sud";"5311";"Employes";11;5;5;5;5;0;0;46,7;6;58,5
+"94";"Corse";"2A";"Corse-du-Sud";"5411";"Employes";6;3;3;3;3;0;0;55,7;4;37,2
+"94";"Corse";"2A";"Corse-du-Sud";"5422";"Employes";19;4;4;5;3;1;0;22,9;7;33,7
+"94";"Corse";"2A";"Corse-du-Sud";"5511";"Employes";8;2;2;2;2;0;0;23,9;5;63,4
+"94";"Corse";"2A";"Corse-du-Sud";"5621";"Employes";14;6;6;7;6;0;0;45,6;6;21,4
+"94";"Corse";"2A";"Corse-du-Sud";"6210";"Ouvriers";12;6;6;6;6;0;0;50,5;5;39
+"94";"Corse";"2A";"Corse-du-Sud";"6234";"Ouvriers";18;7;6;7;6;1;0;36,2;8;32,1
+"94";"Corse";"2A";"Corse-du-Sud";"6543";"Ouvriers";19;8;7;8;7;1;0;40,5;8;32,7
+"94";"Corse";"2A";"Corse-du-Sud";"6712";"Ouvriers";16;5;5;5;4;1;0;31,2;8;25
+"94";"Corse";"2A";"Corse-du-Sud";"6821";"Ouvriers";12;5;4;5;4;1;0;38,2;7;43,5
+"94";"Corse";"2B";"Haute-Corse";"3719";"Cadres";11;6;5;6;6;0;0;50,2;6;47,5
+"94";"Corse";"2B";"Haute-Corse";"3753";"Cadres";14;2;1;2;1;0;1;11;7;59,5
+"94";"Corse";"2B";"Haute-Corse";"3812";"Cadres";19;6;5;6;5;0;1;29,4;8;23,7
+"94";"Corse";"2B";"Haute-Corse";"3822";"Cadres";14;3;3;3;3;0;0;23,1;8;30,9
+"94";"Corse";"2B";"Haute-Corse";"3892";"Cadres";17;5;4;5;4;0;1;26,6;7;43,8
+"94";"Corse";"2B";"Haute-Corse";"4611";"Prof. intermediaires";23;7;7;7;6;1;0;30,8;7;50,5
+"94";"Corse";"2B";"Haute-Corse";"4620";"Prof. intermediaires";13;5;5;5;4;1;0;36,2;7;49,8
+"94";"Corse";"2B";"Haute-Corse";"4631";"Prof. intermediaires";22;10;10;11;10;0;0;47,3;8;27,3
+"94";"Corse";"2B";"Haute-Corse";"4642";"Prof. intermediaires";14;5;5;6;5;0;0;38;8;21,4
+"94";"Corse";"2B";"Haute-Corse";"4652";"Prof. intermediaires";17;7;7;7;7;0;0;41,5;7;23,5
+"94";"Corse";"2B";"Haute-Corse";"5311";"Employes";17;9;8;9;8;1;0;51;7;23,5
+"94";"Corse";"2B";"Haute-Corse";"5411";"Employes";12;4;4;4;3;1;0;32,6;6;39,4
+"94";"Corse";"2B";"Haute-Corse";"5422";"Employes";12;5;5;5;5;0;0;40;6;49,5
+"94";"Corse";"2B";"Haute-Corse";"5511";"Employes";13;8;8;8;8;0;0;60,5;7;24,2
+"94";"Corse";"2B";"Haute-Corse";"5621";"Employes";15;7;7;7;6;1;0;46,5;7;26,4
+"94";"Corse";"2B";"Haute-Corse";"6210";"Ouvriers";22;8;8;9;7;1;0;36,6;8;26,4
+"94";"Corse";"2B";"Haute-Corse";"6234";"Ouvriers";19;7;7;8;6;1;0;37,6;8;42,9
+"94";"Corse";"2B";"Haute-Corse";"6543";"Ouvriers";17;7;7;7;6;1;0;41,5;7;29,4
+"94";"Corse";"2B";"Haute-Corse";"6712";"Ouvriers";17;7;7;7;6;1;0;40,6;6;40,9
+"94";"Corse";"2B";"Haute-Corse";"6821";"Ouvriers";13;7;7;8;7;0;0;57;7;23,1

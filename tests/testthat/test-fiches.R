@@ -210,7 +210,7 @@ test_that("cohérence avec le 08 sur la chaîne (mode test département)", {
   sys.source(chemin_script("00_config.R"), envir = env)
   assign("GEO_ANALYSE", "departement", envir = env); assign("GEO_SOURCE", "departement", envir = env)
   assign("DIR_SORTIES", tempdir(), envir = env)
-  for (s in c("00c_fonctions_geo.R", "00d_fonctions_fiches.R", "01_fabriquer_donnees_test.R",
+  for (s in c("00c_fonctions_geo.R", "00g_format_restitution.R", "00d_fonctions_fiches.R", "01_fabriquer_donnees_test.R",
               "01b_agreger_pcs.R", "01c_stock_tous_ages.R", "02_importer_nettoyer_drees.R", "02b_importer_mortalite_insee.R",
               "02c_importer_invalidite_eacr.R", "03_parametres_csp.R", "04_projection_2030.R",
               "08_analyse_55plus_geo.R", "09_fiches_territoriales.R"))
@@ -244,7 +244,7 @@ test_that("STOCK_TOUS_AGES = FALSE : chaîne inchangée, fiches en repli, CSV 08
   assign("GEO_ANALYSE", "departement", envir = env); assign("GEO_SOURCE", "departement", envir = env)
   assign("DIR_SORTIES", file.path(tempdir(), "sans_stock"), envir = env); dir.create(env$DIR_SORTIES, showWarnings = FALSE)
   assign("STOCK_TOUS_AGES", FALSE, envir = env)
-  for (s in c("00c_fonctions_geo.R", "00d_fonctions_fiches.R", "01_fabriquer_donnees_test.R",
+  for (s in c("00c_fonctions_geo.R", "00g_format_restitution.R", "00d_fonctions_fiches.R", "01_fabriquer_donnees_test.R",
               "01b_agreger_pcs.R", "01c_stock_tous_ages.R", "02_importer_nettoyer_drees.R", "02b_importer_mortalite_insee.R",
               "02c_importer_invalidite_eacr.R", "03_parametres_csp.R", "04_projection_2030.R",
               "08b_departs_geo_cs.R", "09_fiches_territoriales.R"))
@@ -289,7 +289,7 @@ test_that("FICHES_SECRET = FALSE sur la chaîne : dossier _interne, tous les ter
   assign("GEO_ANALYSE", "departement", envir = env); assign("GEO_SOURCE", "departement", envir = env)
   assign("DIR_SORTIES", file.path(tempdir(), "interne_chaine"), envir = env); dir.create(env$DIR_SORTIES, showWarnings = FALSE)
   assign("FICHES_SECRET", FALSE, envir = env)
-  for (s in c("00c_fonctions_geo.R", "00d_fonctions_fiches.R", "01_fabriquer_donnees_test.R",
+  for (s in c("00c_fonctions_geo.R", "00g_format_restitution.R", "00d_fonctions_fiches.R", "01_fabriquer_donnees_test.R",
               "01b_agreger_pcs.R", "01c_stock_tous_ages.R", "02_importer_nettoyer_drees.R", "02b_importer_mortalite_insee.R",
               "02c_importer_invalidite_eacr.R", "03_parametres_csp.R", "04_projection_2030.R", "09_fiches_territoriales.R"))
     suppressMessages(suppressWarnings(invisible(capture.output(sys.source(chemin_script(s), envir = env)))))

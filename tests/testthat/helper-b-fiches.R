@@ -8,6 +8,7 @@
 source(chemin_script("00_config.R"), local = TRUE)
 setwd(.old_wd)
 DIR_SORTIES <- tempdir()
+source(chemin_script("00g_format_restitution.R"), local = TRUE)
 source(chemin_script("00d_fonctions_fiches.R"), local = TRUE)
 
 # Un territoire = liste(code, nom, effectifs par CS, part de seniors).

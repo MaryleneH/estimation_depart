@@ -12,7 +12,7 @@ lancer_chaine_08b <- function(geo = "departement", geo_interet = NULL, min_salar
   if (!is.null(min_salaries)) assign("SECRET_MIN_SALARIES", min_salaries, envir = env)
   assign("DIR_SORTIES", file.path(tempdir(), paste0("s08b_", geo, "_", length(geo_interet), "_", min_salaries %||% "d")), envir = env)
   dir.create(env$DIR_SORTIES, showWarnings = FALSE)
-  for (s in c("00c_fonctions_geo.R", "00d_fonctions_fiches.R", "01_fabriquer_donnees_test.R",
+  for (s in c("00c_fonctions_geo.R", "00g_format_restitution.R", "00d_fonctions_fiches.R", "01_fabriquer_donnees_test.R",
               "01b_agreger_pcs.R", "01c_stock_tous_ages.R", "02_importer_nettoyer_drees.R", "02b_importer_mortalite_insee.R",
               "02c_importer_invalidite_eacr.R", "03_parametres_csp.R", "04_projection_2030.R",
               "08_analyse_55plus_geo.R", "08b_departs_geo_cs.R", "09_fiches_territoriales.R"))
@@ -34,7 +34,10 @@ test_that("fichier : créé dans DIR_SORTIES, suffixé par le zonage, colonnes a
   # effectifs tous âges (01c) : jamais inférieurs au champ ; part = départs / tous âges
   ok <- !lu$masque
   expect_true(all(lu$effectif_tous_ages[ok] >= lu$effectif_champ[ok]))
-  expect_equal(lu$part_a_remplacer_pct[ok], round(100 * lu$departs_2030[ok] / lu$effectif_tous_ages[ok], 1), tolerance = 0.06)
+  # part calculée sur les départs EXACTS (brut), pas sur les départs arrondis du CSV (convention 00g)
+  brut_lu <- ENV$calculer_departs_geo_cs(ENV$base_geo_cs, stock = ENV$stock_tous_ages)$brut            # même ordre que le CSV (territoire, ordre métier des CS)
+  expect_equal(lu$part_a_remplacer_pct[ok], round(100 * brut_lu$departs_2030[ok] / brut_lu$effectif_tous_ages[ok], 1), tolerance = 0.06)
+  expect_true(all(lu$departs_2030[ok] == round(lu$departs_2030[ok])))                 # personnes : entiers dans le CSV
   expect_true(all(is.na(lu$effectif_tous_ages[!ok])))
   expect_type(lu$geo_code, "character")
   expect_true(all(c("01", "09", "2A") %in% lu$geo_code))            # zéros initiaux et codes corses
@@ -72,7 +75,8 @@ test_that("2. totaux cohérents avec 04 (p_central), 08 (effectifs par cellule) 
   # formule du taux : celle du 05 (part_departs_pct)
   expect_equal(brut$part_departs_pct, 100 * brut$departs_2030 / brut$effectif_champ)
   # le CSV diffusé = brut arrondi à 0,1 hors cellules masquées
-  expect_equal(D$departs_2030[!D$masque], round(brut$departs_2030[!D$masque], 1))
+  expect_equal(D$departs_2030[!D$masque], ENV$arrondir_nombre_personnes(brut$departs_2030[!D$masque]))   # personnes -> entier (00g)
+  expect_equal(D$part_departs_pct[!D$masque], round(brut$part_departs_pct[!D$masque], 1))             # taux -> 1 décimale, calculé sur l'exact
 })
 
 test_that("3. tous les territoires du périmètre ; 4. aucune CS inattendue", {
@@ -137,7 +141,7 @@ test_that("8. sourcer 08b ne modifie, ne supprime ni ne regroupe aucun objet exi
   sys.source(chemin_script("00_config.R"), envir = env)
   assign("GEO_ANALYSE", "departement", envir = env); assign("GEO_SOURCE", "departement", envir = env)
   assign("DIR_SORTIES", file.path(tempdir(), "s08b_invariance"), envir = env); dir.create(env$DIR_SORTIES, showWarnings = FALSE)
-  for (s in c("00c_fonctions_geo.R", "00d_fonctions_fiches.R", "01_fabriquer_donnees_test.R",
+  for (s in c("00c_fonctions_geo.R", "00g_format_restitution.R", "00d_fonctions_fiches.R", "01_fabriquer_donnees_test.R",
               "01b_agreger_pcs.R", "01c_stock_tous_ages.R", "02_importer_nettoyer_drees.R", "02b_importer_mortalite_insee.R",
               "02c_importer_invalidite_eacr.R", "03_parametres_csp.R", "04_projection_2030.R",
               "08_analyse_55plus_geo.R", "09_fiches_territoriales.R"))

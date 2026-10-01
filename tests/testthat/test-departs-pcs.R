@@ -3,7 +3,7 @@
 # indépendante de toute sélection territoriale ; région via le contrat géo ;
 # cohérence arithmétique ; secret sur la couche de diffusion seulement.
 # ==============================================================================
-SCRIPTS_PCS <- c("00c_fonctions_geo.R", "00d_fonctions_fiches.R", "00e_fonctions_departs_pcs.R",
+SCRIPTS_PCS <- c("00c_fonctions_geo.R", "00g_format_restitution.R", "00d_fonctions_fiches.R", "00e_fonctions_departs_pcs.R",
                  "01_fabriquer_donnees_test.R", "01b_agreger_pcs.R", "01c_stock_tous_ages.R",
                  "02_importer_nettoyer_drees.R", "02b_importer_mortalite_insee.R",
                  "02c_importer_invalidite_eacr.R", "03_parametres_csp.R", "04_projection_2030.R",
@@ -154,7 +154,8 @@ test_that("fichiers : interne/ toujours, diffusion/ seulement avec DEPARTS_PCS_S
 })
 
 test_that("NON-RÉGRESSION : les 6 fichiers PCS (interne + diffusion) sont IDENTIQUES aux références figées avant la généralisation (dimension)", {
-  # références : tests/testthat/reference/departs_pcs/, figées sur main 2876edc (table test, zonage département)
+  # références : tests/testthat/reference/departs_pcs/, figées sur main 2876edc (table test, zonage département),
+  # re-figées VOLONTAIREMENT avec la convention de restitution 00g (personnes entières, causes cohérentes, taux 1 décimale)
   for (couche in c("interne", "diffusion")) for (n in c("france", "region", "departement")) {
     ref <- file.path(RACINE, "tests", "testthat", "reference", "departs_pcs", sprintf("%s_departs_pcs_%s.csv", couche, n))
     skip_if_not(file.exists(ref), "référence absente")
