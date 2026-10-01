@@ -6,7 +6,7 @@ Règle de lecture : **le préfixe d’un répertoire est le numéro du premier s
 
 | Répertoire | Rôle | Scripts (dans l’ordre d’exécution) |
 |---|---|---|
-| `00_config_fonctions/` | Paramètres et fonctions pures, rien n’est calculé ici | `00_config.R` (tous les réglages), `00b_fonts.R`, `00c_fonctions_geo.R` (contrat géographique), `00d_fonctions_fiches.R` (fiches), `00e_fonctions_departs_pcs.R` (départs par PCS fine et par grande CS : une fonction, deux dimensions), `00f_fonctions_cartes.R` (cartes des résultats diffusables : fond local, projection, HTML autonome, PNG) |
+| `00_config_fonctions/` | Paramètres et fonctions pures, rien n’est calculé ici | `00_config.R` (tous les réglages), `00g_format_restitution.R` (convention d’arrondi des restitutions), `00b_fonts.R`, `00c_fonctions_geo.R` (contrat géographique), `00d_fonctions_fiches.R` (fiches), `00e_fonctions_departs_pcs.R` (départs par PCS fine et par grande CS : une fonction, deux dimensions), `00f_fonctions_cartes.R` (cartes des résultats diffusables : fond local, projection, HTML autonome, PNG) |
 | `01_preparation/` | Lecture de la BTS et des sources externes, recodages | `01_fabriquer_donnees_test.R` (BTS parquet ou table test, géographie), `01b_agreger_pcs.R` (PCS → grande CS `cs1`, PCS hors champ tracées), `01c_stock_tous_ages.R` (effectifs tous âges), `02_importer_nettoyer_drees.R`, `02b_importer_mortalite_insee.R`, `02c_importer_invalidite_eacr.R` |
 | `03_modelisation/` | Le modèle : paramètres par CS puis probabilités individuelles de départ | `03_parametres_csp.R`, `04_projection_2030.R` (→ `bts_projete`) |
 | `05_restitutions/` | Résultats nationaux : entreprises, graphiques, tableaux de contribution | `05_resultats_entreprises.R`, `06_graphique_repartition.R`, `06b_graphique_repartition_cs.R`, `06c_graphique_sas_retraite_cs.R`, `06d_graphique_repartition_cs_regroupe.R`, `06e_graphique_repartition_age_regroupe.R`, `07_tableau_contribution.R`, `07b_tableau_contibution_sans_gt.R`, `07c_tableau_contribution_55plus_sans_gt.R` |
@@ -16,6 +16,10 @@ Règle de lecture : **le préfixe d’un répertoire est le numéro du premier s
 `99b_normaliser_csv_excel.R` : ajoute un BOM UTF-8 aux CSV produits dans `sorties/` afin de garantir une ouverture correcte dans Excel Windows, sans modifier leur contenu. Pour relire ces CSV dans R : `read.csv2(f, fileEncoding = "UTF-8-BOM")`.
 
 Ordre d’exécution de `main.R` : 00 → 01, 01b, 01c → 02, 02b, 02c → 03 → 04 → 05 → 06, 06b, 06d, 06e → 07 (si `gt` est installé) → 08 → 08b → 08c → 08d → 08e (si `GENERER_CARTES_DEPARTS`) → 09 → 99b (si `NORMALISER_CSV_EXCEL`).
+
+## Arrondi des restitutions
+
+Les calculs sont conservés à leur précision complète. Les nombres attendus de personnes sont arrondis à l’entier uniquement lors de la restitution ; les taux sont calculés sur les valeurs exactes. Convention unique dans `00g_format_restitution.R` : personnes → entier (demi vers le haut : 0,5 → 1, 2,5 → 3, 27,5 → 28, comme Excel ; `round()` de R arrondit au pair et n’est pas utilisé pour les personnes), taux → une décimale, codes et effectifs observés intacts, NA conservé (secret : jamais 0). Quand un total et ses composantes sont affichés ensemble (départs = retraite + invalidité + décès ; « Ensemble » = Σ catégories d’une fiche), les composantes sont arrondies par la méthode des plus forts restes pour sommer exactement au total affiché (restes égaux : la plus grande composante d’abord). Les territoires sont arrondis indépendamment : Σ départements affichés peut différer de la région affichée, jamais d’ajustement artificiel. Ordre : calcul exact → contrôles exacts → secret statistique → arrondi de restitution → CSV, HTML, fiches, cartes.
 
 ## Cartographie des départs
 
