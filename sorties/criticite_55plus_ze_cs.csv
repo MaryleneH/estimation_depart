@@ -1,4 +1,4 @@
-"geo_code";"geo_nom";"cs1";"effectif_champ";"effectif_55plus";"part_55plus_pct";"departs_55plus";"perte_seniors_pct";"masque"
+﻿"geo_code";"geo_nom";"cs1";"effectif_champ";"effectif_55plus";"part_55plus_pct";"departs_55plus";"perte_seniors_pct";"masque"
 "Bordeaux";"Bordeaux";"Ouvriers";41;23;56,1;21,9;53,4;FALSE
 "Poitiers";"Poitiers";"Ouvriers";28;15;53,6;14,3;51;FALSE
 "Lille";"Lille";"Employes";38;21;55,3;18,7;49,2;FALSE

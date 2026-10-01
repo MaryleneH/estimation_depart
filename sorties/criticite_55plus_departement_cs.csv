@@ -1,4 +1,4 @@
-"geo_code";"geo_nom";"cs1";"effectif_champ";"effectif_55plus";"part_55plus_pct";"departs_55plus";"perte_seniors_pct";"sous_seuil"
+﻿"geo_code";"geo_nom";"cs1";"effectif_champ";"effectif_55plus";"part_55plus_pct";"departs_55plus";"perte_seniors_pct";"sous_seuil"
 "59";"Nord";"Employes";64;35;54,7;31,5;49,2;FALSE
 "64";"Pyrénées-Atlantiques";"Ouvriers";97;47;48,5;43,9;45,2;FALSE
 "44";"Loire-Atlantique";"Ouvriers";88;41;46,6;39,5;44,9;FALSE

@@ -18,7 +18,7 @@ comparer_sorties <- function(avant, apres,
                                              "dep_55_retraite", "dep_55_invalidite",
                                              "dep_55_deces", "taux_depart_55plus_pct")) {
   lire <- function(f) {
-    d <- read.csv2(f, check.names = FALSE, stringsAsFactors = FALSE)
+    d <- read.csv2(f, check.names = FALSE, stringsAsFactors = FALSE, fileEncoding = "UTF-8-BOM")   # CSV avec BOM (99b)
     cle <- intersect(c("geo_nom", "ze"), names(d))[1]
     if (is.na(cle)) stop(f, " : aucune colonne territoire (geo_nom ou ze).")
     # anciens fichiers : effectif_43plus / effectif_45plus -> nom interne stable

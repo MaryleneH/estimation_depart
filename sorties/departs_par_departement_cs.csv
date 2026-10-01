@@ -1,4 +1,4 @@
-"geo_code";"geo_nom";"cs1";"effectif_champ";"departs_2030";"departs_bas";"departs_haut";"part_departs_pct";"effectif_tous_ages";"part_a_remplacer_pct";"masque"
+﻿"geo_code";"geo_nom";"cs1";"effectif_champ";"departs_2030";"departs_bas";"departs_haut";"part_departs_pct";"effectif_tous_ages";"part_a_remplacer_pct";"masque"
 "01";"Ain";"Cadres";74;17,4;15,9;19;23,5;266;6,5;FALSE
 "01";"Ain";"Prof. intermediaires";82;37,1;35,3;38,9;45,3;266;14;FALSE
 "01";"Ain";"Employes";61;28,9;27,4;30,5;47,5;196;14,8;FALSE

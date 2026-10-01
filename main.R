@@ -43,4 +43,7 @@ source("R/08_territoires/08d_departs_cs1.R")             # -> sorties/departs_cs
                                           #    (grande CS : mêmes mailles, même méthode, même secret que 08c)
 source("R/08_territoires/09_fiches_territoriales.R")     # -> sorties/fiches_<zonage>/<code>_<nom>.html + index.html
                                           #    (si GENERER_FICHES ; mode tous / selection)
+if (isTRUE(get0("NORMALISER_CSV_EXCEL", ifnotfound = FALSE)))
+  source("R/99_controles/99b_normaliser_csv_excel.R")    # -> BOM UTF-8 sur tous les CSV de sorties/ (Excel),
+                                          #    contenu inchangé ; objet controle_csv_excel
 message("Chaîne exécutée.")

@@ -1,4 +1,4 @@
-"geo_code";"geo_nom";"effectif_champ";"effectif_55plus";"part_55plus_pct";"departs_55plus";"departs_55plus_bas";"departs_55plus_haut";"dep_55_retraite";"dep_55_invalidite";"dep_55_deces";"taux_depart_55plus_pct";"taux_55plus_bas_pct";"taux_55plus_haut_pct"
+﻿"geo_code";"geo_nom";"effectif_champ";"effectif_55plus";"part_55plus_pct";"departs_55plus";"departs_55plus_bas";"departs_55plus_haut";"dep_55_retraite";"dep_55_invalidite";"dep_55_deces";"taux_depart_55plus_pct";"taux_55plus_bas_pct";"taux_55plus_haut_pct"
 "Versailles";"Versailles";165;78;47,3;62,9;60,4;65,2;61,1;1,2;0,6;80,6;77,5;83,6
 "Belfort";"Belfort";152;69;45,4;54,3;51,8;56,5;52,5;1,2;0,6;78,6;75,1;81,9
 "Tarbes";"Tarbes";158;71;44,9;58,4;56,4;60,4;57;0,9;0,5;82,3;79,4;85
