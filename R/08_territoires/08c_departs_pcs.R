@@ -6,7 +6,7 @@
 #             geo_*) ; `pcs_exclues` (01b) ; fonctions 00c (lire_passage_geo,
 #             ajouter_region), 00d (ajouter_parts_causes, masquer_cellules),
 #             00e (calculer_departs_pcs & co) ; paramètres GENERER_DEPARTS_PCS,
-#             DEPARTS_PCS_NIVEAUX, DEPARTS_PCS_SECRET, SEUIL_DIFFUSION,
+#             DEPARTS_PCS_NIVEAUX, DEPARTS_PCS_SECRET, SECRET_* (règle Insee),
 #             GEO_PASSAGES["departement->region"] (00).
 # PRODUIT   : objet `departs_pcs` (liste : analytique, diffusion, niveaux) et
 #             sorties/departs_pcs/
@@ -20,7 +20,10 @@
 #             explicite ci-dessous. Région et département exigent
 #             geo_type = "departement" (sinon ignorés, message).
 # SECRET (règle) — audit des marges publiées ensemble :
-#   primaire   : cellule de moins de SEUIL_DIFFUSION salariés du champ.
+#   primaire   : règle Insee de la Base Tous salariés (00_config SECRET_*) :
+#                moins de 5 salariés, OU moins de 3 entreprises (SIREN), OU une
+#                entreprise représentant plus de 85 % de l'effectif ou des
+#                départs attendus de la cellule.
 #   secondaire : uniquement dans un bloc dont la marge est publiée ET qui ne
 #                contiendrait qu'une seule cellule masquée (sinon rien n'est
 #                déductible) : la plus petite cellule restante est masquée aussi.
@@ -29,7 +32,9 @@
 #                         bloc région x cs1 (déductible de 08b, département x cs1).
 #     Département x pcs : bloc région x pcs (publié ci-dessus) ; bloc
 #                         département x cs1 (publié par 08b).
-#   Les tables interne/ restent complètes ; les contrôles se font sur elles.
+#   Les tables interne/ restent complètes et portent les indicateurs de secret
+#   (n_entreprises, part_dominante_pct) ; les contrôles se font sur elles. Ces
+#   indicateurs sont retirés des tables diffusion/.
 # ==============================================================================
 if (!isTRUE(get0("GENERER_DEPARTS_PCS", ifnotfound = FALSE))) {
   message("08c : départs par PCS fine désactivés (GENERER_DEPARTS_PCS = FALSE).")
@@ -85,12 +90,15 @@ if (!isTRUE(get0("GENERER_DEPARTS_PCS", ifnotfound = FALSE))) {
   diffusion <- NULL
   if (isTRUE(get0("DEPARTS_PCS_SECRET", ifnotfound = TRUE))) {
     dir_dif <- file.path(dir_pcs, "diffusion"); dir.create(dir_dif, showWarnings = FALSE, recursive = TRUE)
-    diffusion <- lapply(niveaux, function(n) appliquer_secret_pcs(analytique[[n]], n, SEUIL_DIFFUSION))
+    regles_08c <- regles_secret()
+    diffusion <- lapply(niveaux, function(n) appliquer_secret_pcs(analytique[[n]], n, regles_08c))
     names(diffusion) <- niveaux
     for (n in niveaux) {
-      d <- diffusion[[n]]
-      if (any(!is.na(d$effectif_champ) & d$effectif_champ < SEUIL_DIFFUSION))
-        stop("08c : une cellule sous SEUIL_DIFFUSION resterait visible (", n, ").")
+      d <- diffusion[[n]]; a <- analytique[[n]]
+      if (any(!d$masque & secret_primaire(a$effectif_champ, a$n_entreprises, a$part_dominante_pct, regles_08c)))
+        stop("08c : une cellule contraire à la règle de secret statistique resterait visible (", n, ").")
+      if (any(c("n_entreprises", "part_dominante_pct") %in% names(d)))
+        stop("08c : indicateurs de secret présents dans la table de diffusion (", n, ").")
       write.csv2(arrondir_departs_pcs(d), file.path(dir_dif, sprintf("departs_pcs_%s.csv", n)), row.names = FALSE)
     }
   } else message("08c : DEPARTS_PCS_SECRET = FALSE -> tables internes uniquement, aucun fichier diffusion/ écrit.")
