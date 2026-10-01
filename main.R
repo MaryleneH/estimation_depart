@@ -10,6 +10,7 @@ source("R/00_config_fonctions/00_config.R")
 source("R/00_config_fonctions/00c_fonctions_geo.R")           # -> fonctions géographiques génériques
 source("R/00_config_fonctions/00d_fonctions_fiches.R")        # -> fonctions des fiches territoriales (09)
 source("R/00_config_fonctions/00e_fonctions_departs_pcs.R")   # -> fonctions départs par PCS fine (08c)
+source("R/00_config_fonctions/00f_fonctions_cartes.R")        # -> fonctions cartes des résultats diffusables (08e)
 source("R/01_preparation/01_fabriquer_donnees_test.R")   # -> objet : bts (contrat geo_code/geo_nom/geo_type)
 source("R/01_preparation/01b_agreger_pcs.R")             # -> cs1 agrégée (si AGGREGER_PCS)
 source("R/01_preparation/01c_stock_tous_ages.R")         # -> stock_tous_ages : effectifs actuels TOUS ÂGES par
@@ -41,6 +42,8 @@ source("R/08_territoires/08c_departs_pcs.R")             # -> sorties/departs_pc
                                           #    (PCS fine : France, région, département) + pcs_hors_champ.csv
 source("R/08_territoires/08d_departs_cs1.R")             # -> sorties/departs_cs1/{interne,diffusion}/departs_cs1_<niveau>.csv
                                           #    (grande CS : mêmes mailles, même méthode, même secret que 08c)
+source("R/08_territoires/08e_cartes_departs.R")          # -> sorties/cartes_departs/{pcs,cs1}/carte_<dim>_<niveau>.html (+ .png)
+                                          #    (cartes des tables diffusion/ seules ; si GENERER_CARTES_DEPARTS)
 source("R/08_territoires/09_fiches_territoriales.R")     # -> sorties/fiches_<zonage>/<code>_<nom>.html + index.html
                                           #    (si GENERER_FICHES ; mode tous / selection)
 if (isTRUE(get0("NORMALISER_CSV_EXCEL", ifnotfound = FALSE)))
