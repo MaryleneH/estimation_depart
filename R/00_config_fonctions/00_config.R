@@ -213,6 +213,12 @@ DEPARTS_PCS_NIVEAUX <- c("france", "region", "departement")   # région / dépar
                                                          # GEO_ANALYSE = "departement" (sinon ignorés)
 DEPARTS_PCS_SECRET  <- TRUE       # TRUE  = dossier diffusion/ avec secret statistique ;
                                   # le dossier interne/ (tables complètes) existe TOUJOURS.
+# --- Départs par GRANDE CS cs1 (script 08d) : mêmes mailles, même méthode, même
+#     secret que le 08c ; seule la dimension change (sorties/departs_cs1/) ------
+GENERER_DEPARTS_CS1 <- TRUE                              # FALSE = étape 08d ignorée
+DEPARTS_CS1_NIVEAUX <- c("france", "region", "departement")   # même contrainte que DEPARTS_PCS_NIVEAUX
+DEPARTS_CS1_SECRET  <- TRUE       # TRUE  = dossier diffusion/ (règles de secret inchangées) ;
+                                  # interne/ existe TOUJOURS. N'agit que sur la production du dossier.
 FICHES_SECRET    <- TRUE          # TRUE  = secret statistique appliqué (version DIFFUSABLE).
                                   # FALSE = USAGE INTERNE : aucun masquage, tous les
                                   # territoires, bloc des entreprises (SIREN) ; écrit dans

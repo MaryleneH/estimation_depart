@@ -153,6 +153,24 @@ test_that("fichiers : interne/ toujours, diffusion/ seulement avec DEPARTS_PCS_S
   expect_null(e0$departs_pcs$diffusion)
 })
 
+test_that("NON-RÉGRESSION : les 6 fichiers PCS (interne + diffusion) sont IDENTIQUES aux références figées avant la généralisation (dimension)", {
+  # références : tests/testthat/reference/departs_pcs/, figées sur main 2876edc (table test, zonage département)
+  for (couche in c("interne", "diffusion")) for (n in c("france", "region", "departement")) {
+    ref <- file.path(RACINE, "tests", "testthat", "reference", "departs_pcs", sprintf("%s_departs_pcs_%s.csv", couche, n))
+    skip_if_not(file.exists(ref), "référence absente")
+    nouveau <- file.path(E$DIR_SORTIES, "departs_pcs", couche, sprintf("departs_pcs_%s.csv", n))
+    expect_identical(readLines(nouveau, encoding = "UTF-8"), readLines(ref, encoding = "UTF-8"), label = paste(couche, n))
+  }
+  # l'enveloppe historique EST la fonction générique en dimension pcs ; idem blocs et secret
+  for (n in names(A)) {
+    expect_identical(E$calculer_departs_pcs(E$base_pcs, n), E$calculer_departs(E$base_pcs, n, dimension = "pcs"), label = n)
+    expect_identical(E$blocs_secret_pcs(n, A[[n]]), E$blocs_secret(n, A[[n]], "pcs"), label = n)
+    expect_identical(E$appliquer_secret_pcs(A[[n]], n), E$appliquer_secret_pcs(A[[n]], n, dimension = "pcs"), label = n)
+    expect_identical(D[[n]], E$appliquer_secret_pcs(A[[n]], n), label = n)
+  }
+  expect_true(E$controler_departs_pcs(A, E$base_pcs)); expect_true(E$controler_departs(A, E$base_pcs, "pcs"))
+})
+
 test_that("zonage zone d'emploi : région et département ignorés avec message, France seule", {
   ez <- lancer_pcs("ze")
   expect_identical(ez$departs_pcs$niveaux, "france")
