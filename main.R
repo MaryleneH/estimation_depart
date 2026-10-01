@@ -7,6 +7,7 @@
 # plutôt qu'avec rm(list = ls()) : c'est la seule vraie remise à zéro.
 # ==============================================================================
 source("R/00_config_fonctions/00_config.R")
+source("R/00_config_fonctions/00g_format_restitution.R")    # -> convention d'arrondi des restitutions (personnes entières, taux 1 décimale)
 source("R/00_config_fonctions/00c_fonctions_geo.R")           # -> fonctions géographiques génériques
 source("R/00_config_fonctions/00d_fonctions_fiches.R")        # -> fonctions des fiches territoriales (09)
 source("R/00_config_fonctions/00e_fonctions_departs_pcs.R")   # -> fonctions départs par PCS fine (08c)

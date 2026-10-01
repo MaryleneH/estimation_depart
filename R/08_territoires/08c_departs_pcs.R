@@ -98,7 +98,7 @@ if (!isTRUE(get0("GENERER_DEPARTS_PCS", ifnotfound = FALSE))) {
   cat(sprintf("\n--- Départs attendus d'ici 2030 par PCS fine — France entière (%d PCS, %s salariés) ---\n",
               nrow(fr), format(sum(fr$effectif_champ), big.mark = " ")))
   print(fr |> arrange(desc(departs_central)) |> head(10) |>
-          transmute(pcs, cs1, effectif_champ, departs = round(departs_central, 1), taux = round(taux_depart_central_pct, 1)) |>
+          transmute(pcs, cs1, effectif_champ, departs = arrondir_nombre_personnes(departs_central), taux = arrondir_taux(taux_depart_central_pct)) |>
           as.data.frame(), row.names = FALSE)
   message("08c OK -> ", dir_pcs, " : niveaux ", paste(niveaux, collapse = ", "),
           if (!is.null(diffusion)) paste0(" ; cellules masquées en diffusion : ",
