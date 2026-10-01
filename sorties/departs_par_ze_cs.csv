@@ -1,169 +1,169 @@
 ﻿"geo_code";"geo_nom";"cs1";"effectif_champ";"departs_2030";"departs_bas";"departs_haut";"part_departs_pct";"effectif_tous_ages";"part_a_remplacer_pct";"masque"
-"Aix-en-Provence";"Aix-en-Provence";"Cadres";44;10,6;10;11,2;24,1;158;6,7;FALSE
-"Aix-en-Provence";"Aix-en-Provence";"Prof. intermediaires";31;15,3;14,6;16;49,4;101;15,2;FALSE
-"Aix-en-Provence";"Aix-en-Provence";"Employes";30;10,8;10,3;11,4;36;96;11,3;FALSE
-"Aix-en-Provence";"Aix-en-Provence";"Ouvriers";49;27,2;25,7;28,6;55,4;160;17;FALSE
-"Angoulême";"Angoulême";"Cadres";26;5,9;5,3;6,5;22,6;95;6,2;FALSE
-"Angoulême";"Angoulême";"Prof. intermediaires";23;7,1;6,7;7,5;30,8;62;11,4;FALSE
-"Angoulême";"Angoulême";"Employes";21;8,9;8,5;9,3;42,3;68;13,1;FALSE
-"Angoulême";"Angoulême";"Ouvriers";45;22,4;21,3;23,6;49,8;173;13;FALSE
-"Belfort";"Belfort";"Cadres";35;9,6;8,8;10,5;27,6;121;8;FALSE
-"Belfort";"Belfort";"Prof. intermediaires";36;13,6;12,9;14,3;37,8;141;9,6;FALSE
-"Belfort";"Belfort";"Employes";44;23,4;22,2;24,6;53,2;148;15,8;FALSE
-"Belfort";"Belfort";"Ouvriers";37;17,1;16,2;17,9;46,1;117;14,6;FALSE
-"Bordeaux";"Bordeaux";"Cadres";33;7,9;7,4;8,4;23,8;115;6,8;FALSE
-"Bordeaux";"Bordeaux";"Prof. intermediaires";34;10,1;9,5;10,7;29,6;129;7,8;FALSE
-"Bordeaux";"Bordeaux";"Employes";20;9;8,7;9,4;45,1;51;17,7;FALSE
-"Bordeaux";"Bordeaux";"Ouvriers";41;25,5;24,7;26,2;62,1;131;19,4;FALSE
-"Bourges";"Bourges";"Cadres";30;7,9;7,4;8,4;26,2;91;8,6;FALSE
-"Bourges";"Bourges";"Prof. intermediaires";39;10,6;9,8;11,4;27,1;104;10,2;FALSE
-"Bourges";"Bourges";"Employes";29;13;12,3;13,7;44,9;88;14,8;FALSE
-"Bourges";"Bourges";"Ouvriers";36;17,1;16,2;18,1;47,6;131;13,1;FALSE
-"Brest";"Brest";"Cadres";40;9,7;9;10,4;24,2;121;8;FALSE
-"Brest";"Brest";"Prof. intermediaires";45;15,3;14,4;16,2;33,9;161;9,5;FALSE
-"Brest";"Brest";"Employes";23;9,8;9,3;10,4;42,7;86;11,4;FALSE
-"Brest";"Brest";"Ouvriers";41;17,3;16,6;18;42,2;105;16,5;FALSE
-"Caen";"Caen";"Cadres";18;3;2,6;3,4;16,8;54;5,6;FALSE
-"Caen";"Caen";"Prof. intermediaires";47;16,6;16;17,2;35,3;132;12,6;FALSE
-"Caen";"Caen";"Employes";28;12,8;12,1;13,5;45,7;109;11,7;FALSE
-"Caen";"Caen";"Ouvriers";47;22;21,1;22,9;46,8;172;12,8;FALSE
-"Cherbourg-en-Cotentin";"Cherbourg-en-Cotentin";"Cadres";38;12,5;11,6;13,4;32,9;144;8,7;FALSE
-"Cherbourg-en-Cotentin";"Cherbourg-en-Cotentin";"Prof. intermediaires";49;20,1;19,1;21,1;41;133;15,1;FALSE
-"Cherbourg-en-Cotentin";"Cherbourg-en-Cotentin";"Employes";30;14,9;14,2;15,6;49,6;87;17,1;FALSE
-"Cherbourg-en-Cotentin";"Cherbourg-en-Cotentin";"Ouvriers";39;17,9;17,1;18,7;45,8;122;14,6;FALSE
-"Clermont-Ferrand";"Clermont-Ferrand";"Cadres";29;6,8;6,4;7,2;23,4;93;7,3;FALSE
-"Clermont-Ferrand";"Clermont-Ferrand";"Prof. intermediaires";36;9,8;9,1;10,5;27,1;96;10,2;FALSE
-"Clermont-Ferrand";"Clermont-Ferrand";"Employes";21;7,6;7,1;8;36;70;10,8;FALSE
-"Clermont-Ferrand";"Clermont-Ferrand";"Ouvriers";38;12,2;11,4;13;32;133;9,2;FALSE
-"Créteil";"Créteil";"Cadres";32;10;9,5;10,5;31,2;85;11,8;FALSE
-"Créteil";"Créteil";"Prof. intermediaires";35;7,4;6,7;8,1;21,1;135;5,5;FALSE
-"Créteil";"Créteil";"Employes";33;11,4;10,7;12,2;34,6;91;12,5;FALSE
-"Créteil";"Créteil";"Ouvriers";41;17,8;16,8;18,9;43,4;164;10,9;FALSE
-"Dijon";"Dijon";"Cadres";35;9,3;8,5;10,1;26,5;109;8,5;FALSE
-"Dijon";"Dijon";"Prof. intermediaires";46;19,2;18,1;20,4;41,8;171;11,3;FALSE
-"Dijon";"Dijon";"Employes";25;11,6;11;12,3;46,6;97;12;FALSE
-"Dijon";"Dijon";"Ouvriers";56;29,7;28,5;30,8;53;205;14,5;FALSE
-"Douai";"Douai";"Cadres";40;10,3;9,5;11,2;25,8;160;6,5;FALSE
-"Douai";"Douai";"Prof. intermediaires";44;14,2;13,4;15,1;32,4;119;12;FALSE
-"Douai";"Douai";"Employes";34;14,6;13,9;15,3;43;126;11,6;FALSE
-"Douai";"Douai";"Ouvriers";40;18,7;17,8;19,6;46,7;145;12,9;FALSE
-"Grenoble";"Grenoble";"Cadres";28;5,4;5,1;5,7;19,3;89;6,1;FALSE
-"Grenoble";"Grenoble";"Prof. intermediaires";38;11,8;11,3;12,4;31,1;137;8,6;FALSE
-"Grenoble";"Grenoble";"Employes";18;5;4,8;5,1;27,6;60;8,3;FALSE
-"Grenoble";"Grenoble";"Ouvriers";34;15;14,3;15,8;44,2;90;16,7;FALSE
-"Istres";"Istres";"Cadres";26;2,5;2,2;2,8;9,4;72;3,4;FALSE
-"Istres";"Istres";"Prof. intermediaires";34;10,1;9,6;10,7;29,8;103;9,8;FALSE
-"Istres";"Istres";"Employes";21;6,2;6;6,4;29,5;57;10,9;FALSE
-"Istres";"Istres";"Ouvriers";34;14,1;13,1;15;41,3;112;12,5;FALSE
-"Le Havre";"Le Havre";"Cadres";43;7,3;6,9;7,8;17,1;130;5,6;FALSE
-"Le Havre";"Le Havre";"Prof. intermediaires";29;9,8;9,3;10,3;33,8;99;9,9;FALSE
-"Le Havre";"Le Havre";"Employes";17;5,3;5;5,6;31;58;9,1;FALSE
-"Le Havre";"Le Havre";"Ouvriers";30;11,5;10,9;12;38,2;109;10,5;FALSE
-"Le Mans";"Le Mans";"Cadres";35;6,8;6,3;7,4;19,4;96;7,1;FALSE
-"Le Mans";"Le Mans";"Prof. intermediaires";28;8,6;8;9,2;30,8;79;10,9;FALSE
-"Le Mans";"Le Mans";"Employes";17;4,2;3,9;4,5;24,8;61;6,9;FALSE
-"Le Mans";"Le Mans";"Ouvriers";29;12,3;11,5;13,2;42,5;115;10,7;FALSE
-"Lille";"Lille";"Cadres";47;16,4;15,3;17,6;34,9;125;13,1;FALSE
-"Lille";"Lille";"Prof. intermediaires";37;15,5;14,8;16,1;41,8;111;13,9;FALSE
-"Lille";"Lille";"Employes";38;20,4;19,7;21,2;53,7;139;14,7;FALSE
-"Lille";"Lille";"Ouvriers";47;17,1;16,3;18;36,5;168;10,2;FALSE
-"Limoges";"Limoges";"Cadres";34;11,1;10,3;11,9;32,6;98;11,3;FALSE
-"Limoges";"Limoges";"Prof. intermediaires";34;11;10,3;11,7;32,3;136;8,1;FALSE
-"Limoges";"Limoges";"Employes";24;9,3;9;9,7;38,8;67;13,9;FALSE
-"Limoges";"Limoges";"Ouvriers";48;24,6;23,5;25,8;51,3;127;19,4;FALSE
-"Lorient";"Lorient";"Cadres";32;9,5;8,8;10,2;29,8;109;8,7;FALSE
-"Lorient";"Lorient";"Prof. intermediaires";41;14,7;13,8;15,7;36;133;11,1;FALSE
-"Lorient";"Lorient";"Employes";41;17,1;16,2;18;41,7;129;13,2;FALSE
-"Lorient";"Lorient";"Ouvriers";56;26,8;25,7;28;47,9;146;18,4;FALSE
-"Lyon";"Lyon";"Cadres";14;4,1;3,9;4,4;29,6;52;8;FALSE
-"Lyon";"Lyon";"Prof. intermediaires";29;7,4;6,8;8,1;25,7;98;7,6;FALSE
-"Lyon";"Lyon";"Employes";20;3,4;3,1;3,8;17,2;68;5,1;FALSE
-"Lyon";"Lyon";"Ouvriers";38;11;10,2;12;29;143;7,7;FALSE
-"Marseille";"Marseille";"Cadres";33;8,5;7,8;9,1;25,6;127;6,7;FALSE
-"Marseille";"Marseille";"Prof. intermediaires";41;11,8;10,9;12,7;28,8;108;10,9;FALSE
-"Marseille";"Marseille";"Employes";21;5,6;5,2;6,1;26,7;59;9,5;FALSE
-"Marseille";"Marseille";"Ouvriers";31;18,6;17,9;19,3;60;121;15,4;FALSE
-"Metz";"Metz";"Cadres";25;6,3;5,9;6,7;25,1;73;8,6;FALSE
-"Metz";"Metz";"Prof. intermediaires";23;7,6;7,1;8,2;33,2;64;11,9;FALSE
-"Metz";"Metz";"Employes";20;6,8;6,3;7,4;34,2;60;11,4;FALSE
-"Metz";"Metz";"Ouvriers";27;6,6;6,1;7,1;24,3;82;8;FALSE
-"Mulhouse";"Mulhouse";"Cadres";34;8,8;8,3;9,3;25,8;88;10;FALSE
-"Mulhouse";"Mulhouse";"Prof. intermediaires";34;16,3;15,5;17,1;47,9;133;12,2;FALSE
-"Mulhouse";"Mulhouse";"Employes";23;12,6;12;13,2;54,9;75;16,8;FALSE
-"Mulhouse";"Mulhouse";"Ouvriers";28;12,7;12,2;13,3;45,5;107;11,9;FALSE
-"Nancy";"Nancy";"Cadres";37;8;7,3;8,7;21,6;111;7,2;FALSE
-"Nancy";"Nancy";"Prof. intermediaires";40;16,4;15,5;17,2;40,9;140;11,7;FALSE
-"Nancy";"Nancy";"Employes";29;10,1;9,3;10,9;34,8;112;9;FALSE
-"Nancy";"Nancy";"Ouvriers";64;35;33,6;36,5;54,7;213;16,4;FALSE
-"Nantes";"Nantes";"Cadres";26;4,3;3,9;4,7;16,5;97;4,4;FALSE
-"Nantes";"Nantes";"Prof. intermediaires";26;9;8,5;9,6;34,8;76;11,9;FALSE
-"Nantes";"Nantes";"Employes";18;7,5;7,1;7,8;41,4;66;11,3;FALSE
-"Nantes";"Nantes";"Ouvriers";35;13;11,9;14,2;37,2;124;10,5;FALSE
-"Nice";"Nice";"Cadres";37;13,2;12,3;14,1;35,7;128;10,3;FALSE
-"Nice";"Nice";"Prof. intermediaires";36;13,1;12;14,2;36,4;134;9,8;FALSE
-"Nice";"Nice";"Employes";31;13,8;13,2;14,5;44,6;122;11,3;FALSE
-"Nice";"Nice";"Ouvriers";50;23,3;22,3;24,4;46,7;133;17,6;FALSE
-"Orléans";"Orléans";"Cadres";20;1,2;1,1;1,4;6,1;63;2;FALSE
-"Orléans";"Orléans";"Prof. intermediaires";22;2,7;2,6;2,9;12,4;69;3,9;FALSE
-"Orléans";"Orléans";"Employes";14;3,7;3,2;4,1;26,1;52;7;FALSE
-"Orléans";"Orléans";"Ouvriers";31;10,3;9,7;11;33,3;118;8,7;FALSE
-"Paris";"Paris";"Cadres";39;9,3;8,7;10;23,9;135;6,9;FALSE
-"Paris";"Paris";"Prof. intermediaires";42;16;15,2;16,8;38,1;114;14;FALSE
-"Paris";"Paris";"Employes";39;20,7;19,7;21,7;53,1;152;13,6;FALSE
-"Paris";"Paris";"Ouvriers";36;21,8;20,9;22,6;60,5;136;16;FALSE
-"Pau";"Pau";"Cadres";34;9,8;9,4;10,3;28,9;122;8,1;FALSE
-"Pau";"Pau";"Prof. intermediaires";24;9,2;8,8;9,7;38,5;64;14,5;FALSE
-"Pau";"Pau";"Employes";24;12,4;11,9;13;51,8;89;14;FALSE
-"Pau";"Pau";"Ouvriers";33;13,3;12,7;14;40,4;93;14,3;FALSE
-"Poitiers";"Poitiers";"Cadres";39;14,8;14,1;15,6;38;112;13,2;FALSE
-"Poitiers";"Poitiers";"Prof. intermediaires";37;12,7;11,9;13,6;34,4;102;12,5;FALSE
-"Poitiers";"Poitiers";"Employes";32;15;14,3;15,7;46,9;114;13,2;FALSE
-"Poitiers";"Poitiers";"Ouvriers";28;17,2;16,6;17,8;61,5;90;19,1;FALSE
-"Rennes";"Rennes";"Cadres";33;6;5,6;6,5;18,3;118;5,1;FALSE
-"Rennes";"Rennes";"Prof. intermediaires";42;12,1;11,6;12,7;28,9;140;8,7;FALSE
-"Rennes";"Rennes";"Employes";31;15,7;14,9;16,5;50,5;108;14,5;FALSE
-"Rennes";"Rennes";"Ouvriers";33;14,7;13,8;15,6;44,7;119;12,4;FALSE
-"Rouen";"Rouen";"Cadres";37;6;5,5;6,7;16,3;130;4,6;FALSE
-"Rouen";"Rouen";"Prof. intermediaires";19;6,8;6,3;7,3;35,6;73;9,3;FALSE
-"Rouen";"Rouen";"Employes";18;4,4;4;4,8;24,2;64;6,8;FALSE
-"Rouen";"Rouen";"Ouvriers";36;16,5;15,9;17,2;45,8;139;11,9;FALSE
-"Saint-Nazaire";"Saint-Nazaire";"Cadres";27;4,9;4,6;5,1;18;73;6,7;FALSE
-"Saint-Nazaire";"Saint-Nazaire";"Prof. intermediaires";31;11,4;10,8;11,9;36,6;109;10,4;FALSE
-"Saint-Nazaire";"Saint-Nazaire";"Employes";21;8,6;8,2;9,1;41,2;75;11,5;FALSE
-"Saint-Nazaire";"Saint-Nazaire";"Ouvriers";30;12,3;11,4;13,1;40,8;75;16,3;FALSE
-"Strasbourg";"Strasbourg";"Cadres";31;4,6;4,3;4,9;14,7;86;5,3;FALSE
-"Strasbourg";"Strasbourg";"Prof. intermediaires";27;7,6;7,1;8,2;28,2;92;8,3;FALSE
-"Strasbourg";"Strasbourg";"Employes";23;5,2;4,8;5,7;22,7;73;7,1;FALSE
-"Strasbourg";"Strasbourg";"Ouvriers";22;8,3;7,8;8,9;37,9;66;12,6;FALSE
-"Tarbes";"Tarbes";"Cadres";34;11,9;11;12,8;34,9;134;8,9;FALSE
-"Tarbes";"Tarbes";"Prof. intermediaires";53;21,3;20,3;22,3;40,1;190;11,2;FALSE
-"Tarbes";"Tarbes";"Employes";27;12,8;12,2;13,5;47,5;73;17,6;FALSE
-"Tarbes";"Tarbes";"Ouvriers";44;21,6;20,9;22,3;49,1;132;16,4;FALSE
-"Toulon";"Toulon";"Cadres";35;8,4;7,8;9;24;112;7,5;FALSE
-"Toulon";"Toulon";"Prof. intermediaires";46;15,8;14,7;17;34,4;181;8,7;FALSE
-"Toulon";"Toulon";"Employes";29;9,7;9,3;10,1;33,4;112;8,6;FALSE
-"Toulon";"Toulon";"Ouvriers";34;16,6;15,8;17,4;48,8;97;17,1;FALSE
-"Toulouse";"Toulouse";"Cadres";39;11,4;10,8;12;29,3;110;10,4;FALSE
-"Toulouse";"Toulouse";"Prof. intermediaires";30;12,7;12;13,4;42,5;90;14,2;FALSE
-"Toulouse";"Toulouse";"Employes";15;5;4,5;5,5;33,2;53;9,4;FALSE
-"Toulouse";"Toulouse";"Ouvriers";59;26,9;25,4;28,3;45,5;148;18,1;FALSE
-"Tours";"Tours";"Cadres";37;7;6,3;7,7;18,9;109;6,4;FALSE
-"Tours";"Tours";"Prof. intermediaires";35;16;15,4;16,7;45,8;134;12;FALSE
-"Tours";"Tours";"Employes";20;7,9;7,5;8,3;39,4;72;11;FALSE
-"Tours";"Tours";"Ouvriers";39;20,1;19,1;21,2;51,6;147;13,7;FALSE
-"Valence";"Valence";"Cadres";30;7,6;7,1;8,2;25,5;88;8,7;FALSE
-"Valence";"Valence";"Prof. intermediaires";41;7,8;7,3;8,4;19;127;6,1;FALSE
-"Valence";"Valence";"Employes";22;6,1;5,5;6,7;27,6;83;7,3;FALSE
-"Valence";"Valence";"Ouvriers";35;12,7;12;13,3;36,1;137;9,2;FALSE
-"Valenciennes";"Valenciennes";"Cadres";29;7,1;6,6;7,6;24,4;82;8,6;FALSE
-"Valenciennes";"Valenciennes";"Prof. intermediaires";31;11,8;11,3;12,3;38,1;116;10,2;FALSE
-"Valenciennes";"Valenciennes";"Employes";30;14;13,2;14,8;46,7;76;18,4;FALSE
-"Valenciennes";"Valenciennes";"Ouvriers";39;17;16,2;17,8;43,6;112;15,2;FALSE
-"Versailles";"Versailles";"Cadres";39;12,3;11,5;13,1;31,5;105;11,7;FALSE
-"Versailles";"Versailles";"Prof. intermediaires";38;16,3;15,4;17,3;43;109;15;FALSE
-"Versailles";"Versailles";"Employes";36;17,9;17,2;18,6;49,7;108;16,6;FALSE
-"Versailles";"Versailles";"Ouvriers";52;27,4;26,1;28,6;52,6;202;13,6;FALSE
-"Évry";"Évry";"Cadres";42;12,2;11,4;13;29;142;8,6;FALSE
-"Évry";"Évry";"Prof. intermediaires";35;12,7;11,9;13,6;36,3;95;13,4;FALSE
-"Évry";"Évry";"Employes";26;13,7;13,1;14,3;52,8;100;13,7;FALSE
-"Évry";"Évry";"Ouvriers";43;21,8;21;22,7;50,8;117;18,7;FALSE
+"Aix-en-Provence";"Aix-en-Provence";"Cadres";44;11;10;11;24,1;158;6,7;FALSE
+"Aix-en-Provence";"Aix-en-Provence";"Prof. intermediaires";31;15;15;16;49,4;101;15,2;FALSE
+"Aix-en-Provence";"Aix-en-Provence";"Employes";30;11;10;11;36;96;11,3;FALSE
+"Aix-en-Provence";"Aix-en-Provence";"Ouvriers";49;27;26;29;55,4;160;17;FALSE
+"Angoulême";"Angoulême";"Cadres";26;6;5;6;22,6;95;6,2;FALSE
+"Angoulême";"Angoulême";"Prof. intermediaires";23;7;7;8;30,8;62;11,4;FALSE
+"Angoulême";"Angoulême";"Employes";21;9;8;9;42,3;68;13,1;FALSE
+"Angoulême";"Angoulême";"Ouvriers";45;22;21;24;49,8;173;13;FALSE
+"Belfort";"Belfort";"Cadres";35;10;9;11;27,6;121;8;FALSE
+"Belfort";"Belfort";"Prof. intermediaires";36;14;13;14;37,8;141;9,6;FALSE
+"Belfort";"Belfort";"Employes";44;23;22;25;53,2;148;15,8;FALSE
+"Belfort";"Belfort";"Ouvriers";37;17;16;18;46,1;117;14,6;FALSE
+"Bordeaux";"Bordeaux";"Cadres";33;8;7;8;23,8;115;6,8;FALSE
+"Bordeaux";"Bordeaux";"Prof. intermediaires";34;10;10;11;29,6;129;7,8;FALSE
+"Bordeaux";"Bordeaux";"Employes";20;9;9;9;45,1;51;17,7;FALSE
+"Bordeaux";"Bordeaux";"Ouvriers";41;25;25;26;62,1;131;19,4;FALSE
+"Bourges";"Bourges";"Cadres";30;8;7;8;26,2;91;8,6;FALSE
+"Bourges";"Bourges";"Prof. intermediaires";39;11;10;11;27,1;104;10,2;FALSE
+"Bourges";"Bourges";"Employes";29;13;12;14;44,9;88;14,8;FALSE
+"Bourges";"Bourges";"Ouvriers";36;17;16;18;47,6;131;13,1;FALSE
+"Brest";"Brest";"Cadres";40;10;9;10;24,2;121;8;FALSE
+"Brest";"Brest";"Prof. intermediaires";45;15;14;16;33,9;161;9,5;FALSE
+"Brest";"Brest";"Employes";23;10;9;10;42,7;86;11,4;FALSE
+"Brest";"Brest";"Ouvriers";41;17;17;18;42,2;105;16,5;FALSE
+"Caen";"Caen";"Cadres";18;3;3;3;16,8;54;5,6;FALSE
+"Caen";"Caen";"Prof. intermediaires";47;17;16;17;35,3;132;12,6;FALSE
+"Caen";"Caen";"Employes";28;13;12;14;45,7;109;11,7;FALSE
+"Caen";"Caen";"Ouvriers";47;22;21;23;46,8;172;12,8;FALSE
+"Cherbourg-en-Cotentin";"Cherbourg-en-Cotentin";"Cadres";38;12;12;13;32,9;144;8,7;FALSE
+"Cherbourg-en-Cotentin";"Cherbourg-en-Cotentin";"Prof. intermediaires";49;20;19;21;41;133;15,1;FALSE
+"Cherbourg-en-Cotentin";"Cherbourg-en-Cotentin";"Employes";30;15;14;16;49,6;87;17,1;FALSE
+"Cherbourg-en-Cotentin";"Cherbourg-en-Cotentin";"Ouvriers";39;18;17;19;45,8;122;14,6;FALSE
+"Clermont-Ferrand";"Clermont-Ferrand";"Cadres";29;7;6;7;23,4;93;7,3;FALSE
+"Clermont-Ferrand";"Clermont-Ferrand";"Prof. intermediaires";36;10;9;10;27,1;96;10,2;FALSE
+"Clermont-Ferrand";"Clermont-Ferrand";"Employes";21;8;7;8;36;70;10,8;FALSE
+"Clermont-Ferrand";"Clermont-Ferrand";"Ouvriers";38;12;11;13;32;133;9,2;FALSE
+"Créteil";"Créteil";"Cadres";32;10;9;11;31,2;85;11,8;FALSE
+"Créteil";"Créteil";"Prof. intermediaires";35;7;7;8;21,1;135;5,5;FALSE
+"Créteil";"Créteil";"Employes";33;11;11;12;34,6;91;12,5;FALSE
+"Créteil";"Créteil";"Ouvriers";41;18;17;19;43,4;164;10,9;FALSE
+"Dijon";"Dijon";"Cadres";35;9;9;10;26,5;109;8,5;FALSE
+"Dijon";"Dijon";"Prof. intermediaires";46;19;18;20;41,8;171;11,3;FALSE
+"Dijon";"Dijon";"Employes";25;12;11;12;46,6;97;12;FALSE
+"Dijon";"Dijon";"Ouvriers";56;30;29;31;53;205;14,5;FALSE
+"Douai";"Douai";"Cadres";40;10;10;11;25,8;160;6,5;FALSE
+"Douai";"Douai";"Prof. intermediaires";44;14;13;15;32,4;119;12;FALSE
+"Douai";"Douai";"Employes";34;15;14;15;43;126;11,6;FALSE
+"Douai";"Douai";"Ouvriers";40;19;18;20;46,7;145;12,9;FALSE
+"Grenoble";"Grenoble";"Cadres";28;5;5;6;19,3;89;6,1;FALSE
+"Grenoble";"Grenoble";"Prof. intermediaires";38;12;11;12;31,1;137;8,6;FALSE
+"Grenoble";"Grenoble";"Employes";18;5;5;5;27,6;60;8,3;FALSE
+"Grenoble";"Grenoble";"Ouvriers";34;15;14;16;44,2;90;16,7;FALSE
+"Istres";"Istres";"Cadres";26;2;2;3;9,4;72;3,4;FALSE
+"Istres";"Istres";"Prof. intermediaires";34;10;10;11;29,8;103;9,8;FALSE
+"Istres";"Istres";"Employes";21;6;6;6;29,5;57;10,9;FALSE
+"Istres";"Istres";"Ouvriers";34;14;13;15;41,3;112;12,5;FALSE
+"Le Havre";"Le Havre";"Cadres";43;7;7;8;17,1;130;5,6;FALSE
+"Le Havre";"Le Havre";"Prof. intermediaires";29;10;9;10;33,8;99;9,9;FALSE
+"Le Havre";"Le Havre";"Employes";17;5;5;6;31;58;9,1;FALSE
+"Le Havre";"Le Havre";"Ouvriers";30;11;11;12;38,2;109;10,5;FALSE
+"Le Mans";"Le Mans";"Cadres";35;7;6;7;19,4;96;7,1;FALSE
+"Le Mans";"Le Mans";"Prof. intermediaires";28;9;8;9;30,8;79;10,9;FALSE
+"Le Mans";"Le Mans";"Employes";17;4;4;5;24,8;61;6,9;FALSE
+"Le Mans";"Le Mans";"Ouvriers";29;12;11;13;42,5;115;10,7;FALSE
+"Lille";"Lille";"Cadres";47;16;15;18;34,9;125;13,1;FALSE
+"Lille";"Lille";"Prof. intermediaires";37;15;15;16;41,8;111;13,9;FALSE
+"Lille";"Lille";"Employes";38;20;20;21;53,7;139;14,7;FALSE
+"Lille";"Lille";"Ouvriers";47;17;16;18;36,5;168;10,2;FALSE
+"Limoges";"Limoges";"Cadres";34;11;10;12;32,6;98;11,3;FALSE
+"Limoges";"Limoges";"Prof. intermediaires";34;11;10;12;32,3;136;8,1;FALSE
+"Limoges";"Limoges";"Employes";24;9;9;10;38,8;67;13,9;FALSE
+"Limoges";"Limoges";"Ouvriers";48;25;24;26;51,3;127;19,4;FALSE
+"Lorient";"Lorient";"Cadres";32;10;9;10;29,8;109;8,7;FALSE
+"Lorient";"Lorient";"Prof. intermediaires";41;15;14;16;36;133;11,1;FALSE
+"Lorient";"Lorient";"Employes";41;17;16;18;41,7;129;13,2;FALSE
+"Lorient";"Lorient";"Ouvriers";56;27;26;28;47,9;146;18,4;FALSE
+"Lyon";"Lyon";"Cadres";14;4;4;4;29,6;52;8;FALSE
+"Lyon";"Lyon";"Prof. intermediaires";29;7;7;8;25,7;98;7,6;FALSE
+"Lyon";"Lyon";"Employes";20;3;3;4;17,2;68;5,1;FALSE
+"Lyon";"Lyon";"Ouvriers";38;11;10;12;29;143;7,7;FALSE
+"Marseille";"Marseille";"Cadres";33;8;8;9;25,6;127;6,7;FALSE
+"Marseille";"Marseille";"Prof. intermediaires";41;12;11;13;28,8;108;10,9;FALSE
+"Marseille";"Marseille";"Employes";21;6;5;6;26,7;59;9,5;FALSE
+"Marseille";"Marseille";"Ouvriers";31;19;18;19;60;121;15,4;FALSE
+"Metz";"Metz";"Cadres";25;6;6;7;25,1;73;8,6;FALSE
+"Metz";"Metz";"Prof. intermediaires";23;8;7;8;33,2;64;11,9;FALSE
+"Metz";"Metz";"Employes";20;7;6;7;34,2;60;11,4;FALSE
+"Metz";"Metz";"Ouvriers";27;7;6;7;24,3;82;8;FALSE
+"Mulhouse";"Mulhouse";"Cadres";34;9;8;9;25,8;88;10;FALSE
+"Mulhouse";"Mulhouse";"Prof. intermediaires";34;16;15;17;47,9;133;12,2;FALSE
+"Mulhouse";"Mulhouse";"Employes";23;13;12;13;54,9;75;16,8;FALSE
+"Mulhouse";"Mulhouse";"Ouvriers";28;13;12;13;45,5;107;11,9;FALSE
+"Nancy";"Nancy";"Cadres";37;8;7;9;21,6;111;7,2;FALSE
+"Nancy";"Nancy";"Prof. intermediaires";40;16;16;17;40,9;140;11,7;FALSE
+"Nancy";"Nancy";"Employes";29;10;9;11;34,8;112;9;FALSE
+"Nancy";"Nancy";"Ouvriers";64;35;34;36;54,7;213;16,4;FALSE
+"Nantes";"Nantes";"Cadres";26;4;4;5;16,5;97;4,4;FALSE
+"Nantes";"Nantes";"Prof. intermediaires";26;9;8;10;34,8;76;11,9;FALSE
+"Nantes";"Nantes";"Employes";18;7;7;8;41,4;66;11,3;FALSE
+"Nantes";"Nantes";"Ouvriers";35;13;12;14;37,2;124;10,5;FALSE
+"Nice";"Nice";"Cadres";37;13;12;14;35,7;128;10,3;FALSE
+"Nice";"Nice";"Prof. intermediaires";36;13;12;14;36,4;134;9,8;FALSE
+"Nice";"Nice";"Employes";31;14;13;15;44,6;122;11,3;FALSE
+"Nice";"Nice";"Ouvriers";50;23;22;24;46,7;133;17,6;FALSE
+"Orléans";"Orléans";"Cadres";20;1;1;1;6,1;63;2;FALSE
+"Orléans";"Orléans";"Prof. intermediaires";22;3;3;3;12,4;69;3,9;FALSE
+"Orléans";"Orléans";"Employes";14;4;3;4;26,1;52;7;FALSE
+"Orléans";"Orléans";"Ouvriers";31;10;10;11;33,3;118;8,7;FALSE
+"Paris";"Paris";"Cadres";39;9;9;10;23,9;135;6,9;FALSE
+"Paris";"Paris";"Prof. intermediaires";42;16;15;17;38,1;114;14;FALSE
+"Paris";"Paris";"Employes";39;21;20;22;53,1;152;13,6;FALSE
+"Paris";"Paris";"Ouvriers";36;22;21;23;60,5;136;16;FALSE
+"Pau";"Pau";"Cadres";34;10;9;10;28,9;122;8,1;FALSE
+"Pau";"Pau";"Prof. intermediaires";24;9;9;10;38,5;64;14,5;FALSE
+"Pau";"Pau";"Employes";24;12;12;13;51,8;89;14;FALSE
+"Pau";"Pau";"Ouvriers";33;13;13;14;40,4;93;14,3;FALSE
+"Poitiers";"Poitiers";"Cadres";39;15;14;16;38;112;13,2;FALSE
+"Poitiers";"Poitiers";"Prof. intermediaires";37;13;12;14;34,4;102;12,5;FALSE
+"Poitiers";"Poitiers";"Employes";32;15;14;16;46,9;114;13,2;FALSE
+"Poitiers";"Poitiers";"Ouvriers";28;17;17;18;61,5;90;19,1;FALSE
+"Rennes";"Rennes";"Cadres";33;6;6;6;18,3;118;5,1;FALSE
+"Rennes";"Rennes";"Prof. intermediaires";42;12;12;13;28,9;140;8,7;FALSE
+"Rennes";"Rennes";"Employes";31;16;15;16;50,5;108;14,5;FALSE
+"Rennes";"Rennes";"Ouvriers";33;15;14;16;44,7;119;12,4;FALSE
+"Rouen";"Rouen";"Cadres";37;6;5;7;16,3;130;4,6;FALSE
+"Rouen";"Rouen";"Prof. intermediaires";19;7;6;7;35,6;73;9,3;FALSE
+"Rouen";"Rouen";"Employes";18;4;4;5;24,2;64;6,8;FALSE
+"Rouen";"Rouen";"Ouvriers";36;17;16;17;45,8;139;11,9;FALSE
+"Saint-Nazaire";"Saint-Nazaire";"Cadres";27;5;5;5;18;73;6,7;FALSE
+"Saint-Nazaire";"Saint-Nazaire";"Prof. intermediaires";31;11;11;12;36,6;109;10,4;FALSE
+"Saint-Nazaire";"Saint-Nazaire";"Employes";21;9;8;9;41,2;75;11,5;FALSE
+"Saint-Nazaire";"Saint-Nazaire";"Ouvriers";30;12;11;13;40,8;75;16,3;FALSE
+"Strasbourg";"Strasbourg";"Cadres";31;5;4;5;14,7;86;5,3;FALSE
+"Strasbourg";"Strasbourg";"Prof. intermediaires";27;8;7;8;28,2;92;8,3;FALSE
+"Strasbourg";"Strasbourg";"Employes";23;5;5;6;22,7;73;7,1;FALSE
+"Strasbourg";"Strasbourg";"Ouvriers";22;8;8;9;37,9;66;12,6;FALSE
+"Tarbes";"Tarbes";"Cadres";34;12;11;13;34,9;134;8,9;FALSE
+"Tarbes";"Tarbes";"Prof. intermediaires";53;21;20;22;40,1;190;11,2;FALSE
+"Tarbes";"Tarbes";"Employes";27;13;12;13;47,5;73;17,6;FALSE
+"Tarbes";"Tarbes";"Ouvriers";44;22;21;22;49,1;132;16,4;FALSE
+"Toulon";"Toulon";"Cadres";35;8;8;9;24;112;7,5;FALSE
+"Toulon";"Toulon";"Prof. intermediaires";46;16;15;17;34,4;181;8,7;FALSE
+"Toulon";"Toulon";"Employes";29;10;9;10;33,4;112;8,6;FALSE
+"Toulon";"Toulon";"Ouvriers";34;17;16;17;48,8;97;17,1;FALSE
+"Toulouse";"Toulouse";"Cadres";39;11;11;12;29,3;110;10,4;FALSE
+"Toulouse";"Toulouse";"Prof. intermediaires";30;13;12;13;42,5;90;14,2;FALSE
+"Toulouse";"Toulouse";"Employes";15;5;5;5;33,2;53;9,4;FALSE
+"Toulouse";"Toulouse";"Ouvriers";59;27;25;28;45,5;148;18,1;FALSE
+"Tours";"Tours";"Cadres";37;7;6;8;18,9;109;6,4;FALSE
+"Tours";"Tours";"Prof. intermediaires";35;16;15;17;45,8;134;12;FALSE
+"Tours";"Tours";"Employes";20;8;8;8;39,4;72;11;FALSE
+"Tours";"Tours";"Ouvriers";39;20;19;21;51,6;147;13,7;FALSE
+"Valence";"Valence";"Cadres";30;8;7;8;25,5;88;8,7;FALSE
+"Valence";"Valence";"Prof. intermediaires";41;8;7;8;19;127;6,1;FALSE
+"Valence";"Valence";"Employes";22;6;6;7;27,6;83;7,3;FALSE
+"Valence";"Valence";"Ouvriers";35;13;12;13;36,1;137;9,2;FALSE
+"Valenciennes";"Valenciennes";"Cadres";29;7;7;8;24,4;82;8,6;FALSE
+"Valenciennes";"Valenciennes";"Prof. intermediaires";31;12;11;12;38,1;116;10,2;FALSE
+"Valenciennes";"Valenciennes";"Employes";30;14;13;15;46,7;76;18,4;FALSE
+"Valenciennes";"Valenciennes";"Ouvriers";39;17;16;18;43,6;112;15,2;FALSE
+"Versailles";"Versailles";"Cadres";39;12;11;13;31,5;105;11,7;FALSE
+"Versailles";"Versailles";"Prof. intermediaires";38;16;15;17;43;109;15;FALSE
+"Versailles";"Versailles";"Employes";36;18;17;19;49,7;108;16,6;FALSE
+"Versailles";"Versailles";"Ouvriers";52;27;26;29;52,6;202;13,6;FALSE
+"Évry";"Évry";"Cadres";42;12;11;13;29;142;8,6;FALSE
+"Évry";"Évry";"Prof. intermediaires";35;13;12;14;36,3;95;13,4;FALSE
+"Évry";"Évry";"Employes";26;14;13;14;52,8;100;13,7;FALSE
+"Évry";"Évry";"Ouvriers";43;22;21;23;50,8;117;18,7;FALSE
