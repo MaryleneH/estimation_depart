@@ -56,7 +56,7 @@ if (!isTRUE(GENERER_FICHES)) {
 
   cat(sprintf("\n--- Fiches %s : journal ---\n", ZON_FICHES$pluriel))
   print(journal_fiches |>
-          mutate(departs = round(departs)) |>
+          mutate(departs = arrondir_nombre_personnes(departs)) |>
           select(code, nom, statut, effectif, effectif55, departs, fichier, motif) |>
           as.data.frame(), row.names = FALSE)
   message("09 OK (", GEO_ANALYSE, ") -> ", dir_fiches, "/")

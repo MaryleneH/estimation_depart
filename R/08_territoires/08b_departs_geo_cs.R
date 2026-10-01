@@ -70,8 +70,9 @@ calculer_departs_geo_cs <- function(base, regles = regles_secret(),
     group_by(geo_code) |>
     mutate(masque = masquer_cellules(effectif_champ, n_entreprises, part_dominante_pct, regles)) |>
     ungroup() |>
-    mutate(across(any_of(c("departs_2030", "departs_bas", "departs_haut", "part_departs_pct", "part_a_remplacer_pct")),
-                  ~ ifelse(masque, NA_real_, round(.x, 1))),
+    # restitution (00g) : personnes -> entier, parts -> 1 décimale (calculées sur l'exact) ; masqué -> NA
+    mutate(across(any_of(c("departs_2030", "departs_bas", "departs_haut")), ~ ifelse(masque, NA_real_, arrondir_nombre_personnes(.x))),
+           across(any_of(c("part_departs_pct", "part_a_remplacer_pct")), ~ ifelse(masque, NA_real_, arrondir_taux(.x))),
            across(any_of(c("effectif_champ", "effectif_tous_ages")), ~ ifelse(masque, NA_integer_, .x))) |>
     select(-n_entreprises, -part_dominante_pct)
   list(brut = brut, diffusable = diffusable)

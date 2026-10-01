@@ -92,7 +92,7 @@ tab_contribution_55plus <- tibble::tibble(
     "Total (scénario central)"
   ),
 
-  departs = round(
+  departs = arrondir_nombre_personnes(
     c(
       tot_legis,
       tot_sas - tot_legis,
@@ -130,7 +130,7 @@ tab_contribution_55plus <- tibble::tibble(
 format_nombre <- function(x) {
 
   formatC(
-    round(x),
+    arrondir_nombre_personnes(x),
     format = "d",
     big.mark = " "
   )
@@ -709,7 +709,7 @@ message(
 print(
   tab_contribution_55plus |>
     mutate(
-      departs = round(departs),
+      departs = arrondir_nombre_personnes(departs),
       part = paste0(round(100 * part), " %")
     )
 )

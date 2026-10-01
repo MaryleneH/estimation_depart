@@ -24,7 +24,7 @@
 library(dplyr)
 
 # --- Formats FR (espace insécable, virgule) -----------------------------------
-fmt_n   <- function(x) ifelse(is.finite(x), formatC(round(x), format = "d", big.mark = " "), "n.d.")
+fmt_n   <- function(x) fmt_personnes(x, na = "n.d.")   # personnes -> entier (convention 00g : demi vers le haut, NA conservé)
 fmt_pct <- function(x, dec = 0) ifelse(is.finite(x),
                                        paste0(formatC(round(x, dec), format = "f", digits = dec,
                                                       decimal.mark = ","), " %"), "n.d.")
@@ -430,6 +430,10 @@ generer_html_fiche <- function(ind, contexte, zonage, seuil_proche = NULL,
   #      actuels tous âges (01c) — à défaut, aux salariés du champ. Une CS masquée
   #      n'a pas de ligne ; la ligne « Ensemble » porte les totaux du territoire.
   cs_ok <- ind$cs |> filter(!masque) |> arrange(desc(departs))
+  # Départs affichés par CS : si toutes les CS sont affichées, arrondis cohérents
+  # avec le total « Ensemble » (plus forts restes, 00g) ; sinon chaque CS seule.
+  dep_cs_aff <- if (nrow(cs_ok) > 0 && !ind$cs_masquee) arrondir_composantes_avec_total(cs_ok$departs, dep$central)
+                else arrondir_nombre_personnes(cs_ok$departs)
   avec_stock <- isTRUE(ind$stock_disponible)
   eff_cs  <- if (avec_stock) cs_ok$n_tous else cs_ok$n
   eff_tot <- if (avec_stock) p$n_tous_ages else p$n_champ
@@ -445,7 +449,7 @@ generer_html_fiche <- function(ind, contexte, zonage, seuil_proche = NULL,
            sprintf('<th scope="col">Catégorie</th><th scope="col">%s</th><th scope="col">Départs attendus<small>d’ici 2030</small></th><th scope="col">%s</th></tr></thead><tbody>',
                    lib_eff, lib_part),
            paste(sprintf('<tr><th scope="row">%s</th><td>%s</td><td class="fort">%s</td><td>%s</td></tr>',
-                         echap_html(libelle_cs(cs_ok$cs1, TRUE)), fmt_n(eff_cs), fmt_n(cs_ok$departs),
+                         echap_html(libelle_cs(cs_ok$cs1, TRUE)), fmt_n(eff_cs), fmt_n(dep_cs_aff),
                          fmt_pct(100 * cs_ok$departs / eff_cs)), collapse = "\n"),
            sprintf('<tr class="total"><th scope="row">Ensemble</th><td>%s</td><td class="fort">%s</td><td>%s</td></tr>',
                    fmt_n(eff_tot), fmt_n(dep$central), fmt_pct(100 * dep$central / eff_tot)),
