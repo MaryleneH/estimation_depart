@@ -33,6 +33,19 @@ COULEURS_CARTE <- list(
   sans_donnee  = "#ffffff",   # blanc + contour pointillé : pas de donnée observée
   contour_sans = "#9a9a9a",
   encre = "#1F2933", texte = "#3E4C59", filet = "#D9DEE5", fond = "#F5F7FA", bleu = "#1e3a5f")
+# Contours des territoires : SOURCE UNIQUE pour les quatre cartes (PCS / CS1 ×
+# région / département), le SVG interactif et le PNG. Gris moyen fin pour que
+# deux voisins de même classe (ou deux voisins masqués) restent distincts ;
+# limites régionales plus foncées et plus épaisses sur la carte départementale ;
+# survol : contour sombre dessiné AU-DESSUS des voisins. Épaisseurs en pixels
+# écran (vector-effect non-scaling-stroke) : identiques sur desktop et mobile.
+STYLE_CONTOURS_CARTE <- list(
+  couleur = "#5B6470", largeur = 1,              # limite entre territoires : gris moyen-foncé, 1 px (lisible sur les bleus moyens et sur le gris du secret)
+  sans_couleur = "#7B8794", sans_largeur = 0.8,  # pas de donnée : pointillé plus clair, distinct du secret
+  region_couleur = "#2F3945", region_largeur = 1.5,   # limites régionales sur la carte départementale (plus foncées, plus épaisses)
+  survol_couleur = "#111827", survol_largeur = 2.4,   # territoire survolé / focus
+  mobile_facteur = 0.7,                               # écran <= 640 px : toutes les épaisseurs × 0,7 (carte plus petite)
+  png_couleur = "#5B6470", png_largeur = 0.3, png_region_largeur = 0.55)   # ggplot2 (linewidth en mm)
 # Libellés utilisateur : langage SIMPLE pour un public non statisticien. AUCUN
 # nom de colonne R, ni « champ », « effectif », « taux » (hors légende /
 # sélecteur), « diffusabilité ». Les phrases dépendant de l'âge sont
@@ -273,7 +286,7 @@ donnees_json_carte <- function(prep, champ = construire_libelle_champ()) {
 }
 
 # --- CSS (centralisé ; classes dédiées au champ, aux KPI, à la légende) ---------
-css_cartes <- function() paste(
+css_cartes <- function(S = STYLE_CONTOURS_CARTE) paste(
   sprintf(':root{--encre:%s;--texte:%s;--filet:%s;--fond:%s;--bleu:%s;--secret:%s}', COULEURS_CARTE$encre, COULEURS_CARTE$texte,
           COULEURS_CARTE$filet, COULEURS_CARTE$fond, COULEURS_CARTE$bleu, COULEURS_CARTE$secret),
   '*{box-sizing:border-box}html{-webkit-text-size-adjust:100%}body{margin:0;background:#fff;color:var(--encre);font-family:-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;font-size:16px;line-height:1.5}',
@@ -297,11 +310,21 @@ css_cartes <- function() paste(
   '.radios{display:flex;gap:8px;margin:0}.radios label{flex:1;border:1px solid #AEB7C2;border-radius:8px;padding:9px 8px;text-align:center;cursor:pointer;font-size:15px;font-weight:500;color:var(--encre);min-height:42px;display:flex;align-items:center;justify-content:center}.radios input{position:absolute;opacity:0;width:0;height:0}.radios label.on{background:var(--bleu);color:#fff;border-color:var(--bleu)}.radios label:focus-within{outline:2px solid var(--bleu);outline-offset:1px}',
   '.tabs{display:flex;flex-wrap:wrap;gap:8px;margin:0}.tabs button{font:inherit;font-size:15px;font-weight:600;padding:10px 16px;border-radius:999px;border:1px solid #AEB7C2;background:#fff;color:var(--encre);cursor:pointer;min-height:42px}.tabs button.on{background:var(--bleu);border-color:var(--bleu);color:#fff}.tabs button:focus-visible{outline:2px solid var(--bleu);outline-offset:2px}',
   # légende
-  '.legend-title{font-size:15px;font-weight:700;margin:16px 0 6px;color:var(--encre)}.map-legend{list-style:none;margin:0;padding:0}.map-legend li{display:flex;align-items:center;gap:10px;font-size:15px;margin:6px 0;color:var(--encre)}.map-legend .sw{width:26px;height:16px;border-radius:3px;border:1px solid #c9ced6;flex:none}.map-legend .sw.sans{border:1.5px dashed #7b8794}.map-legend li.sep{border-top:1px solid var(--filet);margin-top:10px;padding-top:10px}',
+  '.legend-title{font-size:15px;font-weight:700;margin:16px 0 6px;color:var(--encre)}.map-legend{list-style:none;margin:0;padding:0}.map-legend li{display:flex;align-items:center;gap:10px;font-size:15px;margin:6px 0;color:var(--encre)}.map-legend li.sep{border-top:1px solid var(--filet);margin-top:10px;padding-top:10px}',
+  sprintf('.map-legend .sw{width:26px;height:16px;border-radius:3px;border:1px solid %s;flex:none}.map-legend .sw.sans{border:1.5px dashed %s}', S$couleur, S$sans_couleur),
   '.compte{font-size:15px;color:var(--encre);margin:10px 0 0}.compte b{font-weight:700}.note{font-size:13.5px;color:var(--texte);margin:10px 0 0;line-height:1.45}',
   # carte
   '.carte{position:relative;min-width:0}.carte svg{width:100%;height:auto;display:block}',
-  'path.t{stroke:#fff;stroke-width:.9;cursor:pointer}path.t:hover,path.t:focus{stroke:#1F2933;stroke-width:1.8;outline:none}path.t.sans{stroke:#8e99a4;stroke-dasharray:3 2;stroke-width:.8}',
+  # contours : STYLE_CONTOURS_CARTE (source unique) ; non-scaling-stroke = épaisseur en pixels écran, desktop comme mobile
+  sprintf('path.t{stroke:%s;stroke-width:%s;vector-effect:non-scaling-stroke;cursor:pointer;outline:none}path.t.sans{stroke:%s;stroke-width:%s;stroke-dasharray:3 2}',
+          S$couleur, S$largeur, S$sans_couleur, S$sans_largeur),
+  sprintf('.limites-reg path{fill:none;stroke:%s;stroke-width:%s;vector-effect:non-scaling-stroke;stroke-linejoin:round;pointer-events:none}',
+          S$region_couleur, S$region_largeur),
+  sprintf('#survol{fill:none;stroke:%s;stroke-width:%s;vector-effect:non-scaling-stroke;stroke-linejoin:round;pointer-events:none;display:none}#survol.on{display:inline}',
+          S$survol_couleur, S$survol_largeur),
+  # petite carte (mobile) : mêmes couleurs, traits réduits d'un même facteur pour ne pas quadriller la carte
+  sprintf('@media (max-width:640px){path.t{stroke-width:%s}path.t.sans{stroke-width:%s}.limites-reg path{stroke-width:%s}#survol{stroke-width:%s}}',
+          S$largeur * S$mobile_facteur, S$sans_largeur * S$mobile_facteur, S$region_largeur * S$mobile_facteur, S$survol_largeur * S$mobile_facteur),
   '.encart{fill:none;stroke:#c9ced6;stroke-width:1.2}.encart-lib{font-size:17px;font-weight:600;fill:#3E4C59}',
   # infobulle
   '.bulle{position:absolute;pointer-events:none;background:#1F2933;color:#fff;border-radius:10px;padding:14px 16px;font-size:15px;line-height:1.5;min-width:240px;max-width:320px;box-shadow:0 8px 24px rgba(0,0,0,.22);display:none;z-index:2}',
@@ -390,10 +413,12 @@ js_cartes <- function() paste(
   ' if(c.r==null&&c.i==null&&c.d==null){$("bloc-causes").style.display="none"}else{$("bloc-causes").style.display="";["r","i","d"].forEach(function(k){var v=c[k]||0,p=tot>0?100*v/tot:0;var s=document.createElement("span");s.style.width=p+"%";s.style.background=cols[k];s.title=L.causes[k];bar.appendChild(s);var l=document.createElement("li");l.innerHTML="<span class=\\"sw\\" style=\\"background:"+cols[k]+"\\"></span><span></span><span class=\\"v\\"></span><span class=\\"p\\"></span>";l.children[1].textContent=L.causes[k];l.children[2].textContent=fmt(ent[["r","i","d"].indexOf(k)],0);l.children[3].textContent=pct(p,0);ul.appendChild(l)})}}',
   'function rendre(){if(FR)rendreDash();else rendreCarte()}',
   # événements
-  'var B=$("bulle"),C=$("carte");if(C){document.querySelectorAll("path.t").forEach(function(p){',
-  ' p.addEventListener("mousemove",function(ev){B.innerHTML=bulle(p.getAttribute("data-code"));B.style.display="block";var r=C.getBoundingClientRect();var x=ev.clientX-r.left+16,y=ev.clientY-r.top+16;if(x+330>r.width)x-=346;if(y+180>r.height)y-=190;B.style.left=Math.max(0,x)+"px";B.style.top=Math.max(0,y)+"px"});',
-  ' p.addEventListener("mouseleave",function(){B.style.display="none"});',
-  ' p.addEventListener("focus",function(){B.innerHTML=bulle(p.getAttribute("data-code"));B.style.display="block";B.style.left="12px";B.style.top="12px"});p.addEventListener("blur",function(){B.style.display="none"})})}',
+  # survol : le tracé du territoire est recopié dans <path id="survol">, dessiné AU-DESSUS de ses voisins (sinon ils en couvrent la moitié)
+  'var B=$("bulle"),C=$("carte"),U=$("survol");function surligner(code){if(!U)return;var p=code&&$("t-"+code);if(p){U.setAttribute("d",p.getAttribute("d"));U.classList.add("on")}else{U.classList.remove("on");U.setAttribute("d","")}}',
+  'if(C){document.querySelectorAll("path.t").forEach(function(p){var code=p.getAttribute("data-code");',
+  ' p.addEventListener("mousemove",function(ev){B.innerHTML=bulle(code);B.style.display="block";surligner(code);var r=C.getBoundingClientRect();var x=ev.clientX-r.left+16,y=ev.clientY-r.top+16;if(x+330>r.width)x-=346;if(y+180>r.height)y-=190;B.style.left=Math.max(0,x)+"px";B.style.top=Math.max(0,y)+"px"});',
+  ' p.addEventListener("mouseleave",function(){B.style.display="none";surligner(null)});',
+  ' p.addEventListener("focus",function(){B.innerHTML=bulle(code);B.style.display="block";surligner(code);B.style.left="12px";B.style.top="12px"});p.addEventListener("blur",function(){B.style.display="none";surligner(null)})})}',
   'document.querySelectorAll(".radios input").forEach(function(r){r.addEventListener("change",function(){etat.vue=r.value;document.querySelectorAll(".radios label").forEach(function(l){l.classList.toggle("on",l.querySelector("input").checked)});rendre()})});',
   'var rc=document.querySelector(".radios input:checked");if(rc){etat.vue=rc.value;document.querySelectorAll(".radios label").forEach(function(l){l.classList.toggle("on",l.querySelector("input").checked)})}',
   'var rech=$("rech");if(rech)rech.addEventListener("input",function(){remplirCats(rech.value);rendre()});',
@@ -450,7 +475,9 @@ js_details_champ <- '<script>(function(){var d=document.querySelector(".study-sc
 
 # --- Génération : carte territoriale OU tableau de bord national ----------------
 generer_carte_departs <- function(prep, fond = NULL, fichier_html, fichier_png = NULL, source_note = "calculs propres",
-                                  champ = construire_libelle_champ()) {
+                                  champ = construire_libelle_champ(), fond_regions = NULL) {
+  # fond_regions : fond des régions, pour tracer les limites régionales sur une carte départementale (optionnel)
+  if (!is.null(fond_regions) && prep$niveau != "departement") fond_regions <- NULL
   titre_page <- sprintf("Départs attendus d’ici 2030 — %s — %s",
                         c(france = "France entière", region = "par région", departement = "par département")[[prep$niveau]],
                         if (prep$dimension == "pcs") "PCS fine" else "grande catégorie socioprofessionnelle")
@@ -459,24 +486,32 @@ generer_carte_departs <- function(prep, fond = NULL, fichier_html, fichier_png =
             '<meta name="viewport" content="width=device-width, initial-scale=1">',
             '<style>', css_cartes(), '</style></head><body><div class="page">',
             html_entete_champ(champ, prep$niveau, prep$dimension))
-  corps <- if (prep$niveau == "france") html_dashboard_national(prep, champ) else html_carte_territoriale(prep, fond, titre_page)
+  corps <- if (prep$niveau == "france") html_dashboard_national(prep, champ) else html_carte_territoriale(prep, fond, titre_page, fond_regions)
   html <- c(tete, corps, html_pied(champ, source_note),
             '<script type="application/json" id="donnees">', donnees_json_carte(prep, champ), '</script>',
             js_details_champ, '<script>', js_cartes(), '</script>', '</div></body></html>')
   dir.create(dirname(fichier_html), showWarnings = FALSE, recursive = TRUE)
   writeLines(enc2utf8(html), fichier_html, useBytes = TRUE)
   if (!is.null(fichier_png) && prep$niveau != "france")
-    tryCatch(png_carte_departs(prep, projeter_fond(fond), fichier_png, titre_page, champ),
+    tryCatch(png_carte_departs(prep, projeter_fond(fond), fichier_png, titre_page, champ,
+                               lay_regions = if (!is.null(fond_regions)) projeter_fond(fond_regions) else NULL),
              error = function(e) message("08e : PNG non produit (", conditionMessage(e), ") — le HTML reste la restitution de référence."))
   invisible(fichier_html)
 }
 
-html_carte_territoriale <- function(prep, fond, titre_page) {
+html_carte_territoriale <- function(prep, fond, titre_page, fond_regions = NULL) {
   if (is.null(fond)) stop("html_carte_territoriale : fond requis.")
   lay <- projeter_fond(fond); terr <- prep$territoires
   paths <- vapply(names(fond), function(code)
-    sprintf('<path class="t" data-code="%s" d="%s" tabindex="0" aria-label="%s"></path>',
-            echap_html_carte(code), lay$chemins[[code]], echap_html_carte(terr$nom[match(code, terr$code)])), "")
+    sprintf('<path class="t" id="t-%s" data-code="%s" d="%s" tabindex="0" aria-label="%s"></path>',
+            echap_html_carte(code), echap_html_carte(code), lay$chemins[[code]], echap_html_carte(terr$nom[match(code, terr$code)])), "")
+  # Carte départementale : limites régionales (métropole) dessinées au-dessus, sans interaction ;
+  # les DROM ne sont pas repris (encart = un seul département = sa région).
+  limites_reg <- if (!is.null(fond_regions)) {
+    lr <- projeter_fond(fond_regions); metro <- setdiff(names(fond_regions), names(lr$encarts))
+    c('<g class="limites-reg" aria-hidden="true">', sprintf('<path d="%s"></path>', lr$chemins[metro]), '</g>')
+  } else ""
+  survol <- '<path id="survol" d="" aria-hidden="true"></path>'   # contour du territoire survolé (même tracé), au-dessus de ses voisins
   encarts <- vapply(lay$encarts, function(e) sprintf('<rect class="encart" x="%.1f" y="%.1f" width="%.1f" height="%.1f" rx="6"></rect><text class="encart-lib" x="%.1f" y="%.1f">%s</text>',
                                                       e$cadre[1] + 1, e$cadre[2] + 1, e$cadre[3] - e$cadre[1] - 2, e$cadre[4] - e$cadre[2] - 2, e$x_lib, e$y_lib, echap_html_carte(e$nom)), "")
   opts_ind <- paste(sprintf('<option value="%s"%s>%s</option>', names(LIBELLES_UI$indicateurs),
@@ -494,7 +529,7 @@ html_carte_territoriale <- function(prep, fond, titre_page) {
     if (length(lay$encarts) > 0) '<p class="note">Outre-mer en encarts, chacun à sa propre échelle.</p>' else "",
     '</aside><div class="carte" id="carte">',
     sprintf('<svg viewBox="0 0 %d %d" role="img" aria-label="%s">', lay$largeur, lay$hauteur, echap_html_carte(titre_page)),
-    encarts, paths, '</svg><div class="bulle" id="bulle" role="status"></div></div></div>')
+    encarts, paths, limites_reg, survol, '</svg><div class="bulle" id="bulle" role="status"></div></div></div>')
 }
 
 html_dashboard_national <- function(prep, champ = construire_libelle_champ()) {
@@ -522,8 +557,9 @@ html_dashboard_national <- function(prep, champ = construire_libelle_champ()) {
 
 
 # --- PNG de la vue initiale d'une carte territoriale (vue Diffusabilité) --------
-png_carte_departs <- function(prep, lay, fichier_png, titre = "", champ = construire_libelle_champ()) {
+png_carte_departs <- function(prep, lay, fichier_png, titre = "", champ = construire_libelle_champ(), lay_regions = NULL) {
   if (!requireNamespace("ggplot2", quietly = TRUE)) stop("ggplot2 absent")
+  S <- STYLE_CONTOURS_CARTE
   long <- lay$long; cv <- prep$couverture; LB <- LIBELLES_UI$couverture
   k <- function(p) if (is.na(p)) LIBELLES_UI$sans_donnee else if (p <= 0) LB$aucune else LB$libelles[max(which(p >= LB$bornes))]
   long$classe <- factor(vapply(cv$part_diff_pct[match(long$code, cv$code)], k, ""),
@@ -531,9 +567,9 @@ png_carte_departs <- function(prep, lay, fichier_png, titre = "", champ = constr
   cols <- c(rev(COULEURS_CARTE$classes[round(seq(0, 3) * 4 / 3) + 1]), COULEURS_CARTE$secret, COULEURS_CARTE$sans_donnee)
   enc <- if (length(lay$encarts)) bind_rows(lapply(lay$encarts, function(e) tibble(x1 = e$cadre[1], x2 = e$cadre[3], y1 = -e$cadre[2], y2 = -e$cadre[4], lib = e$nom, xl = e$x_lib, yl = -e$y_lib))) else NULL
   g <- ggplot2::ggplot() +
-    ggplot2::geom_polygon(data = long, ggplot2::aes(x = x, y = y, group = groupe, fill = classe), colour = "#c3c9d1", linewidth = .22) +
+    ggplot2::geom_polygon(data = long, ggplot2::aes(x = x, y = y, group = groupe, fill = classe), colour = S$png_couleur, linewidth = S$png_largeur) +
     ggplot2::scale_fill_manual(values = setNames(cols, levels(long$classe)), drop = FALSE, name = NULL) +
-    ggplot2::guides(fill = ggplot2::guide_legend(override.aes = list(colour = "#9a9a9a"))) +
+    ggplot2::guides(fill = ggplot2::guide_legend(override.aes = list(colour = S$png_couleur))) +
     ggplot2::coord_equal(expand = FALSE) + ggplot2::theme_void(base_size = 12) +
     ggplot2::labs(title = paste(LIBELLES_UI$couverture$titre, sub("^.*— ", "", titre)),
                   subtitle = paste0("Part des ", if (prep$dimension == "pcs") "PCS" else "catégories", " pour lesquelles un résultat peut être affiché\n",
@@ -543,6 +579,11 @@ png_carte_departs <- function(prep, lay, fichier_png, titre = "", champ = constr
                    plot.title = ggplot2::element_text(face = "bold", size = 15, colour = COULEURS_CARTE$encre),
                    plot.subtitle = ggplot2::element_text(colour = COULEURS_CARTE$texte, size = 11),
                    plot.caption = ggplot2::element_text(colour = COULEURS_CARTE$texte, size = 9), plot.margin = ggplot2::margin(10, 10, 10, 10))
+  if (!is.null(lay_regions)) {                       # limites régionales (métropole) au-dessus des départements
+    reg <- lay_regions$long[!(lay_regions$long$code %in% names(lay_regions$encarts)), ]
+    g <- g + ggplot2::geom_polygon(data = reg, ggplot2::aes(x = x, y = y, group = groupe), fill = NA,
+                                   colour = S$region_couleur, linewidth = S$png_region_largeur)
+  }
   if (!is.null(enc)) g <- g + ggplot2::geom_rect(data = enc, ggplot2::aes(xmin = x1, xmax = x2, ymin = y2, ymax = y1), fill = NA, colour = "#c9ced6") +
     ggplot2::geom_text(data = enc, ggplot2::aes(x = xl, y = yl, label = lib), hjust = 0, size = 3.6, colour = COULEURS_CARTE$texte)
   ggplot2::ggsave(fichier_png, g, width = 8, height = 10.8, dpi = 130, bg = "white")

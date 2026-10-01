@@ -254,3 +254,38 @@ test_that("08e sur les sorties réelles du dépôt : 6 cartes HTML (+ PNG), comp
   assign("GENERER_CARTES_DEPARTS", FALSE, envir = env)
   expect_message(sys.source(chemin_script("08e_cartes_departs.R"), envir = env), "désactivée")
 })
+
+test_that("CONTOURS : source unique STYLE_CONTOURS_CARTE, trait gris (jamais blanc), limites régionales sur la carte départementale seulement, survol au-dessus des voisins, mobile", {
+  S <- EC$STYLE_CONTOURS_CARTE
+  for (k in c("couleur", "largeur", "sans_couleur", "region_couleur", "region_largeur", "survol_couleur", "survol_largeur", "mobile_facteur", "png_couleur"))
+    expect_true(!is.null(S[[k]]), label = k)
+  expect_false(toupper(S$couleur) %in% c("#FFF", "#FFFFFF"))                               # un contour blanc disparaît sur les classes claires
+  css <- EC$css_cartes()
+  expect_true(grepl(sprintf("path.t{stroke:%s;stroke-width:%s;vector-effect:non-scaling-stroke", S$couleur, S$largeur), css, fixed = TRUE))
+  expect_false(grepl("path.t{stroke:#fff", css, fixed = TRUE))
+  expect_true(grepl(sprintf(".limites-reg path{fill:none;stroke:%s;stroke-width:%s", S$region_couleur, S$region_largeur), css, fixed = TRUE))
+  expect_true(grepl(sprintf("#survol{fill:none;stroke:%s;stroke-width:%s", S$survol_couleur, S$survol_largeur), css, fixed = TRUE))
+  expect_true(grepl(sprintf("@media (max-width:640px){path.t{stroke-width:%s}", S$largeur * S$mobile_facteur), css, fixed = TRUE))
+  # carte départementale avec fond des régions : 13 limites régionales (métropole), DROM exclus ; sans fond : aucune ; région : jamais
+  p <- EC$preparer_carte_departs(TABLE_ABC, "pcs", "departement", FOND_DEP)
+  n_reg <- function(html) { g <- regmatches(html, regexpr('<g class="limites-reg"[^§]*?</g>', html, perl = TRUE)); if (length(g) == 0) 0L else lengths(regmatches(g, gregexpr("<path ", g, fixed = TRUE))) }
+  f <- file.path(tempdir(), "contours_dep.html"); EC$generer_carte_departs(p, FOND_DEP, f, fond_regions = FOND_REG)
+  html <- paste(readLines(f, encoding = "UTF-8", warn = FALSE), collapse = "\n")
+  expect_equal(n_reg(html), 13L)
+  expect_true(grepl('<path id="survol" d=""', html, fixed = TRUE)); expect_true(grepl('id="t-33"', html, fixed = TRUE))
+  expect_true(grepl('surligner(code)', html, fixed = TRUE))
+  f0 <- file.path(tempdir(), "contours_dep0.html"); EC$generer_carte_departs(p, FOND_DEP, f0)
+  expect_equal(n_reg(paste(readLines(f0, encoding = "UTF-8", warn = FALSE), collapse = "\n")), 0L)
+  tr <- TABLE_ABC |> dplyr::transmute(region_code = c("11", "11", "24", "24", "27", "27"), region_nom = region_code, pcs, cs1, effectif_champ, departs_central, departs_bas, departs_haut, taux_depart_central_pct, masque, motif_masque)
+  pr <- EC$preparer_carte_departs(tr, "pcs", "region", FOND_REG)
+  fr <- file.path(tempdir(), "contours_reg.html"); EC$generer_carte_departs(pr, FOND_REG, fr, fond_regions = FOND_REG)   # ignoré hors département
+  expect_equal(n_reg(paste(readLines(fr, encoding = "UTF-8", warn = FALSE), collapse = "\n")), 0L)
+  # le style n'a touché ni les données ni le secret : même JSON embarqué avec ou sans limites régionales
+  j <- function(h) regmatches(h, regexpr('<script type="application/json" id="donnees">[^§]*?</script>', h, perl = TRUE))
+  expect_identical(j(html), j(paste(readLines(f0, encoding = "UTF-8", warn = FALSE), collapse = "\n")))
+  # PNG : limites régionales acceptées
+  skip_if_not_installed("ggplot2")
+  fp <- file.path(tempdir(), "contours_dep.png")
+  EC$png_carte_departs(p, EC$projeter_fond(FOND_DEP), fp, "t", lay_regions = EC$projeter_fond(FOND_REG))
+  expect_true(file.exists(fp) && file.size(fp) > 1000)
+})

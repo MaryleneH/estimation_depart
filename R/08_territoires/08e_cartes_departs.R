@@ -42,16 +42,20 @@ if (!isTRUE(get0("GENERER_CARTES_DEPARTS", ifnotfound = FALSE))) {
                     territoires_csv = NA_integer_, joints = NA_integer_, masques = NA_integer_, diffusables = NA_integer_, sans_donnee = NA_integer_))
     }
     # France entière : tableau de bord national (aucune carte, aucun fond, pas de PNG)
-    fond <- NULL
+    fond <- NULL; fond_regions <- NULL
     if (nv != "france") {
       cle_fond <- if (nv == "region") "region" else "departement"
       if (is.null(fonds_08e[[cle_fond]])) fonds_08e[[cle_fond]] <<- charger_fond_carte(cle_fond)
       fond <- fonds_08e[[cle_fond]]
+      if (nv == "departement") {                 # limites régionales tracées par-dessus les départements
+        if (is.null(fonds_08e[["region"]])) fonds_08e[["region"]] <<- charger_fond_carte("region")
+        fond_regions <- fonds_08e[["region"]]
+      }
     }
     d <- lire_csv_diffusion(src)
     prep <- preparer_carte_departs(d, dm, nv, fond)
     n <- controler_carte_departs(prep, fond)
-    generer_carte_departs(prep, fond, sortie, champ = champ_08e,
+    generer_carte_departs(prep, fond, sortie, champ = champ_08e, fond_regions = fond_regions,
                           fichier_png = if (isTRUE(get0("CARTES_PNG", ifnotfound = TRUE)) && nv != "france") sub("\\.html$", ".png", sortie) else NULL,
                           source_note = if (identical(get0("SOURCE_BTS", ifnotfound = ""), "parquet")) "BTS 2024, DREES, EACR, Insee — calculs propres" else "table test — calculs propres")
     tibble(dimension = dm, niveau = nv, source = src, carte = sortie, statut = "ok",
