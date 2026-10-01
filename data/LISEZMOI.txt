@@ -96,3 +96,24 @@ RÉFÉRENTIELS GÉOGRAPHIQUES (libellés des territoires)
 - data/ref_ze.csv, data/ref_region.csv : même format, à déposer si besoin
   (voir GEO_REFERENTIELS dans 00_config.R). Un référentiel absent n'est jamais
   bloquant : le code est affiché à la place du nom.
+
+============================================================================
+FOND CARTOGRAPHIQUE LOCAL (cartes des départs, script 08e)
+============================================================================
+- data/cartographie/departements.geojson : 101 départements (96 métropole dont
+  2A/2B + 5 DROM 971, 972, 973, 974, 976), propriétés  code;nom , WGS84.
+- data/cartographie/regions.geojson : 18 régions (13 métropole + 5 DROM, codes
+  Insee 01, 02, 03, 04, 06 pour les DROM), propriétés  code;nom , WGS84.
+  SOURCE : france-geojson (Grégoire David, github.com/gregoiredavid/france-geojson),
+  tracés IGN Admin Express COG édition 2018, codes et noms Insee COG 2018 ;
+  licence ouverte Etalab (conditions d'Admin Express). Récupéré le 01/10/2026.
+  SIMPLIFICATION : métropole = fichiers « version simplifiée » de la source
+  (Visvalingam pondéré 25 %, 5 décimales) ; DROM = fichiers régionaux de la
+  source, simplifiés ici (st_simplify, tolérance 150 m en projection UTM
+  locale) ; coordonnées arrondies à 4 décimales (~11 m) ; géométries
+  homogénéisées en polygones. Fabrication reproductible, UNE fois, par
+  utils/utils_preparer_fond_carte.R (sf requis pour cette préparation
+  seulement) ; la chaîne lit ces fichiers avec jsonlite, sans sf et SANS
+  aucune connexion Internet. Découpage régional en vigueur depuis 2016,
+  départements inchangés depuis : adapté à une carte statistique nationale,
+  pas à un usage cadastral.
