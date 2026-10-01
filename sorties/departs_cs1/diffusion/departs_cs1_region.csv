@@ -1,41 +1,41 @@
 ﻿"region_code";"region_nom";"cs1";"effectif_champ";"departs_central";"departs_bas";"departs_haut";"dep_retraite";"dep_invalidite";"dep_deces";"taux_depart_central_pct";"masque";"motif_masque"
-"11";"Île-de-France";"Cadres";246;58,8;55,4;62,4;50,9;3,6;4,3;23,9;FALSE;NA
-"11";"Île-de-France";"Employes";197;79,1;74,3;84;70,7;5,9;2,5;40,2;FALSE;NA
-"11";"Île-de-France";"Ouvriers";299;121,5;114,9;128,6;105,9;12;3,6;40,6;FALSE;NA
-"11";"Île-de-France";"Prof. intermediaires";278;81,8;76,6;87,4;69,9;7,6;4,3;29,4;FALSE;NA
-"24";"Centre-Val de Loire";"Cadres";72;19,6;18,2;21;17,2;1,1;1,3;27,2;FALSE;NA
-"24";"Centre-Val de Loire";"Employes";46;18,9;17,7;20,2;16,9;1,4;0,6;41,1;FALSE;NA
-"24";"Centre-Val de Loire";"Ouvriers";77;40;38,4;41,7;36,6;2,6;0,8;51,9;FALSE;NA
-"24";"Centre-Val de Loire";"Prof. intermediaires";83;33,5;31,7;35,3;30,3;2;1,2;40,4;FALSE;NA
-"32";"Hauts-de-France";"Cadres";77;19,2;17,6;20,8;16,3;1,3;1,6;24,9;FALSE;NA
-"32";"Hauts-de-France";"Employes";64;35,8;34,3;37,2;33,6;1,5;0,7;55,9;FALSE;NA
-"32";"Hauts-de-France";"Ouvriers";111;54,5;52,2;56,8;49,6;3,8;1,2;49,1;FALSE;NA
-"32";"Hauts-de-France";"Prof. intermediaires";82;30,5;28,9;32,1;27,3;2,1;1,1;37,2;FALSE;NA
-"52";"Pays de la Loire";"Cadres";78;22,1;20,8;23,6;19,7;1,2;1,3;28,4;FALSE;NA
-"52";"Pays de la Loire";"Employes";70;24,3;22,7;25,8;21,2;2,1;1;34,7;FALSE;NA
-"52";"Pays de la Loire";"Ouvriers";88;50,5;48,6;52,5;47;2,8;0,8;57,4;FALSE;NA
-"52";"Pays de la Loire";"Prof. intermediaires";70;25,7;24,5;27;23;1,7;1;36,7;FALSE;NA
-"53";"Bretagne";"Cadres";126;27,6;25,3;30;23,1;2,1;2,3;21,9;FALSE;NA
-"53";"Bretagne";"Employes";98;34;32,1;35,9;29,7;3;1,3;34,7;FALSE;NA
-"53";"Bretagne";"Ouvriers";133;55,5;52,5;58,6;48,9;5;1,6;41,7;FALSE;NA
-"53";"Bretagne";"Prof. intermediaires";130;46,4;43,9;49,1;41,3;3,3;1,8;35,7;FALSE;NA
-"75";"Nouvelle-Aquitaine";"Cadres";292;72,5;67,3;78;62,9;4,6;5;24,8;FALSE;NA
-"75";"Nouvelle-Aquitaine";"Employes";213;86,2;81,9;90,7;77,5;6;2,7;40,5;FALSE;NA
-"75";"Nouvelle-Aquitaine";"Ouvriers";344;163,4;155,9;171,1;147;12,7;3,7;47,5;FALSE;NA
-"75";"Nouvelle-Aquitaine";"Prof. intermediaires";295;101,3;95,9;107;89,9;7,3;4,1;34,4;FALSE;NA
-"76";"Occitanie";"Cadres";82;21,1;19,8;22,4;18,5;1,2;1,4;25,7;FALSE;NA
-"76";"Occitanie";"Employes";52;20,9;19,9;22;18,7;1,5;0,7;40,2;FALSE;NA
-"76";"Occitanie";"Ouvriers";87;42,2;40;44,5;37,9;3,3;1;48,5;FALSE;NA
-"76";"Occitanie";"Prof. intermediaires";75;27,2;25,5;28,9;24,2;1,9;1,1;36,3;FALSE;NA
-"84";"Auvergne-Rhône-Alpes";"Cadres";207;49,1;45,4;53;42,3;3,4;3,5;23,7;FALSE;NA
-"84";"Auvergne-Rhône-Alpes";"Employes";159;66;62,6;69,6;59,6;4,5;2;41,5;FALSE;NA
-"84";"Auvergne-Rhône-Alpes";"Ouvriers";262;127,3;121,2;133,7;114,4;10;2,9;48,6;FALSE;NA
-"84";"Auvergne-Rhône-Alpes";"Prof. intermediaires";232;83,6;78,6;88,7;74,4;5,8;3,3;36;FALSE;NA
-"93";"Provence-Alpes-Côte d'Azur";"Cadres";77;24,3;22,7;26;21,8;1,2;1,3;31,6;FALSE;NA
-"93";"Provence-Alpes-Côte d'Azur";"Employes";60;29,5;28,1;31;27,3;1,6;0,7;49,2;FALSE;NA
-"93";"Provence-Alpes-Côte d'Azur";"Ouvriers";89;44,3;42,4;46,2;40,3;3;1;49,7;FALSE;NA
-"93";"Provence-Alpes-Côte d'Azur";"Prof. intermediaires";87;32,3;30,3;34,3;28,8;2,2;1,3;37,1;FALSE;NA
-"94";"Corse";"Cadres";139;36,6;34,3;38,9;32,3;2;2,3;26,3;FALSE;NA
-"94";"Corse";"Employes";127;53,4;50,6;56,2;48;3,7;1,6;42;FALSE;NA
-"94";"Corse";"Ouvriers";165;66,4;63,2;69,8;58,2;6,3;1,9;40,3;FALSE;NA
-"94";"Corse";"Prof. intermediaires";156;53,9;51;56,9;47,8;3,8;2,3;34,6;FALSE;NA
+"11";"Île-de-France";"Cadres";246;59;55;62;51;4;4;23,9;FALSE;NA
+"11";"Île-de-France";"Employes";197;79;74;84;71;6;2;40,2;FALSE;NA
+"11";"Île-de-France";"Ouvriers";299;122;115;129;106;12;4;40,6;FALSE;NA
+"11";"Île-de-France";"Prof. intermediaires";278;82;77;87;70;8;4;29,4;FALSE;NA
+"24";"Centre-Val de Loire";"Cadres";72;20;18;21;17;1;2;27,2;FALSE;NA
+"24";"Centre-Val de Loire";"Employes";46;19;18;20;17;1;1;41,1;FALSE;NA
+"24";"Centre-Val de Loire";"Ouvriers";77;40;38;42;36;3;1;51,9;FALSE;NA
+"24";"Centre-Val de Loire";"Prof. intermediaires";83;34;32;35;31;2;1;40,4;FALSE;NA
+"32";"Hauts-de-France";"Cadres";77;19;18;21;16;1;2;24,9;FALSE;NA
+"32";"Hauts-de-France";"Employes";64;36;34;37;34;1;1;55,9;FALSE;NA
+"32";"Hauts-de-France";"Ouvriers";111;54;52;57;49;4;1;49,1;FALSE;NA
+"32";"Hauts-de-France";"Prof. intermediaires";82;30;29;32;27;2;1;37,2;FALSE;NA
+"52";"Pays de la Loire";"Cadres";78;22;21;24;20;1;1;28,4;FALSE;NA
+"52";"Pays de la Loire";"Employes";70;24;23;26;21;2;1;34,7;FALSE;NA
+"52";"Pays de la Loire";"Ouvriers";88;51;49;53;47;3;1;57,4;FALSE;NA
+"52";"Pays de la Loire";"Prof. intermediaires";70;26;24;27;23;2;1;36,7;FALSE;NA
+"53";"Bretagne";"Cadres";126;28;25;30;23;2;3;21,9;FALSE;NA
+"53";"Bretagne";"Employes";98;34;32;36;30;3;1;34,7;FALSE;NA
+"53";"Bretagne";"Ouvriers";133;56;53;59;49;5;2;41,7;FALSE;NA
+"53";"Bretagne";"Prof. intermediaires";130;46;44;49;41;3;2;35,7;FALSE;NA
+"75";"Nouvelle-Aquitaine";"Cadres";292;73;67;78;63;5;5;24,8;FALSE;NA
+"75";"Nouvelle-Aquitaine";"Employes";213;86;82;91;77;6;3;40,5;FALSE;NA
+"75";"Nouvelle-Aquitaine";"Ouvriers";344;163;156;171;147;12;4;47,5;FALSE;NA
+"75";"Nouvelle-Aquitaine";"Prof. intermediaires";295;101;96;107;90;7;4;34,4;FALSE;NA
+"76";"Occitanie";"Cadres";82;21;20;22;19;1;1;25,7;FALSE;NA
+"76";"Occitanie";"Employes";52;21;20;22;19;1;1;40,2;FALSE;NA
+"76";"Occitanie";"Ouvriers";87;42;40;45;38;3;1;48,5;FALSE;NA
+"76";"Occitanie";"Prof. intermediaires";75;27;26;29;24;2;1;36,3;FALSE;NA
+"84";"Auvergne-Rhône-Alpes";"Cadres";207;49;45;53;42;3;4;23,7;FALSE;NA
+"84";"Auvergne-Rhône-Alpes";"Employes";159;66;63;70;60;4;2;41,5;FALSE;NA
+"84";"Auvergne-Rhône-Alpes";"Ouvriers";262;127;121;134;114;10;3;48,6;FALSE;NA
+"84";"Auvergne-Rhône-Alpes";"Prof. intermediaires";232;84;79;89;75;6;3;36;FALSE;NA
+"93";"Provence-Alpes-Côte d'Azur";"Cadres";77;24;23;26;22;1;1;31,6;FALSE;NA
+"93";"Provence-Alpes-Côte d'Azur";"Employes";60;30;28;31;27;2;1;49,2;FALSE;NA
+"93";"Provence-Alpes-Côte d'Azur";"Ouvriers";89;44;42;46;40;3;1;49,7;FALSE;NA
+"93";"Provence-Alpes-Côte d'Azur";"Prof. intermediaires";87;32;30;34;29;2;1;37,1;FALSE;NA
+"94";"Corse";"Cadres";139;37;34;39;33;2;2;26,3;FALSE;NA
+"94";"Corse";"Employes";127;53;51;56;48;4;1;42;FALSE;NA
+"94";"Corse";"Ouvriers";165;66;63;70;58;6;2;40,3;FALSE;NA
+"94";"Corse";"Prof. intermediaires";156;54;51;57;48;4;2;34,6;FALSE;NA
