@@ -33,46 +33,70 @@ COULEURS_CARTE <- list(
   sans_donnee  = "#ffffff",   # blanc + contour pointillé : pas de donnée observée
   contour_sans = "#9a9a9a",
   encre = "#1F2933", texte = "#3E4C59", filet = "#D9DEE5", fond = "#F5F7FA", bleu = "#1e3a5f")
-# Libellés utilisateur : AUCUN nom de colonne R n'atteint l'interface.
+# Libellés utilisateur : langage SIMPLE pour un public non statisticien. AUCUN
+# nom de colonne R, ni « champ », « effectif », « taux » (hors légende /
+# sélecteur), « diffusabilité ». Les phrases dépendant de l'âge sont
+# complétées par construire_libelles_public() depuis la configuration.
 LIBELLES_UI <- list(
-  indicateurs = c(taux = "Taux de départ estimé", departs = "Départs estimés d’ici 2030", effectif = "Salariés dans le champ étudié"),
+  indicateurs = c(taux = "Part des salariés susceptibles de partir", departs = "Nombre de départs estimés", effectif = "Nombre de salariés"),
   scenarios   = c(b = "Estimation basse", c = "Estimation centrale", h = "Estimation haute"),
-  causes      = c(r = "Retraite / fin de carrière", i = "Invalidité", d = "Décès"),
-  secret      = "Non diffusé — secret statistique",
-  sans_donnee = "Pas de donnée observée",
+  causes      = c(r = "Retraite ou fin de carrière", i = "Invalidité", d = "Décès"),
+  secret      = "Résultat non diffusé — secret statistique",
+  secret_court = "Résultat non diffusé", secret_sous = "Secret statistique",
+  secret_explication = "Ce résultat ne peut pas être affiché : il concerne trop peu de salariés ou d’entreprises, ou une seule entreprise y pèse trop.",
+  sans_donnee = "Aucun salarié observé",
+  vues        = c(resultats = "Résultats", affichables = "Résultats affichables"),
   couverture  = list(bornes = c(1, 25, 75, 100),
-                     libelles = c("Peu diffusables (1 à 24 %)", "Partiellement diffusables (25 à 74 %)",
-                                  "Majoritairement diffusables (75 à 99 %)", "Toutes diffusables (100 %)"),
-                     aucune = "Aucune diffusable — secret statistique"),
-  denominateur = "Part des salariés de la catégorie appartenant au champ étudié.")
+                     libelles = c("Peu de résultats affichables (1 à 24 %)", "Environ la moitié (25 à 74 %)",
+                                  "La plupart (75 à 99 %)", "Tous les résultats affichables (100 %)"),
+                     aucune = "Aucun résultat affichable — secret statistique",
+                     titre = "Où peut-on afficher les résultats ?"),
+  kpi         = c(departs = "départs estimés d’ici 2030", taux = "pourraient partir d’ici 2030", salaries = "salariés concernés"),
+  denominateur = "Part des salariés de cette catégorie.")
+
 COLONNES_MESURES_CARTE <- c(e = "effectif_champ", c = "departs_central", b = "departs_bas", h = "departs_haut",
                             t = "taux_depart_central_pct", r = "dep_retraite", i = "dep_invalidite", d = "dep_deces")
 DROM_CARTE <- c("971" = "Guadeloupe", "972" = "Martinique", "973" = "Guyane", "974" = "La Réunion", "976" = "Mayotte")
 DROM_REGION_CARTE <- c("01" = "971", "02" = "972", "03" = "973", "04" = "974", "06" = "976")   # région DROM -> département
 
-# --- CHAMP DE L'ÉTUDE : source unique, construite depuis la configuration ------
+# --- QUI EST CONCERNÉ ? source unique, construite depuis la configuration -------
 # Lu au moment de l'appel (jamais figé) : un changement d'AGE_MIN_BTS ou de
-# PCS_VERS_CS1 change toutes les pages. Retourne court / titre / detaille.
+# PCS_VERS_CS1 change toutes les pages. Langage simple, sans le mot « champ ».
 construire_libelle_champ <- function(age_min = get0("AGE_MIN_BTS", ifnotfound = NA),
                                      cs = get0("PCS_VERS_CS1", ifnotfound = NULL),
                                      hors = get0("PCS_HORS_CHAMP", ifnotfound = character(0)),
                                      annee = get0("ANNEE_REF_GRAPHIQUE", ifnotfound = 2024),
                                      horizon = get0("HORIZON", ifnotfound = 6)) {
   if (is.na(age_min)) stop("construire_libelle_champ : AGE_MIN_BTS introuvable (00_config.R).")
+  age_min <- as.integer(age_min); annee <- as.integer(annee); fin <- as.integer(annee + horizon)
   noms_cs <- c("Cadres" = "cadres", "Prof. intermediaires" = "professions intermédiaires", "Employes" = "employés", "Ouvriers" = "ouvriers")
   cats <- if (is.null(cs)) character(0) else unname(ifelse(cs %in% names(noms_cs), noms_cs[cs], tolower(cs)))
   hors_lib <- c("1" = "agriculteurs exploitants", "2" = "artisans, commerçants et chefs d’entreprise")
-  hors_txt <- paste(c(unname(hors_lib[intersect(as.character(hors), names(hors_lib))]), "code PCS non renseigné ou non rattachable"), collapse = ", ")
-  court <- sprintf("salariés du périmètre BITD âgés de %d ans ou plus", as.integer(age_min))
+  hors_txt <- paste(c(unname(hors_lib[intersect(as.character(hors), names(hors_lib))]), "profession non renseignée"), collapse = ", ")
+  salaries_age <- sprintf("salariés de %d ans ou plus", age_min)
+  court <- paste0(salaries_age, " · entreprises du périmètre BITD")
   detaille <- c(
-    sprintf("Population étudiée : salariés présents en %d dans la Base Tous salariés, employés par une entreprise (SIREN) du périmètre BITD et âgés de %d ans ou plus.", as.integer(annee), as.integer(age_min)),
-    if (length(cats)) sprintf("Catégories couvertes par le modèle : %s (grandes catégories socioprofessionnelles %s de la PCS).",
-                              paste(cats, collapse = ", "), paste(names(cs), collapse = ", ")),
-    sprintf("Hors champ : les salariés dont le code PCS ne peut pas être rattaché à ces catégories (%s) sont exclus de l’estimation.", hors_txt),
-    sprintf("Départ : sortie définitive de l’emploi d’ici %d (retraite ou fin de carrière, invalidité, décès) ; les mobilités vers un autre employeur ne sont pas comptées.", as.integer(annee + horizon)),
-    paste0("Taux de départ : ", tolower(substr(LIBELLES_UI$denominateur, 1, 1)), substr(LIBELLES_UI$denominateur, 2, nchar(LIBELLES_UI$denominateur))))
-  list(court = court, titre = paste("Champ ·", court), detaille = detaille, age_min = as.integer(age_min),
-       categories = cats, annee = as.integer(annee), horizon = as.integer(annee + horizon))
+    "Ces résultats concernent les salariés des entreprises retenues dans le périmètre BITD (base industrielle et technologique de défense).",
+    sprintf("Ils portent sur les salariés âgés de %d ans ou plus en %d%s.", age_min, annee,
+            if (length(cats)) paste0(", appartenant aux catégories professionnelles couvertes par le modèle : ", paste(cats, collapse = ", ")) else ""),
+    sprintf("Certaines professions qui ne peuvent pas être rattachées à ces catégories (%s) ne sont pas incluses dans les estimations.", hors_txt),
+    sprintf("Un départ est une sortie définitive de l’emploi d’ici %d : retraite ou fin de carrière, invalidité, décès. Changer d’employeur n’est pas un départ.", fin),
+    "Les nombres de départs sont des estimations, arrondies à l’entier pour la lecture ; la part de salariés susceptibles de partir est calculée parmi les salariés de la catégorie affichée.")
+  list(court = court, titre = paste0("Qui est concerné ? ", substr(court, 1, 1) |> toupper(), substr(court, 2, nchar(court))),
+       salaries_age = salaries_age, detaille = detaille, age_min = age_min, categories = cats, annee = annee, horizon = fin)
+}
+# Libellés publics complets (statiques + dépendant de l'âge), injectés dans
+# chaque page : UNE seule formulation pour les six pages.
+construire_libelles_public <- function(champ = construire_libelle_champ()) {
+  S <- champ$salaries_age; Smaj <- paste0(toupper(substr(S, 1, 1)), substr(S, 2, nchar(S)))
+  c(rapply(LIBELLES_UI, function(x) if (!is.null(names(x))) as.list(x) else x, how = "replace"),
+    list(salaries_age = Smaj, salaries_age_min = S, qui_court = champ$court, qui_titre = "Qui est concerné ?",
+         legende = list(taux = "Part des salariés susceptibles de partir d’ici 2030", departs = "Nombre de départs estimés d’ici 2030",
+                        effectif = paste("Nombre de", S)),
+         kpi_aide = list(departs = "Salariés qui devraient avoir quitté définitivement leur emploi d’ici 2030 (estimation centrale).",
+                         taux = paste0("Part des ", S, " de cette catégorie."),
+                         salaries = paste0(Smaj, " de cette catégorie, dans les entreprises du périmètre BITD.")),
+         note_taux = paste0("Part calculée parmi les ", S, " de la catégorie affichée.")))
 }
 
 # --- Lecture d'une table de diffusion (CSV write.csv2, avec ou sans BOM) -------
@@ -241,8 +265,7 @@ donnees_json_carte <- function(prep, champ = construire_libelle_champ()) {
   j <- jsonlite::toJSON(list(dimension = prep$dimension, niveau = prep$niveau,
                              categories = cats, territoires = terr, cellules = cel, couverture = cov,
                              couleurs = COULEURS_CARTE[c("classes", "secret", "sans_donnee")],
-                             libelles = rapply(LIBELLES_UI, function(x) if (!is.null(names(x))) as.list(x) else x, how = "replace"),
-                             champ = champ[c("court", "titre")],
+                             libelles = construire_libelles_public(champ), champ = champ[c("court", "titre")],
                              libelles_cs = as.list(c("Cadres" = "Cadres", "Prof. intermediaires" = "Professions intermédiaires",
                                                      "Employes" = "Employés", "Ouvriers" = "Ouvriers"))),
                        auto_unbox = TRUE, digits = NA, na = "null", null = "null")
@@ -259,7 +282,7 @@ css_cartes <- function() paste(
   '.page-header{border-bottom:1px solid var(--filet);padding-bottom:18px;margin-bottom:22px}',
   '.kicker{font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--texte);font-weight:600;margin:0 0 8px}',
   '.page-title{font-size:32px;line-height:1.15;font-weight:700;margin:0;letter-spacing:-.01em}.page-title small{display:block;font-size:22px;font-weight:500;color:var(--texte);margin-top:2px}',
-  '.page-subtitle{font-size:19px;color:var(--encre);margin:12px 0 0;font-weight:500}.page-subtitle .sep{color:var(--texte);margin:0 8px}',
+  '.page-subtitle{margin:12px 0 0}.cat-nom{display:block;font-size:22px;font-weight:700;color:var(--encre);line-height:1.25}.cat-qui{display:block;font-size:17px;font-weight:500;color:var(--texte);margin-top:2px}',
   # champ de l'étude : premier niveau d'information
   '.study-scope{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;margin:12px 0 0;font-size:16px;color:var(--encre);background:var(--fond);border-left:4px solid var(--bleu);padding:10px 14px;border-radius:0 8px 8px 0}',
   '.study-scope b{font-weight:700}.study-scope .scope-text{font-weight:500}',
@@ -282,10 +305,10 @@ css_cartes <- function() paste(
   '.encart{fill:none;stroke:#c9ced6;stroke-width:1.2}.encart-lib{font-size:17px;font-weight:600;fill:#3E4C59}',
   # infobulle
   '.bulle{position:absolute;pointer-events:none;background:#1F2933;color:#fff;border-radius:10px;padding:14px 16px;font-size:15px;line-height:1.5;min-width:240px;max-width:320px;box-shadow:0 8px 24px rgba(0,0,0,.22);display:none;z-index:2}',
-  '.tooltip-title{font-size:17px;font-weight:700;margin:0 0 2px}.tooltip-cat{color:#cfd6df;margin:0 0 8px;font-weight:500}.tooltip-rows{border-top:1px solid rgba(255,255,255,.25);padding-top:8px;width:100%;border-collapse:collapse}.tooltip-rows td{padding:3px 0;vertical-align:top}.tooltip-rows td.tooltip-value{text-align:right;font-weight:700;padding-left:16px;white-space:nowrap}.tooltip-secret{color:#ffd7a8;font-weight:700;margin-top:8px}.tooltip-secret small{display:block;color:#f3f4f6;font-weight:400}.tooltip-sans{color:#e5e7eb;font-weight:600;margin-top:8px}',
+  '.tooltip-title{font-size:17px;font-weight:700;margin:0 0 2px}.tooltip-cat{color:#cfd6df;margin:0 0 8px;font-weight:500}.tooltip-rows{border-top:1px solid rgba(255,255,255,.25);padding-top:8px}.tooltip-rows .tooltip-value{font-weight:700;padding:3px 0}.tooltip-rows .tooltip-small{color:#cfd6df;font-size:13.5px;padding:0 0 4px}.tooltip-secret{color:#ffd7a8;font-weight:700;margin-top:8px}.tooltip-secret small{display:block;color:#f3f4f6;font-weight:400}.tooltip-sans{color:#e5e7eb;font-weight:600;margin-top:8px}',
   # tableau de bord national
   '.dash{display:grid;grid-template-columns:320px minmax(0,1fr);gap:24px;align-items:start}@media(max-width:900px){.dash{grid-template-columns:1fr}}',
-  '.cat-affichee{font-size:17px;margin:14px 0 0;color:var(--encre)}.cat-affichee b{font-weight:700}',
+  '.cat-affichee{margin:16px 0 0;padding-top:14px;border-top:1px solid var(--filet)}.cat-affichee .cat-nom{font-size:20px}.cat-affichee .cat-qui{font-size:15px}',
   '.kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}@media(max-width:760px){.kpis{grid-template-columns:1fr}}',
   '.kpi{border:1px solid var(--filet);border-radius:12px;padding:18px 20px;background:#fff}.kpi.primaire{background:var(--fond);border-color:#c9d6e5}',
   '.kpi-value{font-size:40px;font-weight:700;line-height:1.1;letter-spacing:-.02em;color:var(--encre)}.kpi-value.secret{font-size:24px;color:#4b5563}',
@@ -304,18 +327,19 @@ js_cartes <- function() paste(
   'var D=JSON.parse(document.getElementById("donnees").textContent),L=D.libelles;var FR=D.niveau==="france";',
   'var $=function(id){return document.getElementById(id)};',
   'var nf=function(d){return new Intl.NumberFormat("fr-FR",{minimumFractionDigits:d,maximumFractionDigits:d})};',
+  'function arrondiPers(x){return x==null?null:Math.floor(x+0.5)}',
   'var fmt=function(x,d){return (x==null||isNaN(x))?"n.d.":nf(d).format(d===0?arrondiPers(x):x)};var pct=function(x,d){return fmt(x,d)+" %"};',
   'var noms={};D.territoires.forEach(function(t){noms[t.code]=t.nom});',
   'var etat={vue:"resultats",cat:D.categories.length?D.categories[0].code:null,ind:"taux",scen:"c"};',
-  'var dimLib=D.dimension==="pcs"?"PCS":"Catégorie",dimPl=D.dimension==="pcs"?"PCS":"catégories";',
+  'var dimPl=D.dimension==="pcs"?"PCS":"catégories",dimUne=D.dimension==="pcs"?"PCS":"catégorie";',
   'var nivLib={france:"France entière",region:"par région",departement:"par département"}[D.niveau];',
+  'var nivPl={france:"",region:"régions",departement:"départements"}[D.niveau];',
   'var catLib=function(c){var o=D.categories.filter(function(k){return k.code===c})[0];if(!o)return c;return D.dimension==="pcs"?("PCS "+o.code+(o.cs1?" · "+(D.libelles_cs[o.cs1]||o.cs1):"")):(D.libelles_cs[o.code]||o.code)};',
   'var catOpt=function(k){return D.dimension==="pcs"?(k.code+(k.cs1?" — "+(D.libelles_cs[k.cs1]||k.cs1):"")):(D.libelles_cs[k.code]||k.code)};',
   'function remplirCats(filtre){var s=$("cat");if(!s)return;var f=(filtre||"").toLowerCase();s.innerHTML="";D.categories.forEach(function(k){var lib=catOpt(k);if(f&&lib.toLowerCase().indexOf(f)<0)return;var o=document.createElement("option");o.value=k.code;o.textContent=lib;s.appendChild(o)});if(s.options.length){var ok=false;for(var i=0;i<s.options.length;i++)if(s.options[i].value===etat.cat){ok=true;break}if(!ok)etat.cat=s.options[0].value;s.value=etat.cat}}',
   'function cle(){return etat.ind==="departs"?etat.scen:(etat.ind==="effectif"?"e":"t")}',
-  'var dec={t:1,c:0,b:0,h:0,e:0,r:0,i:0,d:0};',   # personnes -> entier (convention 00g), taux -> 1 décimale
+  'var dec={t:1,c:0,b:0,h:0,e:0,r:0,i:0,d:0};',   # personnes -> entier (convention 00g), part -> 1 décimale
   'function valeur(code){var c=D.cellules[code]&&D.cellules[code][etat.cat];if(!c)return{st:"sans"};if(c.s==="m")return{st:"masque"};var v=c[cle()];return{st:"diffuse",v:v,c:c}}',
-  'function arrondiPers(x){return x==null?null:Math.floor(x+0.5)}',
   'function plusFortsRestes(comp,total){var cible=arrondiPers(total),base=comp.map(Math.floor),reste=cible-base.reduce(function(a,b){return a+b},0);var idx=comp.map(function(v,i){return i}).sort(function(a,b){var fa=Math.round((comp[a]-base[a])*1e9),fb=Math.round((comp[b]-base[b])*1e9);return fb-fa||comp[b]-comp[a]||a-b});for(var i=0;i<reste&&i<idx.length;i++)base[idx[i]]++;var s=base.reduce(function(a,b){return a+b},0);while(s<cible){base[idx[0]]++;s++}while(s>cible){var m=base.indexOf(Math.max.apply(null,base));base[m]--;s--}return base}',
   'function fmtInd(v,legende){var k=cle();if(k==="t")return pct(v,legende?0:1);return fmt(v,legende?0:dec[k])}',
   # classes à bornes « rondes » : pas de 1, 2, 2,5, 5 x 10^k ; 3 à 5 classes ; échelle commune à la catégorie affichée
@@ -327,38 +351,39 @@ js_cartes <- function() paste(
   'function couleur(k,n){var pal=D.couleurs.classes;if(n<=1)return pal[2];return pal[Math.round(k*(pal.length-1)/(n-1))]}',
   'function classeCouv(p){if(p<=0)return -1;var b=L.couverture.bornes;for(var i=b.length-1;i>=0;i--)if(p>=b[i])return i;return 0}',
   'var li=function(leg,col,txt,sans,sep){var e=document.createElement("li");if(sep)e.className="sep";e.innerHTML="<span class=\\"sw"+(sans?" sans":"")+"\\" style=\\"background:"+col+"\\"></span><span></span>";e.lastChild.textContent=txt;leg.appendChild(e)};',
+  'function entete(titre,cat,qui){var t=$("titre");t.innerHTML="";t.appendChild(document.createTextNode(titre));t.appendChild(Object.assign(document.createElement("small"),{textContent:nivLib}));$("sous-cat").textContent=cat;$("sous-qui").textContent=qui}',
   'function rendreCarte(){var paths=document.querySelectorAll("path.t"),leg=$("legende");if(!leg)return;leg.innerHTML="";var nD=0,nM=0,nS=0,cl=null;',
   ' if(etat.vue==="resultats"){var vals=[];Object.keys(D.couverture).forEach(function(code){var r=valeur(code);if(r.st==="diffuse"&&r.v!=null)vals.push(r.v)});cl=classesRondes(vals)}',
   ' paths.forEach(function(p){var code=p.getAttribute("data-code"),fill,st;p.classList.remove("sans");',
-  '  if(etat.vue==="diffusabilite"){var cv=D.couverture[code];if(!cv){st="sans";fill=D.couleurs.sans_donnee}else{var k=classeCouv(cv.p);if(k<0){st="masque";fill=D.couleurs.secret}else{st="diffuse";fill=couleur(k,L.couverture.bornes.length)}}}',
+  '  if(etat.vue==="affichables"){var cv=D.couverture[code];if(!cv){st="sans";fill=D.couleurs.sans_donnee}else{var k=classeCouv(cv.p);if(k<0){st="masque";fill=D.couleurs.secret}else{st="diffuse";fill=couleur(k,L.couverture.bornes.length)}}}',
   '  else{var r2=valeur(code);st=r2.st;fill=st==="masque"?D.couleurs.secret:(st==="sans"?D.couleurs.sans_donnee:(cl?couleur(classeDe(r2.v,cl),cl.unique?cl.vals.length:cl.n):D.couleurs.classes[2]))}',
   '  if(st==="sans")p.classList.add("sans");p.setAttribute("fill",fill);p.setAttribute("data-st",st);if(st==="diffuse")nD++;else if(st==="masque")nM++;else nS++});',
   ' var titreLeg=$("legende-titre");',
-  ' if(etat.vue==="diffusabilite"){titreLeg.textContent="Part des "+dimPl+" diffusables";var LB=L.couverture.libelles;for(var i=LB.length-1;i>=0;i--)li(leg,couleur(i,LB.length),LB[i]);li(leg,D.couleurs.secret,L.couverture.aucune,false,true);$("legende-note").textContent="Part des "+dimPl+" observées dans le territoire dont le résultat est diffusable. Le statut des cellules n’indique aucune valeur masquée."}',
-  ' else{titreLeg.textContent=L.indicateurs[etat.ind]+(etat.ind==="departs"?" — "+L.scenarios[etat.scen].toLowerCase():"");',
-  '  if(!cl)li(leg,D.couleurs.classes[2],"Aucune valeur diffusée pour cette catégorie");',
+  ' if(etat.vue==="affichables"){titreLeg.textContent="Part des "+dimPl+" avec un résultat affichable";var LB=L.couverture.libelles;for(var i=LB.length-1;i>=0;i--)li(leg,couleur(i,LB.length),LB[i]);li(leg,D.couleurs.secret,L.couverture.aucune,false,true);$("legende-note").textContent="Pour chaque territoire : part des "+dimPl+" observées pour lesquelles un résultat peut être affiché. Cette vue ne révèle aucun chiffre non diffusé.";',
+  '  entete(L.couverture.titre,"Part des "+dimPl+" pour lesquelles un résultat peut être affiché",L.salaries_age+" · "+nivLib)}',
+  ' else{titreLeg.textContent=L.legende[etat.ind]+(etat.ind==="departs"?" ("+L.scenarios[etat.scen].toLowerCase()+")":"");',
+  '  if(!cl)li(leg,D.couleurs.classes[2],"Aucun résultat affichable pour cette "+dimUne);',
   '  else if(cl.unique){cl.vals.forEach(function(v,i){li(leg,couleur(i,cl.vals.length),fmtInd(v,false))})}',
   '  else{for(var k=0;k<cl.n;k++){var txt=k===0?"Moins de "+fmtInd(cl.bornes[0],true):(k===cl.n-1?fmtInd(cl.bornes[k-1],true)+" et plus":fmtInd(cl.bornes[k-1],true)+" à "+fmtInd(cl.bornes[k],true));li(leg,couleur(k,cl.n),txt)}}',
   '  li(leg,D.couleurs.secret,L.secret,false,true);',
-  '  $("legende-note").textContent=(etat.ind==="taux"?L.denominateur+" ":"")+"Même échelle pour tous les territoires de la catégorie affichée ; les classes sont recalculées quand vous changez de catégorie ou d’indicateur."}',
+  '  $("legende-note").textContent=(etat.ind==="taux"?L.note_taux+" ":"")+"Même échelle pour tous les territoires ; elle est recalculée quand vous changez de "+dimUne+" ou d’indicateur.";',
+  '  entete("Départs attendus d’ici 2030",catLib(etat.cat),L.salaries_age+" · "+L.legende[etat.ind]+(etat.ind==="departs"?" ("+L.scenarios[etat.scen].toLowerCase()+")":""))}',
   ' li(leg,D.couleurs.sans_donnee,L.sans_donnee,true);',
-  ' $("compte").innerHTML="<b>"+nD+"</b> territoire(s) avec résultat · <b>"+nM+"</b> non diffusé(s) (secret statistique) · <b>"+nS+"</b> sans donnée";',
-  ' if(etat.vue==="diffusabilite"){$("titre").innerHTML="";$("titre").appendChild(document.createTextNode("Où les résultats peuvent-ils être diffusés ?"));$("titre").appendChild(Object.assign(document.createElement("small"),{textContent:nivLib}));$("sous").textContent="Part des "+dimPl+" observées dont les résultats sont diffusables"}',
-  ' else{$("titre").innerHTML="";$("titre").appendChild(document.createTextNode("Départs attendus d’ici 2030"));$("titre").appendChild(Object.assign(document.createElement("small"),{textContent:nivLib}));$("sous").textContent=catLib(etat.cat)+" · "+L.indicateurs[etat.ind]+(etat.ind==="departs"?" ("+L.scenarios[etat.scen].toLowerCase()+")":"")}',
+  ' $("compte").innerHTML="<b>"+nD+"</b> "+nivPl+" avec un résultat · <b>"+nM+"</b> avec un résultat non diffusé (secret statistique) · <b>"+nS+"</b> sans salarié observé";',
   ' var cat=etat.vue==="resultats";$("b-cat").style.display=cat?"":"none";$("b-ind").style.display=cat?"":"none";$("b-scen").style.display=(cat&&etat.ind==="departs")?"":"none";}',
-  # infobulle éditoriale
-  'function row(t,lab,val){var tr=document.createElement("tr"),a=document.createElement("td"),b=document.createElement("td");a.textContent=lab;b.textContent=val;b.className="tooltip-value";tr.appendChild(a);tr.appendChild(b);t.appendChild(tr)}',
-  'function bulle(code){var el=document.createElement("div");var h=document.createElement("div");h.className="tooltip-title";h.textContent=noms[code]+" · "+code;el.appendChild(h);',
-  ' if(etat.vue==="diffusabilite"){var cv=D.couverture[code];var t=document.createElement("table");t.className="tooltip-rows";if(!cv){var s=document.createElement("div");s.className="tooltip-sans";s.textContent=L.sans_donnee;el.appendChild(s)}else{row(t,(D.dimension==="pcs"?"PCS":"Catégories")+" observées",fmt(cv.o,0));row(t,"Diffusables",fmt(cv.d,0));row(t,"Non diffusées",fmt(cv.m,0));row(t,"Part diffusable",pct(cv.p,0));el.appendChild(t);if(cv.d===0){var s2=document.createElement("div");s2.className="tooltip-secret";s2.textContent=L.couverture.aucune;el.appendChild(s2)}}}',
-  ' else{var c0=document.createElement("div");c0.className="tooltip-cat";c0.textContent=catLib(etat.cat);el.appendChild(c0);var r=valeur(code);',
-  '  if(r.st==="sans"){var s3=document.createElement("div");s3.className="tooltip-sans";s3.textContent=L.sans_donnee;el.appendChild(s3)}',
-  '  else if(r.st==="masque"){var s4=document.createElement("div");s4.className="tooltip-secret";s4.textContent="Non diffusé";var sm=document.createElement("small");sm.textContent="Secret statistique";s4.appendChild(sm);el.appendChild(s4)}',
-  '  else{var c=r.c,t2=document.createElement("table");t2.className="tooltip-rows";if(c.e!=null)row(t2,"Salariés dans le champ",fmt(c.e,0));if(c.c!=null)row(t2,"Départs estimés",fmt(c.c,0));if(c.b!=null&&c.h!=null)row(t2,"Fourchette basse – haute",fmt(c.b,0)+" – "+fmt(c.h,0));if(c.t!=null)row(t2,"Taux de départ",pct(c.t,1));el.appendChild(t2)}}',
+  # infobulle : des phrases, pas des libellés techniques
+  'function ligne(el,txt,cls){var d=document.createElement("div");if(cls)d.className=cls;d.textContent=txt;el.appendChild(d);return d}',
+  'function bulle(code){var el=document.createElement("div");ligne(el,noms[code]+" · "+code,"tooltip-title");',
+  ' if(etat.vue==="affichables"){var cv=D.couverture[code];if(!cv)ligne(el,L.sans_donnee,"tooltip-sans");else{var b=document.createElement("div");b.className="tooltip-rows";ligne(b,fmt(cv.o,0)+" "+dimPl+" observées");ligne(b,fmt(cv.d,0)+(cv.d>1?" résultats affichables":" résultat affichable"));ligne(b,fmt(cv.m,0)+(cv.m>1?" résultats non diffusés":" résultat non diffusé"));el.appendChild(b);if(cv.d===0)ligne(el,L.couverture.aucune,"tooltip-secret")}}',
+  ' else{ligne(el,catLib(etat.cat),"tooltip-cat");var r=valeur(code);',
+  '  if(r.st==="sans")ligne(el,L.sans_donnee,"tooltip-sans");',
+  '  else if(r.st==="masque"){var s4=ligne(el,L.secret_court,"tooltip-secret");var sm=document.createElement("small");sm.textContent=L.secret_sous;s4.appendChild(sm)}',
+  '  else{var c=r.c,b2=document.createElement("div");b2.className="tooltip-rows";if(c.e!=null)ligne(b2,fmt(c.e,0)+" "+L.salaries_age_min,"tooltip-value");if(c.c!=null)ligne(b2,fmt(c.c,0)+" "+L.kpi.departs,"tooltip-value");if(c.b!=null&&c.h!=null)ligne(b2,"entre "+fmt(c.b,0)+" et "+fmt(c.h,0)+" selon l’hypothèse","tooltip-small");if(c.t!=null)ligne(b2,pct(c.t,1)+" "+L.kpi.taux,"tooltip-value");el.appendChild(b2)}}',
   ' return el.innerHTML}',
   # tableau de bord national
-  'function rendreDash(){var c=D.cellules["FR"]&&D.cellules["FR"][etat.cat];$("cat-affichee").innerHTML="";$("cat-affichee").appendChild(document.createTextNode((D.dimension==="pcs"?"PCS affichée · ":"Catégorie affichée · ")));$("cat-affichee").appendChild(Object.assign(document.createElement("b"),{textContent:catLib(etat.cat)}));',
-  ' $("sous").textContent=catLib(etat.cat);var z=$("zone-kpi"),m=$("zone-masque");',
-  ' if(!c||c.s==="m"){z.style.display="none";m.style.display="";$("masque-cat").textContent=catLib(etat.cat);$("masque-txt").textContent=c?"Cette information est masquée en application du secret statistique.":"Aucune donnée observée pour cette catégorie dans le champ étudié.";return}',
+  'function rendreDash(){var c=D.cellules["FR"]&&D.cellules["FR"][etat.cat];$("sous-cat").textContent=catLib(etat.cat);$("sous-qui").textContent=L.salaries_age+" · France entière";$("cat-affichee").textContent=catLib(etat.cat);$("cat-qui").textContent=L.salaries_age;',
+  ' var z=$("zone-kpi"),m=$("zone-masque");',
+  ' if(!c||c.s==="m"){z.style.display="none";m.style.display="";$("masque-cat").textContent=catLib(etat.cat);$("masque-txt").textContent=c?L.secret_explication:"Aucun salarié de cette "+dimUne+" n’est observé.";$("masque-titre").textContent=c?L.secret_court:L.sans_donnee;return}',
   ' z.style.display="";m.style.display="none";$("kpi-e").textContent=fmt(c.e,0);$("kpi-c").textContent=fmt(c.c,0);$("kpi-t").textContent=c.t!=null?pct(c.t,1):"n.d.";',
   ' $("f-b").textContent=fmt(c.b,0);$("f-c").textContent=fmt(c.c,0);$("f-h").textContent=fmt(c.h,0);',
   ' var tot=(c.r||0)+(c.i||0)+(c.d||0),bar=$("barre"),ul=$("causes");bar.innerHTML="";ul.innerHTML="";var cols={r:D.couleurs.classes[3],i:D.couleurs.classes[1],d:"#6b7280"};var ent=plusFortsRestes([c.r||0,c.i||0,c.d||0],c.c!=null?c.c:tot);',
@@ -380,22 +405,22 @@ js_cartes <- function() paste(
 
 echap_html_carte <- function(s) { s <- gsub("&", "&amp;", s, fixed = TRUE); s <- gsub("<", "&lt;", s, fixed = TRUE); gsub(">", "&gt;", s, fixed = TRUE) }
 
-# --- Briques HTML communes : en-tête avec champ, sélecteur de catégorie, pied ---
+# --- Briques HTML communes : en-tête « Qui est concerné ? », sélecteur, pied ----
 html_entete_champ <- function(champ, niveau, dimension, sous_defaut = "") {
+  P <- construire_libelles_public(champ)
   c('<header class="page-header">',
     '<p class="kicker">Départs attendus d’ici 2030 · résultats diffusables</p>',
     sprintf('<h1 class="page-title" id="titre">Départs attendus d’ici 2030<small>%s</small></h1>',
             c(france = "France entière", region = "par région", departement = "par département")[[niveau]]),
-    sprintf('<p class="page-subtitle" id="sous">%s</p>', echap_html_carte(sous_defaut)),
-    '<div class="study-scope" role="note" aria-label="Champ de l’étude">',
-    sprintf('<span class="scope-text"><b>Champ</b> · %s</span>', echap_html_carte(champ$court)),
-    '<details><summary>ⓘ Comprendre le champ</summary></details>',
+    '<p class="page-subtitle" id="sous"><span class="cat-nom" id="sous-cat"></span><span class="cat-qui" id="sous-qui"></span></p>',
+    '<div class="study-scope" role="note" aria-label="Qui est concerné">',
+    sprintf('<span class="scope-text"><b>%s</b> · %s</span>', echap_html_carte(P$salaries_age), "entreprises du périmètre BITD"),
+    sprintf('<details><summary>ⓘ %s</summary></details>', echap_html_carte(P$qui_titre)),
     sprintf('<div class="study-scope-detail" id="scope-detail" hidden>%s</div>',
-            paste(sprintf("<p><b>%s</b>%s</p>", echap_html_carte(sub(" :.*$", "", champ$detaille)),
-                          echap_html_carte(sub("^[^:]+ :", " :", champ$detaille))), collapse = "")),
+            paste(sprintf("<p>%s</p>", echap_html_carte(champ$detaille)), collapse = "")),
     '</div>',
-    sprintf('<p class="context">%s</p>', if (niveau == "france") "Sélectionnez une catégorie pour consulter les résultats nationaux."
-            else "Sélectionnez une catégorie pour comparer les territoires. Les zones grisées ne sont pas diffusées en application du secret statistique."),
+    sprintf('<p class="context">%s</p>', if (niveau == "france") sprintf("Choisissez une %s pour consulter les résultats nationaux.", if (dimension == "pcs") "PCS" else "catégorie")
+            else sprintf("Choisissez une %s pour comparer les territoires. Les zones grisées correspondent à des résultats non diffusés (secret statistique) ; les zones blanches n’ont aucun salarié observé.", if (dimension == "pcs") "PCS" else "catégorie")),
     '</header>')
 }
 html_selecteur_categorie <- function(prep) {
@@ -406,21 +431,22 @@ html_selecteur_categorie <- function(prep) {
       sprintf('<button type="button" data-cat="%s" class="%s" aria-pressed="%s">%s</button>', echap_html_carte(code),
               if (i == 1) "on" else "", if (i == 1) "true" else "false", echap_html_carte(ifelse(is.na(lib), code, lib)))
     }, "")
-    c('<div id="b-cat"><span class="control-label">Catégorie</span><div class="tabs" role="group" aria-label="Catégorie socioprofessionnelle">', btn, '</div></div>')
+    c('<div id="b-cat"><span class="control-label">Quelle catégorie ?</span><div class="tabs" role="group" aria-label="Catégorie socioprofessionnelle">', btn, '</div></div>')
   } else {
     c(sprintf('<div id="b-cat"><label class="control-label" for="cat">%s</label>%s<select id="cat" size="1"></select></div>',
-              if (prep$dimension == "pcs") "PCS" else "Catégorie",
-              if (prep$dimension == "pcs") '<input type="search" id="rech" placeholder="Filtrer par code PCS ou grande catégorie" aria-label="Filtrer les PCS">' else ""))
+              if (prep$dimension == "pcs") "Quelle PCS ?" else "Quelle catégorie ?",
+              if (prep$dimension == "pcs") '<input type="search" id="rech" placeholder="Rechercher un code PCS ou une catégorie" aria-label="Rechercher une PCS">' else ""))
   }
 }
 html_pied <- function(champ, source_note) {
-  sprintf(paste0('<footer><b>Champ de l’étude.</b> %s ',
-                 '<b>Secret statistique.</b> Les cellules masquées ne figurent pas dans cette page ni dans ses données embarquées : seule leur existence est connue. ',
-                 'Gris = non diffusé (secret statistique) ; blanc pointillé = pas de donnée observée ; une valeur nulle diffusée est affichée comme toute valeur. ',
+  sprintf(paste0('<footer><b>Qui est concerné ?</b> %s ',
+                 '<b>Secret statistique.</b> Certains résultats ne sont pas affichés parce qu’ils concernent trop peu de salariés ou d’entreprises, ou qu’une seule entreprise y pèserait trop ; ces chiffres ne figurent ni dans cette page ni dans ses données. ',
+                 'Gris = résultat non diffusé ; blanc pointillé = aucun salarié observé ; un résultat nul est affiché comme tout autre. ',
                  '<b>Source.</b> %s. Fond de carte : IGN Admin Express (COG 2018) via france-geojson, licence ouverte.</footer>'),
           echap_html_carte(paste(champ$detaille, collapse = " ")), echap_html_carte(source_note))
 }
 js_details_champ <- '<script>(function(){var d=document.querySelector(".study-scope details"),p=document.getElementById("scope-detail");if(d&&p)d.addEventListener("toggle",function(){p.hidden=!d.open})})();</script>'
+
 
 # --- Génération : carte territoriale OU tableau de bord national ----------------
 generer_carte_departs <- function(prep, fond = NULL, fichier_html, fichier_png = NULL, source_note = "calculs propres",
@@ -433,7 +459,7 @@ generer_carte_departs <- function(prep, fond = NULL, fichier_html, fichier_png =
             '<meta name="viewport" content="width=device-width, initial-scale=1">',
             '<style>', css_cartes(), '</style></head><body><div class="page">',
             html_entete_champ(champ, prep$niveau, prep$dimension))
-  corps <- if (prep$niveau == "france") html_dashboard_national(prep) else html_carte_territoriale(prep, fond, titre_page)
+  corps <- if (prep$niveau == "france") html_dashboard_national(prep, champ) else html_carte_territoriale(prep, fond, titre_page)
   html <- c(tete, corps, html_pied(champ, source_note),
             '<script type="application/json" id="donnees">', donnees_json_carte(prep, champ), '</script>',
             js_details_champ, '<script>', js_cartes(), '</script>', '</div></body></html>')
@@ -455,42 +481,45 @@ html_carte_territoriale <- function(prep, fond, titre_page) {
                                                       e$cadre[1] + 1, e$cadre[2] + 1, e$cadre[3] - e$cadre[1] - 2, e$cadre[4] - e$cadre[2] - 2, e$x_lib, e$y_lib, echap_html_carte(e$nom)), "")
   opts_ind <- paste(sprintf('<option value="%s"%s>%s</option>', names(LIBELLES_UI$indicateurs),
                             ifelse(names(LIBELLES_UI$indicateurs) == "taux", " selected", ""), LIBELLES_UI$indicateurs), collapse = "")
-  opts_sc <- paste(sprintf('<option value="%s"%s>%s</option>', c("c", "b", "h"), c(" selected", "", ""), c("Central", "Bas", "Haut")), collapse = "")
+  opts_sc <- paste(sprintf('<option value="%s"%s>%s</option>', c("c", "b", "h"), c(" selected", "", ""), c("Centrale", "Basse", "Haute")), collapse = "")
   c('<div class="grille"><aside class="panneau">',
     '<span class="control-label">Vue</span>',
-    '<div class="radios"><label class="on"><input type="radio" name="vue" value="resultats" checked>Résultats</label><label><input type="radio" name="vue" value="diffusabilite">Diffusabilité</label></div>',
+    sprintf('<div class="radios"><label class="on"><input type="radio" name="vue" value="resultats" checked>%s</label><label><input type="radio" name="vue" value="affichables">%s</label></div>',
+            LIBELLES_UI$vues[["resultats"]], LIBELLES_UI$vues[["affichables"]]),
     html_selecteur_categorie(prep),
-    sprintf('<div id="b-ind"><label class="control-label" for="ind">Indicateur</label><select id="ind">%s</select></div>', opts_ind),
-    sprintf('<div id="b-scen"><label class="control-label" for="scen">Scénario</label><select id="scen">%s</select></div>', opts_sc),
+    sprintf('<div id="b-ind"><label class="control-label" for="ind">Que voulez-vous voir ?</label><select id="ind">%s</select></div>', opts_ind),
+    sprintf('<div id="b-scen"><label class="control-label" for="scen">Estimation</label><select id="scen">%s</select></div>', opts_sc),
     '<div class="legend-title" id="legende-titre"></div><ul class="map-legend" id="legende"></ul>',
     '<p class="compte" id="compte"></p><p class="note" id="legende-note"></p>',
-    if (length(lay$encarts) > 0) '<p class="note">Départements et régions d’outre-mer en encarts, chacun à sa propre échelle.</p>' else "",
+    if (length(lay$encarts) > 0) '<p class="note">Outre-mer en encarts, chacun à sa propre échelle.</p>' else "",
     '</aside><div class="carte" id="carte">',
     sprintf('<svg viewBox="0 0 %d %d" role="img" aria-label="%s">', lay$largeur, lay$hauteur, echap_html_carte(titre_page)),
     encarts, paths, '</svg><div class="bulle" id="bulle" role="status"></div></div></div>')
 }
 
-html_dashboard_national <- function(prep) {
+html_dashboard_national <- function(prep, champ = construire_libelle_champ()) {
+  P <- construire_libelles_public(champ)
   c('<div class="dash"><aside class="panneau">',
     html_selecteur_categorie(prep),
-    '<p class="cat-affichee" id="cat-affichee"></p>',
+    '<p class="cat-affichee"><span class="cat-nom" id="cat-affichee"></span><span class="cat-qui" id="cat-qui"></span></p>',
     '</aside><div>',
     '<div id="zone-kpi">',
     '<div class="kpis">',
-    sprintf('<div class="kpi primaire"><div class="kpi-value" id="kpi-c"></div><div class="kpi-label">%s</div><div class="kpi-help">Scénario central, somme des probabilités individuelles de départ.</div></div>', LIBELLES_UI$indicateurs[["departs"]]),
-    sprintf('<div class="kpi"><div class="kpi-value" id="kpi-t"></div><div class="kpi-label">%s</div><div class="kpi-help">%s</div></div>', LIBELLES_UI$indicateurs[["taux"]], LIBELLES_UI$denominateur),
-    '<div class="kpi"><div class="kpi-value" id="kpi-e"></div><div class="kpi-label">Salariés dans le champ</div><div class="kpi-help">Salariés de la catégorie affichée appartenant au champ étudié (voir « Champ » ci-dessus), pas l’ensemble des salariés de la BITD.</div></div>',
+    sprintf('<div class="kpi primaire"><div class="kpi-value" id="kpi-c"></div><div class="kpi-label">%s</div><div class="kpi-help">%s</div></div>', P$kpi$departs, P$kpi_aide$departs),
+    sprintf('<div class="kpi"><div class="kpi-value" id="kpi-t"></div><div class="kpi-label">%s</div><div class="kpi-help">%s</div></div>', P$kpi$taux, P$kpi_aide$taux),
+    sprintf('<div class="kpi"><div class="kpi-value" id="kpi-e"></div><div class="kpi-label">%s</div><div class="kpi-help">%s</div></div>', P$kpi$salaries, P$kpi_aide$salaries),
     '</div>',
-    sprintf('<div class="bloc"><h2>%s — fourchette d’estimation</h2><div class="fourchette">', LIBELLES_UI$indicateurs[["departs"]]),
+    '<div class="bloc"><h2>Combien de départs, selon l’hypothèse retenue ?</h2><div class="fourchette">',
     sprintf('<div><div class="v" id="f-b"></div><div class="l">%s</div></div><div class="centrale"><div class="v" id="f-c"></div><div class="l">%s</div></div><div><div class="v" id="f-h"></div><div class="l">%s</div></div>',
             LIBELLES_UI$scenarios[["b"]], LIBELLES_UI$scenarios[["c"]], LIBELLES_UI$scenarios[["h"]]),
-    '</div><p class="note">Hypothèses réglementaires basse et haute autour du scénario central.</p></div>',
-    '<div class="bloc" id="bloc-causes"><h2>Composition des départs estimés</h2><div class="barre" id="barre" aria-hidden="true"></div><ul class="causes" id="causes"></ul>',
-    '<p class="note">Répartition des départs du scénario central par cause (risques concurrents).</p></div>',
+    '</div><p class="note">L’estimation centrale est encadrée par deux hypothèses, basse et haute, sur l’âge de départ en retraite.</p></div>',
+    '<div class="bloc" id="bloc-causes"><h2>Pourquoi ces salariés partiraient-ils ?</h2><div class="barre" id="barre" aria-hidden="true"></div><ul class="causes" id="causes"></ul>',
+    '<p class="note">Répartition des départs estimés (estimation centrale) par motif.</p></div>',
     '</div>',
-    '<div class="masque-national" id="zone-masque" style="display:none"><div class="t" id="masque-cat"></div><p><b>Non diffusé.</b> <span id="masque-txt"></span></p><p>Le champ de l’étude reste celui indiqué en tête de page.</p></div>',
+    '<div class="masque-national" id="zone-masque" style="display:none"><div class="t" id="masque-cat"></div><p><b id="masque-titre"></b> <span id="masque-txt"></span></p><p>Les autres catégories restent consultables ci-contre.</p></div>',
     '</div></div>')
 }
+
 
 # --- PNG de la vue initiale d'une carte territoriale (vue Diffusabilité) --------
 png_carte_departs <- function(prep, lay, fichier_png, titre = "", champ = construire_libelle_champ()) {
@@ -506,9 +535,10 @@ png_carte_departs <- function(prep, lay, fichier_png, titre = "", champ = constr
     ggplot2::scale_fill_manual(values = setNames(cols, levels(long$classe)), drop = FALSE, name = NULL) +
     ggplot2::guides(fill = ggplot2::guide_legend(override.aes = list(colour = "#9a9a9a"))) +
     ggplot2::coord_equal(expand = FALSE) + ggplot2::theme_void(base_size = 12) +
-    ggplot2::labs(title = paste("Où les résultats peuvent-ils être diffusés ?", sub("^.*— ", "", titre)),
-                  subtitle = paste0("Part des ", if (prep$dimension == "pcs") "PCS" else "catégories", " observées dont les résultats sont diffusables\n", champ$titre),
-                  caption = "Gris : secret statistique · blanc : pas de donnée observée · aucune valeur masquée n’est représentée. Fond IGN Admin Express via france-geojson.") +
+    ggplot2::labs(title = paste(LIBELLES_UI$couverture$titre, sub("^.*— ", "", titre)),
+                  subtitle = paste0("Part des ", if (prep$dimension == "pcs") "PCS" else "catégories", " pour lesquelles un résultat peut être affiché\n",
+                                    toupper(substr(champ$court, 1, 1)), substr(champ$court, 2, nchar(champ$court))),
+                  caption = "Gris : résultat non diffusé (secret statistique) · blanc : aucun salarié observé · aucun chiffre non diffusé n’est représenté. Fond IGN Admin Express via france-geojson.") +
     ggplot2::theme(legend.position = "bottom", legend.direction = "vertical", legend.text = ggplot2::element_text(size = 11),
                    plot.title = ggplot2::element_text(face = "bold", size = 15, colour = COULEURS_CARTE$encre),
                    plot.subtitle = ggplot2::element_text(colour = COULEURS_CARTE$texte, size = 11),
