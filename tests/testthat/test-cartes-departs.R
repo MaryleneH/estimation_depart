@@ -90,7 +90,7 @@ test_that("SECRET : aucune valeur masquée dans la structure, le JSON, le HTML n
   EC$generer_carte_departs(p, FOND_DEP, f)
   html <- paste(readLines(f, encoding = "UTF-8", warn = FALSE), collapse = "\n")
   for (v in c("987654", "54321", "11111", "22222", "77.77", "77,77")) expect_false(grepl(v, html, fixed = TRUE), label = v)
-  expect_true(grepl("Non diffusé — secret statistique", html, fixed = TRUE)); expect_true(grepl("Pas de donnée observée", html, fixed = TRUE))
+  expect_true(grepl("Résultat non diffusé — secret statistique", html, fixed = TRUE)); expect_true(grepl("Aucun salarié observé", html, fixed = TRUE))
   expect_true(grepl("27.4", html, fixed = TRUE))                                        # la valeur diffusée, elle, y est
   expect_false(grepl("<script src=|https?://cdn|@import", html))                        # aucune ressource externe
   expect_true(grepl('data-code="64"', html, fixed = TRUE)); expect_false(grepl('data-code="975"', html, fixed = TRUE))
@@ -158,11 +158,12 @@ test_that("cs1 et France entière : couverture par CS, carte-support nationale s
   expect_false(grepl("<svg", html, fixed = TRUE)); expect_false(grepl('name="vue"', html, fixed = TRUE))
   for (id in c("kpi-c", "kpi-t", "kpi-e", "f-b", "f-c", "f-h", "barre", "causes", "zone-masque", "cat-affichee")) expect_true(grepl(sprintf('id="%s"', id), html, fixed = TRUE), label = id)
   expect_true(grepl('class="tabs"', html, fixed = TRUE)); expect_true(grepl('data-cat="Employes"', html, fixed = TRUE))
-  expect_true(grepl("France entière", html, fixed = TRUE)); expect_true(grepl("Salariés dans le champ", html, fixed = TRUE))
+  expect_true(grepl("France entière", html, fixed = TRUE)); expect_true(grepl("salariés concernés", html, fixed = TRUE))
+  expect_true(grepl("pourraient partir d’ici 2030", html, fixed = TRUE)); expect_true(grepl("Qui est concerné ?", html, fixed = TRUE))
   expect_true(grepl("350.9", html, fixed = TRUE))
   jj <- jsonlite::fromJSON(sub(".*<script type=\"application/json\" id=\"donnees\">(.*?)</script>.*", "\\1", html), simplifyVector = FALSE)
   expect_identical(jj$cellules$FR$Employes, list(s = "m"))                               # catégorie nationale masquée : statut seul
-  expect_equal(jj$cellules$FR$Cadres$r, 304.9); expect_identical(jj$libelles$causes$r, "Retraite / fin de carrière")
+  expect_equal(jj$cellules$FR$Cadres$r, 304.9); expect_identical(jj$libelles$causes$r, "Retraite ou fin de carrière")
   # pcs France : filtre + liste, pas d'onglets
   pp <- EC$preparer_carte_departs(TABLE_ABC |> dplyr::select(-region_code, -region_nom, -geo_code, -geo_nom) |> dplyr::slice(1:2), "pcs", "france")
   f2 <- file.path(tempdir(), "dash_fr_pcs.html"); EC$generer_carte_departs(pp, NULL, f2)
@@ -172,7 +173,9 @@ test_that("cs1 et France entière : couverture par CS, carte-support nationale s
 
 test_that("CHAMP : source unique construite depuis la configuration (AGE_MIN_BTS, PCS_VERS_CS1), jamais codée en dur ; libellés UI sans nom de colonne", {
   ch <- EC$construire_libelle_champ()
-  expect_identical(ch$court, sprintf("salariés du périmètre BITD âgés de %d ans ou plus", EC$AGE_MIN_BTS))
+  expect_identical(ch$court, sprintf("salariés de %d ans ou plus · entreprises du périmètre BITD", EC$AGE_MIN_BTS))
+  expect_identical(ch$salaries_age, sprintf("salariés de %d ans ou plus", EC$AGE_MIN_BTS))
+  expect_true(any(grepl("périmètre BITD", ch$detaille))); expect_false(any(grepl("champ", ch$detaille)))     # langage simple : jamais « champ »
   expect_true(any(grepl("cadres, professions intermédiaires, employés, ouvriers", ch$detaille)))
   expect_true(any(grepl("agriculteurs exploitants, artisans, commerçants et chefs d’entreprise", ch$detaille)))
   expect_true(any(grepl("d’ici 2030", ch$detaille)))
@@ -182,22 +185,26 @@ test_that("CHAMP : source unique construite depuis la configuration (AGE_MIN_BTS
   assign("DIR_DATA", file.path(RACINE, "data"), envir = E50)
   sys.source(chemin_script("00f_fonctions_cartes.R"), envir = E50)
   ch50 <- E50$construire_libelle_champ()
-  expect_identical(ch50$court, "salariés du périmètre BITD âgés de 50 ans ou plus"); expect_false(any(grepl("ouvriers", ch50$detaille)))
+  expect_identical(ch50$court, "salariés de 50 ans ou plus · entreprises du périmètre BITD"); expect_false(any(grepl("ouvriers", ch50$detaille)))
+  expect_identical(E50$construire_libelles_public(ch50)$salaries_age, "Salariés de 50 ans ou plus")
+  expect_identical(E50$construire_libelles_public(ch50)$legende$effectif, "Nombre de salariés de 50 ans ou plus")
   for (nv in c("france", "departement")) {
     p <- E50$preparer_carte_departs(if (nv == "france") TABLE_ABC[1:2, ] else TABLE_ABC, "pcs", nv, if (nv == "france") NULL else FOND_DEP)
     f <- file.path(tempdir(), sprintf("champ50_%s.html", nv)); E50$generer_carte_departs(p, if (nv == "france") NULL else FOND_DEP, f)
     h <- paste(readLines(f, encoding = "UTF-8", warn = FALSE), collapse = "\n")
     expect_true(grepl("50 ans ou plus", h, fixed = TRUE), label = nv); expect_false(grepl("45 ans", h, fixed = TRUE), label = nv)
     expect_false(grepl("ouvriers", h, fixed = TRUE), label = nv)
-    expect_true(grepl("Comprendre le champ", h, fixed = TRUE), label = nv)
+    expect_true(grepl("Qui est concerné ?", h, fixed = TRUE), label = nv)
+    expect_true(grepl("Salariés de 50 ans ou plus", h, fixed = TRUE), label = nv)   # en-tête, légende, KPI : même phrase dynamique
     expect_equal(length(gregexpr("50 ans ou plus", h, fixed = TRUE)[[1]]) >= 3, TRUE, label = nv)   # en-tête, JSON, pied : même phrase partout
     # aucun nom de colonne R dans la page
     expect_false(grepl("taux_depart_central_pct|departs_central|effectif_champ|dep_retraite|region_code|geo_code|motif_masque", h), label = nv)
   }
   # LIBELLES_UI : source unique des libellés
-  expect_identical(EC$LIBELLES_UI$indicateurs[["effectif"]], "Salariés dans le champ étudié")
-  expect_identical(EC$LIBELLES_UI$indicateurs[["taux"]], "Taux de départ estimé")
-  expect_identical(EC$LIBELLES_UI$couverture$libelles[4], "Toutes diffusables (100 %)")
+  expect_identical(EC$LIBELLES_UI$indicateurs[["effectif"]], "Nombre de salariés")
+  expect_identical(EC$LIBELLES_UI$indicateurs[["taux"]], "Part des salariés susceptibles de partir")
+  expect_identical(EC$LIBELLES_UI$couverture$libelles[4], "Tous les résultats affichables (100 %)")
+  expect_identical(EC$LIBELLES_UI$couverture$titre, "Où peut-on afficher les résultats ?")
 })
 
 test_that("08e sur les sorties réelles du dépôt : 6 cartes HTML (+ PNG), comptages, fichier absent = message, aucun fichier = arrêt", {
@@ -220,8 +227,11 @@ test_that("08e sur les sorties réelles du dépôt : 6 cartes HTML (+ PNG), comp
     expect_true(file.exists(fh), label = paste(dm, nv))
     expect_identical(file.exists(file.path(d, "cartes_departs", dm, sprintf("carte_%s_%s.png", dm, nv))), nv != "france", label = paste(dm, nv))
     h <- paste(readLines(fh, encoding = "UTF-8", warn = FALSE), collapse = "\n")
-    expect_true(grepl(paste0("<b>Champ</b> · ", champ$court), h, fixed = TRUE), label = paste(dm, nv))      # champ en tête de CHAQUE page
-    expect_true(grepl("Non diffusé — secret statistique", h, fixed = TRUE), label = paste(dm, nv))
+    expect_true(grepl(sprintf("<b>Salariés de %d ans ou plus</b> · entreprises du périmètre BITD", env$AGE_MIN_BTS), h, fixed = TRUE), label = paste(dm, nv))   # qui est concerné, en tête de CHAQUE page
+    expect_true(grepl("Résultat non diffusé — secret statistique", h, fixed = TRUE), label = paste(dm, nv))
+    # LANGAGE PUBLIC : aucun jargon statistique dans les pages
+    texte <- gsub("<script type=\"application/json\"[^<]*</script>", "", h)                    # hors données embarquées
+    expect_false(grepl("Salariés du champ|Effectif du champ|Champ étudié|champ étudié|Population du champ|Salariés dans le champ|Comprendre le champ|iffusabilit|Effectif|Taux de départ estimé", texte), label = paste(dm, nv))
     expect_identical(grepl("<svg", h, fixed = TRUE), nv != "france", label = paste(dm, nv))                  # France : tableau de bord, pas de carte
     expect_false(grepl("taux_depart_central_pct|departs_central|effectif_champ|motif_masque", h), label = paste(dm, nv))
     expect_false(grepl("<script src=|https?://cdn|@import", h), label = paste(dm, nv))
