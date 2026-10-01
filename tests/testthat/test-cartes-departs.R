@@ -8,6 +8,7 @@ EC <- new.env()
 source(chemin_script("00_config.R"), local = EC)
 setwd(.old_wd)
 assign("DIR_DATA", file.path(RACINE, "data"), envir = EC)
+sys.source(chemin_script("00g_format_restitution.R"), envir = EC)
 sys.source(chemin_script("00f_fonctions_cartes.R"), envir = EC)
 FOND_DEP <- EC$charger_fond_carte("departement"); FOND_REG <- EC$charger_fond_carte("region")
 mesures_vides <- function(n) list(effectif_champ = rep(NA_real_, n), departs_central = rep(NA_real_, n), departs_bas = rep(NA_real_, n),
