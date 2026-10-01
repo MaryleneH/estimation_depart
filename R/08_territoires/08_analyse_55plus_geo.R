@@ -2,8 +2,8 @@
 # 08_analyse_55plus_geo.R — Vulnérabilité RH par TERRITOIRE : les 55 ans et +
 # ------------------------------------------------------------------------------
 # PRÉREQUIS : objet `bts_projete` avec le contrat geo_code / geo_nom / geo_type
-#             (scripts 01-04) ; AGE_SENIOR, SEUIL_DIFFUSION, GEO_ANALYSE,
-#             GEO_INTERET, GEO_ZONAGES (00) ; fonctions 00c.
+#             (scripts 01-04) ; AGE_SENIOR, SECRET_* (règle Insee), GEO_ANALYSE,
+#             GEO_INTERET, GEO_ZONAGES (00) ; fonctions 00c et 00d (secret).
 # PRODUIT   : objets `synthese_geo`, `criticite_geo_cs`, `tableau_55plus_geo` ;
 #             fichiers SUFFIXÉS par le zonage (GEO_ZONAGES[[GEO_ANALYSE]]$suffixe),
 #             ex. pour "ze" / "departement" :
@@ -18,8 +18,10 @@
 #             quadrant autour des médianes, classe les territoires ; le détail
 #             territoire x CS repère les cellules où une catégorie entière
 #             s'éteint (risque de non-transmission des savoir-faire).
-# SECRET    : les cellules territoire x CS sous SEUIL_DIFFUSION salariés sont
-#             masquées dans l'export (convention statistique publique).
+# SECRET    : cellules territoire x CS masquées dans l'export selon la règle
+#             Insee de la Base Tous salariés (00_config SECRET_*, fonctions 00d) :
+#             < 5 salariés, < 3 entreprises ou une entreprise > 85 %, puis
+#             secret secondaire par territoire. Même décision que le 08b.
 # GÉNÉRIQUE : ce script ne connaît AUCUN nom de zonage ni de colonne source.
 #             Identifiant = geo_code ; affichage = geo_nom, jamais geo_code.
 # ==============================================================================
@@ -28,6 +30,7 @@ if (!all(c("geo_code", "geo_nom", "geo_type") %in% names(bts_projete)))
   stop("Contrat géographique (geo_code, geo_nom, geo_type) absent de bts_projete : ",
        "exécutez le R/01 à jour (voir bloc GEO_* de 00_config.R).")
 if (!exists("filtrer_geo_interet")) stop("Exécutez d'abord R/00c_fonctions_geo.R (ou main.R).")
+if (!exists("masquer_cellules")) stop("Exécutez d'abord R/00d_fonctions_fiches.R (secret statistique ; ou main.R).")
 
 library(dplyr); library(ggplot2); library(scales)
 
@@ -110,8 +113,18 @@ criticite_geo_cs <- base_geo |>
     .groups = "drop") |>
   arrange(desc(perte_seniors_pct))
 
+# Secret statistique (règle Insee, 00d) : décision par cellule territoire x CS,
+# secondaire par territoire — même décision que le 08b sur les mêmes cellules.
+masque_08 <- criticite_geo_cs |>
+  left_join(indicateurs_secret(base_geo, c("geo_code", "cs1")), by = c("geo_code", "cs1")) |>
+  group_by(geo_code) |>
+  mutate(masque = masquer_cellules(effectif_champ, n_entreprises, part_dominante_pct, regles_secret())) |>
+  ungroup() |>
+  select(geo_code, cs1, masque)
+criticite_geo_cs <- criticite_geo_cs |> left_join(masque_08, by = c("geo_code", "cs1"))
+
 cellules_critiques <- criticite_geo_cs |>
-  filter(effectif_champ >= SEUIL_DIFFUSION, perte_seniors_pct >= 25)
+  filter(!masque, perte_seniors_pct >= 25)
 if (nrow(cellules_critiques) > 0) {
   cat(sprintf("\n--- Cellules %s x CS les plus exposées (>= 25 %% de l'effectif perdu via les 55+) ---\n",
               tolower(ZON$libelle)))
@@ -123,19 +136,20 @@ if (nrow(cellules_critiques) > 0) {
 # --- D. Exports tableur FR, secret statistique appliqué ----------------------
 write.csv2(synthese_geo |> mutate(across(where(is.numeric), ~ round(.x, 1))),
            sortie("analyse_55plus_par_%s.csv"), row.names = FALSE)
-# Masquage : sous SEUIL_DIFFUSION salariés, les valeurs de la cellule sont
-# retirées (NA) mais la LIGNE reste, flaguée — l'absence se voit, ne se devine pas.
+# Masquage : cellule contraire à la règle Insee (ou masquée au titre du secret
+# secondaire) -> valeurs retirées (NA) mais la LIGNE reste, flaguée `masque` —
+# l'absence se voit, ne se devine pas.
 criticite_diffusable <- criticite_geo_cs |>
-  mutate(sous_seuil = effectif_champ < SEUIL_DIFFUSION,
-         across(c(effectif_55plus, part_55plus_pct, departs_55plus,
+  mutate(across(c(effectif_55plus, part_55plus_pct, departs_55plus,
                   perte_seniors_pct),
-                ~ ifelse(sous_seuil, NA_real_, round(.x, 1))),
-         effectif_champ = ifelse(sous_seuil, NA_integer_, effectif_champ))
+                ~ ifelse(masque, NA_real_, round(.x, 1))),
+         effectif_champ = ifelse(masque, NA_integer_, effectif_champ))
 write.csv2(criticite_diffusable, sortie("criticite_55plus_%s_cs.csv"), row.names = FALSE)
-n_masquees <- sum(criticite_diffusable$sous_seuil)
+n_masquees <- sum(criticite_diffusable$masque)
 if (n_masquees > 0)
   message("08 : ", n_masquees, " cellule(s) ", tolower(ZON$libelle),
-          " x CS masquée(s) (effectif < ", SEUIL_DIFFUSION, ").")
+          " x CS masquée(s) (secret statistique, règle Insee : ", SECRET_MIN_SALARIES, " salariés, ",
+          SECRET_MIN_ENTREPRISES, " entreprises, dominance ", SECRET_DOMINANCE_PCT, " %).")
 
 # --- E. Quadrant de vulnérabilité — restitution SOBRE (lecture d'état-major) --
 # Contraintes : plusieurs dizaines de territoires, un décideur non statisticien,
