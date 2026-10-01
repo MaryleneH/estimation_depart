@@ -27,7 +27,7 @@ tab <- tibble::tibble(
             "2. + Apport du sas de fin de carrière",
             "3. + Apport invalidité et décès",
             "Total (scénario B)"),
-  departs = round(c(tot_legis,
+  departs = arrondir_nombre_personnes(c(tot_legis,
                     tot_sas - tot_legis,
                     tot_B   - tot_sas,
                     tot_B)),

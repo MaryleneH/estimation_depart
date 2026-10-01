@@ -30,12 +30,12 @@ total <- resultats_entreprises |>
   summarise(across(c(effectif_champ_2024, departs_2030,
                      departs_bas, departs_haut), sum))
 
-print(resultats_entreprises |> mutate(across(where(is.numeric), ~ round(.x, 1))))
+print(formater_restitution(resultats_entreprises))
 cat("--- Total périmètre ---\n")
-print(total |> mutate(across(everything(), round)))
+print(formater_restitution(total))
 
-# Export tableur FR (';' + décimale ',') — arrondis pour la diffusion
-write.csv2(resultats_entreprises |> mutate(across(where(is.numeric), ~ round(.x, 1))),
+# Export tableur FR (';' + décimale ',') — convention 00g : personnes entières, part à 1 décimale
+write.csv2(formater_restitution(resultats_entreprises),
            file.path(DIR_SORTIES, "departs_2030_par_entreprise.csv"),
            row.names = FALSE)
 

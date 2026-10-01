@@ -91,10 +91,9 @@ med_part <- median(synthese_geo$part_55plus_pct, na.rm = TRUE)
 med_taux <- median(synthese_geo$taux_depart_55plus_pct, na.rm = TRUE)
 
 cat(sprintf("\n--- Synthèse 55+ par %s (scénario central) ---\n", tolower(ZON$libelle)))
-print(synthese_geo |>
+print(formater_restitution(synthese_geo) |>
         select(geo_code, geo_nom, effectif_champ, effectif_55plus, part_55plus_pct,
                departs_55plus, taux_depart_55plus_pct) |>
-        mutate(across(where(is.numeric), ~ round(.x, 1))) |>
         as.data.frame(), row.names = FALSE)
 cat(sprintf("Médianes du quadrant : part 55+ = %.1f %% | taux de départ 55+ = %.1f %%\n",
             med_part, med_taux))
@@ -128,21 +127,20 @@ cellules_critiques <- criticite_geo_cs |>
 if (nrow(cellules_critiques) > 0) {
   cat(sprintf("\n--- Cellules %s x CS les plus exposées (>= 25 %% de l'effectif perdu via les 55+) ---\n",
               tolower(ZON$libelle)))
-  print(cellules_critiques |>
-          mutate(across(where(is.numeric), ~ round(.x, 1))) |>
+  print(formater_restitution(cellules_critiques) |>
           as.data.frame(), row.names = FALSE)
 }
 
 # --- D. Exports tableur FR, secret statistique appliqué ----------------------
-write.csv2(synthese_geo |> mutate(across(where(is.numeric), ~ round(.x, 1))),
-           sortie("analyse_55plus_par_%s.csv"), row.names = FALSE)
+# Convention 00g : personnes -> entier (causes cohérentes avec departs_55plus,
+# plus forts restes), taux -> 1 décimale ; l'objet synthese_geo reste exact.
+write.csv2(formater_restitution(synthese_geo), sortie("analyse_55plus_par_%s.csv"), row.names = FALSE)
 # Masquage : cellule contraire à la règle Insee (ou masquée au titre du secret
 # secondaire) -> valeurs retirées (NA) mais la LIGNE reste, flaguée `masque` —
 # l'absence se voit, ne se devine pas.
-criticite_diffusable <- criticite_geo_cs |>
-  mutate(across(c(effectif_55plus, part_55plus_pct, departs_55plus,
-                  perte_seniors_pct),
-                ~ ifelse(masque, NA_real_, round(.x, 1))),
+criticite_diffusable <- formater_restitution(criticite_geo_cs) |>
+  mutate(across(c(effectif_55plus, part_55plus_pct, departs_55plus, perte_seniors_pct),
+                ~ ifelse(masque, NA_real_, .x)),
          effectif_champ = ifelse(masque, NA_integer_, effectif_champ))
 write.csv2(criticite_diffusable, sortie("criticite_55plus_%s_cs.csv"), row.names = FALSE)
 n_masquees <- sum(criticite_diffusable$masque)
@@ -353,26 +351,28 @@ tableau_55plus_geo <- synthese_geo |>
                 est_total = TRUE) |>
       mutate(taux_pct = 100 * departs / effectif))
 
+# Table de RESTITUTION (00g) : personnes -> entier, « dont » cohérents avec
+# les départs (plus forts restes), taux -> 1 décimale. Sert au CSV ET au HTML
+# (mêmes nombres partout) ; tableau_55plus_geo garde ses valeurs exactes.
+tableau_55plus_aff <- formater_restitution(tableau_55plus_geo)
 # Export tableur FR — la colonne géographique porte le libellé du zonage
-write.csv2(tableau_55plus_geo |>
+write.csv2(tableau_55plus_aff |>
              select(-est_total) |>
-             mutate(across(where(is.numeric), ~ round(.x, 1))) |>
              rename(!!ZON$libelle := territoire),
            sortie("tableau_departs_55plus_%s.csv"), row.names = FALSE)
 
 # Tableau MIS EN FORME sans dépendance : HTML écrit à la main (inline CSS,
 # style sobre aligné sur le quadrant). S'ouvre dans un navigateur, s'imprime,
 # se colle dans un document — sans gt ni aucun package supplémentaire.
-# 0 chiffre après la virgule dans le tableau HTML (demande de restitution) ;
-# le CSV, lui, garde une décimale pour les reprises de calcul.
 # Une valeur indéfinie (taux d'un territoire sans senior) s'affiche « – ».
-fmt0 <- function(x) ifelse(is.finite(x),
-                           formatC(round(x), format = "d", big.mark = " "),
-                           "–")
+# Personnes entières (convention 00g), taux à 1 décimale ; une valeur
+# indéfinie (taux d'un territoire sans senior) s'affiche « – ».
+fmt0 <- function(x) fmt_personnes(x, na = "–")
+fmt1 <- function(x) ifelse(is.finite(x), formatC(x, format = "f", digits = 1, decimal.mark = ","), "–")
 echap <- function(x) { x <- gsub("&", "&amp;", x, fixed = TRUE)
                        x <- gsub("<", "&lt;",  x, fixed = TRUE)
                        gsub(">", "&gt;", x, fixed = TRUE) }
-lignes_html <- with(tableau_55plus_geo, paste0(
+lignes_html <- with(tableau_55plus_aff, paste0(
   "      <tr", ifelse(est_total, " class=\"total\"", ""), ">",
   "<td>", echap(territoire), "</td>",
   "<td class=\"num\">", fmt0(effectif), "</td>",
@@ -380,7 +380,7 @@ lignes_html <- with(tableau_55plus_geo, paste0(
   "<td class=\"num\">", fmt0(dont_retraite), "</td>",
   "<td class=\"num\">", fmt0(dont_invalidite), "</td>",
   "<td class=\"num\">", fmt0(dont_deces), "</td>",
-  "<td class=\"num\">", fmt0(taux_pct), "</td>",
+  "<td class=\"num\">", fmt1(taux_pct), "</td>",
   "<td class=\"num\">", fmt0(bas), " – ", fmt0(haut), "</td></tr>"))
 page_html <- c(
   "<!DOCTYPE html>",
@@ -419,10 +419,9 @@ writeLines(page_html, sortie("tableau_departs_55plus_%s.html"), useBytes = FALSE
 
 cat(sprintf("\n--- Tableau %d+ par %s (tête + total ; détail : CSV) ---\n",
             AGE_SENIOR, tolower(ZON$libelle)))
-print(tableau_55plus_geo |>
+print(tableau_55plus_aff |>
         filter(row_number() <= 5 | est_total) |>
         select(-est_total) |>
-        mutate(across(where(is.numeric), ~ round(.x, 1))) |>
         as.data.frame(), row.names = FALSE)
 
 message("08 OK (", GEO_ANALYSE, ") -> ",
