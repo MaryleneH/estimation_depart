@@ -198,9 +198,43 @@ projeter_fond <- function(fond, largeur = 1000, hauteur_encart = 230) {
        hauteur = largeur + if (n_enc > 0) hauteur_encart else 0, noms = vapply(fond, `[[`, "", "nom"))
 }
 
+# --- Libellés des PCS (nomenclature PCS-ESE 2017, fichier local xlsx) ----------
+# Retourne un vecteur nommé  code normalisé -> libellé  (NULL + message si le
+# fichier est absent : les cartes affichent alors code + grande catégorie).
+# Normalisation des codes : minuscules, sans espaces (342f = 342F = " 342f ").
+# Colonnes attendues : PCS_LIBELLES_COLS (00) ; colonnes absentes = ARRÊT.
+normaliser_code_pcs <- function(x) gsub("\\s+", "", tolower(as.character(x)))
+charger_libelles_pcs <- function(fichier = get0("FICHIER_PCS_LIBELLES", ifnotfound = file.path(DIR_DATA, "PCS-ESE_2017_Liste.xlsx")),
+                                 cols = get0("PCS_LIBELLES_COLS", ifnotfound = c(code = "Code 2017", libelle = "Libelle_2017"))) {
+  if (is.null(fichier) || !file.exists(fichier)) {
+    message("Libellés PCS : fichier absent (", fichier, ") — les cartes afficheront le code et la grande catégorie.")
+    return(NULL)
+  }
+  if (!requireNamespace("readxl", quietly = TRUE)) stop("Libellés PCS : le package readxl est requis pour lire ", fichier)
+  x <- readxl::read_excel(fichier, sheet = 1, col_types = "text")
+  manquantes <- setdiff(unname(cols[c("code", "libelle")]), names(x))
+  if (length(manquantes) > 0)
+    stop("Libellés PCS : colonne(s) ", paste(manquantes, collapse = ", "), " absente(s) de ", fichier,
+         " (colonnes lues : ", paste(names(x), collapse = ", "), ") — ajustez PCS_LIBELLES_COLS.")
+  code <- normaliser_code_pcs(x[[cols[["code"]]]]); lib <- trimws(as.character(x[[cols[["libelle"]]]]))
+  ok <- !is.na(code) & code != "" & !is.na(lib) & lib != ""
+  code <- code[ok]; lib <- lib[ok]
+  if (anyDuplicated(code) > 0) {
+    dupl <- unique(code[duplicated(code)])
+    message("Libellés PCS : ", length(dupl), " code(s) en double, premier libellé conservé : ", paste(head(dupl, 5), collapse = ", "))
+    keep <- !duplicated(code); code <- code[keep]; lib <- lib[keep]
+  }
+  message("Libellés PCS : ", length(code), " code(s) lu(s) dans ", basename(fichier))
+  setNames(lib, code)
+}
+
 # --- Préparation : table de diffusion -> structure de carte (sans aucune fuite) --
+# libelles_pcs : vecteur nommé de charger_libelles_pcs() (dimension pcs) ; NULL = aucun libellé.
+# ORDRE des catégories : dimension pcs -> départs estimés (centrale) DIFFUSÉS,
+# sommés sur les territoires de la table, décroissants ; PCS sans aucun résultat
+# diffusé en fin de liste ; égalité = code croissant. Dimension cs1 : code croissant.
 preparer_carte_departs <- function(donnees, dimension = c("pcs", "cs1"),
-                                   niveau = c("france", "region", "departement"), fond = NULL) {
+                                   niveau = c("france", "region", "departement"), fond = NULL, libelles_pcs = NULL) {
   dimension <- match.arg(dimension); niveau <- match.arg(niveau)
   if (!"masque" %in% names(donnees))
     stop("preparer_carte_departs : colonne 'masque' absente — seule une table de DIFFUSION est admise (jamais interne/).")
@@ -228,6 +262,14 @@ preparer_carte_departs <- function(donnees, dimension = c("pcs", "cs1"),
   }
   cats <- d |> distinct(.cat, cs1 = if ("cs1" %in% names(d)) cs1 else NA_character_) |> arrange(.cat)
   if (dimension == "cs1") cats$cs1 <- NA_character_
+  cats$libelle <- NA_character_
+  if (dimension == "pcs") {
+    if (!is.null(libelles_pcs)) cats$libelle <- unname(libelles_pcs[normaliser_code_pcs(cats$.cat)])
+    tot <- d |> filter(!masque, !is.na(departs_central)) |> group_by(.cat) |>   # valeurs diffusées seulement
+      summarise(departs_total = sum(departs_central), .groups = "drop")
+    cats <- cats |> left_join(tot, by = ".cat") |>
+      arrange(is.na(departs_total), desc(departs_total), .cat) |> select(-departs_total)
+  }
   cellules <- d |> transmute(code = .code, cat = .cat, statut = ifelse(masque, "masque", "diffuse"),
                              effectif_champ, departs_central, departs_bas, departs_haut, taux_depart_central_pct,
                              dep_retraite, dep_invalidite, dep_deces)
@@ -256,6 +298,12 @@ controler_carte_departs <- function(prep, fond = NULL, prefixe = "08e") {
   cat(sprintf("  %s x %-12s : territoires CSV %3d | joints %3d | masqués %3d | diffusables %3d | sans donnée %3d | catégories %d%s\n",
               prep$dimension, prep$niveau, n[["csv"]], n[["joints"]], n[["masques"]], n[["diffusables"]], n[["sans"]],
               nrow(prep$categories), if (prep$n_non_localises > 0) sprintf(" | non localisables %d", prep$n_non_localises) else ""))
+  if (prep$dimension == "pcs" && "libelle" %in% names(prep$categories)) {
+    n_lib <- sum(!is.na(prep$categories$libelle))
+    if (n_lib < nrow(prep$categories))
+      cat(sprintf("    libellés PCS : %d/%d trouvés dans la nomenclature ; sans libellé : %s\n", n_lib, nrow(prep$categories),
+                  paste(head(prep$categories$code[is.na(prep$categories$libelle)], 10), collapse = ", ")))
+  }
   invisible(n)
 }
 
@@ -273,7 +321,10 @@ donnees_json_carte <- function(prep, champ = construire_libelle_champ()) {
   cov <- setNames(lapply(seq_len(nrow(prep$couverture)), function(i) {
     r <- prep$couverture[i, ]; list(o = r$n_obs, d = r$n_diff, m = r$n_masq, p = round(r$part_diff_pct, 1)) }), prep$couverture$code)
   cats <- lapply(seq_len(nrow(prep$categories)), function(i) {
-    r <- prep$categories[i, ]; if (is.na(r$cs1)) list(code = r$code) else list(code = r$code, cs1 = r$cs1) })
+    r <- prep$categories[i, ]; k <- list(code = r$code)
+    if (!is.na(r$cs1)) k$cs1 <- r$cs1
+    if (!is.null(r$libelle) && !is.na(r$libelle)) k$lib <- r$libelle
+    k })
   terr <- lapply(seq_len(nrow(prep$territoires)), function(i) list(code = prep$territoires$code[i], nom = prep$territoires$nom[i]))
   j <- jsonlite::toJSON(list(dimension = prep$dimension, niveau = prep$niveau,
                              categories = cats, territoires = terr, cellules = cel, couverture = cov,
@@ -357,8 +408,9 @@ js_cartes <- function() paste(
   'var dimPl=D.dimension==="pcs"?"PCS":"catégories",dimUne=D.dimension==="pcs"?"PCS":"catégorie";',
   'var nivLib={france:"France entière",region:"par région",departement:"par département"}[D.niveau];',
   'var nivPl={france:"",region:"régions",departement:"départements"}[D.niveau];',
-  'var catLib=function(c){var o=D.categories.filter(function(k){return k.code===c})[0];if(!o)return c;return D.dimension==="pcs"?("PCS "+o.code+(o.cs1?" · "+(D.libelles_cs[o.cs1]||o.cs1):"")):(D.libelles_cs[o.code]||o.code)};',
-  'var catOpt=function(k){return D.dimension==="pcs"?(k.code+(k.cs1?" — "+(D.libelles_cs[k.cs1]||k.cs1):"")):(D.libelles_cs[k.code]||k.code)};',
+  # catégorie : libellé officiel de la PCS quand la nomenclature le fournit (k.lib), sinon code + grande catégorie
+  'var catLib=function(c){var o=D.categories.filter(function(k){return k.code===c})[0];if(!o)return c;if(D.dimension!=="pcs")return D.libelles_cs[o.code]||o.code;return o.lib?(o.lib+" · PCS "+o.code):("PCS "+o.code+(o.cs1?" · "+(D.libelles_cs[o.cs1]||o.cs1):""))};',
+  'var catOpt=function(k){if(D.dimension!=="pcs")return D.libelles_cs[k.code]||k.code;return k.code+" — "+(k.lib?k.lib:(k.cs1?(D.libelles_cs[k.cs1]||k.cs1):""))};',
   'function remplirCats(filtre){var s=$("cat");if(!s)return;var f=(filtre||"").toLowerCase();s.innerHTML="";D.categories.forEach(function(k){var lib=catOpt(k);if(f&&lib.toLowerCase().indexOf(f)<0)return;var o=document.createElement("option");o.value=k.code;o.textContent=lib;s.appendChild(o)});if(s.options.length){var ok=false;for(var i=0;i<s.options.length;i++)if(s.options[i].value===etat.cat){ok=true;break}if(!ok)etat.cat=s.options[0].value;s.value=etat.cat}}',
   'function cle(){return etat.ind==="departs"?etat.scen:(etat.ind==="effectif"?"e":"t")}',
   'var dec={t:1,c:0,b:0,h:0,e:0,r:0,i:0,d:0};',   # personnes -> entier (convention 00g), part -> 1 décimale
@@ -460,7 +512,7 @@ html_selecteur_categorie <- function(prep) {
   } else {
     c(sprintf('<div id="b-cat"><label class="control-label" for="cat">%s</label>%s<select id="cat" size="1"></select></div>',
               if (prep$dimension == "pcs") "Quelle PCS ?" else "Quelle catégorie ?",
-              if (prep$dimension == "pcs") '<input type="search" id="rech" placeholder="Rechercher un code PCS ou une catégorie" aria-label="Rechercher une PCS">' else ""))
+              if (prep$dimension == "pcs") '<input type="search" id="rech" placeholder="Rechercher un code PCS ou un libellé" aria-label="Rechercher une PCS">' else ""))
   }
 }
 html_pied <- function(champ, source_note) {

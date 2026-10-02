@@ -123,7 +123,7 @@ test_that("jointure géographique : codes texte conservés, code sans géométri
   expect_identical(pr$territoires$statut[pr$territoires$code == "11"], "sans_donnee")
   expect_equal(sum(pr$territoires$statut != "sans_donnee"), 3)
   out <- capture.output(n <- EC$controler_carte_departs(pr))
-  expect_equal(unname(n), c(3, 3, 1, 2, 15)); expect_true(grepl("joints   3", out))
+  expect_equal(unname(n), c(3, 3, 1, 2, 15)); expect_true(any(grepl("joints   3", out)))   # + une ligne « libellés PCS » en dimension pcs
 })
 
 test_that("CSV de diffusion avec BOM UTF-8 : noms de colonnes propres, codes texte, décimales françaises, masque logique", {
@@ -288,4 +288,57 @@ test_that("CONTOURS : source unique STYLE_CONTOURS_CARTE, trait gris (jamais bla
   fp <- file.path(tempdir(), "contours_dep.png")
   EC$png_carte_departs(p, EC$projeter_fond(FOND_DEP), fp, "t", lay_regions = EC$projeter_fond(FOND_REG))
   expect_true(file.exists(fp) && file.size(fp) > 1000)
+})
+
+test_that("LIBELLÉS PCS : nomenclature xlsx lue (codes normalisés), libellé affiché quand il existe, repli code + grande catégorie sinon, fichier absent = NULL", {
+  skip_if_not_installed("readxl")
+  XLSX_PCS <- file.path(RACINE, "data", "PCS-ESE_2017_Liste.xlsx")   # vrai fichier du dépôt (DIR_DATA relatif dans la config)
+  lib <- EC$charger_libelles_pcs(XLSX_PCS)
+  expect_type(lib, "character"); expect_true(length(lib) >= 10); expect_true(all(nchar(names(lib)) > 0))
+  expect_identical(names(lib), EC$normaliser_code_pcs(names(lib)))   # noms déjà normalisés
+  expect_null(suppressMessages(EC$charger_libelles_pcs(file.path(tempdir(), "inexistant.xlsx"))))
+  expect_error(EC$charger_libelles_pcs(XLSX_PCS, cols = c(code = "Code 2017", libelle = "Colonne_absente")), "absente")
+  # rapprochement insensible à la casse et aux espaces : 311D (table) <-> " 311d " (nomenclature)
+  demo <- c(" 311d " = "Ingénieurs de démonstration", "999Z" = "Jamais présent")
+  demo <- setNames(demo, EC$normaliser_code_pcs(names(demo)))
+  p <- EC$preparer_carte_departs(TABLE_ABC, "pcs", "departement", FOND_DEP, libelles_pcs = demo)
+  expect_identical(p$categories$libelle, c("Ingénieurs de démonstration", NA))
+  expect_identical(p$categories$code, c("311D", "622A"))
+  f <- file.path(tempdir(), "carte_lib.html"); EC$generer_carte_departs(p, FOND_DEP, f)
+  html <- paste(readLines(f, encoding = "UTF-8", warn = FALSE), collapse = "\n")
+  expect_true(grepl('"lib":"Ingénieurs de démonstration"', html, fixed = TRUE))
+  expect_false(grepl("Jamais présent", html, fixed = TRUE))                  # seules les PCS de la table sont embarquées
+  expect_true(grepl("Rechercher un code PCS ou un libellé", html, fixed = TRUE))
+  # sans nomenclature : aucun libellé, structure inchangée
+  p0 <- EC$preparer_carte_departs(TABLE_ABC, "pcs", "departement", FOND_DEP)
+  expect_true(all(is.na(p0$categories$libelle)))
+  f0 <- file.path(tempdir(), "carte_lib0.html"); EC$generer_carte_departs(p0, FOND_DEP, f0)
+  expect_false(grepl('"lib":', paste(readLines(f0, encoding = "UTF-8", warn = FALSE), collapse = "\n"), fixed = TRUE))
+  # dimension cs1 : jamais de libellé PCS
+  pc <- EC$preparer_carte_departs(TABLE_ABC, "cs1", "departement", FOND_DEP, libelles_pcs = demo)
+  expect_true(all(is.na(pc$categories$libelle)))
+})
+
+test_that("ORDRE des PCS : départs estimés diffusés décroissants, sommés sur les territoires ; masqués exclus ; sans résultat en fin ; cs1 inchangé", {
+  t <- tibble::tibble(
+    region_code = rep(c("11", "24"), each = 4), region_nom = "R",
+    geo_code = rep(c("75", "21"), each = 4), geo_nom = rep(c("Paris", "Côte-d'Or"), each = 4),
+    pcs = rep(c("A1", "B2", "C3", "D4"), 2), cs1 = "Cadres",
+    effectif_champ = 100, departs_central = c(10, 30, NA, 5,   50, 2, NA, 5), departs_bas = 1, departs_haut = 99,
+    taux_depart_central_pct = 10, masque = c(FALSE, FALSE, TRUE, FALSE,  FALSE, FALSE, TRUE, FALSE), motif_masque = NA)
+  # A1 = 60 ; B2 = 32 ; D4 = 10 ; C3 : tout masqué -> dernier. Une cellule masquée avec une valeur ne compte jamais.
+  t2 <- t; t2$departs_central[3] <- 1000                       # valeur sous masque : effacée avant tout usage
+  p <- EC$preparer_carte_departs(t2, "pcs", "departement", FOND_DEP)
+  expect_identical(p$categories$code, c("A1", "B2", "D4", "C3"))
+  pf <- EC$preparer_carte_departs(t2 |> dplyr::filter(geo_code == "75") |> dplyr::select(-region_code, -region_nom, -geo_code, -geo_nom), "pcs", "france")
+  expect_identical(pf$categories$code, c("B2", "A1", "D4", "C3"))   # national : 30 > 10 > 5, C3 masqué
+  # égalité : code croissant ; la première option de la liste est la PCS la plus concernée
+  t3 <- t; t3$departs_central <- 7; p3 <- EC$preparer_carte_departs(t3 |> dplyr::filter(!masque), "pcs", "departement", FOND_DEP)
+  expect_identical(p3$categories$code, c("A1", "B2", "D4"))
+  f <- file.path(tempdir(), "carte_ordre.html"); EC$generer_carte_departs(p, FOND_DEP, f)
+  html <- paste(readLines(f, encoding = "UTF-8", warn = FALSE), collapse = "\n")
+  expect_true(grepl('"categories":[{"code":"A1","cs1":"Cadres"},{"code":"B2","cs1":"Cadres"},{"code":"D4","cs1":"Cadres"},{"code":"C3","cs1":"Cadres"}]', html, fixed = TRUE))
+  expect_false(grepl('"c":1000', html, fixed = TRUE))             # la valeur sous masque n’est jamais embarquée
+  pc <- EC$preparer_carte_departs(t2 |> dplyr::mutate(cs1 = pcs), "cs1", "departement", FOND_DEP)
+  expect_identical(pc$categories$code, c("A1", "B2", "C3", "D4"))   # grandes catégories : ordre des codes
 })

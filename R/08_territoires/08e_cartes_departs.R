@@ -31,6 +31,7 @@ if (!isTRUE(get0("GENERER_CARTES_DEPARTS", ifnotfound = FALSE))) {
   dir_cartes <- file.path(DIR_SORTIES, "cartes_departs")
   fonds_08e <- list()
   champ_08e <- construire_libelle_champ()          # source unique du champ, lue dans la configuration courante
+  libelles_pcs_08e <- charger_libelles_pcs()       # nomenclature PCS-ESE 2017 (facultative) : libellés affichés dans les cartes PCS
   cat("\n08e — cartes et tableaux de bord des résultats diffusables\n  ", champ_08e$titre, "\n")
   bilan_08e <- lapply(seq_len(nrow(configs_08e)), function(i) {
     dm <- configs_08e$dimension[i]; nv <- configs_08e$niveau[i]
@@ -53,7 +54,7 @@ if (!isTRUE(get0("GENERER_CARTES_DEPARTS", ifnotfound = FALSE))) {
       }
     }
     d <- lire_csv_diffusion(src)
-    prep <- preparer_carte_departs(d, dm, nv, fond)
+    prep <- preparer_carte_departs(d, dm, nv, fond, libelles_pcs = if (dm == "pcs") libelles_pcs_08e else NULL)
     n <- controler_carte_departs(prep, fond)
     generer_carte_departs(prep, fond, sortie, champ = champ_08e, fond_regions = fond_regions,
                           fichier_png = if (isTRUE(get0("CARTES_PNG", ifnotfound = TRUE)) && nv != "france") sub("\\.html$", ".png", sortie) else NULL,
@@ -68,5 +69,5 @@ if (!isTRUE(get0("GENERER_CARTES_DEPARTS", ifnotfound = FALSE))) {
   message("08e OK -> ", dir_cartes, " : ", sum(bilan_08e$statut == "ok"), " page(s) HTML (France : tableau de bord national ; région, département : cartes",
           if (isTRUE(get0("CARTES_PNG", ifnotfound = TRUE))) " + PNG)" else ")",
           if (length(absents)) paste0(" ; ", length(absents), " source(s) absente(s) : ", paste(basename(absents), collapse = ", ")) else "")
-  rm(configs_08e, fonds_08e, bilan_08e, absents, champ_08e)
+  rm(configs_08e, fonds_08e, bilan_08e, absents, champ_08e, libelles_pcs_08e)
 }
