@@ -227,6 +227,10 @@ GENERER_CARTES_DEPARTS <- TRUE    # FALSE = étape cartographie ignorée. Lit UN
                                   # diffusion/ de 08c et 08d ; fond local data/cartographie/ ;
                                   # gris = secret statistique, blanc = pas de donnée observée.
 CARTES_PNG <- TRUE                # image PNG de la vue initiale à côté de chaque carte HTML
+FICHIER_PCS_LIBELLES <- file.path(DIR_DATA, "PCS-ESE_2017_Liste.xlsx")   # nomenclature PCS-ESE 2017 (code + libellé),
+PCS_LIBELLES_COLS    <- c(code = "Code 2017", libelle = "Libelle_2017")  # feuille 1 ; sert UNIQUEMENT à afficher le
+                                  # libellé des PCS dans les cartes. Facultatif : absent = code + grande catégorie.
+                                  # Les codes sont rapprochés sans tenir compte de la casse ni des espaces (342f = 342F).
 FICHES_SECRET    <- TRUE          # TRUE  = secret statistique appliqué (version DIFFUSABLE).
                                   # FALSE = USAGE INTERNE : aucun masquage, tous les
                                   # territoires, bloc des entreprises (SIREN) ; écrit dans
