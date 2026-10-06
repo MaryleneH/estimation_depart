@@ -524,9 +524,9 @@ libelle_categorie <- function(prep, code, forme = c("titre", "option")) {
   else paste0(code, " — ", if (!is.na(lib)) lib else cs)
 }
 # Vue initiale d'une carte territoriale : statut, couleur et légende (vue Résultats, 1re catégorie, part, centrale)
-vue_initiale_carte <- function(prep, codes_fond, champ = construire_libelle_champ()) {
+vue_initiale_carte <- function(prep, codes_fond, champ = construire_libelle_champ(), cat = NULL) {
   P <- construire_libelles_public(champ); S <- STYLE_CONTOURS_CARTE
-  cat0 <- if (nrow(prep$categories)) prep$categories$code[1] else NA_character_
+  cat0 <- if (!is.null(cat)) cat else if (nrow(prep$categories)) prep$categories$code[1] else NA_character_
   cel <- prep$cellules[prep$cellules$cat %in% cat0, ]
   vals <- cel$taux_depart_central_pct[cel$statut == "diffuse" & !is.na(cel$taux_depart_central_pct)]
   cl <- classes_rondes(vals)
@@ -694,6 +694,16 @@ html_dashboard_national <- function(prep, champ = construire_libelle_champ()) {
   # vue initiale statique : chiffres de la première catégorie écrits dans le HTML (lisible sans JavaScript)
   cat0 <- if (nrow(prep$categories)) prep$categories$code[1] else NA_character_
   cat_lib <- if (is.na(cat0)) "" else libelle_categorie(prep, cat0, "titre")
+  c('<div class="dash"><aside class="panneau">',
+    html_selecteur_categorie(prep),
+    sprintf('<p class="cat-affichee"><span class="cat-nom" id="cat-affichee">%s</span><span class="cat-qui" id="cat-qui">%s</span></p>', echap_html_carte(cat_lib), echap_html_carte(P$salaries_age)),
+    '</aside><div>', html_bloc_dashboard(prep, cat0, P, ids = TRUE), '</div></div>')
+}
+# Bloc de chiffres d'une catégorie (KPI, fourchette, causes ; ou bloc « non diffusé ») — ids = TRUE : la page
+# interactive (le JS met à jour ces ids) ; FALSE : version courriel (un bloc par catégorie, aucun id).
+html_bloc_dashboard <- function(prep, cat0, P, ids = TRUE) {
+  id <- function(x) if (ids) sprintf(' id="%s"', x) else ""
+  cat_lib <- if (is.na(cat0)) "" else libelle_categorie(prep, cat0, "titre")
   c0 <- prep$cellules[prep$cellules$code == "FR" & prep$cellules$cat %in% cat0, ]
   masque0 <- nrow(c0) == 0 || c0$statut[1] == "masque"
   v <- function(col) if (masque0) NA_real_ else c0[[col]][1]
@@ -706,29 +716,119 @@ html_dashboard_national <- function(prep, champ = construire_libelle_champ()) {
   lis <- if (is.null(ent)) "" else paste(sprintf('<li><span class="sw" style="background:%s"></span><span>%s</span><span class="v">%s</span><span class="p">%s %%</span></li>',
                                                 cols_causes, LIBELLES_UI$causes[names(causes)], fmt0(ent),
                                                 fmt_fr_carte(if (tot > 0) 100 * ifelse(is.na(causes), 0, causes) / tot else 0, 0)), collapse = "")
-  c('<div class="dash"><aside class="panneau">',
-    html_selecteur_categorie(prep),
-    sprintf('<p class="cat-affichee"><span class="cat-nom" id="cat-affichee">%s</span><span class="cat-qui" id="cat-qui">%s</span></p>', echap_html_carte(cat_lib), echap_html_carte(P$salaries_age)),
-    '</aside><div>',
-    sprintf('<div id="zone-kpi"%s>', if (masque0) ' style="display:none"' else ""),
+  c(sprintf('<div%s%s>', id("zone-kpi"), if (masque0) ' style="display:none"' else ""),
     '<div class="kpis">',
-    sprintf('<div class="kpi primaire"><div class="kpi-value" id="kpi-c">%s</div><div class="kpi-label">%s</div><div class="kpi-help">%s</div></div>', fmt0(v("departs_central")), P$kpi$departs, P$kpi_aide$departs),
-    sprintf('<div class="kpi"><div class="kpi-value" id="kpi-t">%s</div><div class="kpi-label">%s</div><div class="kpi-help">%s</div></div>', if (is.na(v("taux_depart_central_pct"))) "n.d." else paste0(fmt_fr_carte(v("taux_depart_central_pct"), 1), " %"), P$kpi$taux, P$kpi_aide$taux),
-    sprintf('<div class="kpi"><div class="kpi-value" id="kpi-e">%s</div><div class="kpi-label">%s</div><div class="kpi-help">%s</div></div>', fmt0(v("effectif_champ")), P$kpi$salaries, P$kpi_aide$salaries),
+    sprintf('<div class="kpi primaire"><div class="kpi-value"%s>%s</div><div class="kpi-label">%s</div><div class="kpi-help">%s</div></div>', id("kpi-c"), fmt0(v("departs_central")), P$kpi$departs, P$kpi_aide$departs),
+    sprintf('<div class="kpi"><div class="kpi-value"%s>%s</div><div class="kpi-label">%s</div><div class="kpi-help">%s</div></div>', id("kpi-t"), if (is.na(v("taux_depart_central_pct"))) "n.d." else paste0(fmt_fr_carte(v("taux_depart_central_pct"), 1), " %"), P$kpi$taux, P$kpi_aide$taux),
+    sprintf('<div class="kpi"><div class="kpi-value"%s>%s</div><div class="kpi-label">%s</div><div class="kpi-help">%s</div></div>', id("kpi-e"), fmt0(v("effectif_champ")), P$kpi$salaries, P$kpi_aide$salaries),
     '</div>',
     '<div class="bloc"><h2>Combien de départs, selon l’hypothèse retenue ?</h2><div class="fourchette">',
-    sprintf('<div><div class="v" id="f-b">%s</div><div class="l">%s</div></div><div class="centrale"><div class="v" id="f-c">%s</div><div class="l">%s</div></div><div><div class="v" id="f-h">%s</div><div class="l">%s</div></div>',
-            fmt0(v("departs_bas")), LIBELLES_UI$scenarios[["b"]], fmt0(v("departs_central")), LIBELLES_UI$scenarios[["c"]], fmt0(v("departs_haut")), LIBELLES_UI$scenarios[["h"]]),
+    sprintf('<div><div class="v"%s>%s</div><div class="l">%s</div></div><div class="centrale"><div class="v"%s>%s</div><div class="l">%s</div></div><div><div class="v"%s>%s</div><div class="l">%s</div></div>',
+            id("f-b"), fmt0(v("departs_bas")), LIBELLES_UI$scenarios[["b"]], id("f-c"), fmt0(v("departs_central")), LIBELLES_UI$scenarios[["c"]], id("f-h"), fmt0(v("departs_haut")), LIBELLES_UI$scenarios[["h"]]),
     '</div><p class="note">L’estimation centrale est encadrée par deux hypothèses, basse et haute, sur l’âge de départ en retraite.</p></div>',
-    sprintf('<div class="bloc" id="bloc-causes"%s><h2>Pourquoi ces salariés partiraient-ils ?</h2><div class="barre" id="barre" aria-hidden="true">%s</div><ul class="causes" id="causes">%s</ul>',
-            if (is.null(ent)) ' style="display:none"' else "", barre, lis),
+    sprintf('<div class="bloc"%s%s><h2>Pourquoi ces salariés partiraient-ils ?</h2><div class="barre"%s aria-hidden="true">%s</div><ul class="causes"%s>%s</ul>',
+            id("bloc-causes"), if (is.null(ent)) ' style="display:none"' else "", id("barre"), barre, id("causes"), lis),
     '<p class="note">Répartition des départs estimés (estimation centrale) par motif.</p></div>',
     '</div>',
-    sprintf('<div class="masque-national" id="zone-masque"%s><div class="t" id="masque-cat">%s</div><p><b id="masque-titre">%s</b> <span id="masque-txt">%s</span></p><p>Les autres catégories restent consultables ci-contre.</p></div>',
-            if (masque0) "" else ' style="display:none"', echap_html_carte(cat_lib),
-            if (nrow(c0) == 0) LIBELLES_UI$sans_donnee else LIBELLES_UI$secret_court,
-            if (nrow(c0) == 0) paste0("Aucun salarié de cette ", if (prep$dimension == "pcs") "PCS" else "catégorie", " n’est observé.") else LIBELLES_UI$secret_explication),
-    '</div></div>')
+    sprintf('<div class="masque-national"%s%s><div class="t"%s>%s</div><p><b%s>%s</b> <span%s>%s</span></p><p>Les autres catégories restent consultables ci-contre.</p></div>',
+            id("zone-masque"), if (masque0) "" else ' style="display:none"', id("masque-cat"), echap_html_carte(cat_lib),
+            id("masque-titre"), if (nrow(c0) == 0) LIBELLES_UI$sans_donnee else LIBELLES_UI$secret_court,
+            id("masque-txt"), if (nrow(c0) == 0) paste0("Aucun salarié de cette ", if (prep$dimension == "pcs") "PCS" else "catégorie", " n’est observé.") else LIBELLES_UI$secret_explication))
+}
+
+# --- VERSION COURRIEL : aucun script, aucun contenu actif --------------------------
+# Les passerelles de messagerie (SISMEL…) retirent ou bloquent tout « contenu actif »
+# d'une pièce jointe HTML, y compris un bloc de données JSON dans <script>. Cette
+# version n'en contient AUCUN : toutes les catégories sont précalculées en R
+# (vue_initiale_carte par catégorie), le changement de catégorie est fait en CSS
+# pur (boutons radio + sélecteur :checked), les infobulles sont les <title> natifs
+# du SVG. Géométrie écrite une fois (<defs>) et réutilisée par <use>. Un seul
+# indicateur (part des salariés susceptibles de partir, estimation centrale) ; les
+# infobulles portent salariés, départs, fourchette et part. Même source que la
+# page interactive : aucune valeur masquée n'y figure.
+css_courriel <- function(n_cat) paste(
+  '.courriel>input{position:absolute;opacity:0;width:0;height:0}',
+  '.courriel .vue{display:none}.courriel .cats{list-style:none;margin:0;padding:0;max-height:440px;overflow:auto;border:1px solid #AEB7C2;border-radius:8px}',
+  '.courriel .cats label{display:block;padding:8px 10px;cursor:pointer;font-size:15px;border-bottom:1px solid var(--filet)}.courriel .cats li:last-child label{border-bottom:0}',
+  '.courriel svg{width:100%;height:auto;display:block}.courriel .vue-titre{font-size:20px;font-weight:700;margin:0 0 4px}.courriel .vue-qui{color:var(--texte);margin:0 0 12px}',
+  paste(sprintf('#cat-%d:checked~.grille .vue-%d,#cat-%d:checked~.dash .vue-%d{display:block}#cat-%d:checked~.grille label[for=cat-%d],#cat-%d:checked~.dash label[for=cat-%d]{background:var(--bleu);color:#fff}',
+                seq_len(n_cat), seq_len(n_cat), seq_len(n_cat), seq_len(n_cat), seq_len(n_cat), seq_len(n_cat), seq_len(n_cat), seq_len(n_cat)), collapse = ""),
+  sep = "\n")
+infobulle_courriel <- function(prep, code, nom, cat, P) {
+  r <- prep$cellules[prep$cellules$code == code & prep$cellules$cat == cat, ]
+  tete <- paste0(nom, " · ", code, "\n", libelle_categorie(prep, cat, "titre"), "\n")
+  if (nrow(r) == 0) return(paste0(tete, LIBELLES_UI$sans_donnee))
+  if (r$statut[1] == "masque") return(paste0(tete, LIBELLES_UI$secret))
+  l <- character(0)
+  if (!is.na(r$effectif_champ[1])) l <- c(l, paste(fmt_fr_carte(r$effectif_champ[1]), P$salaries_age_min))
+  if (!is.na(r$departs_central[1])) l <- c(l, paste(fmt_fr_carte(r$departs_central[1]), P$kpi$departs))
+  if (!is.na(r$departs_bas[1]) && !is.na(r$departs_haut[1])) l <- c(l, sprintf("entre %s et %s selon l’hypothèse", fmt_fr_carte(r$departs_bas[1]), fmt_fr_carte(r$departs_haut[1])))
+  if (!is.na(r$taux_depart_central_pct[1])) l <- c(l, paste0(fmt_fr_carte(r$taux_depart_central_pct[1], 1), " % ", P$kpi$taux))
+  paste0(tete, paste(l, collapse = "\n"))
+}
+html_radios_courriel <- function(prep) {
+  cats <- prep$categories$code
+  list(inputs = sprintf('<input type="radio" name="cat" id="cat-%d"%s>', seq_along(cats), ifelse(seq_along(cats) == 1, " checked", "")),
+       labels = c(sprintf('<span class="control-label">%s</span><ul class="cats">', if (prep$dimension == "pcs") "Quelle PCS ?" else "Quelle catégorie ?"),
+                  sprintf('<li><label for="cat-%d">%s</label></li>', seq_along(cats), echap_html_carte(vapply(cats, function(k) libelle_categorie(prep, k, "option"), ""))), '</ul>'))
+}
+html_carte_courriel <- function(prep, fond, titre_page, champ, fond_regions = NULL) {
+  lay <- projeter_fond(fond); terr <- prep$territoires; S <- STYLE_CONTOURS_CARTE; P <- construire_libelles_public(champ)
+  noms <- setNames(terr$nom[match(names(fond), terr$code)], names(fond))
+  defs <- c('<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>',
+            sprintf('<path id="g-%s" d="%s"></path>', echap_html_carte(names(fond)), lay$chemins),
+            if (!is.null(fond_regions)) { lr <- projeter_fond(fond_regions); metro <- setdiff(names(fond_regions), names(lr$encarts))
+              c('<g id="g-regions">', sprintf('<path fill="none" stroke="%s" stroke-width="%s" d="%s"></path>', S$region_couleur, S$region_largeur, lr$chemins[metro]), '</g>') } else "",
+            '</defs></svg>')
+  encarts <- vapply(lay$encarts, function(e) sprintf('<rect fill="none" stroke="#c9ced6" x="%.1f" y="%.1f" width="%.1f" height="%.1f" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="%.1f" y="%.1f">%s</text>',
+                                                      e$cadre[1] + 1, e$cadre[2] + 1, e$cadre[3] - e$cadre[1] - 2, e$cadre[4] - e$cadre[2] - 2, e$x_lib, e$y_lib, echap_html_carte(e$nom)), "")
+  radios <- html_radios_courriel(prep)
+  vues <- unlist(lapply(seq_len(nrow(prep$categories)), function(i) {
+    cat <- prep$categories$code[i]; v <- vue_initiale_carte(prep, names(fond), champ, cat = cat)
+    uses <- vapply(names(fond), function(code) { t <- v$territoires[[code]]; sans <- identical(t$st, "sans")
+      sprintf('<use href="#g-%s" fill="%s" stroke="%s" stroke-width="%s"%s><title>%s</title></use>', echap_html_carte(code), t$fill,
+              if (sans) S$sans_couleur else S$couleur, if (sans) S$sans_largeur else S$largeur, if (sans) ' stroke-dasharray="3 2"' else "",
+              echap_html_carte(infobulle_courriel(prep, code, noms[[code]], cat, P))) }, "")
+    c(sprintf('<section class="vue vue-%d">', i),
+      sprintf('<p class="vue-titre">%s</p><p class="vue-qui">%s</p>', echap_html_carte(v$sous_cat), echap_html_carte(v$sous_qui)),
+      sprintf('<div class="legend-title">%s</div><ul class="map-legend">%s</ul><p class="compte">%s</p>', echap_html_carte(v$legende_titre), paste(html_legende_statique(v$legende), collapse = ""), v$compte),
+      sprintf('<svg viewBox="0 0 %d %d" role="img" aria-label="%s">', lay$largeur, lay$hauteur, echap_html_carte(paste(titre_page, v$sous_cat, sep = " — "))),
+      encarts, uses, if (!is.null(fond_regions)) '<use href="#g-regions"></use>' else "", '</svg>',
+      sprintf('<p class="note">%s Survolez un territoire pour lire ses chiffres.</p>', echap_html_carte(v$legende_note)), '</section>') }))
+  c('<div class="courriel">', radios$inputs, defs,
+    '<div class="grille"><aside class="panneau">', radios$labels,
+    if (length(lay$encarts) > 0) '<p class="note">Outre-mer en encarts, chacun à sa propre échelle.</p>' else "", '</aside>',
+    '<div class="carte">', vues, '</div></div></div>')
+}
+html_dashboard_courriel <- function(prep, champ) {
+  P <- construire_libelles_public(champ); radios <- html_radios_courriel(prep)
+  vues <- unlist(lapply(seq_len(nrow(prep$categories)), function(i) {
+    cat <- prep$categories$code[i]
+    c(sprintf('<section class="vue vue-%d">', i),
+      sprintf('<p class="vue-titre">%s</p><p class="vue-qui">%s · France entière</p>', echap_html_carte(libelle_categorie(prep, cat, "titre")), echap_html_carte(P$salaries_age)),
+      html_bloc_dashboard(prep, cat, P, ids = FALSE), '</section>') }))
+  c('<div class="courriel">', radios$inputs, '<div class="dash"><aside class="panneau">', radios$labels, '</aside><div>', vues, '</div></div></div>')
+}
+generer_carte_courriel <- function(prep, fond = NULL, fichier_html, champ = construire_libelle_champ(), fond_regions = NULL, source_note = "calculs propres") {
+  if (!is.null(fond_regions) && prep$niveau != "departement") fond_regions <- NULL
+  titre_page <- sprintf("Départs attendus d’ici 2030 — %s — %s", c(france = "France entière", region = "par région", departement = "par département")[[prep$niveau]],
+                        if (prep$dimension == "pcs") "PCS fine" else "grande catégorie socioprofessionnelle")
+  P <- construire_libelles_public(champ); cat0 <- if (nrow(prep$categories)) prep$categories$code[1] else NA_character_
+  tete <- c('<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8">', sprintf('<title>%s</title>', echap_html_carte(titre_page)),
+            '<meta name="viewport" content="width=device-width, initial-scale=1">',
+            '<style>', css_cartes(), css_courriel(nrow(prep$categories)), '</style></head><body><div class="page">')
+  entete <- html_entete_champ(champ, prep$niveau, prep$dimension, sous_cat = "Version pour envoi par courriel",
+                              sous_qui = "Sans script : changez de catégorie dans la liste, survolez un territoire pour lire ses chiffres.")
+  entete <- entete[!grepl('id="sans-js"', entete, fixed = TRUE)]            # pas de bandeau : rien à masquer, c'est la version prévue
+  corps <- if (prep$niveau == "france") html_dashboard_courriel(prep, champ) else {
+    if (is.null(fond)) stop("generer_carte_courriel : fond requis pour le niveau ", prep$niveau, ".")
+    html_carte_courriel(prep, fond, titre_page, champ, fond_regions) }
+  html <- c(tete, entete, corps, html_pied(champ, source_note), '</div></body></html>')
+  if (any(grepl("<script", html, fixed = TRUE)) || any(grepl(" on[a-z]+=", html)) || any(grepl("javascript:", html, fixed = TRUE)))
+    stop("generer_carte_courriel : contenu actif détecté dans la version courriel.")
+  dir.create(dirname(fichier_html), showWarnings = FALSE, recursive = TRUE)
+  writeLines(enc2utf8(html), fichier_html, useBytes = TRUE)
+  invisible(fichier_html)
 }
 
 

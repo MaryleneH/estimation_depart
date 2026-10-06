@@ -59,6 +59,9 @@ if (!isTRUE(get0("GENERER_CARTES_DEPARTS", ifnotfound = FALSE))) {
     generer_carte_departs(prep, fond, sortie, champ = champ_08e, fond_regions = fond_regions,
                           fichier_png = if (isTRUE(get0("CARTES_PNG", ifnotfound = TRUE)) && nv != "france") sub("\\.html$", ".png", sortie) else NULL,
                           source_note = if (identical(get0("SOURCE_BTS", ifnotfound = ""), "parquet")) "BTS 2024, DREES, EACR, Insee — calculs propres" else "table test — calculs propres")
+    if (isTRUE(get0("CARTES_COURRIEL", ifnotfound = TRUE)))         # version sans script, pour l'envoi par courriel
+      generer_carte_courriel(prep, fond, sub("\\.html$", "_courriel.html", sortie), champ = champ_08e, fond_regions = fond_regions,
+                             source_note = if (identical(get0("SOURCE_BTS", ifnotfound = ""), "parquet")) "BTS 2024, DREES, EACR, Insee — calculs propres" else "table test — calculs propres")
     tibble(dimension = dm, niveau = nv, source = src, carte = sortie, statut = "ok",
            territoires_csv = n[["csv"]], joints = n[["joints"]], masques = n[["masques"]], diffusables = n[["diffusables"]], sans_donnee = n[["sans"]])
   }) |> bind_rows()
