@@ -38,6 +38,12 @@ cités sont ceux réellement implémentés à la date de rédaction.
 | `07_cartes_et_fiches.md` | Cartes, tableaux de bord, fiches territoriales, langage public |
 | `08_orchestration_et_controles.md` | Ordre d'exécution, étapes facultatives, contrôles et robustesse |
 | `09_matrice_tracabilite.md` | Correspondance specs → code → tests, doctrine de modification |
+| `10_typologie_territoriale.md` | Typologie nationale des départements BITD : poids, structure, volume, intensité, concentration, profils à règles ; tensions à une autre maille (couche séparée) ; secret des variables dérivées |
+
+La spec 10 est une **couche d'analyse en aval** : elle dépend de la spec 06
+(tables département × grande CS du 08d, stock tous âges), de la spec 04 (secret
+primaire, secondaire, variables dérivées) et de la spec 08 (étape 08f après le
+08d, flag `GENERER_TYPOLOGIE`). Elle ne modifie aucune règle de ces specs.
 
 ## Convention Gherkin
 
@@ -67,7 +73,7 @@ code métier si une variable de configuration existe déjà ; le test
 Chaque scénario porte un identifiant `SPEC-<DOMAINE>-NNN`, destiné à être
 réutilisé dans les tests `testthat`, les revues de code et les demandes
 d'évolution. Domaines : `CHAMP`, `PREP`, `PROJ`, `SEC`, `REST`, `GEO`, `PUB`,
-`ORCH`. Un identifiant n'est jamais réattribué : un scénario retiré est marqué
+`ORCH`, `TYPO`. Un identifiant n'est jamais réattribué : un scénario retiré est marqué
 « retiré », son numéro n'est pas réutilisé.
 
 Exemple : `SPEC-SEC-001` désigne la règle de secret primaire liée au seuil

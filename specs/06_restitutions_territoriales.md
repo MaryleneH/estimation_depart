@@ -14,6 +14,12 @@ entière est la référence des contrôles et n'est jamais restreinte.
 | 08b | territoire × grande CS, part à remplacer | `sorties/departs_par_<zonage>_cs.csv` |
 | 08c | PCS fine : France, région, département | `sorties/departs_pcs/{interne,diffusion}/departs_pcs_<niveau>.csv`, `pcs_hors_champ.csv` |
 | 08d | grande CS : mêmes niveaux, même fonction | `sorties/departs_cs1/{interne,diffusion}/departs_cs1_<niveau>.csv` |
+| 08f | typologie des départements, **en aval du 08d** (spec 10) : aucun départ recalculé | `sorties/typologie_territoriale/{interne,diffusion}/` |
+
+La typologie (spec 10) lit la table département × grande CS exacte du 08d et le
+stock tous âges du 01c ; elle n'ajoute aucune mesure de départ. Département et
+bassin sont deux mailles distinctes : aucune sortie de cette spec ne descend au
+bassin, aucune information de bassin ne qualifie un département (spec 10, §5).
 
 Mesures communes des tables 08c / 08d : `effectif_champ`, `departs_central`,
 `departs_bas`, `departs_haut`, `dep_retraite`, `dep_invalidite`, `dep_deces`,
