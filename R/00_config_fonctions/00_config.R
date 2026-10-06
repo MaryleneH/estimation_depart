@@ -227,6 +227,9 @@ GENERER_CARTES_DEPARTS <- TRUE    # FALSE = étape cartographie ignorée. Lit UN
                                   # diffusion/ de 08c et 08d ; fond local data/cartographie/ ;
                                   # gris = secret statistique, blanc = pas de donnée observée.
 CARTES_PNG <- TRUE                # image PNG de la vue initiale à côté de chaque carte HTML
+CARTES_COURRIEL <- TRUE           # carte_<dim>_<niveau>_courriel.html : version SANS AUCUN SCRIPT pour l'envoi
+                                  # par messagerie (SISMEL retire le « contenu actif ») : toutes les catégories
+                                  # précalculées, changement de catégorie en CSS, infobulles natives du SVG.
 FICHIER_PCS_LIBELLES <- file.path(DIR_DATA, "PCS-ESE_2017_Liste.xlsx")   # nomenclature PCS-ESE 2017 (code + libellé),
 PCS_LIBELLES_COLS    <- c(code = "Code 2017", libelle = "Libelle_2017")  # feuille 1 ; sert UNIQUEMENT à afficher le
                                   # libellé des PCS dans les cartes. Facultatif : absent = code + grande catégorie.

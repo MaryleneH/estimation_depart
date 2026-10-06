@@ -382,3 +382,28 @@ test_that("SANS JAVASCRIPT (pièce jointe épurée par une messagerie) : vue ini
   expect_true(grepl('<div id="zone-kpi" style="display:none">', hm, fixed = TRUE)); expect_true(grepl('<div class="masque-national" id="zone-masque"><div', hm, fixed = TRUE))
   expect_true(grepl('id="kpi-c">n.d.</div>', hm, fixed = TRUE))
 })
+
+test_that("VERSION COURRIEL : aucun contenu actif (ni <script>, ni on*=, ni javascript:), toutes les catégories précalculées, CSS pur, infobulles natives, aucune fuite, tableau de bord", {
+  p <- EC$preparer_carte_departs(TABLE_ABC, "pcs", "departement", FOND_DEP)
+  f <- file.path(tempdir(), "carte_courriel.html"); EC$generer_carte_courriel(p, FOND_DEP, f, fond_regions = FOND_REG)
+  html <- paste(readLines(f, encoding = "UTF-8", warn = FALSE), collapse = "\n")
+  expect_false(grepl("<script", html, fixed = TRUE)); expect_false(grepl(" on[a-z]+=", html)); expect_false(grepl("javascript:", html, fixed = TRUE))
+  expect_false(grepl('id="donnees"', html, fixed = TRUE))                                   # pas même le JSON
+  expect_equal(lengths(regmatches(html, gregexpr('<section class="vue vue-', html))), 2L)     # une vue par PCS
+  expect_equal(lengths(regmatches(html, gregexpr('<input type="radio" name="cat"', html))), 2L)
+  expect_equal(lengths(regmatches(html, gregexpr('<use href="#g-', html))), 2L * 101L + 2L)    # géométrie réutilisée (+ limites régionales par vue)
+  expect_equal(lengths(regmatches(html, gregexpr('<path id="g-', html))), 101L)                # écrite une fois
+  expect_true(grepl("#cat-1:checked~.grille .vue-1", html, fixed = TRUE))
+  expect_true(grepl('<title>Gironde · 33\nPCS 311D · Cadres\n84 salariés', html, fixed = TRUE))
+  expect_true(grepl('<title>Pyrénées-Atlantiques · 64\nPCS 311D · Cadres\nRésultat non diffusé — secret statistique</title>', html, fixed = TRUE))
+  expect_true(grepl('<title>Paris · 75\nPCS 311D · Cadres\nAucun salarié observé</title>', html, fixed = TRUE))
+  for (v in c("987654", "54321", "11111", "22222", "77.77", "77,77")) expect_false(grepl(v, html, fixed = TRUE), label = v)
+  expect_true(grepl('<use href="#g-regions">', html, fixed = TRUE))
+  tf <- TABLE_ABC |> dplyr::filter(geo_code == "33") |> dplyr::select(-region_code, -region_nom, -geo_code, -geo_nom)
+  pf <- EC$preparer_carte_departs(tf, "pcs", "france"); ff <- file.path(tempdir(), "dash_courriel.html"); EC$generer_carte_courriel(pf, NULL, ff)
+  hf <- paste(readLines(ff, encoding = "UTF-8", warn = FALSE), collapse = "\n")
+  expect_false(grepl("<script", hf, fixed = TRUE)); expect_false(grepl(' id="kpi-c"', hf, fixed = TRUE))   # aucun id dupliqué
+  expect_equal(lengths(regmatches(hf, gregexpr('<section class="vue vue-', hf))), 2L)
+  expect_true(grepl('<div class="kpi-value">27</div>', hf, fixed = TRUE))
+  expect_true(grepl(EC$LIBELLES_UI$secret_court, hf, fixed = TRUE))                              # 622A masquée : bloc non diffusé
+})
