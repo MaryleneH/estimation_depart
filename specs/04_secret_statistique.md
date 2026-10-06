@@ -300,6 +300,16 @@ Fonctionnalité: Séparer les données nécessaires au contrôle des données di
     Et les sorties diffusables ne doivent pas être modifiées
 ```
 
+### Variables dérivées (typologie, spec 10)
+
+Une variable dérivée d'un ensemble de cellules (« CS principale », « CS au plus
+gros volume », « départs concentrés sur X », un profil qui dépend de la
+concentration) peut borner ou révéler la valeur d'une cellule masquée. La règle
+est fixée par la spec 10 (SPEC-TYPO-030 à 034) : dès qu'une cellule du
+département est masquée, ces variables sont NA dans la diffusion et les profils
+qui en dépendent ne sont pas diffusés ; la table interne reste complète. Aucune
+règle de la présente spec n'est affaiblie.
+
 ## 6. Ordre des opérations
 
 ```gherkin

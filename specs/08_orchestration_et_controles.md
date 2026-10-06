@@ -17,6 +17,7 @@ proprement, jamais silencieusement.
 → 04 projection (bts_projete)
 → 05 entreprises → 06, 06b, 06d, 06e graphiques → 07 tableau gt (si gt installé)
 → 08 seniors par territoire → 08b territoire × CS → 08c PCS → 08d CS1
+→ 08f typologie des départements (si GENERER_TYPOLOGIE ; ignoré avec message hors zonage département)
 → 08e cartes (si GENERER_CARTES_DEPARTS) → 09 fiches (si GENERER_FICHES)
 → 99b BOM UTF-8 des CSV (si NORMALISER_CSV_EXCEL)
 ```
@@ -36,7 +37,7 @@ Fonctionnalité: Exécuter la chaîne de calcul de manière reproductible
 
   Scénario: [SPEC-ORCH-002] Charger la configuration et les fonctions avant les traitements
     Quand la chaîne démarre
-    Alors 00_config.R puis les fonctions communes (00g, 00c, 00d, 00e, 00f) doivent être chargés avant toute donnée
+    Alors 00_config.R puis les fonctions communes (00g, 00c, 00d, 00e, 00f, 00h) doivent être chargés avant toute donnée
     Et aucun script de fonctions ne doit calculer ni écrire quoi que ce soit
     Et la préparation doit précéder la modélisation, qui doit précéder les restitutions
 
@@ -60,7 +61,7 @@ Fonctionnalité: Exécuter la chaîne de calcul de manière reproductible
     Et le reste de la chaîne doit continuer
 
   Scénario: [SPEC-ORCH-006] Piloter chaque étape facultative par la configuration
-    Étant donné les paramètres STOCK_TOUS_AGES, GENERER_DEPARTS_PCS, GENERER_DEPARTS_CS1, GENERER_CARTES_DEPARTS, CARTES_PNG, GENERER_FICHES, NORMALISER_CSV_EXCEL
+    Étant donné les paramètres STOCK_TOUS_AGES, GENERER_DEPARTS_PCS, GENERER_DEPARTS_CS1, GENERER_TYPOLOGIE, GENERER_CARTES_DEPARTS, CARTES_PNG, CARTES_COURRIEL, GENERER_FICHES, NORMALISER_CSV_EXCEL
     Quand l'un d'eux est faux
     Alors l'étape correspondante doit être ignorée avec un message
     Et les calculs amont et les autres sorties doivent rester identiques
