@@ -23,6 +23,7 @@ select,input[type=search]{width:100%;font:inherit;font-size:15px;padding:9px 10p
 .legend-title{font-size:15px;font-weight:700;margin:16px 0 6px;color:var(--encre)}.map-legend{list-style:none;margin:0;padding:0}.map-legend li{display:flex;align-items:center;gap:10px;font-size:15px;margin:6px 0;color:var(--encre)}.map-legend li.sep{border-top:1px solid var(--filet);margin-top:10px;padding-top:10px}
 .map-legend .sw{width:26px;height:16px;border-radius:3px;border:1px solid #5B6470;flex:none}.map-legend .sw.sans{border:1.5px dashed #7B8794}
 .compte{font-size:15px;color:var(--encre);margin:10px 0 0}.compte b{font-weight:700}.note{font-size:13.5px;color:var(--texte);margin:10px 0 0;line-height:1.45}
+.sans-js{margin:12px 0 0;padding:10px 14px;border:1px solid #e0b96a;border-left-width:4px;background:#fff8e6;color:#5b4300;font-size:15px;border-radius:0 8px 8px 0}
 .carte{position:relative;min-width:0}.carte svg{width:100%;height:auto;display:block}
 path.t{stroke:#5B6470;stroke-width:1;vector-effect:non-scaling-stroke;cursor:pointer;outline:none}path.t.sans{stroke:#7B8794;stroke-width:0.8;stroke-dasharray:3 2}
 .limites-reg path{fill:none;stroke:#2F3945;stroke-width:1.5;vector-effect:non-scaling-stroke;stroke-linejoin:round;pointer-events:none}
@@ -47,7 +48,8 @@ footer{margin-top:28px;color:var(--texte);font-size:13.5px;line-height:1.55;bord
 <header class="page-header">
 <p class="kicker">Départs attendus d’ici 2030 · résultats diffusables</p>
 <h1 class="page-title" id="titre">Départs attendus d’ici 2030<small>France entière</small></h1>
-<p class="page-subtitle" id="sous"><span class="cat-nom" id="sous-cat"></span><span class="cat-qui" id="sous-qui"></span></p>
+<p class="page-subtitle" id="sous"><span class="cat-nom" id="sous-cat">Cadres</span> <span class="cat-qui" id="sous-qui">Salariés de 45 ans ou plus · France entière</span></p>
+<div class="sans-js" id="sans-js" role="note">Version statique : cette page a été ouverte sans ses scripts (souvent retirés par les messageries). Vous voyez la première vue, sans les menus ni le survol. Pour la version interactive, enregistrez la pièce jointe puis ouvrez-la dans un navigateur, ou demandez l’archive compressée.</div>
 <div class="study-scope" role="note" aria-label="Qui est concerné">
 <span class="scope-text"><b>Salariés de 45 ans ou plus</b> · entreprises du périmètre BITD</span>
 <details><summary>ⓘ Qui est concerné ?</summary></details>
@@ -62,21 +64,21 @@ footer{margin-top:28px;color:var(--texte);font-size:13.5px;line-height:1.55;bord
 <button type="button" data-cat="Ouvriers" class="" aria-pressed="false">Ouvriers</button>
 <button type="button" data-cat="Prof. intermediaires" class="" aria-pressed="false">Professions intermédiaires</button>
 </div></div>
-<p class="cat-affichee"><span class="cat-nom" id="cat-affichee"></span><span class="cat-qui" id="cat-qui"></span></p>
+<p class="cat-affichee"><span class="cat-nom" id="cat-affichee">Cadres</span><span class="cat-qui" id="cat-qui">Salariés de 45 ans ou plus</span></p>
 </aside><div>
 <div id="zone-kpi">
 <div class="kpis">
-<div class="kpi primaire"><div class="kpi-value" id="kpi-c"></div><div class="kpi-label">départs estimés d’ici 2030</div><div class="kpi-help">Salariés qui devraient avoir quitté définitivement leur emploi d’ici 2030 (estimation centrale).</div></div>
-<div class="kpi"><div class="kpi-value" id="kpi-t"></div><div class="kpi-label">pourraient partir d’ici 2030</div><div class="kpi-help">Part des salariés de 45 ans ou plus de cette catégorie.</div></div>
-<div class="kpi"><div class="kpi-value" id="kpi-e"></div><div class="kpi-label">salariés concernés</div><div class="kpi-help">Salariés de 45 ans ou plus de cette catégorie, dans les entreprises du périmètre BITD.</div></div>
+<div class="kpi primaire"><div class="kpi-value" id="kpi-c">351</div><div class="kpi-label">départs estimés d’ici 2030</div><div class="kpi-help">Salariés qui devraient avoir quitté définitivement leur emploi d’ici 2030 (estimation centrale).</div></div>
+<div class="kpi"><div class="kpi-value" id="kpi-t">25,1 %</div><div class="kpi-label">pourraient partir d’ici 2030</div><div class="kpi-help">Part des salariés de 45 ans ou plus de cette catégorie.</div></div>
+<div class="kpi"><div class="kpi-value" id="kpi-e">1 396</div><div class="kpi-label">salariés concernés</div><div class="kpi-help">Salariés de 45 ans ou plus de cette catégorie, dans les entreprises du périmètre BITD.</div></div>
 </div>
 <div class="bloc"><h2>Combien de départs, selon l’hypothèse retenue ?</h2><div class="fourchette">
-<div><div class="v" id="f-b"></div><div class="l">Estimation basse</div></div><div class="centrale"><div class="v" id="f-c"></div><div class="l">Estimation centrale</div></div><div><div class="v" id="f-h"></div><div class="l">Estimation haute</div></div>
+<div><div class="v" id="f-b">327</div><div class="l">Estimation basse</div></div><div class="centrale"><div class="v" id="f-c">351</div><div class="l">Estimation centrale</div></div><div><div class="v" id="f-h">376</div><div class="l">Estimation haute</div></div>
 </div><p class="note">L’estimation centrale est encadrée par deux hypothèses, basse et haute, sur l’âge de départ en retraite.</p></div>
-<div class="bloc" id="bloc-causes"><h2>Pourquoi ces salariés partiraient-ils ?</h2><div class="barre" id="barre" aria-hidden="true"></div><ul class="causes" id="causes"></ul>
+<div class="bloc" id="bloc-causes"><h2>Pourquoi ces salariés partiraient-ils ?</h2><div class="barre" id="barre" aria-hidden="true"><span style="width:86.89%;background:#2171b5" title="Retraite ou fin de carrière"></span><span style="width:6.27%;background:#9ecae1" title="Invalidité"></span><span style="width:6.84%;background:#6b7280" title="Décès"></span></div><ul class="causes" id="causes"><li><span class="sw" style="background:#2171b5"></span><span>Retraite ou fin de carrière</span><span class="v">305</span><span class="p">87 %</span></li><li><span class="sw" style="background:#9ecae1"></span><span>Invalidité</span><span class="v">22</span><span class="p">6 %</span></li><li><span class="sw" style="background:#6b7280"></span><span>Décès</span><span class="v">24</span><span class="p">7 %</span></li></ul>
 <p class="note">Répartition des départs estimés (estimation centrale) par motif.</p></div>
 </div>
-<div class="masque-national" id="zone-masque" style="display:none"><div class="t" id="masque-cat"></div><p><b id="masque-titre"></b> <span id="masque-txt"></span></p><p>Les autres catégories restent consultables ci-contre.</p></div>
+<div class="masque-national" id="zone-masque" style="display:none"><div class="t" id="masque-cat">Cadres</div><p><b id="masque-titre">Résultat non diffusé</b> <span id="masque-txt">Ce résultat ne peut pas être affiché : il concerne trop peu de salariés ou d’entreprises, ou une seule entreprise y pèse trop.</span></p><p>Les autres catégories restent consultables ci-contre.</p></div>
 </div></div>
 <footer><b>Qui est concerné ?</b> Ces résultats concernent les salariés des entreprises retenues dans le périmètre BITD (base industrielle et technologique de défense). Ils portent sur les salariés âgés de 45 ans ou plus en 2024, appartenant aux catégories professionnelles couvertes par le modèle : cadres, professions intermédiaires, employés, ouvriers. Certaines professions qui ne peuvent pas être rattachées à ces catégories (agriculteurs exploitants, artisans, commerçants et chefs d’entreprise, profession non renseignée) ne sont pas incluses dans les estimations. Un départ est une sortie définitive de l’emploi d’ici 2030 : retraite ou fin de carrière, invalidité, décès. Changer d’employeur n’est pas un départ. Les nombres de départs sont des estimations, arrondies à l’entier pour la lecture ; la part de salariés susceptibles de partir est calculée parmi les salariés de la catégorie affichée. <b>Secret statistique.</b> Certains résultats ne sont pas affichés parce qu’ils concernent trop peu de salariés ou d’entreprises, ou qu’une seule entreprise y pèserait trop ; ces chiffres ne figurent ni dans cette page ni dans ses données. Gris = résultat non diffusé ; blanc pointillé = aucun salarié observé ; un résultat nul est affiché comme tout autre. <b>Source.</b> table test — calculs propres. Fond de carte : IGN Admin Express (COG 2018) via france-geojson, licence ouverte.</footer>
 <script type="application/json" id="donnees">
@@ -85,6 +87,7 @@ footer{margin-top:28px;color:var(--texte);font-size:13.5px;line-height:1.55;bord
 <script>(function(){var d=document.querySelector(".study-scope details"),p=document.getElementById("scope-detail");if(d&&p)d.addEventListener("toggle",function(){p.hidden=!d.open})})();</script>
 <script>
 (function(){
+var sj=document.getElementById("sans-js");if(sj)sj.style.display="none";
 var D=JSON.parse(document.getElementById("donnees").textContent),L=D.libelles;var FR=D.niveau==="france";
 var $=function(id){return document.getElementById(id)};
 var nf=function(d){return new Intl.NumberFormat("fr-FR",{minimumFractionDigits:d,maximumFractionDigits:d})};
