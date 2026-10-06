@@ -17,6 +17,11 @@ Déposez ici les fichiers de données (hors versionnement Git recommandé) :
    le code et la grande catégorie. Les codes sont rapprochés sans tenir compte
    de la casse ni des espaces. Le fichier livré est FICTIF (10 codes de
    démonstration) : déposez la nomenclature Insee complète au même nom.
+3quater. templates/tensions_fap_territoires_template.csv — GABARIT (lignes
+   entièrement fictives) d'un futur fichier data/tensions_fap_territoires.csv :
+   tensions DGA / France Travail par FAP x bassin. Couche SÉPARÉE de la
+   typologie (specs/10, §5) : jamais attribuée au département, jamais de
+   correspondance FAP -> grande CS. Aucune donnée réelle n'est livrée.
 3bis. pop_active_insee.csv     — DÉNOMINATEUR : population active (occupés +
    chômeurs) par TRANCHE d'âge x sexe. Source : Insee, table PACT00, jeu
    "Activité, emploi et chômage en 2024" (insee.fr/fr/statistiques/8599935).
