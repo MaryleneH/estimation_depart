@@ -272,7 +272,7 @@ test_that("CONTOURS : source unique STYLE_CONTOURS_CARTE, trait gris (jamais bla
   f <- file.path(tempdir(), "contours_dep.html"); EC$generer_carte_departs(p, FOND_DEP, f, fond_regions = FOND_REG)
   html <- paste(readLines(f, encoding = "UTF-8", warn = FALSE), collapse = "\n")
   expect_equal(n_reg(html), 13L)
-  expect_true(grepl('<path id="survol" d=""', html, fixed = TRUE)); expect_true(grepl('id="t-33"', html, fixed = TRUE))
+  expect_true(grepl('<path id="survol" fill="none" d=""', html, fixed = TRUE)); expect_true(grepl('id="t-33"', html, fixed = TRUE))
   expect_true(grepl('surligner(code)', html, fixed = TRUE))
   f0 <- file.path(tempdir(), "contours_dep0.html"); EC$generer_carte_departs(p, FOND_DEP, f0)
   expect_equal(n_reg(paste(readLines(f0, encoding = "UTF-8", warn = FALSE), collapse = "\n")), 0L)
@@ -341,4 +341,44 @@ test_that("ORDRE des PCS : départs estimés diffusés décroissants, sommés su
   expect_false(grepl('"c":1000', html, fixed = TRUE))             # la valeur sous masque n’est jamais embarquée
   pc <- EC$preparer_carte_departs(t2 |> dplyr::mutate(cs1 = pcs), "cs1", "departement", FOND_DEP)
   expect_identical(pc$categories$code, c("A1", "B2", "C3", "D4"))   # grandes catégories : ordre des codes
+})
+
+test_that("SANS JAVASCRIPT (pièce jointe épurée par une messagerie) : vue initiale écrite dans le HTML — fill sur chaque territoire, légende, en-tête, liste, tableau de bord ; bandeau masqué par le JS ; aucune fuite", {
+  p <- EC$preparer_carte_departs(TABLE_ABC, "pcs", "departement", FOND_DEP)
+  f <- file.path(tempdir(), "carte_sans_js.html"); EC$generer_carte_departs(p, FOND_DEP, f, fond_regions = FOND_REG)
+  html <- paste(readLines(f, encoding = "UTF-8", warn = FALSE), collapse = "\n")
+  sans <- gsub("<script\\b.*?</script>", "", html, perl = TRUE)            # ce que reçoit le destinataire
+  paths <- regmatches(sans, gregexpr('<path class="t[^"]*"[^>]*>', sans))[[1]]
+  expect_equal(length(paths), 101L)
+  expect_true(all(grepl(' fill="#[0-9a-fA-F]{6}"', paths)))                 # jamais de tracé noir par défaut
+  expect_true(all(grepl(' stroke="#', paths)))                                # contour même sans CSS
+  couleurs <- sub('.* fill="(#[0-9a-fA-F]{6})".*', "\\1", paths)
+  expect_true(all(couleurs %in% c(EC$COULEURS_CARTE$classes, EC$COULEURS_CARTE$secret, EC$COULEURS_CARTE$sans_donnee)))
+  st <- function(code) sub('.*data-st="([a-z]+)".*', "\\1", paths[grepl(sprintf('data-code="%s"', code), paths)])
+  expect_identical(st("33"), "diffuse"); expect_identical(st("64"), "masque"); expect_identical(st("01"), "diffuse"); expect_identical(st("75"), "sans")
+  expect_true(grepl(sprintf('data-code="64"[^>]*fill="%s"', EC$COULEURS_CARTE$secret), sans))     # masqué = gris, aucun chiffre
+  expect_true(grepl('class="t sans"[^>]*data-code="75"[^>]*stroke-dasharray', sans))
+  expect_true(grepl('<g class="limites-reg"[^>]*>\\s*<path fill="none" stroke="', sans, perl = TRUE))   # limites régionales jamais remplies
+  leg <- regmatches(sans, regexpr('<ul class="map-legend" id="legende">.*?</ul>', sans, perl = TRUE))
+  expect_true(lengths(regmatches(leg, gregexpr("<li", leg))) >= 3)                                 # classes + secret + sans donnée
+  expect_true(grepl(EC$LIBELLES_UI$secret, leg, fixed = TRUE)); expect_true(grepl(EC$LIBELLES_UI$sans_donnee, leg, fixed = TRUE))
+  expect_true(grepl('<span class="cat-nom" id="sous-cat">PCS 311D · Cadres</span>', sans, fixed = TRUE))
+  expect_true(grepl('<option value="311D" selected>311D — Cadres</option>', sans, fixed = TRUE))
+  expect_true(grepl('id="sans-js"', sans, fixed = TRUE)); expect_true(grepl('Version statique', sans, fixed = TRUE))
+  expect_true(grepl('getElementById("sans-js");if(sj)sj.style.display="none"', html, fixed = TRUE))  # le JS masque le bandeau
+  for (v in c("987654", "54321", "11111", "22222", "77.77", "77,77")) expect_false(grepl(v, sans, fixed = TRUE), label = v)
+  # tableau de bord France : chiffres de la première catégorie écrits dans le HTML
+  tf <- TABLE_ABC |> dplyr::filter(geo_code == "33") |> dplyr::select(-region_code, -region_nom, -geo_code, -geo_nom)
+  pf <- EC$preparer_carte_departs(tf, "pcs", "france")
+  ff <- file.path(tempdir(), "dash_sans_js.html"); EC$generer_carte_departs(pf, NULL, ff)
+  hf <- gsub("<script\\b.*?</script>", "", paste(readLines(ff, encoding = "UTF-8", warn = FALSE), collapse = "\n"), perl = TRUE)
+  expect_true(grepl('id="kpi-c">27</div>', hf, fixed = TRUE)); expect_true(grepl('id="kpi-e">84</div>', hf, fixed = TRUE))
+  expect_true(grepl('id="kpi-t">32,6 %</div>', hf, fixed = TRUE)); expect_true(grepl('id="f-b">25</div>', hf, fixed = TRUE))
+  expect_true(grepl('id="sous-cat">PCS 311D · Cadres</span>', hf, fixed = TRUE))
+  # première catégorie masquée : bloc « non diffusé » visible, KPI cachés, aucune valeur
+  tm <- tf; tm$masque <- TRUE; tm[, c("effectif_champ", "departs_central", "departs_bas", "departs_haut", "taux_depart_central_pct")] <- NA
+  pm <- EC$preparer_carte_departs(tm, "pcs", "france"); fm <- file.path(tempdir(), "dash_masque.html"); EC$generer_carte_departs(pm, NULL, fm)
+  hm <- paste(readLines(fm, encoding = "UTF-8", warn = FALSE), collapse = "\n")
+  expect_true(grepl('<div id="zone-kpi" style="display:none">', hm, fixed = TRUE)); expect_true(grepl('<div class="masque-national" id="zone-masque"><div', hm, fixed = TRUE))
+  expect_true(grepl('id="kpi-c">n.d.</div>', hm, fixed = TRUE))
 })
