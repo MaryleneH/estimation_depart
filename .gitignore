@@ -3,3 +3,4 @@ data/bts_2024.parquet
 sorties/fiches_*_interne/
 sorties/departs_pcs/interne/
 sorties/departs_cs1/interne/
+sorties/typologie_territoriale/interne/

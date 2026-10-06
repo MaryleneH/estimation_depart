@@ -234,6 +234,29 @@ FICHIER_PCS_LIBELLES <- file.path(DIR_DATA, "PCS-ESE_2017_Liste.xlsx")   # nomen
 PCS_LIBELLES_COLS    <- c(code = "Code 2017", libelle = "Libelle_2017")  # feuille 1 ; sert UNIQUEMENT à afficher le
                                   # libellé des PCS dans les cartes. Facultatif : absent = code + grande catégorie.
                                   # Les codes sont rapprochés sans tenir compte de la casse ni des espaces (342f = 342F).
+# --- Typologie nationale des territoires BITD (script 08f, specs/10) ----------
+# Couche d'analyse EN AVAL du 08d (département x grande CS) : aucun départ
+# recalculé. Règles métier lisibles, aucun score composite. Tous les seuils
+# sont ici ; les bornes effectives sont écrites dans parametres_typologie.csv.
+GENERER_TYPOLOGIE   <- TRUE       # FALSE = étape 08f ignorée. Exige GEO_ANALYSE = "departement".
+TYPO_SECRET         <- TRUE       # dossier diffusion/ (secret du territoire + variables dérivées) ; interne/ TOUJOURS
+TYPO_INDICATEUR_INTENSITE <- "part_a_remplacer_pct"   # intensité du renouvellement : départs centraux / emploi ACTUEL
+                                  # tous âges (01c). Repli automatique sur "taux_depart_central_pct"
+                                  # (dénominateur = champ AGE_MIN_BTS et plus) si le stock tous âges est indisponible.
+TYPO_SEUIL_DOMINANCE_CS         <- 40   # % : part minimale de la 1re grande CS pour une structure « Dominante » (sinon « Mixte »)
+TYPO_SEUIL_CONCENTRATION_DEPARTS <- 50  # % : part minimale d'une grande CS dans les départs pour « Concentré » (sinon « Diffus »)
+TYPO_SEUIL_EFFECTIF_MIN         <- 50   # salariés (base du poids) : en dessous, poids « Faible » quoi qu'il arrive
+TYPO_METHODE_CLASSES  <- "terciles"     # "terciles" = RÈGLE DE CLASSEMENT STATISTIQUE PROVISOIRE (bornes = terciles
+                                        # observés sur les départements au-dessus du plancher) ; "fixes" = seuils ci-dessous
+TYPO_SEUIL_POIDS_FAIBLE         <- 0.5  # % de l'emploi BITD national (méthode "fixes") : < faible ; >= fort
+TYPO_SEUIL_POIDS_FORT           <- 2
+TYPO_SEUIL_INTENSITE_FAIBLE     <- 8    # % (méthode "fixes", indicateur d'intensité) : < faible ; >= élevée
+TYPO_SEUIL_RENOUVELLEMENT_ELEVE <- 15
+TYPO_SEUIL_VOLUME_FAIBLE        <- 50   # départs estimés (méthode "fixes") : < faible ; >= élevé
+TYPO_SEUIL_VOLUME_ELEVE         <- 300
+TYPO_MARGE_FRONTIERE_PCT        <- 5    # % relatif : un indicateur à moins de 5 % d'un seuil est « à la frontière »
+TYPO_NB_CRITERES_FRONTIERE      <- 2    # au moins 2 critères à la frontière -> « Cas à expertiser »
+TYPO_FACTEUR_INTENSITE_EXTREME  <- 2    # poids faible ET intensité >= 2 x seuil « élevée » -> « Cas à expertiser »
 FICHES_SECRET    <- TRUE          # TRUE  = secret statistique appliqué (version DIFFUSABLE).
                                   # FALSE = USAGE INTERNE : aucun masquage, tous les
                                   # territoires, bloc des entreprises (SIREN) ; écrit dans

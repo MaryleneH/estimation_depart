@@ -1,0 +1,3 @@
+territoire_code;territoire_nom;type_territoire;fap_code;fap_libelle;niveau_tension;source;annee;commentaire
+BXX01;Bassin fictif Alpha;bassin;FXX1;Famille professionnelle fictive 1;forte;exemple fictif;2026;Ligne d'exemple : aucune donnée réelle. Un bassin signalé ne qualifie jamais son département.
+BXX02;Bassin fictif Beta;bassin;FXX2;Famille professionnelle fictive 2;moderee;exemple fictif;2026;Ligne d'exemple : aucune donnée réelle. Aucune correspondance FAP -> grande CS n'est admise.
