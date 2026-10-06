@@ -16,6 +16,32 @@ la maintenance. Les titres de tests sont ceux des `test_that()` du dépôt.
 | Restitutions territoriales | SPEC-GEO-001 à 011 | `00e`, `08`, `08b`, `08c`, `08d`, `00c` | `test-departs-pcs.R`, `test-departs-cs1.R`, `test-departs-geo-cs.R`, `test-non-regression-ze.R` |
 | Cartes et fiches | SPEC-PUB-001 à 020 | `00f_fonctions_cartes.R`, `08e`, `00d`, `09` | `test-cartes-departs.R`, `test-fiches.R` |
 | Orchestration | SPEC-ORCH-001 à 012 | `main.R`, `99b_normaliser_csv_excel.R` | `test-snapshot.R`, `test-normaliser-csv-excel.R`, `test-fiches.R` (chaîne) |
+| Typologie territoriale | SPEC-TYPO-001 à 041 | `00h_fonctions_typologie.R`, `08f_typologie_departements.R`, `00_config.R` (TYPO_*) | `test-typologie-territoriale.R` |
+
+## Typologie territoriale (spec 10) : besoin → règle → implémentation → test → sortie
+
+| Identifiant | Règle | Fonction / script | Test (titre exact) | Sortie |
+|---|---|---|---|---|
+| SPEC-TYPO-001 | département seul ; ignoré hors zonage département | `construire_typologie_departements()`, `08f` | « SPEC-TYPO-001/002/004 — niveau département seul… » ; « SPEC-TYPO-040 — chaîne réelle… » (mode ZE) | `interne/typologie_departements.csv` |
+| SPEC-TYPO-002 | réutilisation des mesures du 08d, base du poids | `construire_typologie_departements()` | « SPEC-TYPO-001/002/004 … » | `parametres_typologie.csv` (`base_poids`) |
+| SPEC-TYPO-003 | dominance / Mixte, borne, égalité | `identifier_dominance_cs()` | « SPEC-TYPO-003 — structure : 31/30/25/14 … » | `structure_emploi`, `cs_principale` |
+| SPEC-TYPO-004 | fourchette conservée, volume ≠ taux | `construire_typologie_departements()` | « SPEC-TYPO-001/002/004 … » | `departs_bas/central/haut`, `classe_volume_departs` |
+| SPEC-TYPO-005 | intensité : définition et repli | `construire_typologie_departements()` | « SPEC-TYPO-001/002/004 … » (sans stock) ; « SPEC-TYPO-005/006 … » | `intensite_renouvellement_pct`, `indicateur_intensite` |
+| SPEC-TYPO-006 | volume ≠ intensité (A 1 000 / 20 000, B 500 / 2 000) | `construire_typologie_departements()` | « SPEC-TYPO-005/006 — volume ≠ intensité … » | idem |
+| SPEC-TYPO-007 | CS volume max ≠ CS intensité max ; rangs | `identifier_cs_volume_max()`, `identifier_cs_taux_max()` | « SPEC-TYPO-007 — la CS au plus gros volume … » | `cs_volume_departs_max`, `cs_taux_renouvellement_max`, `typologie_departement_cs.csv` |
+| SPEC-TYPO-008 / 009 | concentré (60 % / 50) ; diffus ; borne | `calculer_concentration_departs()` | « SPEC-TYPO-008/009 — concentration … » | `type_concentration` |
+| SPEC-TYPO-010 | classes à trois niveaux, borne incluse en haut | `classer_par_seuils()` | « SPEC-TYPO-010/011/012 — classes et frontières … » | `classe_*` |
+| SPEC-TYPO-011 | plancher d'effectif | `classer_poids_bitd()` | idem | `classe_poids_bitd` |
+| SPEC-TYPO-012 | terciles = règle provisoire, bornes écrites | `seuils_classes()` | idem ; « SPEC-TYPO-040 … » | `parametres_typologie.csv` |
+| SPEC-TYPO-013 à 017 | profils ordonnés, faible poids ≠ fort enjeu, cas à expertiser | `attribuer_profil_typologie()` | « SPEC-TYPO-013 à 018 — profils … » ; « SPEC-TYPO-014 — faible poids … » | `profil_typologie` |
+| SPEC-TYPO-018 | justification par règles | `construire_justification_profil()` | « SPEC-TYPO-013 à 018 … » | `justification_profil` |
+| SPEC-TYPO-020 à 023 | tension de bassin jamais attribuée au département, jamais de départs au bassin, pas de FAP → CS, nommage | `joindre_signal_tension_localise()`, `controler_typologie()` | « SPEC-TYPO-020 à 023 — tensions … » | `nb_bassins_signales`, `presence_signal_tension_localise` (non produits par défaut) |
+| SPEC-TYPO-030 | département non diffusable, secondaire sur le bloc national | `appliquer_secret_typologie()` | « SPEC-TYPO-030 à 034 — secret … » | `diffusion/typologie_departements.csv` (`masque`, `motif_masque`) |
+| SPEC-TYPO-031 | colonnes par CS suivent le masque de la cellule | idem | idem | idem |
+| SPEC-TYPO-032 / 033 | variables dérivées et profils dépendants masqués | idem | idem | idem |
+| SPEC-TYPO-034 | interne complet, indicateurs techniques hors diffusion, `.gitignore` | `08f`, `.gitignore` | idem ; « SPEC-TYPO-040 … » | `interne/`, `diffusion/` |
+| SPEC-TYPO-040 | sorties, arrondi, matrice, objets amont inchangés | `08f`, `png_matrice_typologie()` | « SPEC-TYPO-040 — chaîne réelle en mode département … » | les six fichiers |
+| SPEC-TYPO-041 | contrôles bloquants (total altéré, profil inconnu, colonne interdite = arrêt) | `controler_typologie()` | « SPEC-TYPO-001/002/004/041 … » ; « SPEC-TYPO-040 … » | — |
 
 ## Vue par exigence (règles structurantes)
 
