@@ -1,5 +1,7 @@
 # Organisation du code R
 
+Les règles métier que ce code doit garantir sont décrites dans `specs/` (spécifications en Markdown avec scénarios Gherkin, identifiants `SPEC-*`, matrice de traçabilité vers les scripts et les tests). Avant de modifier une règle, modifier d'abord la spec concernée (voir `specs/09_matrice_tracabilite.md`).
+
 Le point d’entrée reste `main.R` à la racine : `source("main.R")` lance toute la chaîne. Les scripts communiquent par les objets de la session, pas par des fichiers intermédiaires.
 
 Règle de lecture : **le préfixe d’un répertoire est le numéro du premier script qu’il contient**, donc l’ordre alphabétique des répertoires est l’ordre d’exécution. Les noms de scripts, avec leur numéro, n’ont pas changé lors de la mise en sous-répertoires.
