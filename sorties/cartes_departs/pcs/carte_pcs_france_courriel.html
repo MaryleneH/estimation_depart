@@ -1,0 +1,431 @@
+<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8">
+<title>Départs attendus d’ici 2030 — France entière — PCS fine</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+:root{--encre:#1F2933;--texte:#3E4C59;--filet:#D9DEE5;--fond:#F5F7FA;--bleu:#1e3a5f;--secret:#b3b3b3}
+*{box-sizing:border-box}html{-webkit-text-size-adjust:100%}body{margin:0;background:#fff;color:var(--encre);font-family:-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;font-size:16px;line-height:1.5}
+.page{max-width:1360px;margin:0 auto;padding:28px 32px 40px}@media(max-width:700px){.page{padding:18px 16px 32px}}
+.page-header{border-bottom:1px solid var(--filet);padding-bottom:18px;margin-bottom:22px}
+.kicker{font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--texte);font-weight:600;margin:0 0 8px}
+.page-title{font-size:32px;line-height:1.15;font-weight:700;margin:0;letter-spacing:-.01em}.page-title small{display:block;font-size:22px;font-weight:500;color:var(--texte);margin-top:2px}
+.page-subtitle{margin:12px 0 0}.cat-nom{display:block;font-size:22px;font-weight:700;color:var(--encre);line-height:1.25}.cat-qui{display:block;font-size:17px;font-weight:500;color:var(--texte);margin-top:2px}
+.study-scope{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;margin:12px 0 0;font-size:16px;color:var(--encre);background:var(--fond);border-left:4px solid var(--bleu);padding:10px 14px;border-radius:0 8px 8px 0}
+.study-scope b{font-weight:700}.study-scope .scope-text{font-weight:500}
+.study-scope details{display:inline-block}.study-scope summary{cursor:pointer;color:var(--bleu);font-weight:600;font-size:15px;list-style:none;padding:4px 8px;border-radius:6px}.study-scope summary::-webkit-details-marker{display:none}.study-scope summary:hover,.study-scope summary:focus{background:#e3eaf2;outline:none}.study-scope summary:focus-visible{outline:2px solid var(--bleu)}
+.study-scope-detail{flex-basis:100%;margin:6px 0 2px;padding:0 0 0 2px;font-size:15px;color:var(--encre);line-height:1.55}.study-scope-detail p{margin:4px 0}.study-scope-detail b{color:var(--bleu)}
+.context{margin:10px 0 0;font-size:15px;color:var(--texte)}
+.grille{display:grid;grid-template-columns:320px minmax(0,1fr);gap:24px;align-items:start}@media(max-width:900px){.grille{grid-template-columns:1fr}}
+.panneau{border:1px solid var(--filet);border-radius:12px;padding:16px 18px 18px;background:#fff}
+.control-label{display:block;font-size:14px;font-weight:600;color:var(--encre);margin:12px 0 5px;letter-spacing:.02em}.control-label:first-child{margin-top:0}
+select,input[type=search]{width:100%;font:inherit;font-size:15px;padding:9px 10px;border:1px solid #AEB7C2;border-radius:8px;background:#fff;color:var(--encre);min-height:42px}select:focus,input:focus{outline:2px solid var(--bleu);outline-offset:1px}
+.radios{display:flex;gap:8px;margin:0}.radios label{flex:1;border:1px solid #AEB7C2;border-radius:8px;padding:9px 8px;text-align:center;cursor:pointer;font-size:15px;font-weight:500;color:var(--encre);min-height:42px;display:flex;align-items:center;justify-content:center}.radios input{position:absolute;opacity:0;width:0;height:0}.radios label.on{background:var(--bleu);color:#fff;border-color:var(--bleu)}.radios label:focus-within{outline:2px solid var(--bleu);outline-offset:1px}
+.tabs{display:flex;flex-wrap:wrap;gap:8px;margin:0}.tabs button{font:inherit;font-size:15px;font-weight:600;padding:10px 16px;border-radius:999px;border:1px solid #AEB7C2;background:#fff;color:var(--encre);cursor:pointer;min-height:42px}.tabs button.on{background:var(--bleu);border-color:var(--bleu);color:#fff}.tabs button:focus-visible{outline:2px solid var(--bleu);outline-offset:2px}
+.legend-title{font-size:15px;font-weight:700;margin:16px 0 6px;color:var(--encre)}.map-legend{list-style:none;margin:0;padding:0}.map-legend li{display:flex;align-items:center;gap:10px;font-size:15px;margin:6px 0;color:var(--encre)}.map-legend li.sep{border-top:1px solid var(--filet);margin-top:10px;padding-top:10px}
+.map-legend .sw{width:26px;height:16px;border-radius:3px;border:1px solid #5B6470;flex:none}.map-legend .sw.sans{border:1.5px dashed #7B8794}
+.compte{font-size:15px;color:var(--encre);margin:10px 0 0}.compte b{font-weight:700}.note{font-size:13.5px;color:var(--texte);margin:10px 0 0;line-height:1.45}
+.sans-js{margin:12px 0 0;padding:10px 14px;border:1px solid #e0b96a;border-left-width:4px;background:#fff8e6;color:#5b4300;font-size:15px;border-radius:0 8px 8px 0}
+.carte{position:relative;min-width:0}.carte svg{width:100%;height:auto;display:block}
+path.t{stroke:#5B6470;stroke-width:1;vector-effect:non-scaling-stroke;cursor:pointer;outline:none}path.t.sans{stroke:#7B8794;stroke-width:0.8;stroke-dasharray:3 2}
+.limites-reg path{fill:none;stroke:#2F3945;stroke-width:1.5;vector-effect:non-scaling-stroke;stroke-linejoin:round;pointer-events:none}
+#survol{fill:none;stroke:#111827;stroke-width:2.4;vector-effect:non-scaling-stroke;stroke-linejoin:round;pointer-events:none;display:none}#survol.on{display:inline}
+@media (max-width:640px){path.t{stroke-width:0.7}path.t.sans{stroke-width:0.56}.limites-reg path{stroke-width:1.05}#survol{stroke-width:1.68}}
+.encart{fill:none;stroke:#c9ced6;stroke-width:1.2}.encart-lib{font-size:17px;font-weight:600;fill:#3E4C59}
+.bulle{position:absolute;pointer-events:none;background:#1F2933;color:#fff;border-radius:10px;padding:14px 16px;font-size:15px;line-height:1.5;min-width:240px;max-width:320px;box-shadow:0 8px 24px rgba(0,0,0,.22);display:none;z-index:2}
+.tooltip-title{font-size:17px;font-weight:700;margin:0 0 2px}.tooltip-cat{color:#cfd6df;margin:0 0 8px;font-weight:500}.tooltip-rows{border-top:1px solid rgba(255,255,255,.25);padding-top:8px}.tooltip-rows .tooltip-value{font-weight:700;padding:3px 0}.tooltip-rows .tooltip-small{color:#cfd6df;font-size:13.5px;padding:0 0 4px}.tooltip-secret{color:#ffd7a8;font-weight:700;margin-top:8px}.tooltip-secret small{display:block;color:#f3f4f6;font-weight:400}.tooltip-sans{color:#e5e7eb;font-weight:600;margin-top:8px}
+.dash{display:grid;grid-template-columns:320px minmax(0,1fr);gap:24px;align-items:start}@media(max-width:900px){.dash{grid-template-columns:1fr}}
+.cat-affichee{margin:16px 0 0;padding-top:14px;border-top:1px solid var(--filet)}.cat-affichee .cat-nom{font-size:20px}.cat-affichee .cat-qui{font-size:15px}
+.kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}@media(max-width:760px){.kpis{grid-template-columns:1fr}}
+.kpi{border:1px solid var(--filet);border-radius:12px;padding:18px 20px;background:#fff}.kpi.primaire{background:var(--fond);border-color:#c9d6e5}
+.kpi-value{font-size:40px;font-weight:700;line-height:1.1;letter-spacing:-.02em;color:var(--encre)}.kpi-value.secret{font-size:24px;color:#4b5563}
+.kpi-label{font-size:16px;font-weight:600;margin-top:6px;color:var(--encre)}.kpi-help{font-size:14px;color:var(--texte);margin-top:4px;line-height:1.4}
+.bloc{border:1px solid var(--filet);border-radius:12px;padding:18px 20px;margin-top:16px}.bloc h2{font-size:17px;margin:0 0 12px;font-weight:700}
+.fourchette{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;text-align:center}.fourchette .v{font-size:26px;font-weight:600;color:var(--texte)}.fourchette .centrale .v{font-size:36px;font-weight:700;color:var(--encre)}.fourchette .l{font-size:14px;color:var(--texte);margin-top:2px}.fourchette .centrale .l{color:var(--encre);font-weight:600}
+.barre{display:flex;height:22px;border-radius:6px;overflow:hidden;background:#eef1f5;margin:6px 0 10px}.barre span{height:100%}
+.causes{list-style:none;margin:0;padding:0}.causes li{display:flex;align-items:center;gap:10px;font-size:15px;padding:5px 0;border-bottom:1px solid var(--filet)}.causes li:last-child{border:0}.causes .sw{width:14px;height:14px;border-radius:3px;flex:none}.causes .v{margin-left:auto;font-weight:700;white-space:nowrap}.causes .p{color:var(--texte);font-weight:500;margin-left:8px;min-width:48px;text-align:right}
+.masque-national{border:1px solid var(--filet);border-radius:12px;padding:28px 24px;background:var(--fond)}.masque-national .t{font-size:26px;font-weight:700}.masque-national p{font-size:16px;margin:8px 0 0;color:var(--encre)}
+footer{margin-top:28px;color:var(--texte);font-size:13.5px;line-height:1.55;border-top:1px solid var(--filet);padding-top:14px}footer b{color:var(--encre)}
+.courriel>input{position:absolute;opacity:0;width:0;height:0}
+.courriel .vue{display:none}.courriel .cats{list-style:none;margin:0;padding:0;max-height:440px;overflow:auto;border:1px solid #AEB7C2;border-radius:8px}
+.courriel .cats label{display:block;padding:8px 10px;cursor:pointer;font-size:15px;border-bottom:1px solid var(--filet)}.courriel .cats li:last-child label{border-bottom:0}
+.courriel svg{width:100%;height:auto;display:block}.courriel .vue-titre{font-size:20px;font-weight:700;margin:0 0 4px}.courriel .vue-qui{color:var(--texte);margin:0 0 12px}
+#cat-1:checked~.grille .vue-1,#cat-1:checked~.dash .vue-1{display:block}#cat-1:checked~.grille label[for=cat-1],#cat-1:checked~.dash label[for=cat-1]{background:var(--bleu);color:#fff}#cat-2:checked~.grille .vue-2,#cat-2:checked~.dash .vue-2{display:block}#cat-2:checked~.grille label[for=cat-2],#cat-2:checked~.dash label[for=cat-2]{background:var(--bleu);color:#fff}#cat-3:checked~.grille .vue-3,#cat-3:checked~.dash .vue-3{display:block}#cat-3:checked~.grille label[for=cat-3],#cat-3:checked~.dash label[for=cat-3]{background:var(--bleu);color:#fff}#cat-4:checked~.grille .vue-4,#cat-4:checked~.dash .vue-4{display:block}#cat-4:checked~.grille label[for=cat-4],#cat-4:checked~.dash label[for=cat-4]{background:var(--bleu);color:#fff}#cat-5:checked~.grille .vue-5,#cat-5:checked~.dash .vue-5{display:block}#cat-5:checked~.grille label[for=cat-5],#cat-5:checked~.dash label[for=cat-5]{background:var(--bleu);color:#fff}#cat-6:checked~.grille .vue-6,#cat-6:checked~.dash .vue-6{display:block}#cat-6:checked~.grille label[for=cat-6],#cat-6:checked~.dash label[for=cat-6]{background:var(--bleu);color:#fff}#cat-7:checked~.grille .vue-7,#cat-7:checked~.dash .vue-7{display:block}#cat-7:checked~.grille label[for=cat-7],#cat-7:checked~.dash label[for=cat-7]{background:var(--bleu);color:#fff}#cat-8:checked~.grille .vue-8,#cat-8:checked~.dash .vue-8{display:block}#cat-8:checked~.grille label[for=cat-8],#cat-8:checked~.dash label[for=cat-8]{background:var(--bleu);color:#fff}#cat-9:checked~.grille .vue-9,#cat-9:checked~.dash .vue-9{display:block}#cat-9:checked~.grille label[for=cat-9],#cat-9:checked~.dash label[for=cat-9]{background:var(--bleu);color:#fff}#cat-10:checked~.grille .vue-10,#cat-10:checked~.dash .vue-10{display:block}#cat-10:checked~.grille label[for=cat-10],#cat-10:checked~.dash label[for=cat-10]{background:var(--bleu);color:#fff}#cat-11:checked~.grille .vue-11,#cat-11:checked~.dash .vue-11{display:block}#cat-11:checked~.grille label[for=cat-11],#cat-11:checked~.dash label[for=cat-11]{background:var(--bleu);color:#fff}#cat-12:checked~.grille .vue-12,#cat-12:checked~.dash .vue-12{display:block}#cat-12:checked~.grille label[for=cat-12],#cat-12:checked~.dash label[for=cat-12]{background:var(--bleu);color:#fff}#cat-13:checked~.grille .vue-13,#cat-13:checked~.dash .vue-13{display:block}#cat-13:checked~.grille label[for=cat-13],#cat-13:checked~.dash label[for=cat-13]{background:var(--bleu);color:#fff}#cat-14:checked~.grille .vue-14,#cat-14:checked~.dash .vue-14{display:block}#cat-14:checked~.grille label[for=cat-14],#cat-14:checked~.dash label[for=cat-14]{background:var(--bleu);color:#fff}#cat-15:checked~.grille .vue-15,#cat-15:checked~.dash .vue-15{display:block}#cat-15:checked~.grille label[for=cat-15],#cat-15:checked~.dash label[for=cat-15]{background:var(--bleu);color:#fff}#cat-16:checked~.grille .vue-16,#cat-16:checked~.dash .vue-16{display:block}#cat-16:checked~.grille label[for=cat-16],#cat-16:checked~.dash label[for=cat-16]{background:var(--bleu);color:#fff}#cat-17:checked~.grille .vue-17,#cat-17:checked~.dash .vue-17{display:block}#cat-17:checked~.grille label[for=cat-17],#cat-17:checked~.dash label[for=cat-17]{background:var(--bleu);color:#fff}#cat-18:checked~.grille .vue-18,#cat-18:checked~.dash .vue-18{display:block}#cat-18:checked~.grille label[for=cat-18],#cat-18:checked~.dash label[for=cat-18]{background:var(--bleu);color:#fff}#cat-19:checked~.grille .vue-19,#cat-19:checked~.dash .vue-19{display:block}#cat-19:checked~.grille label[for=cat-19],#cat-19:checked~.dash label[for=cat-19]{background:var(--bleu);color:#fff}#cat-20:checked~.grille .vue-20,#cat-20:checked~.dash .vue-20{display:block}#cat-20:checked~.grille label[for=cat-20],#cat-20:checked~.dash label[for=cat-20]{background:var(--bleu);color:#fff}
+</style></head><body><div class="page">
+<header class="page-header">
+<p class="kicker">Départs attendus d’ici 2030 · résultats diffusables</p>
+<h1 class="page-title" id="titre">Départs attendus d’ici 2030<small>France entière</small></h1>
+<p class="page-subtitle" id="sous"><span class="cat-nom" id="sous-cat">Version pour envoi par courriel</span> <span class="cat-qui" id="sous-qui">Sans script : changez de catégorie dans la liste, survolez un territoire pour lire ses chiffres.</span></p>
+<div class="study-scope" role="note" aria-label="Qui est concerné">
+<span class="scope-text"><b>Salariés de 45 ans ou plus</b> · entreprises du périmètre BITD</span>
+<details><summary>ⓘ Qui est concerné ?</summary></details>
+<div class="study-scope-detail" id="scope-detail" hidden><p>Ces résultats concernent les salariés des entreprises retenues dans le périmètre BITD (base industrielle et technologique de défense).</p><p>Ils portent sur les salariés âgés de 45 ans ou plus en 2024, appartenant aux catégories professionnelles couvertes par le modèle : cadres, professions intermédiaires, employés, ouvriers.</p><p>Certaines professions qui ne peuvent pas être rattachées à ces catégories (agriculteurs exploitants, artisans, commerçants et chefs d’entreprise, profession non renseignée) ne sont pas incluses dans les estimations.</p><p>Un départ est une sortie définitive de l’emploi d’ici 2030 : retraite ou fin de carrière, invalidité, décès. Changer d’employeur n’est pas un départ.</p><p>Les nombres de départs sont des estimations, arrondies à l’entier pour la lecture ; la part de salariés susceptibles de partir est calculée parmi les salariés de la catégorie affichée.</p></div>
+</div>
+<p class="context">Choisissez une PCS pour consulter les résultats nationaux.</p>
+</header>
+<div class="courriel">
+<input type="radio" name="cat" id="cat-1" checked>
+<input type="radio" name="cat" id="cat-2">
+<input type="radio" name="cat" id="cat-3">
+<input type="radio" name="cat" id="cat-4">
+<input type="radio" name="cat" id="cat-5">
+<input type="radio" name="cat" id="cat-6">
+<input type="radio" name="cat" id="cat-7">
+<input type="radio" name="cat" id="cat-8">
+<input type="radio" name="cat" id="cat-9">
+<input type="radio" name="cat" id="cat-10">
+<input type="radio" name="cat" id="cat-11">
+<input type="radio" name="cat" id="cat-12">
+<input type="radio" name="cat" id="cat-13">
+<input type="radio" name="cat" id="cat-14">
+<input type="radio" name="cat" id="cat-15">
+<input type="radio" name="cat" id="cat-16">
+<input type="radio" name="cat" id="cat-17">
+<input type="radio" name="cat" id="cat-18">
+<input type="radio" name="cat" id="cat-19">
+<input type="radio" name="cat" id="cat-20">
+<div class="dash"><aside class="panneau">
+<span class="control-label">Quelle PCS ?</span><ul class="cats">
+<li><label for="cat-1">6712 — Ouvriers</label></li>
+<li><label for="cat-2">6821 — Ouvriers</label></li>
+<li><label for="cat-3">6210 — Ouvriers</label></li>
+<li><label for="cat-4">6234 — Ouvriers</label></li>
+<li><label for="cat-5">6543 — Ouvriers</label></li>
+<li><label for="cat-6">4652 — Professions intermédiaires</label></li>
+<li><label for="cat-7">4611 — Professions intermédiaires</label></li>
+<li><label for="cat-8">4631 — Professions intermédiaires</label></li>
+<li><label for="cat-9">4620 — Professions intermédiaires</label></li>
+<li><label for="cat-10">5511 — Employés</label></li>
+<li><label for="cat-11">5422 — Employés</label></li>
+<li><label for="cat-12">5311 — Employés</label></li>
+<li><label for="cat-13">4642 — Professions intermédiaires</label></li>
+<li><label for="cat-14">5411 — Employés</label></li>
+<li><label for="cat-15">5621 — Employés</label></li>
+<li><label for="cat-16">3812 — Cadres</label></li>
+<li><label for="cat-17">3753 — Cadres</label></li>
+<li><label for="cat-18">3719 — Cadres</label></li>
+<li><label for="cat-19">3892 — Cadres</label></li>
+<li><label for="cat-20">3822 — Cadres</label></li>
+</ul>
+</aside><div>
+<section class="vue vue-1">
+<p class="vue-titre">PCS 6712 · Ouvriers</p><p class="vue-qui">Salariés de 45 ans ou plus · France entière</p>
+<div>
+<div class="kpis">
+<div class="kpi primaire"><div class="kpi-value">160</div><div class="kpi-label">départs estimés d’ici 2030</div><div class="kpi-help">Salariés qui devraient avoir quitté définitivement leur emploi d’ici 2030 (estimation centrale).</div></div>
+<div class="kpi"><div class="kpi-value">47,2 %</div><div class="kpi-label">pourraient partir d’ici 2030</div><div class="kpi-help">Part des salariés de 45 ans ou plus de cette catégorie.</div></div>
+<div class="kpi"><div class="kpi-value">339</div><div class="kpi-label">salariés concernés</div><div class="kpi-help">Salariés de 45 ans ou plus de cette catégorie, dans les entreprises du périmètre BITD.</div></div>
+</div>
+<div class="bloc"><h2>Combien de départs, selon l’hypothèse retenue ?</h2><div class="fourchette">
+<div><div class="v">153</div><div class="l">Estimation basse</div></div><div class="centrale"><div class="v">160</div><div class="l">Estimation centrale</div></div><div><div class="v">167</div><div class="l">Estimation haute</div></div>
+</div><p class="note">L’estimation centrale est encadrée par deux hypothèses, basse et haute, sur l’âge de départ en retraite.</p></div>
+<div class="bloc"><h2>Pourquoi ces salariés partiraient-ils ?</h2><div class="barre" aria-hidden="true"><span style="width:90.00%;background:#2171b5" title="Retraite ou fin de carrière"></span><span style="width:7.50%;background:#9ecae1" title="Invalidité"></span><span style="width:2.50%;background:#6b7280" title="Décès"></span></div><ul class="causes"><li><span class="sw" style="background:#2171b5"></span><span>Retraite ou fin de carrière</span><span class="v">144</span><span class="p">90 %</span></li><li><span class="sw" style="background:#9ecae1"></span><span>Invalidité</span><span class="v">12</span><span class="p">8 %</span></li><li><span class="sw" style="background:#6b7280"></span><span>Décès</span><span class="v">4</span><span class="p">3 %</span></li></ul>
+<p class="note">Répartition des départs estimés (estimation centrale) par motif.</p></div>
+</div>
+<div class="masque-national" style="display:none"><div class="t">PCS 6712 · Ouvriers</div><p><b>Résultat non diffusé</b> <span>Ce résultat ne peut pas être affiché : il concerne trop peu de salariés ou d’entreprises, ou une seule entreprise y pèse trop.</span></p><p>Les autres catégories restent consultables ci-contre.</p></div>
+</section>
+<section class="vue vue-2">
+<p class="vue-titre">PCS 6821 · Ouvriers</p><p class="vue-qui">Salariés de 45 ans ou plus · France entière</p>
+<div>
+<div class="kpis">
+<div class="kpi primaire"><div class="kpi-value">155</div><div class="kpi-label">départs estimés d’ici 2030</div><div class="kpi-help">Salariés qui devraient avoir quitté définitivement leur emploi d’ici 2030 (estimation centrale).</div></div>
+<div class="kpi"><div class="kpi-value">48,3 %</div><div class="kpi-label">pourraient partir d’ici 2030</div><div class="kpi-help">Part des salariés de 45 ans ou plus de cette catégorie.</div></div>
+<div class="kpi"><div class="kpi-value">321</div><div class="kpi-label">salariés concernés</div><div class="kpi-help">Salariés de 45 ans ou plus de cette catégorie, dans les entreprises du périmètre BITD.</div></div>
+</div>
+<div class="bloc"><h2>Combien de départs, selon l’hypothèse retenue ?</h2><div class="fourchette">
+<div><div class="v">148</div><div class="l">Estimation basse</div></div><div class="centrale"><div class="v">155</div><div class="l">Estimation centrale</div></div><div><div class="v">162</div><div class="l">Estimation haute</div></div>
+</div><p class="note">L’estimation centrale est encadrée par deux hypothèses, basse et haute, sur l’âge de départ en retraite.</p></div>
+<div class="bloc"><h2>Pourquoi ces salariés partiraient-ils ?</h2><div class="barre" aria-hidden="true"><span style="width:90.32%;background:#2171b5" title="Retraite ou fin de carrière"></span><span style="width:7.74%;background:#9ecae1" title="Invalidité"></span><span style="width:1.94%;background:#6b7280" title="Décès"></span></div><ul class="causes"><li><span class="sw" style="background:#2171b5"></span><span>Retraite ou fin de carrière</span><span class="v">140</span><span class="p">90 %</span></li><li><span class="sw" style="background:#9ecae1"></span><span>Invalidité</span><span class="v">12</span><span class="p">8 %</span></li><li><span class="sw" style="background:#6b7280"></span><span>Décès</span><span class="v">3</span><span class="p">2 %</span></li></ul>
+<p class="note">Répartition des départs estimés (estimation centrale) par motif.</p></div>
+</div>
+<div class="masque-national" style="display:none"><div class="t">PCS 6821 · Ouvriers</div><p><b>Résultat non diffusé</b> <span>Ce résultat ne peut pas être affiché : il concerne trop peu de salariés ou d’entreprises, ou une seule entreprise y pèse trop.</span></p><p>Les autres catégories restent consultables ci-contre.</p></div>
+</section>
+<section class="vue vue-3">
+<p class="vue-titre">PCS 6210 · Ouvriers</p><p class="vue-qui">Salariés de 45 ans ou plus · France entière</p>
+<div>
+<div class="kpis">
+<div class="kpi primaire"><div class="kpi-value">154</div><div class="kpi-label">départs estimés d’ici 2030</div><div class="kpi-help">Salariés qui devraient avoir quitté définitivement leur emploi d’ici 2030 (estimation centrale).</div></div>
+<div class="kpi"><div class="kpi-value">48,8 %</div><div class="kpi-label">pourraient partir d’ici 2030</div><div class="kpi-help">Part des salariés de 45 ans ou plus de cette catégorie.</div></div>
+<div class="kpi"><div class="kpi-value">316</div><div class="kpi-label">salariés concernés</div><div class="kpi-help">Salariés de 45 ans ou plus de cette catégorie, dans les entreprises du périmètre BITD.</div></div>
+</div>
+<div class="bloc"><h2>Combien de départs, selon l’hypothèse retenue ?</h2><div class="fourchette">
+<div><div class="v">147</div><div class="l">Estimation basse</div></div><div class="centrale"><div class="v">154</div><div class="l">Estimation centrale</div></div><div><div class="v">162</div><div class="l">Estimation haute</div></div>
+</div><p class="note">L’estimation centrale est encadrée par deux hypothèses, basse et haute, sur l’âge de départ en retraite.</p></div>
+<div class="bloc"><h2>Pourquoi ces salariés partiraient-ils ?</h2><div class="barre" aria-hidden="true"><span style="width:90.26%;background:#2171b5" title="Retraite ou fin de carrière"></span><span style="width:7.79%;background:#9ecae1" title="Invalidité"></span><span style="width:1.95%;background:#6b7280" title="Décès"></span></div><ul class="causes"><li><span class="sw" style="background:#2171b5"></span><span>Retraite ou fin de carrière</span><span class="v">139</span><span class="p">90 %</span></li><li><span class="sw" style="background:#9ecae1"></span><span>Invalidité</span><span class="v">12</span><span class="p">8 %</span></li><li><span class="sw" style="background:#6b7280"></span><span>Décès</span><span class="v">3</span><span class="p">2 %</span></li></ul>
+<p class="note">Répartition des départs estimés (estimation centrale) par motif.</p></div>
+</div>
+<div class="masque-national" style="display:none"><div class="t">PCS 6210 · Ouvriers</div><p><b>Résultat non diffusé</b> <span>Ce résultat ne peut pas être affiché : il concerne trop peu de salariés ou d’entreprises, ou une seule entreprise y pèse trop.</span></p><p>Les autres catégories restent consultables ci-contre.</p></div>
+</section>
+<section class="vue vue-4">
+<p class="vue-titre">PCS 6234 · Ouvriers</p><p class="vue-qui">Salariés de 45 ans ou plus · France entière</p>
+<div>
+<div class="kpis">
+<div class="kpi primaire"><div class="kpi-value">152</div><div class="kpi-label">départs estimés d’ici 2030</div><div class="kpi-help">Salariés qui devraient avoir quitté définitivement leur emploi d’ici 2030 (estimation centrale).</div></div>
+<div class="kpi"><div class="kpi-value">43,5 %</div><div class="kpi-label">pourraient partir d’ici 2030</div><div class="kpi-help">Part des salariés de 45 ans ou plus de cette catégorie.</div></div>
+<div class="kpi"><div class="kpi-value">349</div><div class="kpi-label">salariés concernés</div><div class="kpi-help">Salariés de 45 ans ou plus de cette catégorie, dans les entreprises du périmètre BITD.</div></div>
+</div>
+<div class="bloc"><h2>Combien de départs, selon l’hypothèse retenue ?</h2><div class="fourchette">
+<div><div class="v">144</div><div class="l">Estimation basse</div></div><div class="centrale"><div class="v">152</div><div class="l">Estimation centrale</div></div><div><div class="v">160</div><div class="l">Estimation haute</div></div>
+</div><p class="note">L’estimation centrale est encadrée par deux hypothèses, basse et haute, sur l’âge de départ en retraite.</p></div>
+<div class="bloc"><h2>Pourquoi ces salariés partiraient-ils ?</h2><div class="barre" aria-hidden="true"><span style="width:88.16%;background:#2171b5" title="Retraite ou fin de carrière"></span><span style="width:9.21%;background:#9ecae1" title="Invalidité"></span><span style="width:2.63%;background:#6b7280" title="Décès"></span></div><ul class="causes"><li><span class="sw" style="background:#2171b5"></span><span>Retraite ou fin de carrière</span><span class="v">134</span><span class="p">88 %</span></li><li><span class="sw" style="background:#9ecae1"></span><span>Invalidité</span><span class="v">14</span><span class="p">9 %</span></li><li><span class="sw" style="background:#6b7280"></span><span>Décès</span><span class="v">4</span><span class="p">3 %</span></li></ul>
+<p class="note">Répartition des départs estimés (estimation centrale) par motif.</p></div>
+</div>
+<div class="masque-national" style="display:none"><div class="t">PCS 6234 · Ouvriers</div><p><b>Résultat non diffusé</b> <span>Ce résultat ne peut pas être affiché : il concerne trop peu de salariés ou d’entreprises, ou une seule entreprise y pèse trop.</span></p><p>Les autres catégories restent consultables ci-contre.</p></div>
+</section>
+<section class="vue vue-5">
+<p class="vue-titre">PCS 6543 · Ouvriers</p><p class="vue-qui">Salariés de 45 ans ou plus · France entière</p>
+<div>
+<div class="kpis">
+<div class="kpi primaire"><div class="kpi-value">145</div><div class="kpi-label">départs estimés d’ici 2030</div><div class="kpi-help">Salariés qui devraient avoir quitté définitivement leur emploi d’ici 2030 (estimation centrale).</div></div>
+<div class="kpi"><div class="kpi-value">43,8 %</div><div class="kpi-label">pourraient partir d’ici 2030</div><div class="kpi-help">Part des salariés de 45 ans ou plus de cette catégorie.</div></div>
+<div class="kpi"><div class="kpi-value">330</div><div class="kpi-label">salariés concernés</div><div class="kpi-help">Salariés de 45 ans ou plus de cette catégorie, dans les entreprises du périmètre BITD.</div></div>
+</div>
+<div class="bloc"><h2>Combien de départs, selon l’hypothèse retenue ?</h2><div class="fourchette">
+<div><div class="v">138</div><div class="l">Estimation basse</div></div><div class="centrale"><div class="v">145</div><div class="l">Estimation centrale</div></div><div><div class="v">152</div><div class="l">Estimation haute</div></div>
+</div><p class="note">L’estimation centrale est encadrée par deux hypothèses, basse et haute, sur l’âge de départ en retraite.</p></div>
+<div class="bloc"><h2>Pourquoi ces salariés partiraient-ils ?</h2><div class="barre" aria-hidden="true"><span style="width:88.97%;background:#2171b5" title="Retraite ou fin de carrière"></span><span style="width:8.28%;background:#9ecae1" title="Invalidité"></span><span style="width:2.76%;background:#6b7280" title="Décès"></span></div><ul class="causes"><li><span class="sw" style="background:#2171b5"></span><span>Retraite ou fin de carrière</span><span class="v">129</span><span class="p">89 %</span></li><li><span class="sw" style="background:#9ecae1"></span><span>Invalidité</span><span class="v">12</span><span class="p">8 %</span></li><li><span class="sw" style="background:#6b7280"></span><span>Décès</span><span class="v">4</span><span class="p">3 %</span></li></ul>
+<p class="note">Répartition des départs estimés (estimation centrale) par motif.</p></div>
+</div>
+<div class="masque-national" style="display:none"><div class="t">PCS 6543 · Ouvriers</div><p><b>Résultat non diffusé</b> <span>Ce résultat ne peut pas être affiché : il concerne trop peu de salariés ou d’entreprises, ou une seule entreprise y pèse trop.</span></p><p>Les autres catégories restent consultables ci-contre.</p></div>
+</section>
+<section class="vue vue-6">
+<p class="vue-titre">PCS 4652 · Professions intermédiaires</p><p class="vue-qui">Salariés de 45 ans ou plus · France entière</p>
+<div>
+<div class="kpis">
+<div class="kpi primaire"><div class="kpi-value">117</div><div class="kpi-label">départs estimés d’ici 2030</div><div class="kpi-help">Salariés qui devraient avoir quitté définitivement leur emploi d’ici 2030 (estimation centrale).</div></div>
+<div class="kpi"><div class="kpi-value">37,2 %</div><div class="kpi-label">pourraient partir d’ici 2030</div><div class="kpi-help">Part des salariés de 45 ans ou plus de cette catégorie.</div></div>
+<div class="kpi"><div class="kpi-value">314</div><div class="kpi-label">salariés concernés</div><div class="kpi-help">Salariés de 45 ans ou plus de cette catégorie, dans les entreprises du périmètre BITD.</div></div>
+</div>
+<div class="bloc"><h2>Combien de départs, selon l’hypothèse retenue ?</h2><div class="fourchette">
+<div><div class="v">111</div><div class="l">Estimation basse</div></div><div class="centrale"><div class="v">117</div><div class="l">Estimation centrale</div></div><div><div class="v">123</div><div class="l">Estimation haute</div></div>
+</div><p class="note">L’estimation centrale est encadrée par deux hypothèses, basse et haute, sur l’âge de départ en retraite.</p></div>
+<div class="bloc"><h2>Pourquoi ces salariés partiraient-ils ?</h2><div class="barre" aria-hidden="true"><span style="width:89.74%;background:#2171b5" title="Retraite ou fin de carrière"></span><span style="width:6.84%;background:#9ecae1" title="Invalidité"></span><span style="width:3.42%;background:#6b7280" title="Décès"></span></div><ul class="causes"><li><span class="sw" style="background:#2171b5"></span><span>Retraite ou fin de carrière</span><span class="v">105</span><span class="p">90 %</span></li><li><span class="sw" style="background:#9ecae1"></span><span>Invalidité</span><span class="v">8</span><span class="p">7 %</span></li><li><span class="sw" style="background:#6b7280"></span><span>Décès</span><span class="v">4</span><span class="p">3 %</span></li></ul>
+<p class="note">Répartition des départs estimés (estimation centrale) par motif.</p></div>
+</div>
+<div class="masque-national" style="display:none"><div class="t">PCS 4652 · Professions intermédiaires</div><p><b>Résultat non diffusé</b> <span>Ce résultat ne peut pas être affiché : il concerne trop peu de salariés ou d’entreprises, ou une seule entreprise y pèse trop.</span></p><p>Les autres catégories restent consultables ci-contre.</p></div>
+</section>
+<section class="vue vue-7">
+<p class="vue-titre">PCS 4611 · Professions intermédiaires</p><p class="vue-qui">Salariés de 45 ans ou plus · France entière</p>
+<div>
+<div class="kpis">
+<div class="kpi primaire"><div class="kpi-value">110</div><div class="kpi-label">départs estimés d’ici 2030</div><div class="kpi-help">Salariés qui devraient avoir quitté définitivement leur emploi d’ici 2030 (estimation centrale).</div></div>
+<div class="kpi"><div class="kpi-value">35,2 %</div><div class="kpi-label">pourraient partir d’ici 2030</div><div class="kpi-help">Part des salariés de 45 ans ou plus de cette catégorie.</div></div>
+<div class="kpi"><div class="kpi-value">314</div><div class="kpi-label">salariés concernés</div><div class="kpi-help">Salariés de 45 ans ou plus de cette catégorie, dans les entreprises du périmètre BITD.</div></div>
+</div>
+<div class="bloc"><h2>Combien de départs, selon l’hypothèse retenue ?</h2><div class="fourchette">
+<div><div class="v">104</div><div class="l">Estimation basse</div></div><div class="centrale"><div class="v">110</div><div class="l">Estimation centrale</div></div><div><div class="v">117</div><div class="l">Estimation haute</div></div>
+</div><p class="note">L’estimation centrale est encadrée par deux hypothèses, basse et haute, sur l’âge de départ en retraite.</p></div>
+<div class="bloc"><h2>Pourquoi ces salariés partiraient-ils ?</h2><div class="barre" aria-hidden="true"><span style="width:89.09%;background:#2171b5" title="Retraite ou fin de carrière"></span><span style="width:7.27%;background:#9ecae1" title="Invalidité"></span><span style="width:3.64%;background:#6b7280" title="Décès"></span></div><ul class="causes"><li><span class="sw" style="background:#2171b5"></span><span>Retraite ou fin de carrière</span><span class="v">98</span><span class="p">89 %</span></li><li><span class="sw" style="background:#9ecae1"></span><span>Invalidité</span><span class="v">8</span><span class="p">7 %</span></li><li><span class="sw" style="background:#6b7280"></span><span>Décès</span><span class="v">4</span><span class="p">4 %</span></li></ul>
+<p class="note">Répartition des départs estimés (estimation centrale) par motif.</p></div>
+</div>
+<div class="masque-national" style="display:none"><div class="t">PCS 4611 · Professions intermédiaires</div><p><b>Résultat non diffusé</b> <span>Ce résultat ne peut pas être affiché : il concerne trop peu de salariés ou d’entreprises, ou une seule entreprise y pèse trop.</span></p><p>Les autres catégories restent consultables ci-contre.</p></div>
+</section>
+<section class="vue vue-8">
+<p class="vue-titre">PCS 4631 · Professions intermédiaires</p><p class="vue-qui">Salariés de 45 ans ou plus · France entière</p>
+<div>
+<div class="kpis">
+<div class="kpi primaire"><div class="kpi-value">103</div><div class="kpi-label">départs estimés d’ici 2030</div><div class="kpi-help">Salariés qui devraient avoir quitté définitivement leur emploi d’ici 2030 (estimation centrale).</div></div>
+<div class="kpi"><div class="kpi-value">38,0 %</div><div class="kpi-label">pourraient partir d’ici 2030</div><div class="kpi-help">Part des salariés de 45 ans ou plus de cette catégorie.</div></div>
+<div class="kpi"><div class="kpi-value">271</div><div class="kpi-label">salariés concernés</div><div class="kpi-help">Salariés de 45 ans ou plus de cette catégorie, dans les entreprises du périmètre BITD.</div></div>
+</div>
+<div class="bloc"><h2>Combien de départs, selon l’hypothèse retenue ?</h2><div class="fourchette">
+<div><div class="v">98</div><div class="l">Estimation basse</div></div><div class="centrale"><div class="v">103</div><div class="l">Estimation centrale</div></div><div><div class="v">108</div><div class="l">Estimation haute</div></div>
+</div><p class="note">L’estimation centrale est encadrée par deux hypothèses, basse et haute, sur l’âge de départ en retraite.</p></div>
+<div class="bloc"><h2>Pourquoi ces salariés partiraient-ils ?</h2><div class="barre" aria-hidden="true"><span style="width:89.32%;background:#2171b5" title="Retraite ou fin de carrière"></span><span style="width:6.80%;background:#9ecae1" title="Invalidité"></span><span style="width:3.88%;background:#6b7280" title="Décès"></span></div><ul class="causes"><li><span class="sw" style="background:#2171b5"></span><span>Retraite ou fin de carrière</span><span class="v">92</span><span class="p">89 %</span></li><li><span class="sw" style="background:#9ecae1"></span><span>Invalidité</span><span class="v">7</span><span class="p">7 %</span></li><li><span class="sw" style="background:#6b7280"></span><span>Décès</span><span class="v">4</span><span class="p">4 %</span></li></ul>
+<p class="note">Répartition des départs estimés (estimation centrale) par motif.</p></div>
+</div>
+<div class="masque-national" style="display:none"><div class="t">PCS 4631 · Professions intermédiaires</div><p><b>Résultat non diffusé</b> <span>Ce résultat ne peut pas être affiché : il concerne trop peu de salariés ou d’entreprises, ou une seule entreprise y pèse trop.</span></p><p>Les autres catégories restent consultables ci-contre.</p></div>
+</section>
+<section class="vue vue-9">
+<p class="vue-titre">PCS 4620 · Professions intermédiaires</p><p class="vue-qui">Salariés de 45 ans ou plus · France entière</p>
+<div>
+<div class="kpis">
+<div class="kpi primaire"><div class="kpi-value">101</div><div class="kpi-label">départs estimés d’ici 2030</div><div class="kpi-help">Salariés qui devraient avoir quitté définitivement leur emploi d’ici 2030 (estimation centrale).</div></div>
+<div class="kpi"><div class="kpi-value">34,2 %</div><div class="kpi-label">pourraient partir d’ici 2030</div><div class="kpi-help">Part des salariés de 45 ans ou plus de cette catégorie.</div></div>
+<div class="kpi"><div class="kpi-value">296</div><div class="kpi-label">salariés concernés</div><div class="kpi-help">Salariés de 45 ans ou plus de cette catégorie, dans les entreprises du périmètre BITD.</div></div>
+</div>
+<div class="bloc"><h2>Combien de départs, selon l’hypothèse retenue ?</h2><div class="fourchette">
+<div><div class="v">96</div><div class="l">Estimation basse</div></div><div class="centrale"><div class="v">101</div><div class="l">Estimation centrale</div></div><div><div class="v">107</div><div class="l">Estimation haute</div></div>
+</div><p class="note">L’estimation centrale est encadrée par deux hypothèses, basse et haute, sur l’âge de départ en retraite.</p></div>
+<div class="bloc"><h2>Pourquoi ces salariés partiraient-ils ?</h2><div class="barre" aria-hidden="true"><span style="width:89.11%;background:#2171b5" title="Retraite ou fin de carrière"></span><span style="width:6.93%;background:#9ecae1" title="Invalidité"></span><span style="width:3.96%;background:#6b7280" title="Décès"></span></div><ul class="causes"><li><span class="sw" style="background:#2171b5"></span><span>Retraite ou fin de carrière</span><span class="v">90</span><span class="p">89 %</span></li><li><span class="sw" style="background:#9ecae1"></span><span>Invalidité</span><span class="v">7</span><span class="p">7 %</span></li><li><span class="sw" style="background:#6b7280"></span><span>Décès</span><span class="v">4</span><span class="p">4 %</span></li></ul>
+<p class="note">Répartition des départs estimés (estimation centrale) par motif.</p></div>
+</div>
+<div class="masque-national" style="display:none"><div class="t">PCS 4620 · Professions intermédiaires</div><p><b>Résultat non diffusé</b> <span>Ce résultat ne peut pas être affiché : il concerne trop peu de salariés ou d’entreprises, ou une seule entreprise y pèse trop.</span></p><p>Les autres catégories restent consultables ci-contre.</p></div>
+</section>
+<section class="vue vue-10">
+<p class="vue-titre">PCS 5511 · Employés</p><p class="vue-qui">Salariés de 45 ans ou plus · France entière</p>
+<div>
+<div class="kpis">
+<div class="kpi primaire"><div class="kpi-value">97</div><div class="kpi-label">départs estimés d’ici 2030</div><div class="kpi-help">Salariés qui devraient avoir quitté définitivement leur emploi d’ici 2030 (estimation centrale).</div></div>
+<div class="kpi"><div class="kpi-value">44,2 %</div><div class="kpi-label">pourraient partir d’ici 2030</div><div class="kpi-help">Part des salariés de 45 ans ou plus de cette catégorie.</div></div>
+<div class="kpi"><div class="kpi-value">220</div><div class="kpi-label">salariés concernés</div><div class="kpi-help">Salariés de 45 ans ou plus de cette catégorie, dans les entreprises du périmètre BITD.</div></div>
+</div>
+<div class="bloc"><h2>Combien de départs, selon l’hypothèse retenue ?</h2><div class="fourchette">
+<div><div class="v">93</div><div class="l">Estimation basse</div></div><div class="centrale"><div class="v">97</div><div class="l">Estimation centrale</div></div><div><div class="v">102</div><div class="l">Estimation haute</div></div>
+</div><p class="note">L’estimation centrale est encadrée par deux hypothèses, basse et haute, sur l’âge de départ en retraite.</p></div>
+<div class="bloc"><h2>Pourquoi ces salariés partiraient-ils ?</h2><div class="barre" aria-hidden="true"><span style="width:90.72%;background:#2171b5" title="Retraite ou fin de carrière"></span><span style="width:6.19%;background:#9ecae1" title="Invalidité"></span><span style="width:3.09%;background:#6b7280" title="Décès"></span></div><ul class="causes"><li><span class="sw" style="background:#2171b5"></span><span>Retraite ou fin de carrière</span><span class="v">88</span><span class="p">91 %</span></li><li><span class="sw" style="background:#9ecae1"></span><span>Invalidité</span><span class="v">6</span><span class="p">6 %</span></li><li><span class="sw" style="background:#6b7280"></span><span>Décès</span><span class="v">3</span><span class="p">3 %</span></li></ul>
+<p class="note">Répartition des départs estimés (estimation centrale) par motif.</p></div>
+</div>
+<div class="masque-national" style="display:none"><div class="t">PCS 5511 · Employés</div><p><b>Résultat non diffusé</b> <span>Ce résultat ne peut pas être affiché : il concerne trop peu de salariés ou d’entreprises, ou une seule entreprise y pèse trop.</span></p><p>Les autres catégories restent consultables ci-contre.</p></div>
+</section>
+<section class="vue vue-11">
+<p class="vue-titre">PCS 5422 · Employés</p><p class="vue-qui">Salariés de 45 ans ou plus · France entière</p>
+<div>
+<div class="kpis">
+<div class="kpi primaire"><div class="kpi-value">94</div><div class="kpi-label">départs estimés d’ici 2030</div><div class="kpi-help">Salariés qui devraient avoir quitté définitivement leur emploi d’ici 2030 (estimation centrale).</div></div>
+<div class="kpi"><div class="kpi-value">39,5 %</div><div class="kpi-label">pourraient partir d’ici 2030</div><div class="kpi-help">Part des salariés de 45 ans ou plus de cette catégorie.</div></div>
+<div class="kpi"><div class="kpi-value">238</div><div class="kpi-label">salariés concernés</div><div class="kpi-help">Salariés de 45 ans ou plus de cette catégorie, dans les entreprises du périmètre BITD.</div></div>
+</div>
+<div class="bloc"><h2>Combien de départs, selon l’hypothèse retenue ?</h2><div class="fourchette">
+<div><div class="v">89</div><div class="l">Estimation basse</div></div><div class="centrale"><div class="v">94</div><div class="l">Estimation centrale</div></div><div><div class="v">99</div><div class="l">Estimation haute</div></div>
+</div><p class="note">L’estimation centrale est encadrée par deux hypothèses, basse et haute, sur l’âge de départ en retraite.</p></div>
+<div class="bloc"><h2>Pourquoi ces salariés partiraient-ils ?</h2><div class="barre" aria-hidden="true"><span style="width:89.36%;background:#2171b5" title="Retraite ou fin de carrière"></span><span style="width:7.45%;background:#9ecae1" title="Invalidité"></span><span style="width:3.19%;background:#6b7280" title="Décès"></span></div><ul class="causes"><li><span class="sw" style="background:#2171b5"></span><span>Retraite ou fin de carrière</span><span class="v">84</span><span class="p">89 %</span></li><li><span class="sw" style="background:#9ecae1"></span><span>Invalidité</span><span class="v">7</span><span class="p">7 %</span></li><li><span class="sw" style="background:#6b7280"></span><span>Décès</span><span class="v">3</span><span class="p">3 %</span></li></ul>
+<p class="note">Répartition des départs estimés (estimation centrale) par motif.</p></div>
+</div>
+<div class="masque-national" style="display:none"><div class="t">PCS 5422 · Employés</div><p><b>Résultat non diffusé</b> <span>Ce résultat ne peut pas être affiché : il concerne trop peu de salariés ou d’entreprises, ou une seule entreprise y pèse trop.</span></p><p>Les autres catégories restent consultables ci-contre.</p></div>
+</section>
+<section class="vue vue-12">
+<p class="vue-titre">PCS 5311 · Employés</p><p class="vue-qui">Salariés de 45 ans ou plus · France entière</p>
+<div>
+<div class="kpis">
+<div class="kpi primaire"><div class="kpi-value">90</div><div class="kpi-label">départs estimés d’ici 2030</div><div class="kpi-help">Salariés qui devraient avoir quitté définitivement leur emploi d’ici 2030 (estimation centrale).</div></div>
+<div class="kpi"><div class="kpi-value">43,6 %</div><div class="kpi-label">pourraient partir d’ici 2030</div><div class="kpi-help">Part des salariés de 45 ans ou plus de cette catégorie.</div></div>
+<div class="kpi"><div class="kpi-value">207</div><div class="kpi-label">salariés concernés</div><div class="kpi-help">Salariés de 45 ans ou plus de cette catégorie, dans les entreprises du périmètre BITD.</div></div>
+</div>
+<div class="bloc"><h2>Combien de départs, selon l’hypothèse retenue ?</h2><div class="fourchette">
+<div><div class="v">86</div><div class="l">Estimation basse</div></div><div class="centrale"><div class="v">90</div><div class="l">Estimation centrale</div></div><div><div class="v">95</div><div class="l">Estimation haute</div></div>
+</div><p class="note">L’estimation centrale est encadrée par deux hypothèses, basse et haute, sur l’âge de départ en retraite.</p></div>
+<div class="bloc"><h2>Pourquoi ces salariés partiraient-ils ?</h2><div class="barre" aria-hidden="true"><span style="width:91.11%;background:#2171b5" title="Retraite ou fin de carrière"></span><span style="width:6.67%;background:#9ecae1" title="Invalidité"></span><span style="width:2.22%;background:#6b7280" title="Décès"></span></div><ul class="causes"><li><span class="sw" style="background:#2171b5"></span><span>Retraite ou fin de carrière</span><span class="v">82</span><span class="p">91 %</span></li><li><span class="sw" style="background:#9ecae1"></span><span>Invalidité</span><span class="v">6</span><span class="p">7 %</span></li><li><span class="sw" style="background:#6b7280"></span><span>Décès</span><span class="v">2</span><span class="p">2 %</span></li></ul>
+<p class="note">Répartition des départs estimés (estimation centrale) par motif.</p></div>
+</div>
+<div class="masque-national" style="display:none"><div class="t">PCS 5311 · Employés</div><p><b>Résultat non diffusé</b> <span>Ce résultat ne peut pas être affiché : il concerne trop peu de salariés ou d’entreprises, ou une seule entreprise y pèse trop.</span></p><p>Les autres catégories restent consultables ci-contre.</p></div>
+</section>
+<section class="vue vue-13">
+<p class="vue-titre">PCS 4642 · Professions intermédiaires</p><p class="vue-qui">Salariés de 45 ans ou plus · France entière</p>
+<div>
+<div class="kpis">
+<div class="kpi primaire"><div class="kpi-value">85</div><div class="kpi-label">départs estimés d’ici 2030</div><div class="kpi-help">Salariés qui devraient avoir quitté définitivement leur emploi d’ici 2030 (estimation centrale).</div></div>
+<div class="kpi"><div class="kpi-value">29,0 %</div><div class="kpi-label">pourraient partir d’ici 2030</div><div class="kpi-help">Part des salariés de 45 ans ou plus de cette catégorie.</div></div>
+<div class="kpi"><div class="kpi-value">293</div><div class="kpi-label">salariés concernés</div><div class="kpi-help">Salariés de 45 ans ou plus de cette catégorie, dans les entreprises du périmètre BITD.</div></div>
+</div>
+<div class="bloc"><h2>Combien de départs, selon l’hypothèse retenue ?</h2><div class="fourchette">
+<div><div class="v">79</div><div class="l">Estimation basse</div></div><div class="centrale"><div class="v">85</div><div class="l">Estimation centrale</div></div><div><div class="v">91</div><div class="l">Estimation haute</div></div>
+</div><p class="note">L’estimation centrale est encadrée par deux hypothèses, basse et haute, sur l’âge de départ en retraite.</p></div>
+<div class="bloc"><h2>Pourquoi ces salariés partiraient-ils ?</h2><div class="barre" aria-hidden="true"><span style="width:84.71%;background:#2171b5" title="Retraite ou fin de carrière"></span><span style="width:9.41%;background:#9ecae1" title="Invalidité"></span><span style="width:5.88%;background:#6b7280" title="Décès"></span></div><ul class="causes"><li><span class="sw" style="background:#2171b5"></span><span>Retraite ou fin de carrière</span><span class="v">72</span><span class="p">85 %</span></li><li><span class="sw" style="background:#9ecae1"></span><span>Invalidité</span><span class="v">8</span><span class="p">9 %</span></li><li><span class="sw" style="background:#6b7280"></span><span>Décès</span><span class="v">5</span><span class="p">6 %</span></li></ul>
+<p class="note">Répartition des départs estimés (estimation centrale) par motif.</p></div>
+</div>
+<div class="masque-national" style="display:none"><div class="t">PCS 4642 · Professions intermédiaires</div><p><b>Résultat non diffusé</b> <span>Ce résultat ne peut pas être affiché : il concerne trop peu de salariés ou d’entreprises, ou une seule entreprise y pèse trop.</span></p><p>Les autres catégories restent consultables ci-contre.</p></div>
+</section>
+<section class="vue vue-14">
+<p class="vue-titre">PCS 5411 · Employés</p><p class="vue-qui">Salariés de 45 ans ou plus · France entière</p>
+<div>
+<div class="kpis">
+<div class="kpi primaire"><div class="kpi-value">83</div><div class="kpi-label">départs estimés d’ici 2030</div><div class="kpi-help">Salariés qui devraient avoir quitté définitivement leur emploi d’ici 2030 (estimation centrale).</div></div>
+<div class="kpi"><div class="kpi-value">41,0 %</div><div class="kpi-label">pourraient partir d’ici 2030</div><div class="kpi-help">Part des salariés de 45 ans ou plus de cette catégorie.</div></div>
+<div class="kpi"><div class="kpi-value">203</div><div class="kpi-label">salariés concernés</div><div class="kpi-help">Salariés de 45 ans ou plus de cette catégorie, dans les entreprises du périmètre BITD.</div></div>
+</div>
+<div class="bloc"><h2>Combien de départs, selon l’hypothèse retenue ?</h2><div class="fourchette">
+<div><div class="v">78</div><div class="l">Estimation basse</div></div><div class="centrale"><div class="v">83</div><div class="l">Estimation centrale</div></div><div><div class="v">88</div><div class="l">Estimation haute</div></div>
+</div><p class="note">L’estimation centrale est encadrée par deux hypothèses, basse et haute, sur l’âge de départ en retraite.</p></div>
+<div class="bloc"><h2>Pourquoi ces salariés partiraient-ils ?</h2><div class="barre" aria-hidden="true"><span style="width:89.16%;background:#2171b5" title="Retraite ou fin de carrière"></span><span style="width:7.23%;background:#9ecae1" title="Invalidité"></span><span style="width:3.61%;background:#6b7280" title="Décès"></span></div><ul class="causes"><li><span class="sw" style="background:#2171b5"></span><span>Retraite ou fin de carrière</span><span class="v">74</span><span class="p">89 %</span></li><li><span class="sw" style="background:#9ecae1"></span><span>Invalidité</span><span class="v">6</span><span class="p">7 %</span></li><li><span class="sw" style="background:#6b7280"></span><span>Décès</span><span class="v">3</span><span class="p">4 %</span></li></ul>
+<p class="note">Répartition des départs estimés (estimation centrale) par motif.</p></div>
+</div>
+<div class="masque-national" style="display:none"><div class="t">PCS 5411 · Employés</div><p><b>Résultat non diffusé</b> <span>Ce résultat ne peut pas être affiché : il concerne trop peu de salariés ou d’entreprises, ou une seule entreprise y pèse trop.</span></p><p>Les autres catégories restent consultables ci-contre.</p></div>
+</section>
+<section class="vue vue-15">
+<p class="vue-titre">PCS 5621 · Employés</p><p class="vue-qui">Salariés de 45 ans ou plus · France entière</p>
+<div>
+<div class="kpis">
+<div class="kpi primaire"><div class="kpi-value">83</div><div class="kpi-label">départs estimés d’ici 2030</div><div class="kpi-help">Salariés qui devraient avoir quitté définitivement leur emploi d’ici 2030 (estimation centrale).</div></div>
+<div class="kpi"><div class="kpi-value">38,2 %</div><div class="kpi-label">pourraient partir d’ici 2030</div><div class="kpi-help">Part des salariés de 45 ans ou plus de cette catégorie.</div></div>
+<div class="kpi"><div class="kpi-value">218</div><div class="kpi-label">salariés concernés</div><div class="kpi-help">Salariés de 45 ans ou plus de cette catégorie, dans les entreprises du périmètre BITD.</div></div>
+</div>
+<div class="bloc"><h2>Combien de départs, selon l’hypothèse retenue ?</h2><div class="fourchette">
+<div><div class="v">79</div><div class="l">Estimation basse</div></div><div class="centrale"><div class="v">83</div><div class="l">Estimation centrale</div></div><div><div class="v">88</div><div class="l">Estimation haute</div></div>
+</div><p class="note">L’estimation centrale est encadrée par deux hypothèses, basse et haute, sur l’âge de départ en retraite.</p></div>
+<div class="bloc"><h2>Pourquoi ces salariés partiraient-ils ?</h2><div class="barre" aria-hidden="true"><span style="width:89.16%;background:#2171b5" title="Retraite ou fin de carrière"></span><span style="width:7.23%;background:#9ecae1" title="Invalidité"></span><span style="width:3.61%;background:#6b7280" title="Décès"></span></div><ul class="causes"><li><span class="sw" style="background:#2171b5"></span><span>Retraite ou fin de carrière</span><span class="v">74</span><span class="p">89 %</span></li><li><span class="sw" style="background:#9ecae1"></span><span>Invalidité</span><span class="v">6</span><span class="p">7 %</span></li><li><span class="sw" style="background:#6b7280"></span><span>Décès</span><span class="v">3</span><span class="p">4 %</span></li></ul>
+<p class="note">Répartition des départs estimés (estimation centrale) par motif.</p></div>
+</div>
+<div class="masque-national" style="display:none"><div class="t">PCS 5621 · Employés</div><p><b>Résultat non diffusé</b> <span>Ce résultat ne peut pas être affiché : il concerne trop peu de salariés ou d’entreprises, ou une seule entreprise y pèse trop.</span></p><p>Les autres catégories restent consultables ci-contre.</p></div>
+</section>
+<section class="vue vue-16">
+<p class="vue-titre">PCS 3812 · Cadres</p><p class="vue-qui">Salariés de 45 ans ou plus · France entière</p>
+<div>
+<div class="kpis">
+<div class="kpi primaire"><div class="kpi-value">79</div><div class="kpi-label">départs estimés d’ici 2030</div><div class="kpi-help">Salariés qui devraient avoir quitté définitivement leur emploi d’ici 2030 (estimation centrale).</div></div>
+<div class="kpi"><div class="kpi-value">26,6 %</div><div class="kpi-label">pourraient partir d’ici 2030</div><div class="kpi-help">Part des salariés de 45 ans ou plus de cette catégorie.</div></div>
+<div class="kpi"><div class="kpi-value">296</div><div class="kpi-label">salariés concernés</div><div class="kpi-help">Salariés de 45 ans ou plus de cette catégorie, dans les entreprises du périmètre BITD.</div></div>
+</div>
+<div class="bloc"><h2>Combien de départs, selon l’hypothèse retenue ?</h2><div class="fourchette">
+<div><div class="v">74</div><div class="l">Estimation basse</div></div><div class="centrale"><div class="v">79</div><div class="l">Estimation centrale</div></div><div><div class="v">84</div><div class="l">Estimation haute</div></div>
+</div><p class="note">L’estimation centrale est encadrée par deux hypothèses, basse et haute, sur l’âge de départ en retraite.</p></div>
+<div class="bloc"><h2>Pourquoi ces salariés partiraient-ils ?</h2><div class="barre" aria-hidden="true"><span style="width:87.34%;background:#2171b5" title="Retraite ou fin de carrière"></span><span style="width:6.33%;background:#9ecae1" title="Invalidité"></span><span style="width:6.33%;background:#6b7280" title="Décès"></span></div><ul class="causes"><li><span class="sw" style="background:#2171b5"></span><span>Retraite ou fin de carrière</span><span class="v">69</span><span class="p">87 %</span></li><li><span class="sw" style="background:#9ecae1"></span><span>Invalidité</span><span class="v">5</span><span class="p">6 %</span></li><li><span class="sw" style="background:#6b7280"></span><span>Décès</span><span class="v">5</span><span class="p">6 %</span></li></ul>
+<p class="note">Répartition des départs estimés (estimation centrale) par motif.</p></div>
+</div>
+<div class="masque-national" style="display:none"><div class="t">PCS 3812 · Cadres</div><p><b>Résultat non diffusé</b> <span>Ce résultat ne peut pas être affiché : il concerne trop peu de salariés ou d’entreprises, ou une seule entreprise y pèse trop.</span></p><p>Les autres catégories restent consultables ci-contre.</p></div>
+</section>
+<section class="vue vue-17">
+<p class="vue-titre">PCS 3753 · Cadres</p><p class="vue-qui">Salariés de 45 ans ou plus · France entière</p>
+<div>
+<div class="kpis">
+<div class="kpi primaire"><div class="kpi-value">71</div><div class="kpi-label">départs estimés d’ici 2030</div><div class="kpi-help">Salariés qui devraient avoir quitté définitivement leur emploi d’ici 2030 (estimation centrale).</div></div>
+<div class="kpi"><div class="kpi-value">25,8 %</div><div class="kpi-label">pourraient partir d’ici 2030</div><div class="kpi-help">Part des salariés de 45 ans ou plus de cette catégorie.</div></div>
+<div class="kpi"><div class="kpi-value">275</div><div class="kpi-label">salariés concernés</div><div class="kpi-help">Salariés de 45 ans ou plus de cette catégorie, dans les entreprises du périmètre BITD.</div></div>
+</div>
+<div class="bloc"><h2>Combien de départs, selon l’hypothèse retenue ?</h2><div class="fourchette">
+<div><div class="v">66</div><div class="l">Estimation basse</div></div><div class="centrale"><div class="v">71</div><div class="l">Estimation centrale</div></div><div><div class="v">76</div><div class="l">Estimation haute</div></div>
+</div><p class="note">L’estimation centrale est encadrée par deux hypothèses, basse et haute, sur l’âge de départ en retraite.</p></div>
+<div class="bloc"><h2>Pourquoi ces salariés partiraient-ils ?</h2><div class="barre" aria-hidden="true"><span style="width:87.32%;background:#2171b5" title="Retraite ou fin de carrière"></span><span style="width:5.63%;background:#9ecae1" title="Invalidité"></span><span style="width:7.04%;background:#6b7280" title="Décès"></span></div><ul class="causes"><li><span class="sw" style="background:#2171b5"></span><span>Retraite ou fin de carrière</span><span class="v">62</span><span class="p">87 %</span></li><li><span class="sw" style="background:#9ecae1"></span><span>Invalidité</span><span class="v">4</span><span class="p">6 %</span></li><li><span class="sw" style="background:#6b7280"></span><span>Décès</span><span class="v">5</span><span class="p">7 %</span></li></ul>
+<p class="note">Répartition des départs estimés (estimation centrale) par motif.</p></div>
+</div>
+<div class="masque-national" style="display:none"><div class="t">PCS 3753 · Cadres</div><p><b>Résultat non diffusé</b> <span>Ce résultat ne peut pas être affiché : il concerne trop peu de salariés ou d’entreprises, ou une seule entreprise y pèse trop.</span></p><p>Les autres catégories restent consultables ci-contre.</p></div>
+</section>
+<section class="vue vue-18">
+<p class="vue-titre">PCS 3719 · Cadres</p><p class="vue-qui">Salariés de 45 ans ou plus · France entière</p>
+<div>
+<div class="kpis">
+<div class="kpi primaire"><div class="kpi-value">68</div><div class="kpi-label">départs estimés d’ici 2030</div><div class="kpi-help">Salariés qui devraient avoir quitté définitivement leur emploi d’ici 2030 (estimation centrale).</div></div>
+<div class="kpi"><div class="kpi-value">24,6 %</div><div class="kpi-label">pourraient partir d’ici 2030</div><div class="kpi-help">Part des salariés de 45 ans ou plus de cette catégorie.</div></div>
+<div class="kpi"><div class="kpi-value">275</div><div class="kpi-label">salariés concernés</div><div class="kpi-help">Salariés de 45 ans ou plus de cette catégorie, dans les entreprises du périmètre BITD.</div></div>
+</div>
+<div class="bloc"><h2>Combien de départs, selon l’hypothèse retenue ?</h2><div class="fourchette">
+<div><div class="v">62</div><div class="l">Estimation basse</div></div><div class="centrale"><div class="v">68</div><div class="l">Estimation centrale</div></div><div><div class="v">73</div><div class="l">Estimation haute</div></div>
+</div><p class="note">L’estimation centrale est encadrée par deux hypothèses, basse et haute, sur l’âge de départ en retraite.</p></div>
+<div class="bloc"><h2>Pourquoi ces salariés partiraient-ils ?</h2><div class="barre" aria-hidden="true"><span style="width:85.29%;background:#2171b5" title="Retraite ou fin de carrière"></span><span style="width:7.35%;background:#9ecae1" title="Invalidité"></span><span style="width:7.35%;background:#6b7280" title="Décès"></span></div><ul class="causes"><li><span class="sw" style="background:#2171b5"></span><span>Retraite ou fin de carrière</span><span class="v">58</span><span class="p">85 %</span></li><li><span class="sw" style="background:#9ecae1"></span><span>Invalidité</span><span class="v">5</span><span class="p">7 %</span></li><li><span class="sw" style="background:#6b7280"></span><span>Décès</span><span class="v">5</span><span class="p">7 %</span></li></ul>
+<p class="note">Répartition des départs estimés (estimation centrale) par motif.</p></div>
+</div>
+<div class="masque-national" style="display:none"><div class="t">PCS 3719 · Cadres</div><p><b>Résultat non diffusé</b> <span>Ce résultat ne peut pas être affiché : il concerne trop peu de salariés ou d’entreprises, ou une seule entreprise y pèse trop.</span></p><p>Les autres catégories restent consultables ci-contre.</p></div>
+</section>
+<section class="vue vue-19">
+<p class="vue-titre">PCS 3892 · Cadres</p><p class="vue-qui">Salariés de 45 ans ou plus · France entière</p>
+<div>
+<div class="kpis">
+<div class="kpi primaire"><div class="kpi-value">68</div><div class="kpi-label">départs estimés d’ici 2030</div><div class="kpi-help">Salariés qui devraient avoir quitté définitivement leur emploi d’ici 2030 (estimation centrale).</div></div>
+<div class="kpi"><div class="kpi-value">24,7 %</div><div class="kpi-label">pourraient partir d’ici 2030</div><div class="kpi-help">Part des salariés de 45 ans ou plus de cette catégorie.</div></div>
+<div class="kpi"><div class="kpi-value">274</div><div class="kpi-label">salariés concernés</div><div class="kpi-help">Salariés de 45 ans ou plus de cette catégorie, dans les entreprises du périmètre BITD.</div></div>
+</div>
+<div class="bloc"><h2>Combien de départs, selon l’hypothèse retenue ?</h2><div class="fourchette">
+<div><div class="v">63</div><div class="l">Estimation basse</div></div><div class="centrale"><div class="v">68</div><div class="l">Estimation centrale</div></div><div><div class="v">72</div><div class="l">Estimation haute</div></div>
+</div><p class="note">L’estimation centrale est encadrée par deux hypothèses, basse et haute, sur l’âge de départ en retraite.</p></div>
+<div class="bloc"><h2>Pourquoi ces salariés partiraient-ils ?</h2><div class="barre" aria-hidden="true"><span style="width:86.76%;background:#2171b5" title="Retraite ou fin de carrière"></span><span style="width:5.88%;background:#9ecae1" title="Invalidité"></span><span style="width:7.35%;background:#6b7280" title="Décès"></span></div><ul class="causes"><li><span class="sw" style="background:#2171b5"></span><span>Retraite ou fin de carrière</span><span class="v">59</span><span class="p">87 %</span></li><li><span class="sw" style="background:#9ecae1"></span><span>Invalidité</span><span class="v">4</span><span class="p">6 %</span></li><li><span class="sw" style="background:#6b7280"></span><span>Décès</span><span class="v">5</span><span class="p">7 %</span></li></ul>
+<p class="note">Répartition des départs estimés (estimation centrale) par motif.</p></div>
+</div>
+<div class="masque-national" style="display:none"><div class="t">PCS 3892 · Cadres</div><p><b>Résultat non diffusé</b> <span>Ce résultat ne peut pas être affiché : il concerne trop peu de salariés ou d’entreprises, ou une seule entreprise y pèse trop.</span></p><p>Les autres catégories restent consultables ci-contre.</p></div>
+</section>
+<section class="vue vue-20">
+<p class="vue-titre">PCS 3822 · Cadres</p><p class="vue-qui">Salariés de 45 ans ou plus · France entière</p>
+<div>
+<div class="kpis">
+<div class="kpi primaire"><div class="kpi-value">66</div><div class="kpi-label">départs estimés d’ici 2030</div><div class="kpi-help">Salariés qui devraient avoir quitté définitivement leur emploi d’ici 2030 (estimation centrale).</div></div>
+<div class="kpi"><div class="kpi-value">24,0 %</div><div class="kpi-label">pourraient partir d’ici 2030</div><div class="kpi-help">Part des salariés de 45 ans ou plus de cette catégorie.</div></div>
+<div class="kpi"><div class="kpi-value">276</div><div class="kpi-label">salariés concernés</div><div class="kpi-help">Salariés de 45 ans ou plus de cette catégorie, dans les entreprises du périmètre BITD.</div></div>
+</div>
+<div class="bloc"><h2>Combien de départs, selon l’hypothèse retenue ?</h2><div class="fourchette">
+<div><div class="v">62</div><div class="l">Estimation basse</div></div><div class="centrale"><div class="v">66</div><div class="l">Estimation centrale</div></div><div><div class="v">70</div><div class="l">Estimation haute</div></div>
+</div><p class="note">L’estimation centrale est encadrée par deux hypothèses, basse et haute, sur l’âge de départ en retraite.</p></div>
+<div class="bloc"><h2>Pourquoi ces salariés partiraient-ils ?</h2><div class="barre" aria-hidden="true"><span style="width:86.36%;background:#2171b5" title="Retraite ou fin de carrière"></span><span style="width:6.06%;background:#9ecae1" title="Invalidité"></span><span style="width:7.58%;background:#6b7280" title="Décès"></span></div><ul class="causes"><li><span class="sw" style="background:#2171b5"></span><span>Retraite ou fin de carrière</span><span class="v">57</span><span class="p">86 %</span></li><li><span class="sw" style="background:#9ecae1"></span><span>Invalidité</span><span class="v">4</span><span class="p">6 %</span></li><li><span class="sw" style="background:#6b7280"></span><span>Décès</span><span class="v">5</span><span class="p">8 %</span></li></ul>
+<p class="note">Répartition des départs estimés (estimation centrale) par motif.</p></div>
+</div>
+<div class="masque-national" style="display:none"><div class="t">PCS 3822 · Cadres</div><p><b>Résultat non diffusé</b> <span>Ce résultat ne peut pas être affiché : il concerne trop peu de salariés ou d’entreprises, ou une seule entreprise y pèse trop.</span></p><p>Les autres catégories restent consultables ci-contre.</p></div>
+</section>
+</div></div></div>
+<footer><b>Qui est concerné ?</b> Ces résultats concernent les salariés des entreprises retenues dans le périmètre BITD (base industrielle et technologique de défense). Ils portent sur les salariés âgés de 45 ans ou plus en 2024, appartenant aux catégories professionnelles couvertes par le modèle : cadres, professions intermédiaires, employés, ouvriers. Certaines professions qui ne peuvent pas être rattachées à ces catégories (agriculteurs exploitants, artisans, commerçants et chefs d’entreprise, profession non renseignée) ne sont pas incluses dans les estimations. Un départ est une sortie définitive de l’emploi d’ici 2030 : retraite ou fin de carrière, invalidité, décès. Changer d’employeur n’est pas un départ. Les nombres de départs sont des estimations, arrondies à l’entier pour la lecture ; la part de salariés susceptibles de partir est calculée parmi les salariés de la catégorie affichée. <b>Secret statistique.</b> Certains résultats ne sont pas affichés parce qu’ils concernent trop peu de salariés ou d’entreprises, ou qu’une seule entreprise y pèserait trop ; ces chiffres ne figurent ni dans cette page ni dans ses données. Gris = résultat non diffusé ; blanc pointillé = aucun salarié observé ; un résultat nul est affiché comme tout autre. <b>Source.</b> table test — calculs propres. Fond de carte : IGN Admin Express (COG 2018) via france-geojson, licence ouverte.</footer>
+</div></body></html>
