@@ -303,6 +303,64 @@ appliquer_secret_typologie <- function(typo, diffusion_cs_dep, base, regles = re
     mutate(motif_masque = ifelse(masque, "territoire", ifelse(dep_cs_profil, "cellule cs masquée", NA_character_)))
 }
 
+# --- AIDE AU RÉGLAGE : proposer des seuils fixes à partir des données ----------------
+# Calcule, sur la table interne des départements (typologie_departements$departements
+# ou le CSV interne relu), les indicateurs statistiques de chaque axe (min, terciles,
+# médiane, max, sur les départements au-dessus du plancher), en déduit des bornes
+# ARRONDIES à un pas lisible (pas_poids en points de %, pas_intensite en points de %,
+# pas_volume en départs), compte les départements par classe avec ces bornes et
+# imprime un bloc prêt à coller dans 00_config.R (TYPO_METHODE_CLASSES = "fixes").
+# Elle PROPOSE : rien n'est appliqué, rien n'est écrit. Les seuils métier
+# (dominance, concentration, plancher) ne sont pas proposés : seule leur
+# distribution observée est affichée pour éclairer le choix.
+arrondir_pas <- function(x, pas) ifelse(is.na(x), NA_real_, round(x / pas) * pas)
+proposer_seuils_typologie <- function(departements, effectif_min = TYPO_SEUIL_EFFECTIF_MIN,
+                                      pas = c(poids = 0.5, intensite = 1, volume = 10), afficher = TRUE) {
+  requis <- c("effectif_bitd_total", "part_emploi_bitd_national_pct", "intensite_renouvellement_pct", "departs_central")
+  manque <- setdiff(requis, names(departements)); if (length(manque)) stop("proposer_seuils_typologie : colonnes absentes : ", paste(manque, collapse = ", "))
+  if (!all(c("poids", "intensite", "volume") %in% names(pas)) || any(pas <= 0)) stop("proposer_seuils_typologie : pas = c(poids, intensite, volume) strictement positifs.")
+  d <- departements[!is.na(departements$effectif_bitd_total) & departements$effectif_bitd_total >= effectif_min, ]
+  if (nrow(d) < 3) stop("proposer_seuils_typologie : moins de 3 départements au-dessus du plancher (", effectif_min, ") — aucun tercile calculable.")
+  axes <- list(poids = list(col = "part_emploi_bitd_national_pct", bas = "TYPO_SEUIL_POIDS_FAIBLE", haut = "TYPO_SEUIL_POIDS_FORT", libs = CLASSES_TYPOLOGIE$poids, unite = "% de l'emploi BITD national"),
+               intensite = list(col = "intensite_renouvellement_pct", bas = "TYPO_SEUIL_INTENSITE_FAIBLE", haut = "TYPO_SEUIL_RENOUVELLEMENT_ELEVE", libs = CLASSES_TYPOLOGIE$intensite, unite = "%"),
+               volume = list(col = "departs_central", bas = "TYPO_SEUIL_VOLUME_FAIBLE", haut = "TYPO_SEUIL_VOLUME_ELEVE", libs = CLASSES_TYPOLOGIE$volume, unite = "départs estimés"))
+  tableau <- bind_rows(lapply(names(axes), function(a) {
+    x <- d[[axes[[a]]$col]]; x <- x[is.finite(x)]
+    t <- seuils_classes(x, "terciles"); q <- quantile(x, c(0, .25, .5, .75, 1), names = FALSE)
+    prop <- c(bas = arrondir_pas(t[["bas"]], pas[[a]]), haut = arrondir_pas(t[["haut"]], pas[[a]]))
+    if (prop[["haut"]] <= prop[["bas"]]) prop[["haut"]] <- prop[["bas"]] + pas[[a]]       # bornes confondues après arrondi : on écarte d'un pas
+    cl <- classer_par_seuils(x, prop, axes[[a]]$libs)
+    tibble(axe = a, indicateur = axes[[a]]$col, unite = axes[[a]]$unite, n = length(x), min = q[1], q1 = q[2], mediane = q[3], q3 = q[4], max = q[5],
+           tercile_bas = t[["bas"]], tercile_haut = t[["haut"]], pas = pas[[a]],
+           parametre_bas = axes[[a]]$bas, proposition_bas = prop[["bas"]], parametre_haut = axes[[a]]$haut, proposition_haut = prop[["haut"]],
+           n_classe_1 = sum(cl == axes[[a]]$libs[1]), n_classe_2 = sum(cl == axes[[a]]$libs[2]), n_classe_3 = sum(cl == axes[[a]]$libs[3]))
+  }))
+  # distributions observées des seuils métier (pour information, aucune proposition)
+  obs <- function(col) if (col %in% names(departements)) { x <- departements[[col]]; x <- x[is.finite(x)]; if (length(x)) quantile(x, c(0, .5, 1), names = FALSE) else rep(NA_real_, 3) } else rep(NA_real_, 3)
+  metier <- tibble(parametre = c("TYPO_SEUIL_DOMINANCE_CS", "TYPO_SEUIL_CONCENTRATION_DEPARTS", "TYPO_SEUIL_EFFECTIF_MIN"),
+                   indicateur_observe = c("part_cs_principale_pct", "part_departs_cs_max_pct", "effectif_bitd_total"),
+                   min = c(obs("part_cs_principale_pct")[1], obs("part_departs_cs_max_pct")[1], obs("effectif_bitd_total")[1]),
+                   mediane = c(obs("part_cs_principale_pct")[2], obs("part_departs_cs_max_pct")[2], obs("effectif_bitd_total")[2]),
+                   max = c(obs("part_cs_principale_pct")[3], obs("part_departs_cs_max_pct")[3], obs("effectif_bitd_total")[3]),
+                   n_sous_plancher = c(NA, NA, sum(departements$effectif_bitd_total < effectif_min, na.rm = TRUE)))
+  fmt <- function(x) trimws(formatC(x, format = "fg", digits = 4, decimal.mark = "."))
+  bloc <- c("# --- Proposition de seuils fixes (proposer_seuils_typologie) : à relire, puis à coller dans 00_config.R ---",
+            sprintf("# %d département(s) au-dessus du plancher TYPO_SEUIL_EFFECTIF_MIN = %s ; bornes = terciles arrondis au pas (poids %s, intensité %s, volume %s)",
+                    nrow(d), fmt(effectif_min), fmt(pas[["poids"]]), fmt(pas[["intensite"]]), fmt(pas[["volume"]])),
+            'TYPO_METHODE_CLASSES <- "fixes"',
+            unlist(lapply(seq_len(nrow(tableau)), function(i) c(
+              sprintf("%-33s <- %-6s # %s : tercile %s -> %s ; classes %s / %s / %s = %d / %d / %d", tableau$parametre_bas[i], fmt(tableau$proposition_bas[i]), tableau$unite[i],
+                      fmt(tableau$tercile_bas[i]), fmt(tableau$proposition_bas[i]), axes[[tableau$axe[i]]]$libs[1], axes[[tableau$axe[i]]]$libs[2], axes[[tableau$axe[i]]]$libs[3],
+                      tableau$n_classe_1[i], tableau$n_classe_2[i], tableau$n_classe_3[i]),
+              sprintf("%-33s <- %-6s # tercile %s -> %s ; médiane %s, min %s, max %s", tableau$parametre_haut[i], fmt(tableau$proposition_haut[i]),
+                      fmt(tableau$tercile_haut[i]), fmt(tableau$proposition_haut[i]), fmt(tableau$mediane[i]), fmt(tableau$min[i]), fmt(tableau$max[i]))))),
+            "# Seuils métier (non proposés, distribution observée pour éclairer le choix) :",
+            sprintf("#   %-32s %s : min %s, médiane %s, max %s%s", metier$parametre, metier$indicateur_observe, fmt(metier$min), fmt(metier$mediane), fmt(metier$max),
+                    ifelse(is.na(metier$n_sous_plancher), "", sprintf(" ; %d département(s) sous le plancher actuel", metier$n_sous_plancher))))
+  if (afficher) cat(paste(bloc, collapse = "\n"), "\n")
+  invisible(list(tableau = tableau, metier = metier, bloc = bloc))
+}
+
 # --- Synthèse par profil ------------------------------------------------------------
 synthese_profils <- function(typo) {
   d <- typo$departements; tot_e <- sum(d$effectif_bitd_total); tot_d <- sum(d$departs_central)
