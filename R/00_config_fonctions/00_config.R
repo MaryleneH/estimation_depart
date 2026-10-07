@@ -264,6 +264,12 @@ TYPO_SEUIL_VOLUME_ELEVE         <- 300
 TYPO_MARGE_FRONTIERE_PCT        <- 3    # % relatif : un axe (poids, intensité, volume) à moins de 3 % d'un seuil est « à la frontière »
 TYPO_NB_CRITERES_FRONTIERE      <- 2    # au moins 2 de ces 3 axes à la frontière -> « Situation à expertiser » (motif écrit)
 TYPO_FACTEUR_INTENSITE_EXTREME  <- 2    # poids faible ET intensité >= 2 x seuil « élevée » -> « Situation à expertiser »
+# --- Cartes des profils de la typologie (script 08g) : sorties/typologie_territoriale/cartes/ --
+GENERER_CARTE_TYPOLOGIE <- TRUE   # FALSE = étape ignorée. Lit UNIQUEMENT typologie_territoriale/diffusion/ (08f) ;
+                                  # carte_typologie.html (interactive : survol = détail, clic = épingler, légende cliquable),
+                                  # carte_typologie_courriel.html (si CARTES_COURRIEL : AUCUN script, infobulles natives,
+                                  # tableau des situations), carte_typologie.png (si CARTES_PNG). Relançable seul après la
+                                  # chaîne : source("R/08_territoires/08g_carte_typologie.R") depuis la racine du projet.
 FICHES_SECRET    <- TRUE          # TRUE  = secret statistique appliqué (version DIFFUSABLE).
                                   # FALSE = USAGE INTERNE : aucun masquage, tous les
                                   # territoires, bloc des entreprises (SIREN) ; écrit dans
