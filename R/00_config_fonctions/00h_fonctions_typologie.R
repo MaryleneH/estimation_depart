@@ -46,7 +46,7 @@ DEFINITIONS_PROFILS <- tibble::tribble(
   "diffus", "poids Faible (part nationale faible ou effectif sous le plancher)",
   "une présence BITD réduite, dont les parts et les taux sont fragiles car calculés sur de petits effectifs",
   "ne pas sur-interpréter un taux élevé sur un petit effectif ; les chiffres restent visibles mais ne créent pas de priorité",
-  "expertiser", "signaux contradictoires ou indicateurs à la frontière d’un seuil (motif écrit dans motif_expertise)",
+  "expertiser", "signaux contradictoires ou indicateurs à la frontière d’un seuil (le motif est écrit)",
   "les règles simples ne permettent pas de trancher, et le motif précise ce qui coince",
   "examiner le département avec les acteurs locaux avant toute lecture ; ne jamais le classer d’office")
 DEFINITIONS_PROFILS$titre <- unname(PROFILS_TYPOLOGIE[DEFINITIONS_PROFILS$cle])

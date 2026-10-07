@@ -438,6 +438,63 @@ poids (x) × intensité (y), taille du point = volume de départs, couleur =
 structure de l'emploi ; les seuils de classes sont tracés et qualifiés de
 provisoires ; aucune tension n'y figure.
 
+## 9. Cartes des profils (08g)
+
+Deux pages HTML autonomes et un PNG, produits par un script séparé (08g) qui
+lit **uniquement** `diffusion/typologie_departements.csv` (08f) et le fond
+local ; il est relançable seul après la chaîne, depuis la racine du projet,
+sans modifier aucun autre script.
+
+| Fichier | Contenu | Contenu actif |
+|---|---|---|
+| `cartes/carte_typologie.html` | carte choroplèthe par profil ; survol = infobulle (nom, profil, chiffres, motif, points d'attention) + panneau « situation » rédigé ; clic = épingler ; légende cliquable pour isoler un profil ; définitions des profils ; tableau des situations | JavaScript natif inline |
+| `cartes/carte_typologie_courriel.html` | mêmes couleurs écrites en attributs, infobulles natives `<title>` du SVG, tableau des situations et définitions ouverts sous la carte | **aucun** (ni `<script>`, ni `on*=`, ni `javascript:`) |
+| `cartes/carte_typologie.png` | image de la carte (ggplot2), même palette, mêmes contours | — |
+
+Statuts d'un département : `diffuse` (profil + chiffres), `profil_masque`
+(chiffres diffusés mais profil « Non diffusé » : cellule CS masquée),
+`masque` (département entier : seuls code et nom), `sans` (absent de la
+table : blanc, contour pointillé). Couleurs des profils : `COULEURS_PROFILS`
+(une par clé) ; gris `COULEURS_CARTE$secret` pour les deux statuts masqués.
+
+```gherkin
+Fonctionnalité: Cartographier les profils sans révéler une valeur protégée
+
+  Scénario: [SPEC-TYPO-060] Alimenter la carte uniquement par la table de diffusion
+    Étant donné la table de diffusion de la typologie et le fond local
+    Quand la carte est préparée
+    Alors une table sans colonne masque (interne) est refusée
+    Et un code sans géométrie arrête la génération avec la liste, « inconnu » est exclu et compté
+    Et un profil inconnu du code (autre version) arrête la génération
+    Et un fichier de diffusion absent produit un message avec le chemin attendu, jamais un arrêt de la chaîne
+
+  Scénario: [SPEC-TYPO-061] Colorer chaque département par son profil
+    Quand la page interactive est produite
+    Alors chaque département porte la couleur de son profil (COULEURS_PROFILS), gris s'il est masqué ou si son profil n'est pas diffusé, blanc pointillé s'il est absent
+    Et la légende donne, par profil, le titre, le nombre de départements et la signification
+    Et les couleurs, la légende et le détail sont écrits dans le HTML (lisibles sans script)
+
+  Scénario: [SPEC-TYPO-062] Afficher le détail au survol
+    Quand un département est survolé dans la page interactive
+    Alors l'infobulle donne le nom, le profil, le poids, les départs et leur fourchette, l'intensité, les classes, la structure, la catégorie qui porte les départs, le motif d'expertise et les points d'attention
+    Et le panneau « situation » affiche situation_texte ; un clic l'épingle, un second clic le libère
+    Et un clic sur un profil de la légende isole ses départements
+
+  Scénario: [SPEC-TYPO-063] Produire une version sans aucun contenu actif pour le courriel
+    Quand la version courriel est produite
+    Alors elle ne contient ni <script>, ni attribut on*=, ni javascript:, ni bloc de données
+    Et chaque département porte un <title> natif avec le nom, le profil et les mêmes lignes de détail
+    Et le tableau des situations (une ligne par département diffusé, situation_texte) et les définitions des profils sont ouverts sous la carte
+    Et un contenu actif détecté arrête la génération
+
+  Scénario: [SPEC-TYPO-064] Ne rien embarquer d'un département masqué
+    Étant donné un département masqué dans la table de diffusion
+    Quand les pages sont produites
+    Alors toute mesure et tout texte de ce département sont effacés avant sérialisation, même si la table en contenait
+    Et il n'apparaît que sous son code, son nom et « Résultat non diffusé — secret statistique », en gris
+    Et un département au profil non diffusé garde ses chiffres mais aucune catégorie
+```
+
 ## Limites
 
 - Maille département : aucune lecture infra-départementale n'est possible à
@@ -465,8 +522,16 @@ Code :
   `joindre_signal_tension_localise()`, `png_matrice_typologie()`,
   `proposer_seuils_typologie()` (aide au réglage, SPEC-TYPO-042)
 - `R/08_territoires/08f_typologie_departements.R`
-- `R/00_config_fonctions/00_config.R` — section typologie
+- `R/00_config_fonctions/00i_fonctions_carte_typologie.R` —
+  `lire_typologie_diffusion()`, `preparer_carte_typologie()`,
+  `controler_carte_typologie()`, `lignes_detail_typologie()`,
+  `donnees_json_typologie()`, `generer_carte_typologie()`,
+  `generer_carte_typologie_courriel()`, `png_carte_typologie()`,
+  `COULEURS_PROFILS`, `LIBELLES_CARTE_TYPO` (SPEC-TYPO-060 à 064)
+- `R/08_territoires/08g_carte_typologie.R` (relançable seul)
+- `R/00_config_fonctions/00_config.R` — section typologie, `GENERER_CARTE_TYPOLOGIE`
 - `data/templates/tensions_fap_territoires_template.csv`
 
-Tests : `tests/testthat/test-typologie-territoriale.R` (chaque bloc cite ses
-identifiants). Correspondance détaillée dans `09_matrice_tracabilite.md`.
+Tests : `tests/testthat/test-typologie-territoriale.R` et
+`tests/testthat/test-carte-typologie.R` (chaque bloc cite ses identifiants).
+Correspondance détaillée dans `09_matrice_tracabilite.md`.
