@@ -51,6 +51,7 @@ la maintenance. Les titres de tests sont ceux des `test_that()` du dépôt.
 | SPEC-CHAMP-005 | âge incohérent refusé | `00_config.R`, `01` | « configuration : valeurs refusées avec un message explicite » ; « mode test : AGE_MAX_TEST <= AGE_MIN_BTS refusé par le 01 lui-même » |
 | SPEC-PREP-002 | codes géographiques en texte | `normaliser_geo()` | `test-geo.R` « codes : toujours en texte, « 01 », « 2A », « 2B », « 33 » intacts » |
 | SPEC-PREP-006 | PCS hors champ tracées | `01b`, `08c` | `test-departs-pcs.R` « fichiers : … pcs_hors_champ agrégée avec total = exclusions du 01b » |
+| SPEC-PREP-013 | département sans région dans la table de passage → « inconnu », tracé, sans arrêt | `01d_recoder_geo_hors_passage.R` | `test-recoder-geo-hors-passage.R` « SPEC-PREP-013 — le code « 99 » sans région est recodé « inconnu », compté, tracé ; ajouter_region ne s'arrête plus » |
 | SPEC-PREP-008 | stock tous âges indisponible non bloquant | `01c`, `00d` | `test-fiches.R` « STOCK_TOUS_AGES = FALSE : chaîne inchangée, fiches en repli, CSV 08b sans colonnes tous âges » |
 | SPEC-PROJ-009 | modèle inchangé par les évolutions de restitution | `04`, références figées | `test-snapshot.R` ; `test-format-restitution.R` « NON-RÉGRESSION numérique … » |
 | SPEC-SEC-001 à 008 | règle primaire Insee, bornes | `secret_primaire()`, `indicateurs_secret()` | `test-fiches.R` « secret statistique, règle Insee BTS : < 5 salariés OU < 3 entreprises OU une entreprise > 85 %, puis secondaire » |

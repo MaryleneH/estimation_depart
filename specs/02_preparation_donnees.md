@@ -99,6 +99,16 @@ Fonctionnalité: Préparer des données cohérentes pour la projection
     Étant donné l'ancienne configuration par zone d'emploi
     Quand la configuration est chargée
     Alors une garde de migration doit refuser cette configuration avec un message explicite
+
+  Scénario: [SPEC-PREP-013] Rattacher au territoire « inconnu » un département sans région dans la table de passage
+    Étant donné une BTS au zonage département contenant un code absent de la table de passage département → région (par exemple « 99 », hors France ou non localisé)
+    Et RECODER_GEO_HORS_PASSAGE vrai
+    Quand le script 01d est exécuté après le 01c
+    Alors les salariés concernés sont rattachés au territoire « inconnu » dans bts et dans stock_tous_ages, sans qu'aucune ligne ne soit perdue
+    Et aucune région n'est inventée
+    Et chaque code recodé est compté, affiché et écrit dans sorties/geo_hors_passage_<zonage>.csv
+    Et les scripts 08c et 08d s'exécutent ensuite sans arrêt, « inconnu » étant compté à part et hors cartes
+    Mais hors zonage département, ou avec RECODER_GEO_HORS_PASSAGE faux, rien n'est modifié et le comportement antérieur (arrêt explicite dans 08c) est conservé
 ```
 
 ## Traçabilité
@@ -106,7 +116,7 @@ Fonctionnalité: Préparer des données cohérentes pour la projection
 Code :
 
 - `R/01_preparation/01_fabriquer_donnees_test.R`, `01b_agreger_pcs.R`,
-  `01c_stock_tous_ages.R`
+  `01c_stock_tous_ages.R`, `01d_recoder_geo_hors_passage.R`
 - `R/01_preparation/02_importer_nettoyer_drees.R`,
   `02b_importer_mortalite_insee.R`, `02c_importer_invalidite_eacr.R`
 - `R/00_config_fonctions/00c_fonctions_geo.R` — `normaliser_geo()`,
@@ -136,5 +146,10 @@ Tests :
   fiches en repli, CSV 08b sans colonnes tous âges » ; « tableau des départs par
   CS : effectifs actuels tous âges (01c), part à remplacer, ligne Ensemble ;
   repli sans stock »
+- `tests/testthat/test-recoder-geo-hors-passage.R` — « SPEC-PREP-013 — le code
+  « 99 » sans région est recodé « inconnu », compté, tracé ; ajouter_region ne
+  s'arrête plus » ; « 01d — sans objet hors zonage département, désactivable,
+  et sans effet quand tout est rattaché » ; « SPEC-PREP-013 — chaîne réelle en
+  mode département avec un « 99 » injecté : 08c et 08d passent … »
 - SPEC-PREP-009 et SPEC-PREP-010 (sources externes et replis) : pas de test
   unitaire dédié ; la chaîne de test s'exécute avec les fichiers livrés.

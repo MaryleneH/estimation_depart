@@ -17,6 +17,11 @@ source("R/01_preparation/01_fabriquer_donnees_test.R")   # -> objet : bts (contr
 source("R/01_preparation/01b_agreger_pcs.R")             # -> cs1 agrégée (si AGGREGER_PCS)
 source("R/01_preparation/01c_stock_tous_ages.R")         # -> stock_tous_ages : effectifs actuels TOUS ÂGES par
                                           #    territoire x CS (agrégation Arrow ; dénominateur des fiches)
+source("R/01_preparation/01d_recoder_geo_hors_passage.R") # -> départements sans région dans la table de passage
+                                          #    (ex. 99) rattachés au territoire « inconnu » dans bts ET
+                                          #    stock_tous_ages (après 01c, pour recoder les deux ensemble),
+                                          #    tracés dans sorties/geo_hors_passage_<zonage>.csv
+                                          #    (si RECODER_GEO_HORS_PASSAGE ; sans objet hors zonage département)
 source("R/01_preparation/02_importer_nettoyer_drees.R")  # -> objets : fdc, fdc_salaries
 source("R/01_preparation/02b_importer_mortalite_insee.R")# -> objet : table_mortalite
 source("R/01_preparation/02c_importer_invalidite_eacr.R")# -> objet : inval_base

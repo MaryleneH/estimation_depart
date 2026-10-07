@@ -11,7 +11,7 @@ proprement, jamais silencieusement.
 
 ```
 00_config → 00g (arrondi) → 00c (géo) → 00d (fiches) → 00e (départs PCS/CS1) → 00f (cartes)
-→ 01 BTS → 01b PCS → cs1 → 01c stock tous âges
+→ 01 BTS → 01b PCS → cs1 → 01c stock tous âges → 01d départements hors table de passage → « inconnu » (si RECODER_GEO_HORS_PASSAGE)
 → 02 DREES → 02b mortalité Insee → 02c invalidité EACR
 → 03 paramètres par CSP
 → 04 projection (bts_projete)
