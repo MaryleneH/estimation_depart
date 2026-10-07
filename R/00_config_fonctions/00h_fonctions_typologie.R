@@ -10,7 +10,9 @@
 #        pondération cachée, aucun clustering) ; tous les seuils viennent de
 #        la configuration (TYPO_*, 00) et sont écrits dans la sortie
 #        parametres_typologie.csv ; chaque département porte une justification
-#        textuelle déterministe construite par règles.
+#        textuelle déterministe construite par règles, un motif d'expertise,
+#        des points d'attention et une situation rédigée en français courant
+#        par gabarits fixes (specs/10 §8) ; jamais de texte généré.
 # MAILLE : département uniquement (SPEC-TYPO-001). Les tensions DGA / France
 #        Travail, observées par FAP × bassin, sont une couche SÉPARÉE
 #        (SPEC-TYPO-020 à 023) : jamais attribuées au département, jamais
@@ -18,9 +20,36 @@
 # ==============================================================================
 library(dplyr)
 
-PROFILS_TYPOLOGIE <- c(enjeu = "Fort enjeu de renouvellement", emergent = "Risque de renouvellement émergent",
-                       concentre = "Renouvellement concentré", stable = "Pôle BITD relativement stable",
-                       diffus = "Implantation BITD diffuse", expertiser = "Cas à expertiser")
+# Profils : des TITRES PARLANTS, chacun avec sa règle en français, ce qu'il signifie et
+# la consigne de lecture associée (specs/10 §4 et §8). Les clés sont stables ; les
+# titres peuvent évoluer sans toucher aux règles.
+PROFILS_TYPOLOGIE <- c(enjeu = "Pôle majeur à renouveler rapidement", emergent = "Renouvellement rapide à surveiller",
+                       majeur_modere = "Pôle majeur au renouvellement modéré", concentre = "Renouvellement porté par une catégorie",
+                       stable = "Implantation stable", diffus = "Implantation réduite", expertiser = "Situation à expertiser")
+DEFINITIONS_PROFILS <- tibble::tribble(
+  ~cle, ~regle, ~signification, ~attention,
+  "enjeu", "poids Fort, volume de départs Élevé, intensité Élevée",
+  "un département qui pèse lourd dans l’emploi BITD, où beaucoup de départs sont attendus et où ils représentent une part importante de l’emploi actuel",
+  "priorité de renouvellement, à anticiper par des recrutements et des transmissions de compétences sur plusieurs années",
+  "emergent", "intensité Élevée, sans réunir toutes les conditions du pôle majeur à renouveler rapidement",
+  "le renouvellement y est rapide au regard de l’emploi actuel, même si le volume ou le poids restent plus modestes",
+  "signal de vigilance et non prédiction de pénurie ; vérifier la capacité locale de recrutement avant d’en faire une priorité",
+  "majeur_modere", "volume de départs Élevé, intensité Modérée, poids Moyen ou Fort",
+  "un pôle important où le volume de départs est élevé par la taille du département, mais où le rythme de renouvellement reste dans la moyenne",
+  "lire le volume en valeur absolue, car le nombre de postes à pourvoir est élevé même si le rythme n’a rien d’exceptionnel",
+  "concentre", "au moins la moitié des départs portés par une seule grande catégorie (volume et intensité non élevés)",
+  "le renouvellement se joue sur une catégorie précise plutôt que sur l’ensemble de l’emploi",
+  "regarder la catégorie concernée et sa part à remplacer plutôt que le total du département",
+  "stable", "poids Moyen ou Fort, volume et intensité Faibles ou Modérés, départs diffus",
+  "une implantation installée dont le renouvellement est régulier et réparti entre les catégories",
+  "aucun signal particulier, suivi ordinaire",
+  "diffus", "poids Faible (part nationale faible ou effectif sous le plancher)",
+  "une présence BITD réduite, dont les parts et les taux sont fragiles car calculés sur de petits effectifs",
+  "ne pas sur-interpréter un taux élevé sur un petit effectif ; les chiffres restent visibles mais ne créent pas de priorité",
+  "expertiser", "signaux contradictoires ou indicateurs à la frontière d’un seuil (motif écrit dans motif_expertise)",
+  "les règles simples ne permettent pas de trancher, et le motif précise ce qui coince",
+  "examiner le département avec les acteurs locaux avant toute lecture ; ne jamais le classer d’office")
+DEFINITIONS_PROFILS$titre <- unname(PROFILS_TYPOLOGIE[DEFINITIONS_PROFILS$cle])
 CLASSES_TYPOLOGIE <- list(poids = c("Faible", "Moyen", "Fort"), intensite = c("Faible", "Modérée", "Élevée"),
                           volume = c("Faible", "Modéré", "Élevé"))
 
@@ -106,28 +135,118 @@ identifier_cs_volume_max <- function(cs, departs, ordre_cs = unname(PCS_VERS_CS1
 }
 identifier_cs_taux_max <- function(cs, taux, ordre_cs = unname(PCS_VERS_CS1)) identifier_cs_volume_max(cs, taux, ordre_cs)
 
-# --- Attribution du profil (règles ordonnées, specs/10 §6) ----------------------
+# --- Attribution du profil (règles ordonnées, specs/10 §4) ----------------------
 # Entrées : classes de poids / volume / intensité, type de concentration, nombre
-# de critères à la frontière d'un seuil, intensité extrême (poids faible).
-# Ordre d'examen : 1 frontière -> expertiser ; 2 poids faible -> diffuse (ou
-# expertiser si intensité extrême) ; 3 volume élevé sans intensité élevée ->
-# expertiser ; 4 fort enjeu ; 5 émergent ; 6 concentré ; 7 stable.
+# d'AXES (poids, intensité, volume) à la frontière d'un seuil, intensité extrême
+# (poids faible). Ordre d'examen :
+#   1 classe manquante -> expertiser ; 2 poids faible + intensité extrême ->
+#   expertiser ; 3 poids faible -> implantation réduite ; 4 >= nb axes à la
+#   frontière -> expertiser ; 5 volume élevé ET intensité faible -> expertiser
+#   (contradiction) ; 6 fort + élevé + élevée -> pôle majeur à renouveler
+#   rapidement ; 7 intensité élevée -> renouvellement rapide à surveiller ;
+#   8 volume élevé (intensité modérée) -> pôle majeur au renouvellement modéré ;
+#   9 concentré -> renouvellement porté par une catégorie ; 10 sinon -> stable.
+# Retourne list(profil, motif) : le motif n'est renseigné que pour « expertiser ».
 attribuer_profil_typologie <- function(classe_poids, classe_volume, classe_intensite, type_concentration,
-                                       n_frontiere, intensite_extreme, nb_frontiere_expertise) {
+                                       n_frontiere, intensite_extreme, nb_frontiere_expertise, axes_frontiere = NULL) {
   P <- PROFILS_TYPOLOGIE; CP <- CLASSES_TYPOLOGIE
-  n <- length(classe_poids); out <- rep(NA_character_, n)
+  n <- length(classe_poids); out <- rep(NA_character_, n); motif <- rep(NA_character_, n)
   for (i in seq_len(n)) {
     po <- classe_poids[i]; vo <- classe_volume[i]; it <- classe_intensite[i]; co <- type_concentration[i]
-    if (is.na(po) || is.na(vo) || is.na(it)) { out[i] <- P[["expertiser"]]; next }
-    if (po == CP$poids[1]) { out[i] <- if (isTRUE(intensite_extreme[i])) P[["expertiser"]] else P[["diffus"]]; next }
-    if (!is.na(n_frontiere[i]) && n_frontiere[i] >= nb_frontiere_expertise) { out[i] <- P[["expertiser"]]; next }
-    if (vo == CP$volume[3] && it != CP$intensite[3]) { out[i] <- P[["expertiser"]]; next }
+    if (is.na(po) || is.na(vo) || is.na(it)) { out[i] <- P[["expertiser"]]; motif[i] <- "un indicateur de classement est manquant"; next }
+    if (po == CP$poids[1]) {
+      if (isTRUE(intensite_extreme[i])) { out[i] <- P[["expertiser"]]; motif[i] <- "intensité de renouvellement extrême sur un très petit effectif" }
+      else out[i] <- P[["diffus"]]
+      next
+    }
+    if (!is.na(n_frontiere[i]) && n_frontiere[i] >= nb_frontiere_expertise) {
+      out[i] <- P[["expertiser"]]
+      motif[i] <- paste0(n_frontiere[i], " indicateurs à la frontière d’un seuil de classe",
+                         if (!is.null(axes_frontiere) && nzchar(axes_frontiere[i])) paste0(" (", axes_frontiere[i], ")") else "")
+      next
+    }
+    if (vo == CP$volume[3] && it == CP$intensite[1]) { out[i] <- P[["expertiser"]]; motif[i] <- "volume de départs élevé mais renouvellement lent au regard de l’emploi actuel"; next }
     if (po == CP$poids[3] && vo == CP$volume[3] && it == CP$intensite[3]) { out[i] <- P[["enjeu"]]; next }
     if (it == CP$intensite[3]) { out[i] <- P[["emergent"]]; next }
+    if (vo == CP$volume[3]) { out[i] <- P[["majeur_modere"]]; next }
     if (!is.na(co) && co == "Concentré") { out[i] <- P[["concentre"]]; next }
     out[i] <- P[["stable"]]
   }
-  out
+  list(profil = out, motif = motif)
+}
+
+# --- Points d'attention (tous les profils) : ce à quoi prêter attention, par règles ----
+points_attention_typologie <- function(d, params) {
+  fmt1 <- function(x) formatC(x, format = "f", digits = 1, decimal.mark = ",")
+  vapply(seq_len(nrow(d)), function(i) {
+    r <- d[i, ]; pts <- character(0)
+    if (!is.na(r$type_concentration) && r$type_concentration == "Concentré")
+      pts <- c(pts, sprintf("une seule catégorie porte %s %% des départs (%s)", fmt1(r$part_departs_cs_max_pct), libelle_cs_typo(r$cs_volume_departs_max)))
+    if (!is.na(r$classe_poids_bitd) && r$classe_poids_bitd == CLASSES_TYPOLOGIE$poids[1] && !is.na(r$classe_intensite) && r$classe_intensite == CLASSES_TYPOLOGIE$intensite[3] && !isTRUE(r$intensite_extreme_faible_stock))
+      pts <- c(pts, "renouvellement rapide mais calculé sur un petit effectif")
+    if (!is.na(r$departs_central) && r$departs_central > 0 && (r$departs_haut - r$departs_bas) / r$departs_central >= 0.25)
+      pts <- c(pts, sprintf("fourchette d’estimation large (de %d à %d départs)", round(r$departs_bas), round(r$departs_haut)))
+    axes <- c(if (isTRUE(r$frontiere_poids)) "poids", if (isTRUE(r$frontiere_intensite)) "intensité", if (isTRUE(r$frontiere_volume)) "volume")
+    if (length(axes) > 0 && !(r$profil_typologie %in% PROFILS_TYPOLOGIE[["expertiser"]]))
+      pts <- c(pts, paste0("proche d’un seuil de classe (", paste(axes, collapse = ", "), ") : la classe peut basculer d’une édition à l’autre"))
+    if (length(pts) == 0) NA_character_ else paste(pts, collapse = " ; ")
+  }, "")
+}
+
+# --- Rédaction : la situation de chaque département en français courant ----------------
+# Quatre phrases assemblées PAR RÈGLES (jamais générées) : l'état (poids, structure),
+# la dynamique (départs, fourchette, intensité comparée à la médiane des départements),
+# la concentration (catégories), la lecture (profil, motif d'expertise, points
+# d'attention). avec_cs = FALSE (diffusion, cellule masquée) : les phrases qui
+# citent une catégorie sont omises. Nombres arrondis selon la convention 00g.
+rediger_situation_departement <- function(d, params, comparaisons, avec_cs = rep(TRUE, nrow(d))) {
+  fmt1 <- function(x) ifelse(is.na(x), "n.d.", formatC(x, format = "f", digits = 1, decimal.mark = ","))
+  fmt0 <- function(x) ifelse(is.na(x), "n.d.", formatC(arrondir_nombre_personnes(x), format = "d", big.mark = " "))
+  lib_int <- if (params$indicateur_intensite == "part_a_remplacer_pct") "de l’emploi actuel à remplacer" else "des salariés du champ susceptibles de partir"
+  position <- function(x, med) if (is.na(x) || is.na(med)) "" else if (abs(x - med) <= 0.5) sprintf(", au niveau de la médiane des départements (%s %%)", fmt1(med)) else
+    sprintf(", %s la médiane des départements (%s %%)", if (x > med) "au-dessus de" else "en dessous de", fmt1(med))
+  defs <- DEFINITIONS_PROFILS
+  vapply(seq_len(nrow(d)), function(i) {
+    r <- d[i, ]; nom <- paste0(r$geo_nom, " (", r$geo_code, ")")
+    if (is.na(r$effectif_bitd_total) || is.na(r$departs_central)) return(NA_character_)
+    etat <- sprintf("%s pèse %s %% de l’emploi BITD national (%s salariés), un poids %s%s.", nom, fmt1(r$part_emploi_bitd_national_pct), fmt0(r$effectif_bitd_total),
+                    tolower(ifelse(is.na(r$classe_poids_bitd), "non classé", r$classe_poids_bitd)),
+                    if (!is.na(r$effectif_bitd_total) && r$effectif_bitd_total < params$effectif_min) sprintf(", sous le plancher de %s salariés retenu pour l’analyse", formatC(params$effectif_min, format = "d", big.mark = " ")) else "")
+    structure <- if (avec_cs[i] && !is.na(r$structure_emploi)) {
+      if (r$structure_emploi == "Mixte") sprintf(" Son emploi se répartit entre les grandes catégories sans dominante (première : %s, %s %%).", libelle_cs_typo(r$cs_principale), fmt1(r$part_cs_principale_pct))
+      else sprintf(" Son emploi est dominé par les %s (%s %%).", libelle_cs_typo(r$cs_principale), fmt1(r$part_cs_principale_pct)) } else ""
+    dyn <- sprintf(" D’ici 2030, %s départs sont attendus (entre %s et %s selon l’hypothèse de départ en retraite), soit %s %% %s%s : volume de départs %s, intensité de renouvellement %s.",
+                   fmt0(r$departs_central), fmt0(r$departs_bas), fmt0(r$departs_haut), fmt1(r$intensite_renouvellement_pct), lib_int,
+                   position(r$intensite_renouvellement_pct, comparaisons$mediane_intensite),
+                   tolower(ifelse(is.na(r$classe_volume_departs), "non classé", r$classe_volume_departs)), tolower(ifelse(is.na(r$classe_intensite), "non classé", r$classe_intensite)))
+    conc <- if (avec_cs[i] && !is.na(r$cs_volume_departs_max) && !is.na(r$part_departs_cs_max_pct)) {
+      paste0(sprintf(" Les %s portent %s %% de ces départs", libelle_cs_typo(r$cs_volume_departs_max), fmt1(r$part_departs_cs_max_pct)),
+             if (!is.na(r$type_concentration) && r$type_concentration == "Concentré") " : le renouvellement est concentré sur cette catégorie." else ", sans concentration marquée.",
+             if (!is.na(r$cs_taux_renouvellement_max) && r$cs_taux_renouvellement_max != r$cs_volume_departs_max) sprintf(" C’est chez les %s que la part à remplacer est la plus élevée.", libelle_cs_typo(r$cs_taux_renouvellement_max))
+             else " C’est aussi la catégorie où la part à remplacer est la plus élevée.") } else ""
+    def <- defs[defs$titre == r$profil_typologie, ]
+    lecture <- if (nrow(def) == 1) sprintf(" Profil « %s » : %s.", def$titre, def$signification) else sprintf(" Profil : %s.", r$profil_typologie)
+    if (!is.na(r$motif_expertise)) lecture <- paste0(lecture, " À examiner : ", r$motif_expertise, ".")
+    if (!is.na(r$points_attention)) lecture <- paste0(lecture, " Point(s) d’attention : ", r$points_attention, ".")
+    paste0(etat, structure, dyn, conc, lecture)
+  }, "")
+}
+# Synthèse rédigée par profil (titre, règle, signification, consigne, chiffres, départements)
+rediger_synthese_profils <- function(synthese, d, comparaisons) {
+  fmt1 <- function(x) ifelse(is.na(x), "n.d.", formatC(x, format = "f", digits = 1, decimal.mark = ","))
+  defs <- DEFINITIONS_PROFILS
+  synthese |> rowwise() |> mutate(
+    cle = { k <- defs$cle[defs$titre == profil_typologie]; if (length(k)) k else NA_character_ },
+    regle = if (!is.na(cle)) defs$regle[defs$cle == cle] else NA_character_,
+    signification = if (!is.na(cle)) defs$signification[defs$cle == cle] else NA_character_,
+    consigne_lecture = if (!is.na(cle)) defs$attention[defs$cle == cle] else NA_character_,
+    departements = { dd <- d[d$profil_typologie == profil_typologie, ]; dd <- dd[order(-dd$departs_central), ]
+      paste(head(paste0(dd$geo_nom, " (", dd$geo_code, ")"), 12), collapse = ", ") },
+    texte = paste0(sprintf("%d département%s relève%s du profil « %s » : %s. ", n_departements, if (n_departements > 1) "s" else "", if (n_departements > 1) "nt" else "", profil_typologie, signification),
+                   sprintf("Ensemble, ils représentent %s %% de l’emploi BITD et %s %% des départs attendus d’ici 2030 ; leur intensité de renouvellement médiane est de %s %% (ensemble des départements : %s %%). ",
+                           fmt1(poids_national_emploi_pct), fmt1(poids_national_departs_pct), fmt1(intensite_mediane_pct), fmt1(comparaisons$mediane_intensite)),
+                   if (n_concentres > 0) sprintf("Dans %d cas, une seule catégorie porte au moins la moitié des départs. ", n_concentres) else "",
+                   sprintf("Consigne de lecture : %s.", consigne_lecture))) |> ungroup() |> select(-cle)
 }
 
 # --- Justification textuelle déterministe (règles, jamais de texte généré) ------
@@ -216,12 +335,19 @@ construire_typologie_departements <- function(cs_dep, stock = NULL, params = par
     frontiere_volume = frontiere(departs_central, s_vol),
     frontiere_dominance = !is.na(part_cs_principale_pct) & abs(part_cs_principale_pct - params$seuil_dominance_cs) <= params$marge_frontiere_pct / 100 * params$seuil_dominance_cs,
     frontiere_concentration = !is.na(part_departs_cs_max_pct) & abs(part_departs_cs_max_pct - params$seuil_concentration) <= params$marge_frontiere_pct / 100 * params$seuil_concentration,
-    n_criteres_frontiere = frontiere_poids + frontiere_intensite + frontiere_volume + frontiere_dominance + frontiere_concentration,
+    # seuls les trois AXES qui décident du profil comptent (dominance et concentration sont informatives)
+    n_criteres_frontiere = frontiere_poids + frontiere_intensite + frontiere_volume,
     intensite_extreme_faible_stock = classe_poids_bitd == CLASSES_TYPOLOGIE$poids[1] & !is.na(s_int[["haut"]]) &
-      intensite_renouvellement_pct >= params$facteur_intensite_extreme * s_int[["haut"]],
-    profil_typologie = attribuer_profil_typologie(classe_poids_bitd, classe_volume_departs, classe_intensite, type_concentration,
-                                                  n_criteres_frontiere, intensite_extreme_faible_stock, params$nb_frontiere_expertise))
+      intensite_renouvellement_pct >= params$facteur_intensite_extreme * s_int[["haut"]])
+  axes_fr <- vapply(seq_len(nrow(dep)), function(i) paste(c(if (dep$frontiere_poids[i]) "poids", if (dep$frontiere_intensite[i]) "intensité", if (dep$frontiere_volume[i]) "volume"), collapse = ", "), "")
+  attrib <- attribuer_profil_typologie(dep$classe_poids_bitd, dep$classe_volume_departs, dep$classe_intensite, dep$type_concentration,
+                                       dep$n_criteres_frontiere, dep$intensite_extreme_faible_stock, params$nb_frontiere_expertise, axes_fr)
+  dep$profil_typologie <- attrib$profil; dep$motif_expertise <- attrib$motif
+  dep$points_attention <- points_attention_typologie(dep, params)
   dep$justification_profil <- construire_justification_profil(dep, params)
+  comparaisons <- list(mediane_intensite = median(dep$intensite_renouvellement_pct, na.rm = TRUE),
+                       mediane_part_nationale = median(dep$part_emploi_bitd_national_pct, na.rm = TRUE))
+  dep$situation_texte <- rediger_situation_departement(dep, params, comparaisons)
   dep <- dep |> arrange(geo_code)
   parametres <- tibble(parametre = c("methode_classes", "indicateur_intensite", "base_poids", "seuil_dominance_cs_pct", "seuil_concentration_departs_pct",
                                      "effectif_min", "poids_bas_pct", "poids_haut_pct", "intensite_bas_pct", "intensite_haut_pct", "volume_bas", "volume_haut",
@@ -229,7 +355,8 @@ construire_typologie_departements <- function(cs_dep, stock = NULL, params = par
                        valeur = c(params$methode_classes, indicateur, base_poids, params$seuil_dominance_cs, params$seuil_concentration, params$effectif_min,
                                   s_poids[["bas"]], s_poids[["haut"]], s_int[["bas"]], s_int[["haut"]], s_vol[["bas"]], s_vol[["haut"]],
                                   params$marge_frontiere_pct, params$nb_frontiere_expertise, params$facteur_intensite_extreme, nrow(dep), sum(retenus)))
-  list(departements = dep, departement_cs = long |> select(-effectif_base), parametres = parametres, base_poids = base_poids, indicateur = indicateur)
+  list(departements = dep, departement_cs = long |> select(-effectif_base), parametres = parametres, base_poids = base_poids, indicateur = indicateur,
+       comparaisons = comparaisons, params = params)
 }
 # pivot large sans tidyr : une colonne par mesure x CS (effectif_<cs>, part_<cs>_pct, departs_<cs>, intensite_<cs>_pct)
 tidyr_pivot <- function(long, cs_order) {
@@ -270,8 +397,10 @@ controler_typologie <- function(typo, cs_dep, tol = 1e-6) {
 # département est masquée, les variables dérivées par CS (cs_principale,
 # part_cs_principale_pct, structure_emploi, cs_volume_departs_max,
 # cs_taux_renouvellement_max, part_departs_cs_max_pct, type_concentration) sont
-# NA et les profils qui en dépendent (« Renouvellement concentré », « Pôle BITD
-# relativement stable ») deviennent « Non diffusé (secret statistique) ».
+# NA et les profils qui en dépendent (« Renouvellement porté par une catégorie »,
+# « Implantation stable ») deviennent « Non diffusé (secret statistique) » ;
+# (4) les textes (situation_texte, points_attention, motif_expertise) ne citent
+# jamais une catégorie masquée et sont NA pour un territoire masqué (SPEC-TYPO-054).
 appliquer_secret_typologie <- function(typo, diffusion_cs_dep, base, regles = regles_secret()) {
   d <- typo$departements
   if (!"masque" %in% names(diffusion_cs_dep)) stop("appliquer_secret_typologie : table de diffusion du 08d requise (colonne masque).")
@@ -295,10 +424,14 @@ appliquer_secret_typologie <- function(typo, diffusion_cs_dep, base, regles = re
   for (v in derivees) d[[v]][d$cs_masquee] <- NA
   dep_cs_profil <- d$cs_masquee & d$profil_typologie %in% PROFILS_TYPOLOGIE[c("concentre", "stable")]
   d$profil_typologie[dep_cs_profil] <- "Non diffusé (secret statistique)"
+  # points d'attention et texte : recalculés sans aucune information par catégorie quand une cellule est masquée
+  d$points_attention[d$cs_masquee] <- points_attention_typologie(d[d$cs_masquee, ], typo$params)
+  d$situation_texte <- ifelse(dep_cs_profil, NA_character_, rediger_situation_departement(d, typo$params, typo$comparaisons, avec_cs = !d$cs_masquee))
   mesures <- setdiff(names(d), c("region_code", "region_nom", "geo_code", "geo_nom", "masque", "cs_masquee", "indicateur_intensite", "base_poids"))
   for (v in mesures) d[[v]][d$masque] <- NA
   d$profil_typologie[d$masque] <- "Non diffusé (secret statistique)"
   d$justification_profil[d$masque | dep_cs_profil] <- NA_character_
+  d$situation_texte[d$masque] <- NA_character_
   d |> select(-starts_with("frontiere_"), -n_criteres_frontiere, -intensite_extreme_faible_stock, -egalite_structure, -cs_masquee) |>
     mutate(motif_masque = ifelse(masque, "territoire", ifelse(dep_cs_profil, "cellule cs masquée", NA_character_)))
 }
@@ -362,15 +495,19 @@ proposer_seuils_typologie <- function(departements, effectif_min = TYPO_SEUIL_EF
 }
 
 # --- Synthèse par profil ------------------------------------------------------------
-synthese_profils <- function(typo) {
+synthese_profils <- function(typo, rediger = TRUE) {
   d <- typo$departements; tot_e <- sum(d$effectif_bitd_total); tot_d <- sum(d$departs_central)
-  d |> group_by(profil_typologie) |>
+  s <- d |> group_by(profil_typologie) |>
     summarise(n_departements = n(), effectif_bitd_total = sum(effectif_bitd_total), departs_central = sum(departs_central),
               poids_national_emploi_pct = 100 * effectif_bitd_total / tot_e, poids_national_departs_pct = 100 * departs_central / tot_d,
               intensite_mediane_pct = median(intensite_renouvellement_pct, na.rm = TRUE), part_nationale_mediane_pct = median(part_emploi_bitd_national_pct),
-              n_concentres = sum(type_concentration %in% "Concentré"), n_mixtes = sum(structure_emploi %in% "Mixte"), .groups = "drop") |>
+              n_concentres = sum(type_concentration %in% "Concentré"), n_mixtes = sum(structure_emploi %in% "Mixte"),
+              n_a_expertiser_motifs = sum(!is.na(motif_expertise)), .groups = "drop") |>
     mutate(profil_typologie = factor(profil_typologie, levels = PROFILS_TYPOLOGIE)) |> arrange(profil_typologie) |> mutate(profil_typologie = as.character(profil_typologie))
+  if (rediger) rediger_synthese_profils(s, d, typo$comparaisons) else s
 }
+# Référentiel des profils (titre, règle, signification, consigne) : écrit tel quel dans profils_definitions.csv
+profils_definitions <- function() DEFINITIONS_PROFILS |> select(cle, titre, regle, signification, consigne_lecture = attention)
 
 # --- Tensions DGA / France Travail : couche SÉPARÉE, maille différente --------------
 # tensions : table au format data/templates/tensions_fap_territoires_template.csv

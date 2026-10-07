@@ -16,7 +16,7 @@ la maintenance. Les titres de tests sont ceux des `test_that()` du dépôt.
 | Restitutions territoriales | SPEC-GEO-001 à 011 | `00e`, `08`, `08b`, `08c`, `08d`, `00c` | `test-departs-pcs.R`, `test-departs-cs1.R`, `test-departs-geo-cs.R`, `test-non-regression-ze.R` |
 | Cartes et fiches | SPEC-PUB-001 à 020 | `00f_fonctions_cartes.R`, `08e`, `00d`, `09` | `test-cartes-departs.R`, `test-fiches.R` |
 | Orchestration | SPEC-ORCH-001 à 012 | `main.R`, `99b_normaliser_csv_excel.R` | `test-snapshot.R`, `test-normaliser-csv-excel.R`, `test-fiches.R` (chaîne) |
-| Typologie territoriale | SPEC-TYPO-001 à 042 | `00h_fonctions_typologie.R`, `08f_typologie_departements.R`, `00_config.R` (TYPO_*) | `test-typologie-territoriale.R` |
+| Typologie territoriale | SPEC-TYPO-001 à 054 | `00h_fonctions_typologie.R`, `08f_typologie_departements.R`, `00_config.R` (TYPO_*) | `test-typologie-territoriale.R` |
 
 ## Typologie territoriale (spec 10) : besoin → règle → implémentation → test → sortie
 
@@ -33,14 +33,17 @@ la maintenance. Les titres de tests sont ceux des `test_that()` du dépôt.
 | SPEC-TYPO-010 | classes à trois niveaux, borne incluse en haut | `classer_par_seuils()` | « SPEC-TYPO-010/011/012 — classes et frontières … » | `classe_*` |
 | SPEC-TYPO-011 | plancher d'effectif | `classer_poids_bitd()` | idem | `classe_poids_bitd` |
 | SPEC-TYPO-012 | terciles = règle provisoire, bornes écrites | `seuils_classes()` | idem ; « SPEC-TYPO-040 … » | `parametres_typologie.csv` |
-| SPEC-TYPO-013 à 017 | profils ordonnés, faible poids ≠ fort enjeu, cas à expertiser | `attribuer_profil_typologie()` | « SPEC-TYPO-013 à 018 — profils … » ; « SPEC-TYPO-014 — faible poids … » | `profil_typologie` |
-| SPEC-TYPO-018 | justification par règles | `construire_justification_profil()` | « SPEC-TYPO-013 à 018 … » | `justification_profil` |
+| SPEC-TYPO-013 à 017, 019 | profils ordonnés à titres parlants, faible poids ≠ pôle majeur, situation à expertiser avec motif, pôle majeur au renouvellement modéré, frontière sur les trois axes seulement | `attribuer_profil_typologie()` | « SPEC-TYPO-013 à 019 — profils … » ; « SPEC-TYPO-014 — faible poids … » | `profil_typologie`, `motif_expertise` |
+| SPEC-TYPO-018 | justification par règles | `construire_justification_profil()` | « SPEC-TYPO-013 à 019 … » | `justification_profil` |
+| SPEC-TYPO-050 / 051 / 052 | situation rédigée par règles ; motif d'expertise ; points d'attention | `rediger_situation_departement()`, `points_attention_typologie()` | « SPEC-TYPO-050 à 053 — rédaction … » | `situation_texte`, `motif_expertise`, `points_attention` |
+| SPEC-TYPO-053 | synthèse rédigée par profil, définitions publiées, motifs en console | `rediger_synthese_profils()`, `profils_definitions()`, `08f` | « SPEC-TYPO-050 à 053 … » ; « SPEC-TYPO-040 … » | `synthese_profils.csv` (`texte`), `profils_definitions.csv` |
+| SPEC-TYPO-054 | textes et motifs jamais révélateurs (territoire masqué, cellule CS masquée, profil non diffusé) | `appliquer_secret_typologie()` | « SPEC-TYPO-030 à 034 … » ; « SPEC-TYPO-054 — secret des textes … » | `diffusion/typologie_departements.csv` |
 | SPEC-TYPO-020 à 023 | tension de bassin jamais attribuée au département, jamais de départs au bassin, pas de FAP → CS, nommage | `joindre_signal_tension_localise()`, `controler_typologie()` | « SPEC-TYPO-020 à 023 — tensions … » | `nb_bassins_signales`, `presence_signal_tension_localise` (non produits par défaut) |
 | SPEC-TYPO-030 | département non diffusable, secondaire sur le bloc national | `appliquer_secret_typologie()` | « SPEC-TYPO-030 à 034 — secret … » | `diffusion/typologie_departements.csv` (`masque`, `motif_masque`) |
 | SPEC-TYPO-031 | colonnes par CS suivent le masque de la cellule | idem | idem | idem |
 | SPEC-TYPO-032 / 033 | variables dérivées et profils dépendants masqués | idem | idem | idem |
 | SPEC-TYPO-034 | interne complet, indicateurs techniques hors diffusion, `.gitignore` | `08f`, `.gitignore` | idem ; « SPEC-TYPO-040 … » | `interne/`, `diffusion/` |
-| SPEC-TYPO-040 | sorties, arrondi, matrice, objets amont inchangés | `08f`, `png_matrice_typologie()` | « SPEC-TYPO-040 — chaîne réelle en mode département … » | les six fichiers |
+| SPEC-TYPO-040 | sorties, arrondi, matrice, objets amont inchangés | `08f`, `png_matrice_typologie()` | « SPEC-TYPO-040 — chaîne réelle en mode département … » | les sept fichiers |
 | SPEC-TYPO-042 | proposer des seuils fixes arrondis à partir des données, sans rien appliquer | `proposer_seuils_typologie()`, `arrondir_pas()` | « SPEC-TYPO-042 — proposer_seuils_typologie : terciles arrondis au pas … » | bloc console à coller dans `00_config.R` |
 | SPEC-TYPO-041 | contrôles bloquants (total altéré, profil inconnu, colonne interdite = arrêt) | `controler_typologie()` | « SPEC-TYPO-001/002/004/041 … » ; « SPEC-TYPO-040 … » | — |
 

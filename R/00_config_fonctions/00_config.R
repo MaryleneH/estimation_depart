@@ -261,9 +261,9 @@ TYPO_SEUIL_INTENSITE_FAIBLE     <- 8    # % (méthode "fixes", indicateur d'inte
 TYPO_SEUIL_RENOUVELLEMENT_ELEVE <- 15
 TYPO_SEUIL_VOLUME_FAIBLE        <- 50   # départs estimés (méthode "fixes") : < faible ; >= élevé
 TYPO_SEUIL_VOLUME_ELEVE         <- 300
-TYPO_MARGE_FRONTIERE_PCT        <- 5    # % relatif : un indicateur à moins de 5 % d'un seuil est « à la frontière »
-TYPO_NB_CRITERES_FRONTIERE      <- 2    # au moins 2 critères à la frontière -> « Cas à expertiser »
-TYPO_FACTEUR_INTENSITE_EXTREME  <- 2    # poids faible ET intensité >= 2 x seuil « élevée » -> « Cas à expertiser »
+TYPO_MARGE_FRONTIERE_PCT        <- 3    # % relatif : un axe (poids, intensité, volume) à moins de 3 % d'un seuil est « à la frontière »
+TYPO_NB_CRITERES_FRONTIERE      <- 2    # au moins 2 de ces 3 axes à la frontière -> « Situation à expertiser » (motif écrit)
+TYPO_FACTEUR_INTENSITE_EXTREME  <- 2    # poids faible ET intensité >= 2 x seuil « élevée » -> « Situation à expertiser »
 FICHES_SECRET    <- TRUE          # TRUE  = secret statistique appliqué (version DIFFUSABLE).
                                   # FALSE = USAGE INTERNE : aucun masquage, tous les
                                   # territoires, bloc des entreprises (SIREN) ; écrit dans
