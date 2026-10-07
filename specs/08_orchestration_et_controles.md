@@ -10,7 +10,7 @@ proprement, jamais silencieusement.
 ## Ordre de référence (`main.R`)
 
 ```
-00_config → 00g (arrondi) → 00c (géo) → 00d (fiches) → 00e (départs PCS/CS1) → 00f (cartes)
+00_config → 00g (arrondi) → 00c (géo) → 00d (fiches) → 00e (départs PCS/CS1) → 00f (cartes) → 00h (typologie) → 00i (carte de la typologie)
 → 01 BTS → 01b PCS → cs1 → 01c stock tous âges → 01d départements hors table de passage → « inconnu » (si RECODER_GEO_HORS_PASSAGE)
 → 02 DREES → 02b mortalité Insee → 02c invalidité EACR
 → 03 paramètres par CSP
@@ -18,7 +18,9 @@ proprement, jamais silencieusement.
 → 05 entreprises → 06, 06b, 06d, 06e graphiques → 07 tableau gt (si gt installé)
 → 08 seniors par territoire → 08b territoire × CS → 08c PCS → 08d CS1
 → 08f typologie des départements (si GENERER_TYPOLOGIE ; ignoré avec message hors zonage département)
-→ 08e cartes (si GENERER_CARTES_DEPARTS) → 09 fiches (si GENERER_FICHES)
+→ 08e cartes (si GENERER_CARTES_DEPARTS)
+→ 08g cartes des profils de la typologie (si GENERER_CARTE_TYPOLOGIE ; lit la diffusion du 08f seule ; relançable seul)
+→ 09 fiches (si GENERER_FICHES)
 → 99b BOM UTF-8 des CSV (si NORMALISER_CSV_EXCEL)
 ```
 
@@ -37,7 +39,7 @@ Fonctionnalité: Exécuter la chaîne de calcul de manière reproductible
 
   Scénario: [SPEC-ORCH-002] Charger la configuration et les fonctions avant les traitements
     Quand la chaîne démarre
-    Alors 00_config.R puis les fonctions communes (00g, 00c, 00d, 00e, 00f, 00h) doivent être chargés avant toute donnée
+    Alors 00_config.R puis les fonctions communes (00g, 00c, 00d, 00e, 00f, 00h, 00i) doivent être chargés avant toute donnée
     Et aucun script de fonctions ne doit calculer ni écrire quoi que ce soit
     Et la préparation doit précéder la modélisation, qui doit précéder les restitutions
 

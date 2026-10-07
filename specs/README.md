@@ -38,7 +38,7 @@ cités sont ceux réellement implémentés à la date de rédaction.
 | `07_cartes_et_fiches.md` | Cartes, tableaux de bord, fiches territoriales, langage public |
 | `08_orchestration_et_controles.md` | Ordre d'exécution, étapes facultatives, contrôles et robustesse |
 | `09_matrice_tracabilite.md` | Correspondance specs → code → tests, doctrine de modification |
-| `10_typologie_territoriale.md` | Typologie nationale des départements BITD : poids, structure, volume, intensité, concentration, profils à règles ; tensions à une autre maille (couche séparée) ; secret des variables dérivées |
+| `10_typologie_territoriale.md` | Typologie nationale des départements BITD : poids, structure, volume, intensité, concentration, profils à règles et à titres parlants, situation rédigée ; tensions à une autre maille (couche séparée) ; secret des variables dérivées ; cartes des profils (interactive et courriel) |
 
 La spec 10 est une **couche d'analyse en aval** : elle dépend de la spec 06
 (tables département × grande CS du 08d, stock tous âges), de la spec 04 (secret
