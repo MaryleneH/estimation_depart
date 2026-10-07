@@ -165,6 +165,15 @@ Fonctionnalité: Classer sans décider silencieusement
     Alors les bornes sont les terciles observés sur les départements retenus
     Et elles sont écrites dans parametres_typologie.csv
     Et la restitution les qualifie de règle de classement statistique provisoire
+
+  Scénario: [SPEC-TYPO-042] Proposer des seuils fixes à partir des données, sans rien appliquer
+    Étant donné la table interne des départements et un pas d'arrondi par axe (poids, intensité, volume)
+    Quand proposer_seuils_typologie() est appelée
+    Alors elle calcule, sur les départements au-dessus du plancher, les terciles de chaque axe et les arrondit au pas (2,37 → 2,5 au pas 0,5 ; 119 → 120 au pas 10)
+    Et elle compte les départements par classe avec les bornes proposées
+    Et elle imprime un bloc prêt à coller dans 00_config.R avec TYPO_METHODE_CLASSES = « fixes »
+    Et les seuils métier (dominance, concentration, plancher) ne sont jamais proposés : seule leur distribution observée est affichée
+    Et aucun paramètre, aucun fichier n'est modifié ; moins de 3 départements retenus = arrêt explicite
 ```
 
 ## 4. Profils
@@ -337,7 +346,8 @@ Code :
   `identifier_cs_taux_max()`, `attribuer_profil_typologie()`,
   `construire_justification_profil()`, `construire_typologie_departements()`,
   `controler_typologie()`, `appliquer_secret_typologie()`, `synthese_profils()`,
-  `joindre_signal_tension_localise()`, `png_matrice_typologie()`
+  `joindre_signal_tension_localise()`, `png_matrice_typologie()`,
+  `proposer_seuils_typologie()` (aide au réglage, SPEC-TYPO-042)
 - `R/08_territoires/08f_typologie_departements.R`
 - `R/00_config_fonctions/00_config.R` — section typologie
 - `data/templates/tensions_fap_territoires_template.csv`
