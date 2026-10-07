@@ -59,9 +59,14 @@ salariés actuellement en poste dans la BITD du département, combien devraient
 | `TYPO_SEUIL_POIDS_FAIBLE` / `_FORT` | classes de poids (méthode fixes) | 0,5 % / 2 % | x < bas → Faible ; bas ≤ x < haut → Moyen ; x ≥ haut → Fort |
 | `TYPO_SEUIL_INTENSITE_FAIBLE` / `TYPO_SEUIL_RENOUVELLEMENT_ELEVE` | classes d'intensité (méthode fixes) | 8 % / 15 % | même règle |
 | `TYPO_SEUIL_VOLUME_FAIBLE` / `_ELEVE` | classes de volume (méthode fixes) | 50 / 300 départs | même règle |
-| `TYPO_MARGE_FRONTIERE_PCT` | « à la frontière » d'un seuil | 5 % relatif | \|x − seuil\| ≤ 5 % du seuil |
-| `TYPO_NB_CRITERES_FRONTIERE` | nombre de critères à la frontière déclenchant l'expertise | 2 | n ≥ 2 → Cas à expertiser |
-| `TYPO_FACTEUR_INTENSITE_EXTREME` | intensité extrême sur stock faible | 2 × seuil « élevée » | ≥ → Cas à expertiser |
+| `TYPO_MARGE_FRONTIERE_PCT` | « à la frontière » d'un seuil de classe (axes poids, intensité, volume **seulement**) | 3 % relatif | \|x − seuil\| ≤ 3 % du seuil |
+| `TYPO_NB_CRITERES_FRONTIERE` | nombre d'axes à la frontière déclenchant l'expertise | 2 | n ≥ 2 → Situation à expertiser |
+| `TYPO_FACTEUR_INTENSITE_EXTREME` | intensité extrême sur stock faible | 2 × seuil « élevée » | ≥ → Situation à expertiser |
+
+Les seuils de dominance et de concentration sont **informatifs** : leur
+proximité est tracée (`frontiere_dominance`, `frontiere_concentration`, table
+interne) mais ne déclenche jamais l'expertise, car ils ne décident pas du
+profil à eux seuls.
 
 Avec la méthode `terciles`, les bornes effectives sont calculées sur les
 départements dont l'effectif atteint le plancher et **écrites dans
@@ -178,53 +183,162 @@ Fonctionnalité: Classer sans décider silencieusement
 
 ## 4. Profils
 
+Chaque profil a un **titre parlant**, une **règle** en français, une
+**signification** (ce que le profil dit du département) et une **consigne de
+lecture** (à quoi prêter attention). Les quatre éléments sont écrits dans
+`interne/profils_definitions.csv` à chaque exécution ; les clés (`enjeu`,
+`emergent`, `majeur_modere`, `concentre`, `stable`, `diffus`, `expertiser`)
+sont stables, les titres peuvent évoluer.
+
+| Clé | Titre | Règle | Signification | Consigne de lecture |
+|---|---|---|---|---|
+| `enjeu` | Pôle majeur à renouveler rapidement | poids Fort, volume Élevé, intensité Élevée | pèse lourd, beaucoup de départs, part importante de l'emploi actuel à remplacer | priorité de renouvellement, à anticiper par des recrutements et des transmissions sur plusieurs années |
+| `emergent` | Renouvellement rapide à surveiller | intensité Élevée sans réunir toutes les conditions du pôle majeur | renouvellement rapide au regard de l'emploi actuel, volume ou poids plus modestes | signal de vigilance et non prédiction de pénurie ; vérifier la capacité locale de recrutement |
+| `majeur_modere` | Pôle majeur au renouvellement modéré | volume Élevé, intensité Modérée, poids Moyen ou Fort | volume élevé par la taille du département, rythme dans la moyenne | lire le volume en valeur absolue, car le nombre de postes à pourvoir est élevé |
+| `concentre` | Renouvellement porté par une catégorie | ≥ moitié des départs sur une grande CS, volume et intensité non élevés | le renouvellement se joue sur une catégorie précise | regarder la catégorie et sa part à remplacer plutôt que le total |
+| `stable` | Implantation stable | poids Moyen ou Fort, volume et intensité Faibles ou Modérés, départs diffus | implantation installée, renouvellement régulier et réparti | aucun signal particulier, suivi ordinaire |
+| `diffus` | Implantation réduite | poids Faible (part nationale faible ou effectif sous le plancher) | présence réduite, parts et taux fragiles (petits effectifs) | ne pas sur-interpréter un taux élevé sur un petit effectif |
+| `expertiser` | Situation à expertiser | signaux contradictoires ou axes à la frontière d'un seuil | les règles simples ne tranchent pas, et `motif_expertise` dit ce qui coince | examiner avec les acteurs locaux ; ne jamais classer d'office |
+
+Les textes de signification et de consigne ne contiennent pas de deux-points,
+car ils sont insérés après « Profil « … » : » et « Consigne de lecture : ».
+
 Règles ordonnées (la première qui s'applique l'emporte) :
 
-| Ordre | Condition | Profil |
-|---|---|---|
-| 1 | une classe manquante | Cas à expertiser |
-| 2 | poids Faible et intensité ≥ facteur × borne « Élevée » | Cas à expertiser |
-| 3 | poids Faible | Implantation BITD diffuse |
-| 4 | ≥ `TYPO_NB_CRITERES_FRONTIERE` critères à la frontière d'un seuil (poids, intensité, volume, dominance, concentration) | Cas à expertiser |
-| 5 | volume Élevé et intensité non Élevée | Cas à expertiser |
-| 6 | poids Fort, volume Élevé, intensité Élevée | Fort enjeu de renouvellement |
-| 7 | intensité Élevée (poids Moyen ou Fort) | Risque de renouvellement émergent |
-| 8 | concentration « Concentré » | Renouvellement concentré |
-| 9 | sinon | Pôle BITD relativement stable |
+| Ordre | Condition | Profil | `motif_expertise` |
+|---|---|---|---|
+| 1 | une classe manquante | Situation à expertiser | « un indicateur de classement est manquant » |
+| 2 | poids Faible et intensité ≥ facteur × borne « Élevée » | Situation à expertiser | « intensité de renouvellement extrême sur un très petit effectif » |
+| 3 | poids Faible | Implantation réduite | — |
+| 4 | ≥ `TYPO_NB_CRITERES_FRONTIERE` axes à la frontière d'un seuil (poids, intensité, volume **seulement**) | Situation à expertiser | « n indicateurs à la frontière d'un seuil de classe (axes) » |
+| 5 | volume Élevé **et intensité Faible** (contradiction) | Situation à expertiser | « volume de départs élevé mais renouvellement lent au regard de l'emploi actuel » |
+| 6 | poids Fort, volume Élevé, intensité Élevée | Pôle majeur à renouveler rapidement | — |
+| 7 | intensité Élevée (poids Moyen ou Fort) | Renouvellement rapide à surveiller | — |
+| 8 | volume Élevé (intensité Modérée, poids Moyen ou Fort) | Pôle majeur au renouvellement modéré | — |
+| 9 | concentration « Concentré » | Renouvellement porté par une catégorie | — |
+| 10 | sinon | Implantation stable | — |
+
+Un volume Élevé avec une intensité Modérée n'est **plus** une contradiction :
+c'est la situation ordinaire d'un gros département (règle 8). Seule la
+combinaison volume Élevé / intensité Faible reste contradictoire (règle 5).
 
 ```gherkin
 Fonctionnalité: Attribuer un profil explicable
 
-  Scénario: [SPEC-TYPO-013] Fort enjeu de renouvellement
+  Scénario: [SPEC-TYPO-013] Pôle majeur à renouveler rapidement
     Étant donné un poids Fort, un volume Élevé et une intensité Élevée
-    Alors le profil est « Fort enjeu de renouvellement »
+    Alors le profil est « Pôle majeur à renouveler rapidement »
 
-  Scénario: [SPEC-TYPO-014] Un faible poids ne crée jamais un fort enjeu
+  Scénario: [SPEC-TYPO-014] Un faible poids ne crée jamais un pôle majeur
     Étant donné un poids Faible et une intensité Élevée
-    Alors le profil est « Implantation BITD diffuse »
+    Alors le profil est « Implantation réduite »
     Et l'intensité reste visible dans la table
-    Mais si l'intensité atteint le facteur extrême, le profil est « Cas à expertiser »
+    Mais si l'intensité atteint le facteur extrême, le profil est « Situation à expertiser » avec son motif
 
-  Scénario: [SPEC-TYPO-015] Risque de renouvellement émergent
-    Étant donné un poids Moyen ou Fort et une intensité Élevée sans les conditions du fort enjeu
-    Alors le profil est « Risque de renouvellement émergent »
+  Scénario: [SPEC-TYPO-015] Renouvellement rapide à surveiller
+    Étant donné un poids Moyen ou Fort et une intensité Élevée sans les conditions du pôle majeur
+    Alors le profil est « Renouvellement rapide à surveiller »
     Et ce profil est un signal de vigilance, jamais une prédiction de pénurie
 
-  Scénario: [SPEC-TYPO-016] Renouvellement concentré et pôle stable
+  Scénario: [SPEC-TYPO-016] Renouvellement porté par une catégorie et implantation stable
     Étant donné un poids non Faible, une intensité non Élevée et un volume non Élevé
-    Quand les départs sont « Concentré », le profil est « Renouvellement concentré »
-    Et quand ils sont « Diffus », le profil est « Pôle BITD relativement stable »
+    Quand les départs sont « Concentré », le profil est « Renouvellement porté par une catégorie »
+    Et quand ils sont « Diffus », le profil est « Implantation stable »
 
-  Scénario: [SPEC-TYPO-017] Cas à expertiser sur signaux contradictoires
-    Étant donné un volume Élevé avec une intensité Faible ou Modérée
-    Ou au moins deux critères à la frontière d'un seuil
-    Alors le profil est « Cas à expertiser » et aucune classification n'est forcée
+  Scénario: [SPEC-TYPO-017] Situation à expertiser sur signaux contradictoires, avec motif
+    Étant donné un volume Élevé avec une intensité Faible
+    Ou au moins deux axes (poids, intensité, volume) à la frontière d'un seuil
+    Alors le profil est « Situation à expertiser », aucune classification n'est forcée
+    Et motif_expertise dit en français ce qui empêche de trancher ; il est NA pour tout autre profil
+    Et la proximité des seuils de dominance ou de concentration ne déclenche jamais l'expertise
+
+  Scénario: [SPEC-TYPO-019] Pôle majeur au renouvellement modéré
+    Étant donné un poids Moyen ou Fort, un volume Élevé et une intensité Modérée
+    Alors le profil est « Pôle majeur au renouvellement modéré », et non « Situation à expertiser »
 
   Scénario: [SPEC-TYPO-018] Justifier chaque profil par règles
     Étant donné un département classé
     Quand la justification est construite
     Alors c'est une phrase déterministe assemblée à partir des classes et des indicateurs (poids, volume, intensité, structure, concentration, frontières)
     Et aucun texte n'est généré par un modèle de langage
+```
+
+## 8. Rédaction : dire la situation en français courant
+
+La typologie doit permettre d'**écrire** la situation de chaque département et
+de chaque profil sans retraiter les colonnes. Tous les textes sont assemblés
+**par règles** à partir des indicateurs (gabarits fixes, nombres arrondis selon
+la spec 05) ; aucun modèle de langage n'intervient.
+
+Gabarit de `situation_texte` (une cellule par département, quatre phrases) :
+
+1. **État** : « <Nom> (<code>) pèse <part> % de l'emploi BITD national
+   (<effectif> salariés), un poids <classe>[, sous le plancher de <n> salariés
+   retenu pour l'analyse]. Son emploi est dominé par les <CS> (<part> %). » ou
+   « … se répartit entre les grandes catégories sans dominante (première :
+   <CS>, <part> %). »
+2. **Dynamique** : « D'ici 2030, <central> départs sont attendus (entre <bas>
+   et <haut> selon l'hypothèse de départ en retraite), soit <intensité> % de
+   l'emploi actuel à remplacer, <au-dessus de / en dessous de / au niveau de>
+   la médiane des départements (<médiane> %) : volume de départs <classe>,
+   intensité de renouvellement <classe>. » (sans stock : « des salariés du champ
+   susceptibles de partir »)
+3. **Concentration** : « Les <CS> portent <part> % de ces départs[, sans
+   concentration marquée | : le renouvellement est concentré sur cette
+   catégorie]. C'est chez les <CS> que la part à remplacer est la plus
+   élevée. » (ou « C'est aussi la catégorie … » quand les deux CS coïncident)
+4. **Lecture** : « Profil « <titre> » : <signification>.[ À examiner :
+   <motif_expertise>.][ Point(s) d'attention : <points_attention>.] »
+
+`points_attention` (tous profils, « ; » entre les points, NA si aucun) :
+
+| Règle | Texte |
+|---|---|
+| départs « Concentré » | une seule catégorie porte <part> % des départs (<CS>) |
+| poids Faible et intensité Élevée (non extrême) | renouvellement rapide mais calculé sur un petit effectif |
+| (haut − bas) / central ≥ 25 % | fourchette d'estimation large (de <bas> à <haut> départs) |
+| au moins un axe à la frontière, profil autre qu'« à expertiser » | proche d'un seuil de classe (<axes>) : la classe peut basculer d'une édition à l'autre |
+
+`synthese_profils.csv` porte, par profil : `regle`, `signification`,
+`consigne_lecture`, `departements` (jusqu'à douze noms, par volume de départs
+décroissant), `n_a_expertiser_motifs` et `texte` : « <n> département(s)
+relève(nt) du profil « <titre> » : <signification>. Ensemble, ils représentent
+<x> % de l'emploi BITD et <y> % des départs attendus d'ici 2030 ; leur
+intensité de renouvellement médiane est de <m> % (ensemble des départements :
+<M> %). [Dans <k> cas, une seule catégorie porte au moins la moitié des
+départs. ]Consigne de lecture : <consigne>. »
+
+```gherkin
+Fonctionnalité: Rédiger la situation de chaque département et de chaque profil par règles
+
+  Scénario: [SPEC-TYPO-050] Écrire la situation d'un département
+    Étant donné un département classé, avec stock tous âges
+    Quand la typologie est construite
+    Alors situation_texte contient, dans l'ordre, le nom et le code, le poids national, l'effectif, la structure, les trois estimations de départs, l'intensité comparée à la médiane des départements, la catégorie qui porte le plus de départs, le titre du profil et sa signification
+    Et les nombres de personnes y sont entiers et les parts à une décimale avec la virgule
+    Et le texte est identique d'une exécution à l'autre pour les mêmes données
+
+  Scénario: [SPEC-TYPO-051] Expliquer ce qu'il faut examiner
+    Étant donné un département « Situation à expertiser »
+    Alors motif_expertise est renseigné et situation_texte contient « À examiner : <motif> »
+    Et pour tout autre profil, motif_expertise est NA
+
+  Scénario: [SPEC-TYPO-052] Signaler les points d'attention de tout profil
+    Étant donné un département « Implantation stable » dont une catégorie porte 60 % des départs ou dont un axe est à la frontière d'un seuil
+    Alors points_attention le dit et situation_texte se termine par « Point(s) d'attention : … »
+    Et un département sans aucun point a points_attention NA et aucune mention
+
+  Scénario: [SPEC-TYPO-053] Rédiger la synthèse par profil et publier les définitions
+    Quand la synthèse est produite
+    Alors chaque profil porte son titre, sa règle, sa signification, sa consigne de lecture, la liste de ses départements et un texte de synthèse
+    Et interne/profils_definitions.csv contient les sept profils avec ces quatre éléments
+    Et le 08f affiche en console le nombre de situations à expertiser par motif
+
+  Scénario: [SPEC-TYPO-054] Ne rien révéler par le texte
+    Étant donné la diffusion avec secret
+    Quand un département est masqué, situation_texte, motif_expertise et points_attention sont NA
+    Et quand une cellule CS du département est masquée, situation_texte ne cite aucune catégorie (ni structure, ni concentration) et points_attention ne mentionne aucune catégorie
+    Et quand le profil est « Non diffusé (secret statistique) », situation_texte est NA
 ```
 
 ## 5. Tensions DGA / France Travail : maille différente, couche séparée
@@ -290,7 +404,7 @@ Fonctionnalité: Diffuser la typologie sans révéler une cellule protégée
     Car « la CS dominante est X » ou « les départs sont concentrés sur X » borne la valeur de la cellule masquée
 
   Scénario: [SPEC-TYPO-033] Ne pas révéler une cellule masquée par le profil
-    Étant donné un département dont une cellule CS est masquée et dont le profil dépend de la concentration (« Renouvellement concentré », « Pôle BITD relativement stable »)
+    Étant donné un département dont une cellule CS est masquée et dont le profil dépend de la concentration (« Renouvellement porté par une catégorie », « Implantation stable »)
     Quand la diffusion est produite
     Alors le profil est « Non diffusé (secret statistique) » avec le motif « cellule cs masquée »
     Et les profils qui ne dépendent que des totaux départementaux restent publiés
@@ -309,7 +423,7 @@ Fonctionnalité: Produire des sorties contrôlées
 
   Scénario: [SPEC-TYPO-040] Produire les tables et la matrice
     Étant donné l'exécution du 08f après le 08d
-    Alors sorties/typologie_territoriale/interne/ contient typologie_departements.csv, typologie_departement_cs.csv, synthese_profils.csv, parametres_typologie.csv et matrice_typologie.png
+    Alors sorties/typologie_territoriale/interne/ contient typologie_departements.csv, typologie_departement_cs.csv, synthese_profils.csv, profils_definitions.csv, parametres_typologie.csv et matrice_typologie.png
     Et diffusion/typologie_departements.csv est produit si TYPO_SECRET
     Et les nombres de personnes sont arrondis à l'entier en restitution, les parts à une décimale, les objets exacts restant intacts
     Et les objets du 08, 08b, 08c et 08d sont strictement inchangés après le 08f
@@ -343,7 +457,9 @@ Code :
   `seuils_classes()`, `classer_par_seuils()`, `classer_poids_bitd()`,
   `calculer_structure_cs()`, `identifier_dominance_cs()`,
   `calculer_concentration_departs()`, `identifier_cs_volume_max()`,
-  `identifier_cs_taux_max()`, `attribuer_profil_typologie()`,
+  `identifier_cs_taux_max()`, `attribuer_profil_typologie()` (profil + motif),
+  `points_attention_typologie()`, `rediger_situation_departement()`,
+  `rediger_synthese_profils()`, `profils_definitions()` (`DEFINITIONS_PROFILS`),
   `construire_justification_profil()`, `construire_typologie_departements()`,
   `controler_typologie()`, `appliquer_secret_typologie()`, `synthese_profils()`,
   `joindre_signal_tension_localise()`, `png_matrice_typologie()`,

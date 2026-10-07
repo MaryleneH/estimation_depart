@@ -9,7 +9,8 @@
 #             parametres, synthese, diffusion) et sorties/typologie_territoriale/
 #               interne/typologie_departements.csv      une ligne par département (COMPLET)
 #               interne/typologie_departement_cs.csv    une ligne par département x grande CS
-#               interne/synthese_profils.csv            une ligne par profil
+#               interne/synthese_profils.csv            une ligne par profil (chiffres + texte rédigé)
+#               interne/profils_definitions.csv         référentiel : titre, règle, signification, consigne
 #               interne/parametres_typologie.csv        seuils effectifs de l'exécution
 #               interne/matrice_typologie.png           poids x intensité, taille = volume, couleur = structure
 #               diffusion/typologie_departements.csv    secret appliqué (si TYPO_SECRET)
@@ -41,6 +42,7 @@ if (!isTRUE(get0("GENERER_TYPOLOGIE", ifnotfound = FALSE))) {
   write.csv2(restituer_08f(typo_08f$departements), file.path(dir_int, "typologie_departements.csv"), row.names = FALSE)
   write.csv2(restituer_08f(typo_08f$departement_cs), file.path(dir_int, "typologie_departement_cs.csv"), row.names = FALSE)
   write.csv2(restituer_08f(synth_08f), file.path(dir_int, "synthese_profils.csv"), row.names = FALSE)
+  write.csv2(profils_definitions(), file.path(dir_int, "profils_definitions.csv"), row.names = FALSE)   # titres, règles, significations, consignes
   write.csv2(typo_08f$parametres, file.path(dir_int, "parametres_typologie.csv"), row.names = FALSE)
   tryCatch(png_matrice_typologie(typo_08f, file.path(dir_int, "matrice_typologie.png")),
            error = function(e) message("08f : PNG non produit (", conditionMessage(e), ") — les CSV restent la restitution de référence."))
@@ -62,8 +64,14 @@ if (!isTRUE(get0("GENERER_TYPOLOGIE", ifnotfound = FALSE))) {
   cat("\n08f OK -> typologie des territoires BITD (", nrow(typo_08f$departements), " départements ; intensité = ",
       typo_08f$indicateur, " ; base du poids = ", typo_08f$base_poids, ")\n", sep = "")
   for (i in seq_len(nrow(synth_08f)))
-    cat(sprintf("  %-36s %3d département(s) | %5.1f %% de l'emploi | %5.1f %% des départs\n", synth_08f$profil_typologie[i],
+    cat(sprintf("  %-40s %3d département(s) | %5.1f %% de l'emploi | %5.1f %% des départs\n", synth_08f$profil_typologie[i],
                 synth_08f$n_departements[i], synth_08f$poids_national_emploi_pct[i], synth_08f$poids_national_departs_pct[i]))
+  if (any(!is.na(typo_08f$departements$motif_expertise))) {
+    cat("  Situations à expertiser, par motif :\n")
+    m <- table(typo_08f$departements$motif_expertise)
+    for (k in names(m)) cat(sprintf("    %2d  %s\n", m[[k]], k))
+  }
+  cat("  Textes : situation_texte (une phrase par département), synthese_profils.csv (texte par profil), profils_definitions.csv (titres, règles, consignes)\n")
   cat(sprintf("  %s\n", dir_int)); if (!is.null(diffusion_08f)) cat(sprintf("  %s (%d département(s) masqué(s), %d profil(s) non diffusé(s) pour cellule CS masquée)\n",
                                                                         dir_dif, sum(diffusion_08f$masque), sum(diffusion_08f$motif_masque %in% "cellule cs masquée")))
   rm(cs_dep_08f, stock_08f, typo_08f, synth_08f, diffusion_08f, dir_typo, dir_int)
