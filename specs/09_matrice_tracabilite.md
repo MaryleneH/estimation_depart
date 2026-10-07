@@ -16,7 +16,7 @@ la maintenance. Les titres de tests sont ceux des `test_that()` du dépôt.
 | Restitutions territoriales | SPEC-GEO-001 à 011 | `00e`, `08`, `08b`, `08c`, `08d`, `00c` | `test-departs-pcs.R`, `test-departs-cs1.R`, `test-departs-geo-cs.R`, `test-non-regression-ze.R` |
 | Cartes et fiches | SPEC-PUB-001 à 020 | `00f_fonctions_cartes.R`, `08e`, `00d`, `09` | `test-cartes-departs.R`, `test-fiches.R` |
 | Orchestration | SPEC-ORCH-001 à 012 | `main.R`, `99b_normaliser_csv_excel.R` | `test-snapshot.R`, `test-normaliser-csv-excel.R`, `test-fiches.R` (chaîne) |
-| Typologie territoriale | SPEC-TYPO-001 à 041 | `00h_fonctions_typologie.R`, `08f_typologie_departements.R`, `00_config.R` (TYPO_*) | `test-typologie-territoriale.R` |
+| Typologie territoriale | SPEC-TYPO-001 à 042 | `00h_fonctions_typologie.R`, `08f_typologie_departements.R`, `00_config.R` (TYPO_*) | `test-typologie-territoriale.R` |
 
 ## Typologie territoriale (spec 10) : besoin → règle → implémentation → test → sortie
 
@@ -41,6 +41,7 @@ la maintenance. Les titres de tests sont ceux des `test_that()` du dépôt.
 | SPEC-TYPO-032 / 033 | variables dérivées et profils dépendants masqués | idem | idem | idem |
 | SPEC-TYPO-034 | interne complet, indicateurs techniques hors diffusion, `.gitignore` | `08f`, `.gitignore` | idem ; « SPEC-TYPO-040 … » | `interne/`, `diffusion/` |
 | SPEC-TYPO-040 | sorties, arrondi, matrice, objets amont inchangés | `08f`, `png_matrice_typologie()` | « SPEC-TYPO-040 — chaîne réelle en mode département … » | les six fichiers |
+| SPEC-TYPO-042 | proposer des seuils fixes arrondis à partir des données, sans rien appliquer | `proposer_seuils_typologie()`, `arrondir_pas()` | « SPEC-TYPO-042 — proposer_seuils_typologie : terciles arrondis au pas … » | bloc console à coller dans `00_config.R` |
 | SPEC-TYPO-041 | contrôles bloquants (total altéré, profil inconnu, colonne interdite = arrêt) | `controler_typologie()` | « SPEC-TYPO-001/002/004/041 … » ; « SPEC-TYPO-040 … » | — |
 
 ## Vue par exigence (règles structurantes)

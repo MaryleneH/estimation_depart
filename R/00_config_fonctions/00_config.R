@@ -252,7 +252,9 @@ TYPO_SEUIL_DOMINANCE_CS         <- 40   # % : part minimale de la 1re grande CS 
 TYPO_SEUIL_CONCENTRATION_DEPARTS <- 50  # % : part minimale d'une grande CS dans les départs pour « Concentré » (sinon « Diffus »)
 TYPO_SEUIL_EFFECTIF_MIN         <- 50   # salariés (base du poids) : en dessous, poids « Faible » quoi qu'il arrive
 TYPO_METHODE_CLASSES  <- "terciles"     # "terciles" = RÈGLE DE CLASSEMENT STATISTIQUE PROVISOIRE (bornes = terciles
-                                        # observés sur les départements au-dessus du plancher) ; "fixes" = seuils ci-dessous
+                                        # observés sur les départements au-dessus du plancher) ; "fixes" = seuils ci-dessous.
+                                        # AIDE : après une exécution, proposer_seuils_typologie(typologie_departements$departements)
+                                        # imprime des bornes arrondies (terciles au pas 0,5 / 1 / 10) et le bloc à coller ici.
 TYPO_SEUIL_POIDS_FAIBLE         <- 0.5  # % de l'emploi BITD national (méthode "fixes") : < faible ; >= fort
 TYPO_SEUIL_POIDS_FORT           <- 2
 TYPO_SEUIL_INTENSITE_FAIBLE     <- 8    # % (méthode "fixes", indicateur d'intensité) : < faible ; >= élevée

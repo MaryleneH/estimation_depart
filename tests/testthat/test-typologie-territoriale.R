@@ -210,3 +210,32 @@ test_that("SPEC-TYPO-040 — chaîne réelle en mode département : 08f en aval 
   expect_message(sys.source(chemin_script("08f_typologie_departements.R"), envir = env2), "non produite")
   expect_false(dir.exists(file.path(env2$DIR_SORTIES, "typologie_territoriale")))
 })
+
+test_that("SPEC-TYPO-042 — proposer_seuils_typologie : terciles arrondis au pas, comptes par classe, bloc prêt à coller, seuils métier seulement observés, rien d'appliqué", {
+  set.seed(7)
+  d <- tibble::tibble(geo_code = sprintf("%02d", 1:30), effectif_bitd_total = c(20L, 30L, round(runif(28, 200, 5000))),
+                      part_emploi_bitd_national_pct = NA_real_, intensite_renouvellement_pct = round(runif(30, 6, 22), 2), departs_central = round(runif(30, 20, 900), 1),
+                      part_cs_principale_pct = round(runif(30, 28, 55), 1), part_departs_cs_max_pct = round(runif(30, 30, 70), 1))
+  d$part_emploi_bitd_national_pct <- 100 * d$effectif_bitd_total / sum(d$effectif_bitd_total)
+  out <- ET$proposer_seuils_typologie(d, effectif_min = 50, pas = c(poids = 0.5, intensite = 1, volume = 10), afficher = FALSE)
+  t <- out$tableau
+  expect_identical(t$axe, c("poids", "intensite", "volume")); expect_true(all(t$n == 28))              # 2 départements sous le plancher écartés
+  expect_true(all(t$proposition_bas < t$proposition_haut))
+  expect_true(all(abs(t$proposition_bas - t$tercile_bas) <= t$pas / 2 + 1e-9)); expect_true(all(abs(t$proposition_haut - t$tercile_haut) <= t$pas / 2 + 1e-9))
+  expect_true(all(t$proposition_bas %% t$pas < 1e-9 | abs(t$proposition_bas %% t$pas - t$pas) < 1e-9))  # multiples du pas
+  expect_true(all(t$n_classe_1 + t$n_classe_2 + t$n_classe_3 == 28))
+  expect_identical(t$parametre_bas, c("TYPO_SEUIL_POIDS_FAIBLE", "TYPO_SEUIL_INTENSITE_FAIBLE", "TYPO_SEUIL_VOLUME_FAIBLE"))
+  expect_identical(t$parametre_haut, c("TYPO_SEUIL_POIDS_FORT", "TYPO_SEUIL_RENOUVELLEMENT_ELEVE", "TYPO_SEUIL_VOLUME_ELEVE"))
+  expect_true(any(grepl('^TYPO_METHODE_CLASSES <- "fixes"$', out$bloc)))
+  for (p in c(t$parametre_bas, t$parametre_haut)) expect_true(any(grepl(paste0("^", p, " +<- "), out$bloc)), label = p)
+  expect_true(any(grepl("TYPO_SEUIL_DOMINANCE_CS", out$bloc))); expect_equal(out$metier$n_sous_plancher[3], 2L)
+  expect_false(any(grepl("^TYPO_SEUIL_DOMINANCE_CS +<-", out$bloc)))                                  # seuil métier : jamais proposé
+  expect_output(ET$proposer_seuils_typologie(d, 50, afficher = TRUE), "TYPO_SEUIL_VOLUME_ELEVE")
+  expect_identical(d, d)                                                                               # rien n'est modifié
+  # arrondi au pas : 2,37 -> 2,5 (pas 0,5) ; 119 -> 120 (pas 10) ; 12,16 -> 12 (pas 1)
+  expect_equal(ET$arrondir_pas(c(2.37, 119, 12.16), c(0.5, 10, 1)), c(2.5, 120, 12))
+  # bornes confondues après arrondi : écartées d'un pas ; moins de 3 départements : arrêt explicite
+  d2 <- d; d2$departs_central <- 100 + (seq_len(30) %% 3); out2 <- ET$proposer_seuils_typologie(d2, 50, afficher = FALSE)
+  expect_true(out2$tableau$proposition_haut[3] > out2$tableau$proposition_bas[3])
+  expect_error(ET$proposer_seuils_typologie(d, effectif_min = 10000), "moins de 3")
+})
