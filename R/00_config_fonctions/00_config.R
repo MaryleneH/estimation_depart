@@ -202,6 +202,11 @@ SECRET_DOMINANCE_PCT   <- 85   # une entreprise représente PLUS de 85 % d'une g
 # --- Fiches « chiffres clés » territoriales (script 09) ------------------------
 # Une page HTML autonome par territoire (aucune dépendance : HTML/CSS écrits
 # par R, barres en CSS). Lecture en une minute par un décideur non statisticien.
+RECODER_GEO_HORS_PASSAGE <- TRUE  # script 01d : un département de la BTS absent de la table de passage
+                                  # département -> région (ex. « 99 » = hors France / non localisé) est
+                                  # rattaché au territoire « inconnu » (bts et stock tous âges), compté et
+                                  # tracé dans sorties/geo_hors_passage_<zonage>.csv. Évite l'arrêt de
+                                  # 08c / 08d sans inventer de région. FALSE = comportement antérieur (arrêt).
 STOCK_TOUS_AGES  <- TRUE          # effectifs ACTUELS tous âges par territoire x CS (01c),
                                   # dénominateur de la « part de la catégorie à remplacer »
                                   # des fiches et du CSV 08b. Exige une extraction NON
