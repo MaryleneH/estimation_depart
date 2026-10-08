@@ -505,6 +505,21 @@ Fonctionnalité: Cartographier les profils sans révéler une valeur protégée
     Et la légende ne contient pas l'entrée « Département absent de la typologie » lorsque son compte est nul ; les sept profils et l'entrée du secret sont toujours présents ; un département réellement absent garde sa propre entrée, distincte du secret (HTML interactif, courriel et PNG)
 ```
 
+## 10. Consulter les bornes effectives (99c, hors chaîne)
+
+```gherkin
+Fonctionnalité: Lire en console les bornes qui ont réellement servi au classement
+
+  Scénario: [SPEC-TYPO-070] Afficher les bornes de la dernière typologie produite
+    Étant donné interne/parametres_typologie.csv écrit par le 08f
+    Quand source("R/99_controles/99c_afficher_bornes_typologie.R") est lancé depuis la racine, dans une session R neuve
+    Alors la console donne, pour le poids, le volume et l'intensité, les deux bornes effectives et les trois classes (borne incluse dans la classe supérieure), la méthode (terciles provisoires ou seuils fixes), le plancher d'effectif et son exception, l'indicateur d'intensité retenu (repli signalé)
+    Et pour la structure et la concentration, le seuil unique et les deux catégories (seuil atteint = Dominante / Concentré), sans classe faible / moyenne / forte
+    Et les nombres sont en français (virgule, espaces), sans tableau brut ; rien n'est recalculé ni inventé
+    Et si interne/typologie_departements.csv existe, la répartition des départements par classe déjà attribuée est ajoutée
+    Et un fichier absent ou incomplet produit un message avec la marche à suivre, jamais un arrêt
+```
+
 ## Limites
 
 - Maille département : aucune lecture infra-départementale n'est possible à
