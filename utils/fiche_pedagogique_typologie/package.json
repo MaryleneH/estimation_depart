@@ -1,0 +1,7 @@
+{
+  "name": "fiche-pedagogique-typologie-bitd",
+  "private": true,
+  "description": "Génération de la fiche pédagogique Word (2 pages) de la typologie territoriale BITD",
+  "scripts": { "svg": "node gen_svg.js", "fiche": "node gen_fiche.js images ../../sorties/typologie_territoriale/fiche_pedagogique_typologie_BITD.docx" },
+  "dependencies": { "docx": "^9.0.0" }
+}

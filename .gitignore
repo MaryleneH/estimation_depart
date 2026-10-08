@@ -4,3 +4,6 @@ sorties/fiches_*_interne/
 sorties/departs_pcs/interne/
 sorties/departs_cs1/interne/
 sorties/typologie_territoriale/interne/
+# dépendances npm du générateur de la fiche pédagogique (utils/, hors chaîne)
+utils/fiche_pedagogique_typologie/node_modules/
+utils/fiche_pedagogique_typologie/package-lock.json
