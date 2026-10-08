@@ -493,6 +493,16 @@ Fonctionnalité: Cartographier les profils sans révéler une valeur protégée
     Alors toute mesure et tout texte de ce département sont effacés avant sérialisation, même si la table en contenait
     Et il n'apparaît que sous son code, son nom et « Résultat non diffusé — secret statistique », en gris
     Et un département au profil non diffusé garde ses chiffres mais aucune catégorie
+
+  Scénario: [SPEC-TYPO-065] Survoler et défiler sans aucun saut ; légende sans entrée vide
+    Étant donné la page interactive ouverte dans un navigateur
+    Quand un département est survolé puis que la page défile, le curseur restant sur la carte
+    Alors l'infobulle est positionnée par rapport à la fenêtre (position fixe) et bornée à l'écran : elle n'agrandit jamais la zone défilable
+    Et son contenu n'est reconstruit que lorsque le département survolé change ; seule sa position suit le curseur
+    Et le panneau « situation » n'est mis à jour que si le département change, et sa hauteur est stabilisée (hauteur du texte le plus long, bornée à 70 % de la fenêtre, 60 % sur écran étroit, avec défilement interne au-delà) : la carte ne se déplace jamais sous le curseur
+    Et l'infobulle est masquée pendant le défilement et réapparaît au mouvement suivant
+    Et l'épinglage, le filtrage par la légende, le contour du département survolé et le secret sont inchangés
+    Et la légende ne contient pas l'entrée « Département absent de la typologie » lorsque son compte est nul ; les sept profils et l'entrée du secret sont toujours présents ; un département réellement absent garde sa propre entrée, distincte du secret (HTML interactif, courriel et PNG)
 ```
 
 ## Limites

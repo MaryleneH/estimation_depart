@@ -159,3 +159,47 @@ test_that("SPEC-TYPO-060/061/063 — 08g sur la chaîne de test en mode départe
   sourcer_scripts(c("00g_format_restitution.R", "00f_fonctions_cartes.R", "00h_fonctions_typologie.R", "00i_fonctions_carte_typologie.R"), env3)
   expect_message(sys.source(chemin_script("08g_carte_typologie.R"), envir = env3), "désactivée")
 })
+
+test_that("SPEC-TYPO-065 — stabilité du survol et légende : infobulle fixée au viewport, contenu reconstruit seulement au changement, panneau à hauteur stable, masquage au défilement ; aucune entrée « absent » à zéro, sept profils et secret conservés", {
+  # (a) légende : table couvrant TOUS les départements du fond -> aucune entrée « absent »
+  tout <- tibble::tibble(geo_code = names(FOND_DEP_K), geo_nom = unname(vapply(FOND_DEP_K, `[[`, "", "nom")), region_code = "R", region_nom = "R",
+                         effectif_bitd_total = 1000, departs_central = 100, departs_bas = 95, departs_haut = 105, part_emploi_bitd_national_pct = 100 / 101,
+                         intensite_renouvellement_pct = 10, indicateur_intensite = "part_a_remplacer_pct", base_poids = "effectif_tous_ages",
+                         classe_poids_bitd = "Moyen", classe_intensite = "Modérée", classe_volume_departs = "Modéré", structure_emploi = "Mixte", cs_principale = "Cadres",
+                         part_cs_principale_pct = 30, cs_volume_departs_max = "Cadres", part_departs_cs_max_pct = 30, cs_taux_renouvellement_max = "Cadres", type_concentration = "Diffus",
+                         profil_typologie = P_K[["stable"]], motif_expertise = NA_character_, points_attention = NA_character_, situation_texte = "Texte.", masque = FALSE, motif_masque = NA_character_)
+  tout$profil_typologie[1] <- P_K[["enjeu"]]; tout$masque[2] <- TRUE
+  p <- EK$preparer_carte_typologie(tout, FOND_DEP_K); expect_equal(unname(p$comptes[["sans"]]), 0)
+  for (inter in c(TRUE, FALSE)) {
+    leg <- paste(EK$html_legende_typologie(p, interactive = inter), collapse = "\n")
+    expect_false(grepl(EK$LIBELLES_CARTE_TYPO$absent, leg, fixed = TRUE), label = paste("absent masqué, interactive =", inter))
+    for (k in names(P_K)) expect_true(grepl(sprintf('%s<span class="n">%d</span>', P_K[[k]], unname(p$comptes[[k]])), leg, fixed = TRUE), label = k)   # sept profils + comptes
+    expect_true(grepl(sprintf('%s<span class="n">%d</span>', EK$LIBELLES_CARTE_TYPO$profil_non_diffuse, 1L), leg, fixed = TRUE))                     # secret conservé
+  }
+  expect_equal(lengths(regmatches(paste(EK$html_legende_typologie(p, TRUE), collapse = ""), gregexpr('<button type="button" data-cle="', paste(EK$html_legende_typologie(p, TRUE), collapse = "")))), 7L)
+  # département réellement absent : entrée explicite, distincte du secret, jamais assimilée au masqué
+  p2 <- EK$preparer_carte_typologie(tout[-c(5, 6), ], FOND_DEP_K); expect_equal(unname(p2$comptes[["sans"]]), 2)
+  leg2 <- paste(EK$html_legende_typologie(p2, TRUE), collapse = "\n")
+  expect_true(grepl(sprintf('<span class="sw sans" style="background:%s"></span><span><span class="lib">%s<span class="n">2</span>', EK$COULEURS_CARTE$sans_donnee, EK$LIBELLES_CARTE_TYPO$absent), leg2, fixed = TRUE))
+  expect_true(grepl(sprintf('%s<span class="n">1</span>', EK$LIBELLES_CARTE_TYPO$profil_non_diffuse), leg2, fixed = TRUE))
+  expect_identical(p2$territoires$statut[p2$territoires$code %in% names(FOND_DEP_K)[5:6]], c("sans", "sans"))
+  # (b) page interactive : les deux versions sont écrites et la légende y suit la même règle
+  f <- file.path(tempdir(), "carte_typo_stable.html"); EK$generer_carte_typologie(p, FOND_DEP_K, f, fond_regions = FOND_REG_K)
+  html <- lire_html(f); sans_js <- gsub("<script\\b.*?</script>", "", html, perl = TRUE)
+  expect_false(grepl(EK$LIBELLES_CARTE_TYPO$absent, regmatches(sans_js, regexpr('(?s)<ul class="typo-legende" id="legende">.*?</ul>', sans_js, perl = TRUE)), fixed = TRUE))
+  fc <- file.path(tempdir(), "carte_typo_stable_courriel.html"); EK$generer_carte_typologie_courriel(p, FOND_DEP_K, fc, fond_regions = FOND_REG_K)
+  hc <- lire_html(fc); expect_false(grepl("<script", hc, fixed = TRUE)); expect_false(grepl(EK$LIBELLES_CARTE_TYPO$absent, regmatches(hc, regexpr('(?s)<ul class="typo-legende" id="legende">.*?</ul>', hc, perl = TRUE)), fixed = TRUE))
+  # (c) stabilité : infobulle fixée au viewport et bornée à l'écran ; contenu reconstruit seulement si le département change ;
+  #     panneau de détail inchangé si même département, hauteur stabilisée (mesure hors écran) ; infobulle masquée pendant le défilement
+  css <- regmatches(html, regexpr("(?s)<style>.*?</style>", html, perl = TRUE))
+  expect_true(grepl(".bulle{position:fixed;", css, fixed = TRUE)); expect_true(grepl("overflow-y:auto", regmatches(css, regexpr("\\.detail\\{[^}]*\\}", css)), fixed = TRUE))
+  js <- regmatches(html, regexpr("(?s)<script>\\s*\\(function\\(\\)\\{.*?</script>", html, perl = TRUE))
+  for (s in c("if(code!==codeBulle){B.innerHTML=bulle(code);codeBulle=code}", "if(!force&&code===codeDetail)return;", "function stabiliserDetail()", "DP.style.height=",
+              'addEventListener("scroll",function(){tScroll=Date.now();if(B&&B.style.display==="block")B.style.display="none"},{passive:true})',
+              "if(px+w>vw-8)px=x-w-16;if(py+h>vh-8)py=y-h-16;", "detail(pin||code,true)", 'classList.toggle("dim"'))
+    expect_true(grepl(s, js, fixed = TRUE), label = s)
+  expect_false(grepl("C.getBoundingClientRect()", js, fixed = TRUE))                                    # position en coordonnées de fenêtre, plus relative au conteneur
+  # secret : rien du département masqué (2e du fond) dans la page
+  m <- tout$geo_code[2]; j <- jsonlite::fromJSON(regmatches(html, regexpr('(?s)(?<=<script type="application/json" id="donnees">).*?(?=</script>)', html, perl = TRUE)))
+  expect_identical(j$territoires[[m]]$st, "masque"); expect_null(j$territoires[[m]]$texte); expect_identical(unlist(j$territoires[[m]]$lignes), EK$LIBELLES_UI$secret)
+})
