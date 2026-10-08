@@ -16,7 +16,7 @@ la maintenance. Les titres de tests sont ceux des `test_that()` du dépôt.
 | Restitutions territoriales | SPEC-GEO-001 à 011 | `00e`, `08`, `08b`, `08c`, `08d`, `00c` | `test-departs-pcs.R`, `test-departs-cs1.R`, `test-departs-geo-cs.R`, `test-non-regression-ze.R` |
 | Cartes et fiches | SPEC-PUB-001 à 020 | `00f_fonctions_cartes.R`, `08e`, `00d`, `09` | `test-cartes-departs.R`, `test-fiches.R` |
 | Orchestration | SPEC-ORCH-001 à 012 | `main.R`, `99b_normaliser_csv_excel.R` | `test-snapshot.R`, `test-normaliser-csv-excel.R`, `test-fiches.R` (chaîne) |
-| Typologie territoriale | SPEC-TYPO-001 à 065 | `00h_fonctions_typologie.R`, `08f_typologie_departements.R`, `00_config.R` (TYPO_*) | `test-typologie-territoriale.R` |
+| Typologie territoriale | SPEC-TYPO-001 à 070 | `00h_fonctions_typologie.R`, `08f_typologie_departements.R`, `00_config.R` (TYPO_*) | `test-typologie-territoriale.R` |
 
 ## Typologie territoriale (spec 10) : besoin → règle → implémentation → test → sortie
 
@@ -43,6 +43,7 @@ la maintenance. Les titres de tests sont ceux des `test_that()` du dépôt.
 | SPEC-TYPO-062 | survol = infobulle + situation ; clic = épingler ; légende cliquable | `donnees_json_typologie()`, `js_carte_typologie()` | idem | idem |
 | SPEC-TYPO-063 | version courriel sans aucun contenu actif, `<title>` natifs, tableau et définitions ouverts | `generer_carte_typologie_courriel()` | « SPEC-TYPO-063/064 — version courriel … » | `cartes/carte_typologie_courriel.html` |
 | SPEC-TYPO-064 | rien d'un département masqué ; profil non diffusé sans catégorie | `preparer_carte_typologie()`, `controler_carte_typologie()` | idem | les deux pages |
+| SPEC-TYPO-070 | bornes effectives en console (99c) : cinq indicateurs, méthode, plancher, repli d'intensité, répartition, fichiers absents | `99c_afficher_bornes_typologie.R` | `test-afficher-bornes-typologie.R` (quatre blocs) | console |
 | SPEC-TYPO-065 | survol et défilement stables (infobulle fixe, contenu reconstruit au changement seul, panneau à hauteur stable, masquage au défilement) ; légende sans entrée « absent » à zéro | `js_carte_typologie()`, `css_carte_typologie()`, `html_legende_typologie()`, `png_carte_typologie()` | « SPEC-TYPO-065 — stabilité du survol et légende … » ; test navigateur (Playwright, hors suite) | `cartes/carte_typologie.html` |
 | SPEC-TYPO-020 à 023 | tension de bassin jamais attribuée au département, jamais de départs au bassin, pas de FAP → CS, nommage | `joindre_signal_tension_localise()`, `controler_typologie()` | « SPEC-TYPO-020 à 023 — tensions … » | `nb_bassins_signales`, `presence_signal_tension_localise` (non produits par défaut) |
 | SPEC-TYPO-030 | département non diffusable, secondaire sur le bloc national | `appliquer_secret_typologie()` | « SPEC-TYPO-030 à 034 — secret … » | `diffusion/typologie_departements.csv` (`masque`, `motif_masque`) |
