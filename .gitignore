@@ -7,3 +7,6 @@ sorties/typologie_territoriale/interne/
 # dépendances npm du générateur de la fiche pédagogique (utils/, hors chaîne)
 utils/fiche_pedagogique_typologie/node_modules/
 utils/fiche_pedagogique_typologie/package-lock.json
+utils/tests_navigateur/node_modules/
+utils/tests_navigateur/package-lock.json
+utils/tests_navigateur/apercu_*.png
