@@ -142,7 +142,12 @@ css_carte_typologie <- function(S = STYLE_CONTOURS_CARTE) paste(
   sprintf('.typo-legende .sw{width:22px;height:16px;border-radius:3px;border:1px solid %s;flex:none;margin-top:3px}.typo-legende .sw.sans{border:1.5px dashed %s}', S$couleur, S$sans_couleur),
   '.typo-legende .lib{font-weight:600;line-height:1.3}.typo-legende .n{color:var(--texte);font-weight:500;margin-left:6px}.typo-legende .sig{display:block;font-size:13px;color:var(--texte);font-weight:400;line-height:1.35;margin-top:1px}',
   'path.t.dim{opacity:.22}',
-  '.detail{margin:0 0 16px;border:1px solid var(--filet);border-radius:12px;padding:14px 16px;background:var(--fond);min-height:120px}',
+  # infobulle FIXÉE au viewport : elle ne peut ni agrandir la zone défilable ni déplacer le contenu (stabilité au survol et au défilement)
+  '.bulle{position:fixed;left:0;top:0;max-height:calc(100vh - 16px);overflow:hidden}',
+  # panneau de détail : hauteur rendue STABLE par le script (hauteur du texte le plus long, bornée) ; défilement interne au-delà, jamais de troncature
+  '.detail{margin:0 0 16px;border:1px solid var(--filet);border-radius:12px;padding:14px 16px;background:var(--fond);min-height:120px;box-sizing:border-box;overflow-y:auto;scrollbar-width:thin}',
+  # panneau défilable (texte plus long que la hauteur stabilisée) : fondu en bas pour signaler la suite, jamais de troncature
+  '.detail.defilable{-webkit-mask-image:linear-gradient(#000 calc(100% - 34px),transparent);mask-image:linear-gradient(#000 calc(100% - 34px),transparent)}.detail.defilable.bas{-webkit-mask-image:none;mask-image:none}',
   '.detail-titre{font-size:16px;font-weight:700;margin:0 0 6px}.detail-titre .pf{display:inline-block;margin-left:6px;padding:1px 8px;border-radius:999px;font-size:13px;font-weight:600;color:#fff;background:#6b7280}',
   '.detail-texte{font-size:15px;line-height:1.5;margin:0}.detail-aide{font-size:13.5px;color:var(--texte);margin:8px 0 0}',
   '.tooltip-profil{font-weight:700;margin:0 0 8px;padding-left:9px;border-left:4px solid #6b7280;color:#fff}',
@@ -155,24 +160,39 @@ js_carte_typologie <- function() paste(
   '(function(){',
   'var sj=document.getElementById("sans-js");if(sj)sj.style.display="none";',
   'var D=JSON.parse(document.getElementById("donnees").textContent),L=D.libelles;var $=function(id){return document.getElementById(id)};',
-  'var B=$("bulle"),C=$("carte"),U=$("survol"),DET=$("detail-texte"),DT=$("detail-titre"),DA=$("detail-aide"),pin=null,filtre=null;',
+  'var B=$("bulle"),C=$("carte"),U=$("survol"),DET=$("detail-texte"),DT=$("detail-titre"),DA=$("detail-aide"),DP=$("detail"),pin=null,filtre=null;',
+  # état du survol : le contenu de l'infobulle et du panneau n'est reconstruit QUE si le département change ; la position est mise à jour seule
+  'var codeBulle=null,codeDetail=null,codeSurvol=null,tScroll=0;',
   'function ligne(el,txt,cls){var d=document.createElement("div");if(cls)d.className=cls;d.textContent=txt;el.appendChild(d);return d}',
   'function surligner(code){if(!U)return;var p=code&&$("t-"+code);if(p){U.setAttribute("d",p.getAttribute("d"));U.classList.add("on")}else{U.classList.remove("on");U.setAttribute("d","")}}',
   'function bulle(code){var t=D.territoires[code],el=document.createElement("div");ligne(el,t.nom+" · "+code,"tooltip-title");',
   ' var p=t.cle?D.profils[t.cle]:null;var c=ligne(el,p?p.titre:(t.st==="sans"?L.absent:"Non diffusé (secret statistique)"),"tooltip-profil");c.style.borderLeftColor=p?p.couleur:(t.st==="sans"?D.couleurs.sans_donnee:D.couleurs.secret);',
   ' var b=document.createElement("div");b.className="tooltip-rows";t.lignes.forEach(function(l,i){ligne(b,l,i<3?"tooltip-value":"tooltip-small")});el.appendChild(b);return el.innerHTML}',
-  'function detail(code){if(!DET)return;if(!code){DT.textContent="";DET.textContent=L.detail_initial;DA.textContent="";return}var t=D.territoires[code],p=t.cle?D.profils[t.cle]:null;',
+  'function detail(code,force){if(!DET)return;if(!force&&code===codeDetail)return;codeDetail=code;if(!code){DT.textContent="";DET.textContent=L.detail_initial;DA.textContent="";return}var t=D.territoires[code],p=t.cle?D.profils[t.cle]:null;',
   ' DT.innerHTML="";DT.appendChild(document.createTextNode(t.nom+" · "+code));if(p){var s=document.createElement("span");s.className="pf";s.textContent=p.titre;s.style.background=p.couleur;s.style.color=(t.cle==="diffus"||t.cle==="expertiser"||t.cle==="stable")?"#1F2933":"#fff";DT.appendChild(s)}',
-  ' DET.textContent=t.texte?t.texte:(t.st==="sans"?L.absent:(t.st==="masque"?L.detail_non_diffuse:t.lignes.join(" · ")));DA.textContent=pin===code?"Épinglé : cliquez de nouveau pour libérer.":(p?"Consigne de lecture : "+p.consigne+".":"")}',
+  ' DET.textContent=t.texte?t.texte:(t.st==="sans"?L.absent:(t.st==="masque"?L.detail_non_diffuse:t.lignes.join(" · ")));DA.textContent=pin===code?"Épinglé : cliquez de nouveau pour libérer.":(p?"Consigne de lecture : "+p.consigne+".":"");DP.scrollTop=0;DP.classList.toggle("defilable",DP.scrollHeight>DP.clientHeight+1);DP.classList.remove("bas")}',
+  # hauteur stable du panneau : mesure (hors écran, même largeur) du contenu le plus long ; bornée à 70 % de la fenêtre (60 % sur écran étroit, où le panneau est AU-DESSUS de la carte) avec défilement interne au-delà, jamais de troncature
+  'function stabiliserDetail(){if(!DP)return;var m=DP.cloneNode(true);m.id="";m.style.cssText="position:absolute;visibility:hidden;height:auto;min-height:0;max-height:none;overflow:visible;width:"+DP.getBoundingClientRect().width+"px;left:-9999px;top:0";DP.parentNode.appendChild(m);',
+  ' var mt=m.querySelector(".detail-titre"),mx=m.querySelector(".detail-texte"),ma=m.querySelector(".detail-aide"),h=0;',
+  ' Object.keys(D.territoires).forEach(function(code){var t=D.territoires[code],p=t.cle?D.profils[t.cle]:null;mt.textContent=t.nom+" · "+code+(p?" "+p.titre:"");mx.textContent=t.texte?t.texte:(t.lignes||[]).join(" · ");ma.textContent=p?"Consigne de lecture : "+p.consigne+".":"Épinglé : cliquez de nouveau pour libérer.";h=Math.max(h,m.offsetHeight)});',
+  ' DP.parentNode.removeChild(m);var cap=Math.round(window.innerHeight*(window.innerWidth>900?0.7:0.6));DP.style.height=Math.min(Math.ceil(h)+2,cap)+"px"}',
+  # infobulle : contenu (si le département change) puis position, en coordonnées de la fenêtre, bornée à l'écran
+  'function montrerBulle(code){if(code!==codeBulle){B.innerHTML=bulle(code);codeBulle=code}B.style.display="block"}',
+  'function placerBulle(x,y){var vw=window.innerWidth,vh=window.innerHeight,w=B.offsetWidth,h=B.offsetHeight,px=x+16,py=y+16;if(px+w>vw-8)px=x-w-16;if(py+h>vh-8)py=y-h-16;if(px<4)px=4;if(py<4)py=4;B.style.left=px+"px";B.style.top=py+"px"}',
+  'function survoler(code){if(code===codeSurvol)return;codeSurvol=code;surligner(code);if(!pin)detail(code)}',
   'function appliquerFiltre(){document.querySelectorAll("path.t").forEach(function(p){p.classList.toggle("dim",!!filtre&&p.getAttribute("data-cle")!==filtre)});document.querySelectorAll(".typo-legende button").forEach(function(b){b.setAttribute("aria-pressed",b.getAttribute("data-cle")===filtre?"true":"false")})}',
   'if(C){document.querySelectorAll("path.t").forEach(function(p){var code=p.getAttribute("data-code");',
-  ' p.addEventListener("mousemove",function(ev){B.innerHTML=bulle(code);B.style.display="block";surligner(code);if(!pin)detail(code);var r=C.getBoundingClientRect();var x=ev.clientX-r.left+16,y=ev.clientY-r.top+16;if(x+330>r.width)x-=346;if(y+220>r.height)y-=230;B.style.left=Math.max(0,x)+"px";B.style.top=Math.max(0,y)+"px"});',
-  ' p.addEventListener("mouseleave",function(){B.style.display="none";surligner(pin);if(pin)detail(pin);else detail(null)});',
-  ' p.addEventListener("click",function(){pin=(pin===code)?null:code;surligner(pin);detail(pin||code)});',
-  ' p.addEventListener("keydown",function(ev){if(ev.key==="Enter"||ev.key===" "){ev.preventDefault();pin=(pin===code)?null:code;detail(pin||code)}});',
-  ' p.addEventListener("focus",function(){B.innerHTML=bulle(code);B.style.display="block";surligner(code);if(!pin)detail(code);B.style.left="12px";B.style.top="12px"});p.addEventListener("blur",function(){B.style.display="none";surligner(pin)})})}',
+  ' p.addEventListener("mousemove",function(ev){survoler(code);if(Date.now()-tScroll<150)return;montrerBulle(code);placerBulle(ev.clientX,ev.clientY)});',
+  ' p.addEventListener("mouseleave",function(){B.style.display="none";codeSurvol=null;surligner(pin);detail(pin)});',
+  ' p.addEventListener("click",function(){pin=(pin===code)?null:code;surligner(pin);detail(pin||code,true)});',
+  ' p.addEventListener("keydown",function(ev){if(ev.key==="Enter"||ev.key===" "){ev.preventDefault();pin=(pin===code)?null:code;detail(pin||code,true)}});',
+  ' p.addEventListener("focus",function(){survoler(code);montrerBulle(code);placerBulle(12,12)});p.addEventListener("blur",function(){B.style.display="none";codeSurvol=null;surligner(pin)})})}',
+  # défilement : l'infobulle est masquée (elle réapparaît au prochain mouvement) ; rien d'autre ne bouge
+  'window.addEventListener("scroll",function(){tScroll=Date.now();if(B&&B.style.display==="block")B.style.display="none"},{passive:true});',
+  'if(DP)DP.addEventListener("scroll",function(){DP.classList.toggle("bas",DP.scrollTop+DP.clientHeight>=DP.scrollHeight-2)},{passive:true});',
+  'var tRedim=null;window.addEventListener("resize",function(){clearTimeout(tRedim);tRedim=setTimeout(stabiliserDetail,150)});',
   'document.querySelectorAll(".typo-legende button").forEach(function(b){b.addEventListener("click",function(){var k=b.getAttribute("data-cle");filtre=(filtre===k)?null:k;appliquerFiltre()})});',
-  'detail(null);',
+  'detail(null,true);stabiliserDetail();',
   '})();', sep = "\n")
 
 # --- Briques HTML --------------------------------------------------------------------
@@ -200,7 +220,8 @@ html_legende_typologie <- function(prep, interactive = TRUE) {
   c('<div class="legend-title">Profils (nombre de départements)</div><ul class="typo-legende" id="legende">',
     vapply(names(prep$profils), function(k) item(COULEURS_PROFILS[[k]], prep$profils[[k]], prep$comptes[[k]], defs$signification[defs$cle == k], k), ""),
     item(COULEURS_CARTE$secret, LIBELLES_CARTE_TYPO$profil_non_diffuse, prep$comptes[["profil_masque"]] + prep$comptes[["masque"]]),
-    item(COULEURS_CARTE$sans_donnee, LIBELLES_CARTE_TYPO$absent, prep$comptes[["sans"]], sans = TRUE), '</ul>',
+    # un département réellement absent de la typologie garde sa propre entrée (jamais assimilé au secret) ; aucune entrée à 0
+    if (prep$comptes[["sans"]] > 0) item(COULEURS_CARTE$sans_donnee, LIBELLES_CARTE_TYPO$absent, prep$comptes[["sans"]], sans = TRUE) else "", '</ul>',
     if (interactive) '<p class="note">Cliquez un profil pour l’isoler sur la carte ; cliquez de nouveau pour tout afficher.</p>' else "")
 }
 html_definitions_profils <- function(prep, ouvert = FALSE) {
@@ -311,7 +332,8 @@ png_carte_typologie <- function(prep, lay, fichier_png, champ = construire_libel
   enc <- if (length(lay$encarts)) bind_rows(lapply(lay$encarts, function(e) tibble(x1 = e$cadre[1], x2 = e$cadre[3], y1 = -e$cadre[2], y2 = -e$cadre[4], lib = e$nom, xl = e$x_lib, yl = -e$y_lib))) else NULL
   g <- ggplot2::ggplot() +
     ggplot2::geom_polygon(data = long, ggplot2::aes(x = x, y = y, group = groupe, fill = classe), colour = S$png_couleur, linewidth = S$png_largeur) +
-    ggplot2::scale_fill_manual(values = cols, drop = FALSE, name = NULL) +
+    ggplot2::scale_fill_manual(values = cols, drop = FALSE, name = NULL,
+                               breaks = niveaux[seq_len(length(niveaux) - if (prep$comptes[["sans"]] > 0) 0 else 1)]) +
     ggplot2::guides(fill = ggplot2::guide_legend(override.aes = list(colour = S$png_couleur), ncol = 2)) +
     ggplot2::coord_equal(expand = FALSE) + ggplot2::theme_void(base_size = 12) +
     ggplot2::labs(title = LIBELLES_CARTE_TYPO$titre, subtitle = paste0("Départs attendus d’ici 2030 · ", toupper(substr(champ$court, 1, 1)), substr(champ$court, 2, nchar(champ$court))),
