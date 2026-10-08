@@ -1,4 +1,4 @@
-# Fiche pédagogique « typologie territoriale BITD » (Word, 2 pages A4 paysage)
+# Fiche pédagogique « typologie territoriale BITD » (Word, 4 pages A4 paysage)
 
 Hors chaîne : rien ici n'est exécuté par `main.R`. Le document livré est
 `sorties/typologie_territoriale/fiche_pedagogique_typologie_BITD.docx`
@@ -26,11 +26,14 @@ diagramme change. Aperçu PDF (facultatif) : `soffice --headless --convert-to pd
 
 ## Contenu
 
+Une idée par page, corps de texte 11 à 12 points :
+
 - Page 1 « Comment lit-on un territoire ? » : les cinq indicateurs (poids,
-  volume, intensité, structure, concentration) avec un mini-diagramme chacun ;
-  comparaison A / B volume contre intensité ; les dix règles ordonnées ; un
-  AVANT / APRÈS montrant qu'un seul indicateur change le profil.
-- Page 2 « Les sept situations territoriales » : une carte par profil (sens,
-  critère décisif, exemple fictif, message de lecture) et le bloc « À garder en
-  tête » (maille département, tensions séparées, départs ≠ pénurie, seuils
-  provisoires, secret statistique).
+  volume, intensité, structure, concentration) avec un mini-diagramme chacun.
+- Page 2 « Pourquoi un profil plutôt qu'un autre ? » : comparaison A / B volume
+  contre intensité ; les dix règles ordonnées ; un AVANT / APRÈS montrant qu'un
+  seul indicateur change le profil.
+- Pages 3 et 4 « Les sept situations territoriales » : une carte par profil
+  (sens, critère décisif, exemple fictif, message de lecture) et le bloc « À
+  garder en tête » (maille département, tensions séparées, départs ≠ pénurie,
+  seuils provisoires, secret statistique).

@@ -1,4 +1,4 @@
-// Fiche pédagogique « typologie territoriale BITD » : deux pages A4 paysage (docx-js).
+// Fiche pédagogique « typologie territoriale BITD » : quatre pages A4 paysage (docx-js).
 // Usage : node gen_fiche.js [dossier_images] [fichier_sortie]
 // Les images (poids.png, volume.png, intensite.png, structure.png, concentration.png, ab.png)
 // sont produites par gen_svg.js + Chromium (voir README).
@@ -26,7 +26,7 @@ const SANS = { top: NONE, bottom: NONE, left: NONE, right: NONE };
 const run = (t, o = {}) => new TextRun({ text: t, font: FONT, size: o.size || 19, color: o.color || ENCRE, bold: o.bold, italics: o.italics, characterSpacing: o.spacing });
 const par = (runs, o = {}) => new Paragraph({ spacing: { before: o.before || 0, after: o.after === undefined ? 60 : o.after, line: o.line || 250 },
   alignment: o.align, children: Array.isArray(runs) ? runs : [runs] });
-const etiquette = (t, col = NAVY) => par(run(t.toUpperCase(), { size: 14, bold: true, color: col, spacing: 15 }), { after: 20, before: 50 });
+const etiquette = (t, col = NAVY) => par(run(t.toUpperCase(), { size: 17, bold: true, color: col, spacing: 16 }), { after: 50, before: 60 });
 const texte = (t, o = {}) => par(run(t, { size: o.size || 18, color: o.color || ENCRE }), { after: o.after === undefined ? 40 : o.after, line: 240 });
 const vide = (h = 60) => new Paragraph({ spacing: { before: 0, after: 0, line: h, lineRule: "exact" }, children: [run("", { size: 4 })] });
 const image = (nom, wpx, hpx) => new Paragraph({ spacing: { before: 40, after: 40 }, children: [new ImageRun({ type: "png", data: fs.readFileSync(path.join(DIR_IMG, nom)), transformation: { width: wpx, height: hpx } })] });
@@ -40,109 +40,118 @@ const ligneGrille = (cards, wCard, wGap) => { const r = []; cards.forEach((c, i)
 const filet = () => new Paragraph({ spacing: { before: 20, after: 60 }, border: { bottom: { style: BorderStyle.SINGLE, size: 6, color: FILET, space: 1 } }, children: [run("", { size: 2 })] });
 
 // --- Dimensions : A4 paysage, marges 1 cm -> 15 700 DXA utiles ----------------------
-const LARGEUR = 15700;
-const PAGE = { size: { width: 11906, height: 16838, orientation: PageOrientation.LANDSCAPE }, margin: { top: 400, bottom: 340, left: 569, right: 569 } };
-const pied = (t) => new Footer({ children: [new Paragraph({ alignment: AlignmentType.RIGHT, children: [run(t + "  ·  page ", { size: 14, color: TEXTE }), new TextRun({ children: [PageNumber.CURRENT], font: FONT, size: 14, color: TEXTE }), run(" / ", { size: 14, color: TEXTE }), new TextRun({ children: [PageNumber.TOTAL_PAGES], font: FONT, size: 14, color: TEXTE })] })] });
+const LARGEUR = 15478;   // 16 838 - 2 x 680
+const PAGE = { size: { width: 11906, height: 16838, orientation: PageOrientation.LANDSCAPE }, margin: { top: 480, bottom: 400, left: 680, right: 680 } };
+const pied = (t) => new Footer({ children: [new Paragraph({ alignment: AlignmentType.RIGHT, children: [run(t + "  ·  page ", { size: 16, color: TEXTE }), new TextRun({ children: [PageNumber.CURRENT], font: FONT, size: 16, color: TEXTE }), run(" / ", { size: 16, color: TEXTE }), new TextRun({ children: [PageNumber.TOTAL_PAGES], font: FONT, size: 16, color: TEXTE })] })] });
 
 // --- En-tête de page ----------------------------------------------------------------
 const entete = (kicker, titre, accroche) => [
-  par(run(kicker, { size: 15, bold: true, color: TEXTE, spacing: 25 }), { after: 0, line: 240 }),
-  par(run(titre, { size: 38, bold: true, color: NAVY }), { before: 60, after: 20, line: 276 }),
-  par(run(accroche, { size: 19, color: ENCRE }), { after: 40, line: 235 }), filet()];
+  par(run(kicker, { size: 17, bold: true, color: TEXTE, spacing: 25 }), { after: 60, line: 240 }),
+  par(run(titre, { size: 46, bold: true, color: NAVY }), { before: 0, after: 40, line: 300 }),
+  par(run(accroche, { size: 24, color: ENCRE }), { after: 60, line: 255 }), filet()];
 
 // ===================================================================================
-// PAGE 1 — Comment lit-on un territoire ?
+// PAGE 1 — Comment lit-on un territoire ? (les cinq indicateurs)
 // ===================================================================================
-const W5 = 3020, G5 = 150;   // 5 cartes + 4 intervalles = 15 700
-const carteIndicateur = (num, titre, question, explication, img) => cell([
-  par([run(num + "  ", { size: 20, bold: true, color: ACCENT }), run(titre.toUpperCase(), { size: 17, bold: true, color: NAVY, spacing: 12 })], { after: 30 }),
-  par(run(question, { size: 18, bold: true, color: ENCRE }), { after: 50, line: 230 }),
-  image(img, 182, 79),
-  texte(explication, { size: 15.5, color: TEXTE, after: 0 })], W5, { fill: FOND, padx: 100 });
+const W3 = 5026, G3 = 200;   // 3 cartes + 2 intervalles = 15 478
+const W2 = 7639;             // 2 cartes + 1 intervalle = 15 478
+const carteIndicateur = (num, titre, question, explication, img, w, iw, ih) => cell([
+  par([run(num + "   ", { size: 26, bold: true, color: ACCENT }), run(titre.toUpperCase(), { size: 21, bold: true, color: NAVY, spacing: 14 })], { after: 40 }),
+  par(run(question, { size: 23, bold: true, color: ENCRE }), { after: 60, line: 250 }),
+  image(img, iw, ih),
+  texte(explication, { size: 23, color: ENCRE, after: 0, line: 268 })], w, { fill: FOND, padx: 170, pad: 150 });
 
-const indicateurs = table(Array(9).fill(0).map((_, i) => i % 2 ? G5 : W5), [ligneGrille([
+const rang1 = table([W3, G3, W3, G3, W3], [ligneGrille([
   carteIndicateur("1", "Le poids", "Quelle place occupe ce département dans l’emploi BITD national ?",
-    "Sur 100 salariés de la BITD en France, combien travaillent ici ? Ici 8 sur 100. Classé faible, moyen ou fort ; un très petit effectif est toujours « faible ».", "poids.png"),
+    "Sur 100 salariés de la BITD en France, combien travaillent ici ? Ici, 8 sur 100. Classé faible, moyen ou fort. Un très petit effectif est toujours classé « faible ».", "poids.png", W3, 300, 130),
   carteIndicateur("2", "Le volume", "Combien de salariés pourraient partir d’ici 2030 ?",
-    "Un nombre de départs estimés, ici 900. Il dépend surtout de la taille du département. Classé faible, modéré ou élevé.", "volume.png"),
+    "Un nombre de départs estimés, ici 900. Il dépend surtout de la taille du département. Classé faible, modéré ou élevé.", "volume.png", W3, 300, 130),
   carteIndicateur("3", "L’intensité", "Sur 100 salariés en poste, combien correspondent aux départs estimés ?",
-    "Ici 12 sur 100 : une part de l’emploi actuel à remplacer, pas un taux de recrutement observé. Classée faible, modérée ou élevée.", "intensite.png"),
-  carteIndicateur("4", "La structure", "Quels salariés sont les plus représentés aujourd’hui ?",
-    "« Dominante » si une catégorie atteint une part suffisante de l’emploi, sinon « mixte ». Décrit le département ; n’entre pas dans le choix du profil.", "structure.png"),
-  carteIndicateur("5", "La concentration", "Les départs concernent-ils surtout une catégorie ?",
-    "Ici 70 départs sur 100 concernent les ouvriers. Distinct de la structure : une catégorie peut dominer l’emploi sans dominer les départs. Peut décider du profil.", "concentration.png")], W5, G5)]);
+    "Ici, 12 sur 100 : la part de l’emploi actuel à remplacer. Ce n’est pas un taux de recrutement observé. Classée faible, modérée ou élevée.", "intensite.png", W3, 300, 130)], W3, G3)]);
+const rang2 = table([W2, G3, W2], [ligneGrille([
+  carteIndicateur("4", "La structure de l’emploi", "Quels salariés sont les plus représentés aujourd’hui ?",
+    "Une catégorie est « dominante » si elle atteint une part suffisante de l’emploi, sinon la structure est « mixte ». Ici, les ouvriers : 55 % de l’emploi. La structure décrit le département ; elle n’entre pas dans le choix du profil.", "structure.png", W2, 330, 143),
+  carteIndicateur("5", "La concentration des départs", "Les départs concernent-ils surtout une catégorie de salariés ?",
+    "Ici, 70 départs sur 100 concernent les ouvriers. À ne pas confondre avec la structure : une catégorie peut dominer l’emploi sans dominer les départs. La concentration peut décider du profil.", "concentration.png", W2, 330, 143)], W2, G3)]);
 
-// Comparaison A / B
-const WG = 8300, GG = 200, WD = 7200;   // 8 300 + 200 + 7 200 = 15 700
+const page1 = [
+  ...entete("Typologie des territoires BITD  ·  fiche de lecture  ·  1 / 4", "Comment lit-on un territoire ?",
+    "La typologie ne cherche pas seulement où les départs seront nombreux. Elle distingue des situations de renouvellement différentes, à partir de cinq indicateurs lisibles et de règles explicites. Tous les chiffres ci-dessous sont fictifs."),
+  etiquette("Les cinq ingrédients du classement"),
+  rang1, vide(160), rang2];
+
+// ===================================================================================
+// PAGE 2 — Volume contre intensité ; des indicateurs au profil
+// ===================================================================================
+const WG = 7800, GG = 200, WD = 7478;   // 7 800 + 200 + 7 478 = 15 478
 const blocAB = cell([
   etiquette("Volume et intensité : deux départements, deux lectures"),
-  par(run("A compte deux fois plus de départs. Pourtant, B est proportionnellement cinq fois plus concerné.", { size: 18, bold: true, color: ENCRE }), { after: 40, line: 235 }),
-  image("ab.png", 530, 219),
-  texte("Volume : combien de départs ? Intensité : quelle part de l’emploi actuel représentent-ils ? Exemples entièrement fictifs : ces taux illustrent une ampleur de renouvellement, pas une pénurie démontrée.", { size: 15.5, color: TEXTE, after: 0 })], WG, { fill: FOND });
+  par(run("Le département A compte deux fois plus de départs. Pourtant, le département B est proportionnellement cinq fois plus concerné.", { size: 23, bold: true, color: ENCRE }), { after: 80, line: 260 }),
+  image("ab.png", 540, 223),
+  texte("Volume : combien de départs ? Intensité : quelle part de l’emploi actuel représentent-ils ?", { size: 21, color: ENCRE, after: 60, line: 260 }),
+  texte("Exemples entièrement fictifs. Ces taux illustrent une ampleur de renouvellement, pas une pénurie démontrée.", { size: 19, color: TEXTE, after: 0, line: 250 })], WG, { fill: FOND, pad: 150, padx: 170 });
 
-// Des indicateurs au profil : règles ordonnées
-const pastille = (col) => run("■ ", { size: 18, color: col });
+const pastille = (col) => run("■ ", { size: 22, color: col });
+const LR = WD - 2 * 170; const CR = [380, Math.round((LR - 380) * 0.5), 0]; CR[2] = LR - CR[0] - CR[1];
 const regle = (n, si, prof, colProf) => new TableRow({ cantSplit: true, children: [
-  cell([par(run(n, { size: 15, bold: true, color: TEXTE }), { after: 0 })], 330, { pad: 8, padx: 40 }),
-  cell([par(run(si, { size: 15, color: ENCRE }), { after: 0, line: 215 })], 3510, { pad: 8, padx: 60 }),
-  cell([par([pastille(colProf), run(prof, { size: 14.5, bold: true, color: ENCRE })], { after: 0, line: 215 })], 3100, { pad: 8, padx: 60 })] });
-const regles = new Table({ layout: TableLayoutType.FIXED, width: { size: 6940, type: WidthType.DXA }, columnWidths: [330, 3510, 3100], rows: [
-  new TableRow({ children: [cell([par(run("", { size: 12 }), { after: 0 })], 330, { pad: 10, padx: 40 }),
-    cell([par(run("SI…", { size: 13, bold: true, color: TEXTE, spacing: 12 }), { after: 0 })], 3510, { pad: 6, padx: 60 }),
-    cell([par(run("ALORS LE PROFIL EST…", { size: 13, bold: true, color: TEXTE, spacing: 12 }), { after: 0 })], 3100, { pad: 6, padx: 60 })] }),
+  cell([par(run(n, { size: 19, bold: true, color: TEXTE }), { after: 0 })], CR[0], { pad: 12, padx: 40 }),
+  cell([par(run(si, { size: 19, color: ENCRE }), { after: 0, line: 230 })], CR[1], { pad: 12, padx: 60 }),
+  cell([par([pastille(colProf), run(prof, { size: 18.5, bold: true, color: ENCRE })], { after: 0, line: 230 })], CR[2], { pad: 12, padx: 60 })] });
+const regles = new Table({ layout: TableLayoutType.FIXED, width: { size: LR, type: WidthType.DXA }, columnWidths: CR, rows: [
+  new TableRow({ children: [cell([par(run("", { size: 12 }), { after: 0 })], CR[0], { pad: 10, padx: 40 }),
+    cell([par(run("SI…", { size: 16, bold: true, color: TEXTE, spacing: 14 }), { after: 0 })], CR[1], { pad: 10, padx: 60 }),
+    cell([par(run("ALORS LE PROFIL EST…", { size: 16, bold: true, color: TEXTE, spacing: 14 }), { after: 0 })], CR[2], { pad: 10, padx: 60 })] }),
   regle("1", "un indicateur de classement manque", P.expertiser.titre, P.expertiser.col),
-  regle("2", "poids faible et intensité extrême (petit effectif)", P.expertiser.titre, P.expertiser.col),
+  regle("2", "poids faible et intensité extrême", P.expertiser.titre, P.expertiser.col),
   regle("3", "poids faible", P.diffus.titre, "B8C4D2"),
-  regle("4", "au moins deux indicateurs tout près d’un seuil", P.expertiser.titre, P.expertiser.col),
-  regle("5", "volume élevé mais intensité faible (contradiction)", P.expertiser.titre, P.expertiser.col),
-  regle("6", "poids fort, volume élevé et intensité élevée", P.enjeu.titre, P.enjeu.col),
+  regle("4", "deux indicateurs tout près d’un seuil", P.expertiser.titre, P.expertiser.col),
+  regle("5", "volume élevé mais intensité faible", P.expertiser.titre, P.expertiser.col),
+  regle("6", "poids fort, volume élevé, intensité élevée", P.enjeu.titre, P.enjeu.col),
   regle("7", "intensité élevée", P.emergent.titre, P.emergent.col),
   regle("8", "volume élevé (intensité modérée)", P.majeur_modere.titre, P.majeur_modere.col),
-  regle("9", "une catégorie porte au moins la moitié des départs", P.concentre.titre, P.concentre.col),
+  regle("9", "une catégorie porte la moitié des départs", P.concentre.titre, P.concentre.col),
   regle("10", "aucune des règles précédentes", P.stable.titre, P.stable.col)] });
 
-// Avant / après
-const chip = (t, w, surligne) => cell([par(run(t, { size: 15, bold: true, color: surligne ? BLANC : ENCRE }), { after: 0, align: AlignmentType.CENTER, line: 215 })], w,
-  { fill: surligne ? ACCENT : "FFFFFF", pad: 24, padx: 40, valign: VerticalAlign.CENTER, borders: surligne ? SANS : { top: { style: BorderStyle.SINGLE, size: 4, color: FILET }, bottom: { style: BorderStyle.SINGLE, size: 4, color: FILET }, left: { style: BorderStyle.SINGLE, size: 4, color: FILET }, right: { style: BorderStyle.SINGLE, size: 4, color: FILET } } });
-const fleche = (w) => cell([par(run("→", { size: 24, bold: true, color: TEXTE }), { after: 0, align: AlignmentType.CENTER })], w, { pad: 0, padx: 0, valign: VerticalAlign.CENTER });
-const resultat = (t, col, w) => cell([par([pastille(col), run(t, { size: 16, bold: true, color: ENCRE })], { after: 0, line: 215 })], w, { pad: 40, padx: 60, valign: VerticalAlign.CENTER });
-const avantApres = new Table({ layout: TableLayoutType.FIXED, width: { size: 6940, type: WidthType.DXA }, columnWidths: [560, 1200, 80, 1200, 80, 1300, 360, 2160], rows: [
-  new TableRow({ cantSplit: true, children: [cell([par(run("AVANT", { size: 13, bold: true, color: TEXTE, spacing: 12 }), { after: 0 })], 560, { pad: 30, padx: 20, valign: VerticalAlign.CENTER }),
-    chip("Poids fort", 1200, false), gap(80), chip("Volume élevé", 1200, false), gap(80), chip("Intensité élevée", 1300, false), fleche(360), resultat(P.enjeu.titre, P.enjeu.col, 2160)] }),
-  new TableRow({ children: [gap(560), gap(1200), gap(80), gap(1200), gap(80), gap(1300), gap(360), gap(2160)], height: { value: 40, rule: "exact" } }),
-  new TableRow({ cantSplit: true, children: [cell([par(run("APRÈS", { size: 13, bold: true, color: TEXTE, spacing: 12 }), { after: 0 })], 560, { pad: 30, padx: 20, valign: VerticalAlign.CENTER }),
-    chip("Poids fort", 1200, false), gap(80), chip("Volume élevé", 1200, false), gap(80), chip("Intensité modérée", 1300, true), fleche(360), resultat(P.majeur_modere.titre, P.majeur_modere.col, 2160)] })] });
+const CA = [640, 1250, 80, 1350, 80, 1520, 360, 0]; CA[7] = LR - CA.slice(0, 7).reduce((a, b) => a + b, 0);
+const chip = (t, w, surligne) => cell([par(run(t, { size: 19, bold: true, color: surligne ? BLANC : ENCRE }), { after: 0, align: AlignmentType.CENTER, line: 230 })], w,
+  { fill: surligne ? ACCENT : "FFFFFF", pad: 30, padx: 40, valign: VerticalAlign.CENTER, borders: surligne ? SANS : { top: { style: BorderStyle.SINGLE, size: 4, color: FILET }, bottom: { style: BorderStyle.SINGLE, size: 4, color: FILET }, left: { style: BorderStyle.SINGLE, size: 4, color: FILET }, right: { style: BorderStyle.SINGLE, size: 4, color: FILET } } });
+const fleche = (w) => cell([par(run("→", { size: 30, bold: true, color: TEXTE }), { after: 0, align: AlignmentType.CENTER })], w, { pad: 0, padx: 0, valign: VerticalAlign.CENTER });
+const resultat = (t, col, w) => cell([par([pastille(col), run(t, { size: 20, bold: true, color: ENCRE })], { after: 0, line: 235 })], w, { pad: 40, padx: 60, valign: VerticalAlign.CENTER });
+const etiq = (t) => cell([par(run(t, { size: 16, bold: true, color: TEXTE, spacing: 14 }), { after: 0 })], CA[0], { pad: 30, padx: 20, valign: VerticalAlign.CENTER });
+const avantApres = new Table({ layout: TableLayoutType.FIXED, width: { size: LR, type: WidthType.DXA }, columnWidths: CA, rows: [
+  new TableRow({ cantSplit: true, children: [etiq("AVANT"), chip("Poids fort", CA[1], false), gap(CA[2]), chip("Volume élevé", CA[3], false), gap(CA[4]), chip("Intensité élevée", CA[5], false), fleche(CA[6]), resultat(P.enjeu.titre, P.enjeu.col, CA[7])] }),
+  new TableRow({ children: CA.map(w => gap(w)), height: { value: 50, rule: "exact" } }),
+  new TableRow({ cantSplit: true, children: [etiq("APRÈS"), chip("Poids fort", CA[1], false), gap(CA[2]), chip("Volume élevé", CA[3], false), gap(CA[4]), chip("Intensité modérée", CA[5], true), fleche(CA[6]), resultat(P.majeur_modere.titre, P.majeur_modere.col, CA[7])] })] });
 
 const blocDroite = cell([
   etiquette("Des indicateurs au profil : la première règle qui s’applique l’emporte"),
-  texte("Règles examinées dans l’ordre : situations à expertiser et petites implantations d’abord, puis le premier profil dont la condition est remplie. Aucun score, aucune addition d’indicateurs.", { size: 15.5, color: TEXTE, after: 40 }),
+  texte("Les règles sont examinées dans l’ordre : situations à expertiser et petites implantations d’abord, puis le premier profil dont la condition est remplie. Aucun score, aucune addition d’indicateurs.", { size: 20, color: ENCRE, after: 60, line: 250 }),
   regles,
   etiquette("Un seul indicateur change la lecture"),
-  avantApres, vide(30)], WD, { fill: FOND });
+  texte("Mêmes poids et volume : une intensité modérée au lieu d’élevée change le profil.", { size: 20, color: ENCRE, after: 60, line: 255 }),
+  avantApres], WD, { fill: FOND, pad: 150, padx: 170 });
 
-const page1 = [
-  ...entete("Typologie des territoires BITD  ·  fiche de lecture  ·  page 1", "Comment lit-on un territoire ?",
-    "La typologie ne cherche pas seulement où les départs seront nombreux : elle distingue des situations de renouvellement différentes, à partir de cinq indicateurs lisibles et de règles explicites."),
-  etiquette("Les cinq ingrédients du classement (exemples fictifs)"),
-  indicateurs, vide(100),
+const page2 = [
+  ...entete("Typologie des territoires BITD  ·  fiche de lecture  ·  2 / 4", "Pourquoi un profil plutôt qu’un autre ?",
+    "Deux départements peuvent compter des volumes de départs très différents et rencontrer des enjeux de renouvellement inverses. Le profil est ensuite attribué par des règles ordonnées, jamais par un score."),
   table([WG, GG, WD], [[blocAB, gap(GG), blocDroite]])];
 
 // ===================================================================================
-// PAGE 2 — Les 7 situations territoriales
+// PAGES 3 et 4 — Les sept situations territoriales
 // ===================================================================================
-const W4 = 3790, G4 = 180;   // 4 cartes + 3 intervalles = 15 700
+const W4 = 3734, G4 = 180;   // 4 cartes + 3 intervalles = 15 476
 const rubrique = (lab, t, o = {}) => [
-  new Paragraph({ spacing: { before: 50, after: 15, line: 240 }, indent: { left: 130, right: 130 }, children: [run(lab.toUpperCase(), { size: 14, bold: true, color: o.col || NAVY, spacing: 15 })] }),
-  new Paragraph({ spacing: { before: 0, after: 25, line: 235 }, indent: { left: 130, right: 130 }, children: [run(t, { size: 17, color: ENCRE })] })];
+  new Paragraph({ spacing: { before: 130, after: 30, line: 250 }, indent: { left: 170, right: 170 }, children: [run(lab.toUpperCase(), { size: 17, bold: true, color: o.col || NAVY, spacing: 14 })] }),
+  new Paragraph({ spacing: { before: 0, after: 50, line: 270 }, indent: { left: 170, right: 170 }, children: [run(t, { size: 24, color: ENCRE })] })];
 const carteProfil = (p, sens, pourquoi, exemple, retenir) => {
   const titre = new Table({ layout: TableLayoutType.FIXED, width: { size: W4, type: WidthType.DXA }, columnWidths: [W4], rows: [new TableRow({ children: [
-    cell([par(run(p.titre, { size: 20, bold: true, color: p.clair ? ENCRE : BLANC }), { after: 0, line: 230 })], W4, { fill: p.col, pad: 70, padx: 130, valign: VerticalAlign.CENTER })] })] });
+    cell([par(run(p.titre, { size: 28, bold: true, color: p.clair ? ENCRE : BLANC }), { after: 0, line: 250 })], W4, { fill: p.col, pad: 120, padx: 170, valign: VerticalAlign.CENTER })] })] });
   return cell([titre,
     ...rubrique("Ce que cela veut dire", sens),
     ...rubrique("Pourquoi ce classement ?", pourquoi),
     ...rubrique("Exemple fictif", exemple),
     ...rubrique("Ce qu’il faut retenir", retenir, { col: ACCENT }),
-    vide(40)], W4, { fill: FOND, pad: 0, padx: 0 }); };
+    vide(80)], W4, { fill: FOND, pad: 0, padx: 0 }); };
 
 const cartes = [
   [P.enjeu, "Un grand pôle de la BITD où beaucoup de salariés pourraient partir, et où ces départs représentent une part importante des effectifs actuels.",
@@ -156,11 +165,11 @@ const cartes = [
   [P.majeur_modere, "Un grand pôle avec beaucoup de départs en nombre, mais à un rythme ordinaire par rapport à ses effectifs.",
     "Volume élevé et intensité modérée, ni élevée ni faible (règle 8).",
     "9 % de l’emploi national · 1 000 départs · 9 % de l’emploi actuel.",
-    "Lire le nombre : les postes à pourvoir sont nombreux même si le rythme n’a rien d’exceptionnel."],
+    "Lire le nombre : les postes à pourvoir sont nombreux, même si le rythme n’a rien d’exceptionnel."],
   [P.concentre, "Les départs attendus concernent surtout une catégorie de salariés.",
     "Une catégorie porte au moins la moitié des départs, alors que le volume et l’intensité ne sont pas élevés (règle 9, après les profils prioritaires).",
     "150 départs, dont 65 chez les ouvriers · 8 % de l’emploi actuel.",
-    "Regarder cette catégorie et sa part à remplacer plutôt que le total du département."],
+    "Regarder cette catégorie et sa part à remplacer, plutôt que le total du département."],
   [P.stable, "Une implantation installée, dont les départs se répartissent entre les catégories à un rythme ordinaire.",
     "Aucune règle précédente ne s’applique : ni volume élevé, ni intensité élevée, ni départs concentrés (règle 10).",
     "1 % de l’emploi national · 120 départs · 7 % de l’emploi actuel · première catégorie : 38 % des départs.",
@@ -181,20 +190,22 @@ const garder = cell([
       "Les tensions repérées par la DGA ou France Travail (métiers, bassins) sont une information distincte : elles ne déterminent pas ces sept profils.",
       "Des départs estimés ne sont ni des postes ouverts, ni une pénurie de main-d’œuvre.",
       "Faible, moyen, fort dépendent des seuils utilisés. Aujourd’hui, les bornes sont des terciles observés : une règle de classement statistique provisoire, pas des seuils de politique publique.",
-      "Le secret statistique est respecté : tous les chiffres de cette fiche sont fictifs."].map(t => par([run("–  ", { size: 16, color: TEXTE }), run(t, { size: 16, color: ENCRE })], { after: 50, line: 225 })),
-  vide(20)], W4, { fill: "FFFFFF", borders: { top: { style: BorderStyle.SINGLE, size: 6, color: FILET }, bottom: { style: BorderStyle.SINGLE, size: 6, color: FILET }, left: { style: BorderStyle.SINGLE, size: 6, color: FILET }, right: { style: BorderStyle.SINGLE, size: 6, color: FILET } } });
+      "Le secret statistique est respecté : tous les chiffres de cette fiche sont fictifs."].map(t => par([run("–  ", { size: 23, color: TEXTE }), run(t, { size: 23, color: ENCRE })], { after: 110, line: 268 })),
+  vide(20)], W4, { fill: "FFFFFF", pad: 150, padx: 170, borders: { top: { style: BorderStyle.SINGLE, size: 6, color: FILET }, bottom: { style: BorderStyle.SINGLE, size: 6, color: FILET }, left: { style: BorderStyle.SINGLE, size: 6, color: FILET }, right: { style: BorderStyle.SINGLE, size: 6, color: FILET } } });
 
-const grille2 = (cells) => table(Array(7).fill(0).map((_, i) => i % 2 ? G4 : W4), [ligneGrille(cells, W4, G4)]);
-const page2 = [
-  ...entete("Typologie des territoires BITD  ·  fiche de lecture  ·  page 2", "Les sept situations territoriales",
+const grille = (cells) => table(Array(7).fill(0).map((_, i) => i % 2 ? G4 : W4), [ligneGrille(cells, W4, G4)]);
+const page3 = [
+  ...entete("Typologie des territoires BITD  ·  fiche de lecture  ·  3 / 4", "Les sept situations territoriales (1 à 4)",
     "Sept profils, sans échelle unique de gravité : chacun décrit une situation de renouvellement différente. Exemples fictifs ; les classes (faible, moyen, fort…) dépendent des seuils en vigueur."),
-  grille2(cardCells.slice(0, 4)), vide(110),
-  grille2([...cardCells.slice(4, 7), garder])];
+  grille(cardCells.slice(0, 4))];
+const page4 = [
+  ...entete("Typologie des territoires BITD  ·  fiche de lecture  ·  4 / 4", "Les sept situations territoriales (5 à 7)",
+    "Les trois derniers profils, dont la situation à expertiser, et les précautions de lecture."),
+  grille([...cardCells.slice(4, 7), garder])];
 
 const doc = new Document({
   creator: "Estimation des départs BITD", title: "Typologie des territoires BITD — fiche de lecture",
   styles: { default: { document: { run: { font: FONT, size: 19, color: ENCRE } } } },
   sections: [
-    { properties: { page: PAGE }, footers: { default: pied("Estimation des départs à l’horizon 2030 · chiffres fictifs · secret statistique respecté") }, children: page1 },
-    { properties: { page: PAGE }, footers: { default: pied("Estimation des départs à l’horizon 2030 · chiffres fictifs · secret statistique respecté") }, children: page2 }] });
+    ...[page1, page2, page3, page4].map(ch => ({ properties: { page: PAGE }, footers: { default: pied("Estimation des départs à l’horizon 2030 · chiffres fictifs · secret statistique respecté") }, children: ch }))] });
 Packer.toBuffer(doc).then(b => { fs.writeFileSync(SORTIE, b); console.log("écrit :", SORTIE); });
