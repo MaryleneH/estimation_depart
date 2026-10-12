@@ -270,6 +270,13 @@ GENERER_CARTE_TYPOLOGIE <- TRUE   # FALSE = étape ignorée. Lit UNIQUEMENT typo
                                   # carte_typologie_courriel.html (si CARTES_COURRIEL : AUCUN script, infobulles natives,
                                   # tableau des situations), carte_typologie.png (si CARTES_PNG). Relançable seul après la
                                   # chaîne : source("R/08_territoires/08g_carte_typologie.R") depuis la racine du projet.
+# --- Cartes « profils et métiers » : de la région au département (script 08h) ----------------
+GENERER_CARTES_TYPOLOGIE_PCS <- TRUE  # FALSE = étape ignorée. Lit UNIQUEMENT les tables diffusion/ (08f, 08c, 08d) :
+                                  # carte_typologie_pcs.html (régions colorées par le profil le plus fréquent de leurs
+                                  # départements -> clic = départements -> clic = profil, top des PCS, spécificité face
+                                  # à la France, coloration de la carte par PCS) et carte_typologie_pcs_courriel.html
+                                  # (si CARTES_COURRIEL : AUCUN script). Relançable seul : source("R/08_territoires/08h_cartes_typologie_pcs.R").
+TYPO_PCS_TOP_N <- 5               # nombre maximal de PCS classées par territoire (seules les cellules diffusables ; jamais le complément)
 FICHES_SECRET    <- TRUE          # TRUE  = secret statistique appliqué (version DIFFUSABLE).
                                   # FALSE = USAGE INTERNE : aucun masquage, tous les
                                   # territoires, bloc des entreprises (SIREN) ; écrit dans

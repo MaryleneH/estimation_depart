@@ -14,6 +14,7 @@ source("R/00_config_fonctions/00e_fonctions_departs_pcs.R")   # -> fonctions dé
 source("R/00_config_fonctions/00f_fonctions_cartes.R")        # -> fonctions cartes des résultats diffusables (08e)
 source("R/00_config_fonctions/00h_fonctions_typologie.R")     # -> fonctions typologie des territoires (08f)
 source("R/00_config_fonctions/00i_fonctions_carte_typologie.R") # -> fonctions cartes des profils de la typologie (08g)
+source("R/00_config_fonctions/00j_fonctions_cartes_typologie_pcs.R") # -> fonctions cartes profils et métiers, régions -> départements (08h)
 source("R/01_preparation/01_fabriquer_donnees_test.R")   # -> objet : bts (contrat geo_code/geo_nom/geo_type)
 source("R/01_preparation/01b_agreger_pcs.R")             # -> cs1 agrégée (si AGGREGER_PCS)
 source("R/01_preparation/01c_stock_tous_ages.R")         # -> stock_tous_ages : effectifs actuels TOUS ÂGES par
@@ -57,6 +58,9 @@ source("R/08_territoires/08e_cartes_departs.R")          # -> sorties/cartes_dep
 source("R/08_territoires/08g_carte_typologie.R")         # -> sorties/typologie_territoriale/cartes/carte_typologie{,_courriel}.html (+ .png)
                                           #    (carte des profils, depuis typologie_territoriale/diffusion/ seule ;
                                           #    si GENERER_CARTE_TYPOLOGIE ; relançable seul après la chaîne)
+source("R/08_territoires/08h_cartes_typologie_pcs.R")     # -> sorties/typologie_territoriale/cartes/carte_typologie_pcs{,_courriel}.html
+                                          #    (régions -> départements -> top des PCS, depuis les tables diffusion/ seules ;
+                                          #    si GENERER_CARTES_TYPOLOGIE_PCS ; relançable seul après la chaîne)
 source("R/08_territoires/09_fiches_territoriales.R")     # -> sorties/fiches_<zonage>/<code>_<nom>.html + index.html
                                           #    (si GENERER_FICHES ; mode tous / selection)
 if (isTRUE(get0("NORMALISER_CSV_EXCEL", ifnotfound = FALSE)))

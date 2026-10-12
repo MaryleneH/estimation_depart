@@ -520,6 +520,75 @@ Fonctionnalité: Lire en console les bornes qui ont réellement servi au classem
     Et un fichier absent ou incomplet produit un message avec la marche à suivre, jamais un arrêt
 ```
 
+## 11. Cartes « profils et PCS » : de la région au département (08h)
+
+Script séparé (08h, fonctions 00j), sans modification des cartes existantes.
+Deux pages dans `typologie_territoriale/cartes/` : `carte_typologie_pcs.html`
+(interactive) et `carte_typologie_pcs_courriel.html` (sans aucun contenu actif).
+
+Sources, toutes des tables de **diffusion** : `typologie_territoriale/diffusion/typologie_departements.csv`
+(profils, totaux de départs publiés), `departs_pcs/diffusion/departs_pcs_{departement,region,france}.csv`
+(08c, secret cellule par cellule, primaire puis secondaire par bloc territoire),
+`departs_cs1/diffusion/departs_cs1_france.csv` (total France), nomenclature PCS locale.
+
+Règle du **top des PCS** (`TYPO_PCS_TOP_N`, 5 par défaut) : classement par
+`departs_central` décroissant parmi les seules cellules diffusables du
+territoire, ex aequo par code PCS croissant, au plus N lignes, jamais le
+complément. Garde-fou de différenciation : le total du territoire étant
+publié, le top n'est diffusé que si le territoire compte zéro ou au moins
+deux cellules PCS masquées (le secret secondaire du 08c le garantit ; une
+seule cellule masquée = top retenu avec motif). Le nombre de PCS non
+diffusées est affiché comme un compte. Parts : départs de la PCS / total
+publié du territoire (département : typologie ; région : somme des totaux
+départementaux publiés, NA dès qu'un département de la région est masqué ;
+France : table cs1 France). Spécificité : part de la PCS dans les départs du
+département face à sa part dans les départs nationaux.
+
+Niveau régional : la typologie reste départementale. Une région est colorée
+par le **profil le plus fréquent parmi ses départements** (égalité = « Profils
+à égalité », gris clair), avec le compte des départements par profil et le
+compte des départements non diffusés ; elle n'a jamais de profil propre.
+
+```gherkin
+Fonctionnalité: Explorer les métiers concernés par les départs, de la région au département, sans révéler une cellule protégée
+
+  Scénario: [SPEC-TYPO-080] Classer les PCS d'un territoire
+    Étant donné la table de diffusion PCS d'un territoire
+    Quand le top est construit
+    Alors il contient au plus N PCS diffusables, classées par départs estimés décroissants, ex aequo par code
+    Et chaque ligne porte le libellé officiel, la grande catégorie, les départs (estimation centrale et fourchette), la part des salariés susceptibles de partir et la part dans les départs du territoire
+    Et le nombre de PCS non diffusées est un compte, jamais une valeur
+
+  Scénario: [SPEC-TYPO-081] Ne jamais permettre la différenciation
+    Étant donné un territoire dont exactement une cellule PCS est masquée
+    Quand le top est construit
+    Alors aucun top n'est diffusé pour ce territoire, avec le motif « secret »
+    Et aucune valeur masquée ne figure dans la page, le JSON ni les infobulles
+
+  Scénario: [SPEC-TYPO-082] Lire une région sans lui inventer un profil
+    Quand la carte régionale est produite
+    Alors chaque région est colorée par le profil le plus fréquent de ses départements, ou « Profils à égalité »
+    Et l'infobulle et le panneau donnent le compte des départements par profil et le compte des non diffusés
+    Et un clic sur la région passe au niveau départemental, ses départements mis en évidence, avec son top de PCS
+
+  Scénario: [SPEC-TYPO-083] Lire un département et colorer la carte par une PCS
+    Quand un département est cliqué
+    Alors le panneau donne son profil, ses chiffres, son top de PCS en barres et la spécificité de chaque PCS face à la France
+    Et cliquer une PCS du top recolore tous les départements selon les départs de cette PCS (classes à bornes rondes, gris = non diffusé, blanc = aucun salarié observé)
+    Et un bouton ramène aux profils
+
+  Scénario: [SPEC-TYPO-084] Version courriel sans contenu actif
+    Quand la version courriel est produite
+    Alors elle ne contient ni script, ni attribut on*=, ni javascript:, ni bloc de données
+    Et les deux cartes (régions, départements) portent des infobulles natives, et chaque territoire a un bloc dépliable natif avec son top de PCS
+    Et la coloration par PCS, impossible sans script, y est annoncée comme réservée à la page interactive
+
+  Scénario: [SPEC-TYPO-085] Produire sans toucher aux autres sorties
+    Étant donné les tables de diffusion présentes
+    Quand 08h est lancé (chaîne ou seul depuis la racine)
+    Alors les deux pages sont écrites, les objets amont sont inchangés, une table absente produit un message avec le chemin attendu, jamais un arrêt
+```
+
 ## Limites
 
 - Maille département : aucune lecture infra-départementale n'est possible à
