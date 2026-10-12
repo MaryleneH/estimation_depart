@@ -13,7 +13,7 @@ FICHIER_DREES  <- file.path(DIR_DATA, "departretraite_parcsp.csv")
 #              "parquet" = lecture de la vraie extraction via Arrow (lazy).
 SOURCE_BTS   <- "test"
 FICHIER_BTS  <- file.path(DIR_DATA, "bts_2024.parquet")   # extraction BTS
-FICHIER_SIREN<- file.path(DIR_DATA, "liste_entreprises_fictives.txt") # périmètre BITD (1 SIREN/ligne)
+FICHIER_SIREN<- file.path(DIR_DATA, "liste_entreprises_fictives.txt") # périmètre Base (1 SIREN/ligne)
 # --- Âge minimal du champ étudié : SEULE SOURCE DE VÉRITÉ -----------------------
 # Toute la chaîne et toutes les restitutions en dépendent : filtre Arrow poussé
 # au disque (01), table test (01), tranches d'âge, dénominateurs (part des
@@ -239,7 +239,7 @@ FICHIER_PCS_LIBELLES <- file.path(DIR_DATA, "PCS-ESE_2017_Liste.xlsx")   # nomen
 PCS_LIBELLES_COLS    <- c(code = "Code 2017", libelle = "Libelle_2017")  # feuille 1 ; sert UNIQUEMENT à afficher le
                                   # libellé des PCS dans les cartes. Facultatif : absent = code + grande catégorie.
                                   # Les codes sont rapprochés sans tenir compte de la casse ni des espaces (342f = 342F).
-# --- Typologie nationale des territoires BITD (script 08f, specs/10) ----------
+# --- Typologie nationale des territoires Base (script 08f, specs/10) ----------
 # Couche d'analyse EN AVAL du 08d (département x grande CS) : aucun départ
 # recalculé. Règles métier lisibles, aucun score composite. Tous les seuils
 # sont ici ; les bornes effectives sont écrites dans parametres_typologie.csv.
@@ -255,7 +255,7 @@ TYPO_METHODE_CLASSES  <- "terciles"     # "terciles" = RÈGLE DE CLASSEMENT STAT
                                         # observés sur les départements au-dessus du plancher) ; "fixes" = seuils ci-dessous.
                                         # AIDE : après une exécution, proposer_seuils_typologie(typologie_departements$departements)
                                         # imprime des bornes arrondies (terciles au pas 0,5 / 1 / 10) et le bloc à coller ici.
-TYPO_SEUIL_POIDS_FAIBLE         <- 0.5  # % de l'emploi BITD national (méthode "fixes") : < faible ; >= fort
+TYPO_SEUIL_POIDS_FAIBLE         <- 0.5  # % de l'emploi Base national (méthode "fixes") : < faible ; >= fort
 TYPO_SEUIL_POIDS_FORT           <- 2
 TYPO_SEUIL_INTENSITE_FAIBLE     <- 8    # % (méthode "fixes", indicateur d'intensité) : < faible ; >= élevée
 TYPO_SEUIL_RENOUVELLEMENT_ELEVE <- 15

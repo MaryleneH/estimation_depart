@@ -17,7 +17,7 @@ params_csv <- function(dir, methode = "terciles", indicateur = "part_a_remplacer
   f
 }
 classes_csv <- function(dir) {
-  d <- data.frame(geo_code = c("01", "02", "03", "04", "05"), classe_poids_bitd = c("Faible", "Moyen", "Fort", "Fort", NA),
+  d <- data.frame(geo_code = c("01", "02", "03", "04", "05"), classe_poids_base = c("Faible", "Moyen", "Fort", "Fort", NA),
                   classe_intensite = c("Faible", "Modérée", "Élevée", "Élevée", "Modérée"), classe_volume_departs = c("Faible", "Modéré", "Élevé", "Modéré", "Modéré"),
                   structure_emploi = c("Mixte", "Dominante ouvriers", "Dominante cadres", "Mixte", "Mixte"), type_concentration = c("Diffus", "Concentré", "Diffus", "Diffus", "Diffus"),
                   profil_typologie = "x", stringsAsFactors = FALSE)
@@ -31,10 +31,10 @@ test_that("SPEC-TYPO-070 — lecture des bornes effectives : fichier parametres_
   expect_identical(p[["methode_classes"]], "terciles"); expect_identical(p[["poids_haut_pct"]], "2"); expect_identical(p[["intensite_bas_pct"]], "8.1234")
   l <- EB$formater_bornes_typologie(p)
   txt <- paste(l, collapse = "\n")
-  expect_true(grepl("TYPOLOGIE BITD — BORNES DE CLASSEMENT", txt, fixed = TRUE))
+  expect_true(grepl("TYPOLOGIE Base — BORNES DE CLASSEMENT", txt, fixed = TRUE))
   expect_true(grepl("MÉTHODE : Terciles — règle de classement statistique provisoire", txt, fixed = TRUE))
   expect_true(grepl("(96 départements, dont 90 au-dessus du plancher", txt, fixed = TRUE))
-  for (s in c("1. POIDS DANS L'EMPLOI BITD NATIONAL", "2. VOLUME DES DÉPARTS D'ICI 2030", "3. INTENSITÉ DU RENOUVELLEMENT", "4. STRUCTURE DE L'EMPLOI", "5. CONCENTRATION DES DÉPARTS"))
+  for (s in c("1. POIDS DANS L'EMPLOI Base NATIONAL", "2. VOLUME DES DÉPARTS D'ICI 2030", "3. INTENSITÉ DU RENOUVELLEMENT", "4. STRUCTURE DE L'EMPLOI", "5. CONCENTRATION DES DÉPARTS"))
     expect_true(grepl(s, txt, fixed = TRUE), label = s)
   # bornes exactes, virgule décimale, borne incluse dans la classe supérieure (« moins de » / « ou plus »)
   expect_true(grepl("   Faible : moins de 0,5 %\n   Moyen  : de 0,5 % à moins de 2 %\n   Fort   : 2 % ou plus", txt, fixed = TRUE))
@@ -62,7 +62,7 @@ test_that("SPEC-TYPO-070 — méthode fixes, repli d'intensité sur le champ, ba
   expect_true(grepl("   Faible  : moins de 5 %\n   Modérée : de 5 % à moins de 10 %\n   Élevée  : 10 % ou plus", txt, fixed = TRUE))
   expect_true(grepl("moins de 30 salariés", txt, fixed = TRUE))
   expect_true(grepl("ATTENTION, repli", txt, fixed = TRUE)); expect_true(grepl("salariés du champ (âge minimal et plus)", txt, fixed = TRUE))
-  expect_true(grepl("part des salariés du champ BITD français", txt, fixed = TRUE))
+  expect_true(grepl("part des salariés du champ Base français", txt, fixed = TRUE))
   expect_true(grepl("RÉPARTITION DES 5 DÉPARTEMENTS", txt, fixed = TRUE))
   expect_true(grepl("Poids         : Faible 1 | Moyen 1 | Fort 2", txt, fixed = TRUE))
   expect_true(grepl("Volume        : Faible 1 | Modéré 3 | Élevé 1", txt, fixed = TRUE))
@@ -93,7 +93,7 @@ test_that("SPEC-TYPO-070 — session R vierge : source() depuis la racine, sans 
   log <- file.path(tempdir(), "bornes_session.log"); old <- setwd(RACINE); on.exit(setwd(old), add = TRUE)
   statut <- system2(file.path(R.home("bin"), "Rscript"), c("-e", shQuote(sprintf('DIR_SORTIES <- "%s"; source("R/99_controles/99c_afficher_bornes_typologie.R")', dir))), stdout = log, stderr = log)
   expect_equal(statut, 0L); txt <- paste(readLines(log, warn = FALSE, encoding = "UTF-8"), collapse = "\n")
-  expect_true(grepl("TYPOLOGIE BITD — BORNES DE CLASSEMENT", txt, fixed = TRUE)); expect_true(grepl("Fort   : 2 % ou plus", txt, fixed = TRUE))
+  expect_true(grepl("TYPOLOGIE Base — BORNES DE CLASSEMENT", txt, fixed = TRUE)); expect_true(grepl("Fort   : 2 % ou plus", txt, fixed = TRUE))
   expect_true(grepl("RÉPARTITION DES 5 DÉPARTEMENTS", txt, fixed = TRUE)); expect_true(grepl("Source :", txt, fixed = TRUE))
   expect_false(grepl("Error|Erreur", txt))
   # sans DIR_SORTIES ni fichier : message, code de sortie 0

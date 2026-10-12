@@ -12,7 +12,7 @@ factuelles.
 
 | À l'écran | Jamais à l'écran |
 |---|---|
-| « Salariés de 45 ans ou plus · entreprises du périmètre BITD » | « champ », « effectif », noms de colonnes R |
+| « Salariés de 45 ans ou plus · entreprises du périmètre Base » | « champ », « effectif », noms de colonnes R |
 | « départs estimés d'ici 2030 », « pourraient partir d'ici 2030 » | « taux de départ estimé » (hors légende et sélecteur) |
 | « Résultat non diffusé — secret statistique » | un chiffre masqué, même approché |
 | « Aucun salarié observé » | « 0 » pour une absence de donnée |

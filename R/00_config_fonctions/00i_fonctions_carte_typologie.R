@@ -25,19 +25,19 @@ COULEURS_PROFILS <- c(enjeu = "#b2182b", emergent = "#ef8a62", majeur_modere = "
                       stable = "#74c476", diffus = "#dfe6ee", expertiser = "#f2c744")
 LIBELLE_NON_DIFFUSE_TYPO <- "Non diffusé (secret statistique)"
 LIBELLES_CARTE_TYPO <- list(
-  kicker = "Typologie des territoires BITD · résultats diffusables",
+  kicker = "Typologie des territoires Base · résultats diffusables",
   titre = "Profils de renouvellement par département",
-  sous_titre = "Chaque département est classé par des règles simples (poids dans l’emploi BITD, volume et intensité des départs attendus d’ici 2030, concentration sur une catégorie).",
+  sous_titre = "Chaque département est classé par des règles simples (poids dans l’emploi Base, volume et intensité des départs attendus d’ici 2030, concentration sur une catégorie).",
   profil_non_diffuse = "Profil non diffusé (secret statistique)",
   absent = "Département absent de la typologie",
   detail_initial = "Survolez un département pour lire sa situation ; cliquez pour la garder affichée.",
   detail_non_diffuse = "Le détail de ce département n’est pas diffusé (secret statistique).",
   tableau_titre = "Le détail par département",
   definitions_titre = "Que signifient les profils ?")
-COLONNES_NUM_TYPO <- c("effectif_bitd_total", "effectif_champ_total", "effectif_tous_ages_total", "departs_central", "departs_bas", "departs_haut",
-                       "part_emploi_bitd_national_pct", "intensite_renouvellement_pct", "taux_depart_central_pct", "part_a_remplacer_pct",
+COLONNES_NUM_TYPO <- c("effectif_base_total", "effectif_champ_total", "effectif_tous_ages_total", "departs_central", "departs_bas", "departs_haut",
+                       "part_emploi_base_national_pct", "intensite_renouvellement_pct", "taux_depart_central_pct", "part_a_remplacer_pct",
                        "part_cs_principale_pct", "part_departs_cs_max_pct")
-COLONNES_TEXTE_TYPO <- c("profil_typologie", "classe_poids_bitd", "classe_intensite", "classe_volume_departs", "structure_emploi", "cs_principale",
+COLONNES_TEXTE_TYPO <- c("profil_typologie", "classe_poids_base", "classe_intensite", "classe_volume_departs", "structure_emploi", "cs_principale",
                          "cs_volume_departs_max", "cs_taux_renouvellement_max", "type_concentration", "motif_expertise", "points_attention",
                          "situation_texte", "justification_profil", "indicateur_intensite", "base_poids")
 
@@ -56,8 +56,8 @@ lire_typologie_diffusion <- function(fichier) {
 # « Non diffusé » : cellule CS masquée), masque (département entier), sans (absent).
 preparer_carte_typologie <- function(d, fond, profils = PROFILS_TYPOLOGIE) {
   if (!"masque" %in% names(d)) stop("preparer_carte_typologie : colonne 'masque' absente — seule la table de DIFFUSION est admise (jamais interne/).")
-  requis <- c("geo_code", "geo_nom", "profil_typologie", "effectif_bitd_total", "departs_central", "departs_bas", "departs_haut",
-              "part_emploi_bitd_national_pct", "intensite_renouvellement_pct")
+  requis <- c("geo_code", "geo_nom", "profil_typologie", "effectif_base_total", "departs_central", "departs_bas", "departs_haut",
+              "part_emploi_base_national_pct", "intensite_renouvellement_pct")
   manque <- setdiff(requis, names(d)); if (length(manque)) stop("preparer_carte_typologie : colonnes absentes : ", paste(manque, collapse = ", "))
   if (!is.character(d$geo_code)) stop("preparer_carte_typologie : geo_code doit être un texte.")
   d$masque <- as.logical(d$masque); d$masque[is.na(d$masque)] <- TRUE          # doute = masqué
@@ -104,10 +104,10 @@ lignes_detail_typologie <- function(r, indicateur = NULL) {
   f0 <- function(x) fmt_fr_carte(x, 0); f1 <- function(x) fmt_fr_carte(x, 1)
   ind <- if (!is.null(indicateur)) indicateur else r$indicateur_intensite
   l <- c(if (r$statut == "profil_masque") LIBELLES_CARTE_TYPO$profil_non_diffuse else NULL,
-         if (!is.na(r$part_emploi_bitd_national_pct)) sprintf("%s %% de l’emploi BITD national · %s salariés", f1(r$part_emploi_bitd_national_pct), f0(r$effectif_bitd_total)) else NULL,
+         if (!is.na(r$part_emploi_base_national_pct)) sprintf("%s %% de l’emploi Base national · %s salariés", f1(r$part_emploi_base_national_pct), f0(r$effectif_base_total)) else NULL,
          if (!is.na(r$departs_central)) sprintf("%s départs estimés d’ici 2030 (entre %s et %s)", f0(r$departs_central), f0(r$departs_bas), f0(r$departs_haut)) else NULL,
          if (!is.na(r$intensite_renouvellement_pct)) sprintf("%s %% %s", f1(r$intensite_renouvellement_pct), libelle_intensite_typo(ind)) else NULL,
-         if (!is.na(r$classe_poids_bitd)) sprintf("Poids %s · volume %s · intensité %s", tolower(r$classe_poids_bitd), tolower(r$classe_volume_departs), tolower(r$classe_intensite)) else NULL,
+         if (!is.na(r$classe_poids_base)) sprintf("Poids %s · volume %s · intensité %s", tolower(r$classe_poids_base), tolower(r$classe_volume_departs), tolower(r$classe_intensite)) else NULL,
          if (!is.na(r$structure_emploi)) { if (r$structure_emploi == "Mixte") sprintf("Emploi mixte (première catégorie : %s, %s %%)", libelle_cs_typo(r$cs_principale), f1(r$part_cs_principale_pct))
                                            else sprintf("Emploi dominé par les %s (%s %%)", libelle_cs_typo(r$cs_principale), f1(r$part_cs_principale_pct)) } else NULL,
          if (!is.na(r$cs_volume_departs_max)) sprintf("Départs portés d’abord par les %s (%s %%%s)", libelle_cs_typo(r$cs_volume_departs_max), f1(r$part_departs_cs_max_pct),
@@ -198,13 +198,13 @@ js_carte_typologie <- function() paste(
 # --- Briques HTML --------------------------------------------------------------------
 html_entete_typologie <- function(prep, champ, bandeau = TRUE, sous_qui = NULL) {
   P <- construire_libelles_public(champ); LT <- LIBELLES_CARTE_TYPO
-  base <- if (identical(prep$base_poids, "effectif_champ")) paste0("aux ", P$salaries_age_min, " des entreprises du périmètre BITD") else "à l’emploi actuel, tous âges, des entreprises du périmètre BITD"
+  base <- if (identical(prep$base_poids, "effectif_champ")) paste0("aux ", P$salaries_age_min, " des entreprises du périmètre Base") else "à l’emploi actuel, tous âges, des entreprises du périmètre Base"
   c('<header class="page-header">', sprintf('<p class="kicker">%s</p>', echap_html_carte(LT$kicker)),
     sprintf('<h1 class="page-title" id="titre">%s<small>Départs attendus d’ici 2030 · par département</small></h1>', echap_html_carte(LT$titre)),
     sprintf('<p class="page-subtitle"><span class="cat-qui">%s</span></p>', echap_html_carte(if (is.null(sous_qui)) LT$sous_titre else sous_qui)),
     if (bandeau) html_bandeau_sans_js() else "",
     '<div class="study-scope" role="note" aria-label="Qui est concerné">',
-    sprintf('<span class="scope-text"><b>%s</b> · entreprises du périmètre BITD</span>', echap_html_carte(P$salaries_age)),
+    sprintf('<span class="scope-text"><b>%s</b> · entreprises du périmètre Base</span>', echap_html_carte(P$salaries_age)),
     sprintf('<span class="scope-text">Poids et intensité rapportés %s.</span>', echap_html_carte(base)),
     '</div>',
     '<p class="context">Les couleurs donnent le profil ; les zones grisées correspondent à un profil ou un département non diffusé (secret statistique) ; les zones blanches sont absentes de la typologie.</p>',
@@ -242,7 +242,7 @@ html_tableau_typologie <- function(prep, ouvert = FALSE) {
     sit <- if (!is.na(r$situation_texte)) r$situation_texte else paste(lignes_detail_typologie(r, prep$indicateur), collapse = " ")
     sprintf('<tr><td>%s · %s</td><td><span class="sw" style="background:%s"></span>%s</td><td class="num">%s</td><td class="num">%s<br><small>%s à %s</small></td><td class="num">%s %%</td><td class="sit">%s</td></tr>',
             echap_html_carte(r$nom), r$code, couleur_territoire_typo(r), echap_html_carte(titre_profil_typo(r, prep)),
-            f0(r$effectif_bitd_total), f0(r$departs_central), f0(r$departs_bas), f0(r$departs_haut), f1(r$intensite_renouvellement_pct), echap_html_carte(sit)) }, "")
+            f0(r$effectif_base_total), f0(r$departs_central), f0(r$departs_bas), f0(r$departs_haut), f1(r$intensite_renouvellement_pct), echap_html_carte(sit)) }, "")
   c(sprintf('<details class="bloc-typo"%s><summary>%s</summary>', if (ouvert) " open" else "", echap_html_carte(LIBELLES_CARTE_TYPO$tableau_titre)),
     sprintf('<table class="tab-typo"><thead><tr><th>Département</th><th>Profil</th><th>Salariés</th><th>Départs d’ici 2030</th><th>Intensité</th><th>Situation</th></tr></thead><tbody>'),
     lignes, '</tbody></table>',

@@ -10,7 +10,7 @@ const svg = (w, h, body) => `<svg xmlns="http://www.w3.org/2000/svg" width="${w 
 const txt = (x, y, t, size = 12, fill = ENCRE, extra = "") => `<text x="${x}" y="${y}" font-size="${size}" fill="${fill}" ${extra}>${t}</text>`;
 const out = {};
 
-// 1. Poids : 100 silhouettes, 8 mises en évidence (« sur 100 salariés de la BITD en France, 8 travaillent ici »)
+// 1. Poids : 100 silhouettes, 8 mises en évidence (« sur 100 salariés de la Base en France, 8 travaillent ici »)
 { const w = 300, h = 130, s = 11, gx = 14, gy = 24; let b = "";
   for (let i = 0; i < 100; i++) { const r = Math.floor(i / 20), c = i % 20; b += person(10 + c * gx, 8 + r * gy, s, i < 8 ? NAVY : CLAIR); }
   out["poids"] = svg(w, h, b); }
@@ -50,7 +50,7 @@ const out = {};
 { const w = 640, h = 264; let b = "";
   const ligne = (y, nom, sal, dep, pct, col) => {
     let s = `<rect x="0" y="${y - 22}" width="${w}" height="112" rx="10" fill="${FOND}"/>`;
-    s += txt(16, y + 4, nom, 20, col, 'font-weight="bold"') + txt(16, y + 24, `${sal} salariés BITD`, 11.5, TEXTE);
+    s += txt(16, y + 4, nom, 20, col, 'font-weight="bold"') + txt(16, y + 24, `${sal} salariés Base`, 11.5, TEXTE);
     s += txt(16, y + 40, `${dep} départs estimés`, 11.5, TEXTE) + txt(16, y + 56, `${pct} % de l’emploi actuel`, 11.5, TEXTE);
     // volume : blocs de 100 départs
     s += txt(190, y - 4, "VOLUME", 9.5, TEXTE, 'letter-spacing="1.5" font-weight="bold"');

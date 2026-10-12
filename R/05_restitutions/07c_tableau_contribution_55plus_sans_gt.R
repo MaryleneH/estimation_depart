@@ -646,7 +646,7 @@ paste(
 DREES, jeu <em>departretraite_parcsp</em>
 (Insee, enquête Emploi) ;
 quotients de mortalité Insee —
-calculs propres SSM Défense.
+calculs propres.
 Données individuelles : Insee - BTS 2024.
 
 </div>

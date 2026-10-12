@@ -1,8 +1,8 @@
-# Spec 10 — Typologie nationale des territoires de la BITD
+# Spec 10 — Typologie nationale des territoires de la Base
 
 ## Intention métier
 
-Caractériser chaque département selon le poids de l'emploi BITD qu'il porte,
+Caractériser chaque département selon le poids de l'emploi Base qu'il porte,
 la structure actuelle de cet emploi par grande CS, le volume des départs estimés
 d'ici 2030, l'intensité du renouvellement qu'ils représentent et la concentration
 éventuelle de ces départs sur une grande CS ; puis attribuer un **profil
@@ -32,9 +32,9 @@ Indicateurs construits (tous écrits dans la table interne) :
 
 | Indicateur | Définition | Numérateur | Dénominateur |
 |---|---|---|---|
-| `effectif_bitd_total` | emploi BITD du département, **base du poids** | `effectif_tous_ages` sommé sur les CS si le stock est disponible, sinon `effectif_champ` | — |
-| `part_emploi_bitd_national_pct` | poids national | `effectif_bitd_total` | Σ départements (même base) |
-| `part_<cs>_pct` | structure de l'emploi | effectif de la CS (même base) | `effectif_bitd_total` |
+| `effectif_base_total` | emploi Base du département, **base du poids** | `effectif_tous_ages` sommé sur les CS si le stock est disponible, sinon `effectif_champ` | — |
+| `part_emploi_base_national_pct` | poids national | `effectif_base_total` | Σ départements (même base) |
+| `part_<cs>_pct` | structure de l'emploi | effectif de la CS (même base) | `effectif_base_total` |
 | `taux_depart_central_pct` | part des salariés **du champ** susceptibles de partir | `departs_central` | `effectif_champ` |
 | `part_a_remplacer_pct` | part de l'**emploi actuel** à remplacer | `departs_central` | `effectif_tous_ages` |
 | `intensite_renouvellement_pct` | **intensité du renouvellement retenue** : `part_a_remplacer_pct` quand le stock tous âges existe (`TYPO_INDICATEUR_INTENSITE`), sinon `taux_depart_central_pct` ; le nom de l'indicateur utilisé est écrit dans `indicateur_intensite` | | |
@@ -42,7 +42,7 @@ Indicateurs construits (tous écrits dans la table interne) :
 
 Le terme « taux de renouvellement » n'est pas employé seul : chaque table dit
 quel indicateur elle utilise. Le sens de l'intensité retenue : « sur 100
-salariés actuellement en poste dans la BITD du département, combien devraient
+salariés actuellement en poste dans la Base du département, combien devraient
 être remplacés d'ici 2030 ».
 
 ## Paramètres (`00_config.R`, section typologie)
@@ -272,7 +272,7 @@ la spec 05) ; aucun modèle de langage n'intervient.
 
 Gabarit de `situation_texte` (une cellule par département, quatre phrases) :
 
-1. **État** : « <Nom> (<code>) pèse <part> % de l'emploi BITD national
+1. **État** : « <Nom> (<code>) pèse <part> % de l'emploi Base national
    (<effectif> salariés), un poids <classe>[, sous le plancher de <n> salariés
    retenu pour l'analyse]. Son emploi est dominé par les <CS> (<part> %). » ou
    « … se répartit entre les grandes catégories sans dominante (première :
@@ -303,7 +303,7 @@ Gabarit de `situation_texte` (une cellule par département, quatre phrases) :
 `consigne_lecture`, `departements` (jusqu'à douze noms, par volume de départs
 décroissant), `n_a_expertiser_motifs` et `texte` : « <n> département(s)
 relève(nt) du profil « <titre> » : <signification>. Ensemble, ils représentent
-<x> % de l'emploi BITD et <y> % des départs attendus d'ici 2030 ; leur
+<x> % de l'emploi Base et <y> % des départs attendus d'ici 2030 ; leur
 intensité de renouvellement médiane est de <m> % (ensemble des départements :
 <M> %). [Dans <k> cas, une seule catégorie porte au moins la moitié des
 départs. ]Consigne de lecture : <consigne>. »
@@ -536,7 +536,7 @@ Fonctionnalité: Lire en console les bornes qui ont réellement servi au classem
 Code :
 
 - `R/00_config_fonctions/00h_fonctions_typologie.R` — `parametres_typologie()`,
-  `seuils_classes()`, `classer_par_seuils()`, `classer_poids_bitd()`,
+  `seuils_classes()`, `classer_par_seuils()`, `classer_poids_base()`,
   `calculer_structure_cs()`, `identifier_dominance_cs()`,
   `calculer_concentration_departs()`, `identifier_cs_volume_max()`,
   `identifier_cs_taux_max()`, `attribuer_profil_typologie()` (profil + motif),

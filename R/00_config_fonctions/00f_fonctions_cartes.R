@@ -10,7 +10,7 @@
 #            (aucune carte : une valeur nationale ne varie pas entre territoires).
 # RÈGLE DE CONCEPTION : le CHAMP de l'étude est rappelé en permanence, construit
 #        par construire_libelle_champ() depuis la configuration réelle
-#        (AGE_MIN_BTS, PCS_VERS_CS1, PCS_HORS_CHAMP, périmètre SIREN BITD,
+#        (AGE_MIN_BTS, PCS_VERS_CS1, PCS_HORS_CHAMP, périmètre SIREN Base,
 #        année de référence, horizon) — jamais écrit en dur dans le HTML.
 #        Champ / territoire / catégorie / indicateur sont quatre notions
 #        distinctes et distinguées à l'écran.
@@ -87,9 +87,9 @@ construire_libelle_champ <- function(age_min = get0("AGE_MIN_BTS", ifnotfound = 
   hors_lib <- c("1" = "agriculteurs exploitants", "2" = "artisans, commerçants et chefs d’entreprise")
   hors_txt <- paste(c(unname(hors_lib[intersect(as.character(hors), names(hors_lib))]), "profession non renseignée"), collapse = ", ")
   salaries_age <- sprintf("salariés de %d ans ou plus", age_min)
-  court <- paste0(salaries_age, " · entreprises du périmètre BITD")
+  court <- paste0(salaries_age, " · entreprises du périmètre Base")
   detaille <- c(
-    "Ces résultats concernent les salariés des entreprises retenues dans le périmètre BITD (base industrielle et technologique de défense).",
+    "Ces résultats concernent les salariés des entreprises retenues dans le périmètre Base.",
     sprintf("Ils portent sur les salariés âgés de %d ans ou plus en %d%s.", age_min, annee,
             if (length(cats)) paste0(", appartenant aux catégories professionnelles couvertes par le modèle : ", paste(cats, collapse = ", ")) else ""),
     sprintf("Certaines professions qui ne peuvent pas être rattachées à ces catégories (%s) ne sont pas incluses dans les estimations.", hors_txt),
@@ -108,7 +108,7 @@ construire_libelles_public <- function(champ = construire_libelle_champ()) {
                         effectif = paste("Nombre de", S)),
          kpi_aide = list(departs = "Salariés qui devraient avoir quitté définitivement leur emploi d’ici 2030 (estimation centrale).",
                          taux = paste0("Part des ", S, " de cette catégorie."),
-                         salaries = paste0(Smaj, " de cette catégorie, dans les entreprises du périmètre BITD.")),
+                         salaries = paste0(Smaj, " de cette catégorie, dans les entreprises du périmètre Base.")),
          note_taux = paste0("Part calculée parmi les ", S, " de la catégorie affichée.")))
 }
 
@@ -573,7 +573,7 @@ html_entete_champ <- function(champ, niveau, dimension, sous_cat = "", sous_qui 
             echap_html_carte(sous_cat), echap_html_carte(sous_qui)),
     html_bandeau_sans_js(),
     '<div class="study-scope" role="note" aria-label="Qui est concerné">',
-    sprintf('<span class="scope-text"><b>%s</b> · %s</span>', echap_html_carte(P$salaries_age), "entreprises du périmètre BITD"),
+    sprintf('<span class="scope-text"><b>%s</b> · %s</span>', echap_html_carte(P$salaries_age), "entreprises du périmètre Base"),
     sprintf('<details><summary>ⓘ %s</summary></details>', echap_html_carte(P$qui_titre)),
     sprintf('<div class="study-scope-detail" id="scope-detail" hidden>%s</div>',
             paste(sprintf("<p>%s</p>", echap_html_carte(champ$detaille)), collapse = "")),

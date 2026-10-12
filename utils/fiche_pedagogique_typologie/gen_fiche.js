@@ -1,11 +1,11 @@
-// Fiche pédagogique « typologie territoriale BITD » : quatre pages A4 paysage (docx-js).
+// Fiche pédagogique « typologie territoriale Base » : quatre pages A4 paysage (docx-js).
 // Usage : node gen_fiche.js [dossier_images] [fichier_sortie]
 // Les images (poids.png, volume.png, intensite.png, structure.png, concentration.png, ab.png)
 // sont produites par gen_svg.js + Chromium (voir README).
 const fs = require("fs"), path = require("path");
 const { Document, Packer, Paragraph, TextRun, ImageRun, Table, TableRow, TableCell, WidthType, AlignmentType, BorderStyle,
         ShadingType, PageOrientation, TableLayoutType, VerticalAlign, Footer, PageNumber } = require("docx");
-const DIR_IMG = process.argv[2] || path.join(__dirname, "images"), SORTIE = process.argv[3] || path.join(__dirname, "fiche_pedagogique_typologie_BITD.docx");
+const DIR_IMG = process.argv[2] || path.join(__dirname, "images"), SORTIE = process.argv[3] || path.join(__dirname, "fiche_pedagogique_typologie_Base.docx");
 
 // --- Charte --------------------------------------------------------------------
 const NAVY = "1E3A5F", ENCRE = "1F2933", TEXTE = "3E4C59", FILET = "D9DEE5", FOND = "F5F7FA", BLANC = "FFFFFF", ACCENT = "B2182B";
@@ -62,8 +62,8 @@ const carteIndicateur = (num, titre, question, explication, img, w, iw, ih) => c
   texte(explication, { size: 23, color: ENCRE, after: 0, line: 268 })], w, { fill: FOND, padx: 170, pad: 150 });
 
 const rang1 = table([W3, G3, W3, G3, W3], [ligneGrille([
-  carteIndicateur("1", "Le poids", "Quelle place occupe ce département dans l’emploi BITD national ?",
-    "Sur 100 salariés de la BITD en France, combien travaillent ici ? Ici, 8 sur 100. Classé faible, moyen ou fort. Un très petit effectif est toujours classé « faible ».", "poids.png", W3, 300, 130),
+  carteIndicateur("1", "Le poids", "Quelle place occupe ce département dans l’emploi Base national ?",
+    "Sur 100 salariés de la Base en France, combien travaillent ici ? Ici, 8 sur 100. Classé faible, moyen ou fort. Un très petit effectif est toujours classé « faible ».", "poids.png", W3, 300, 130),
   carteIndicateur("2", "Le volume", "Combien de salariés pourraient partir d’ici 2030 ?",
     "Un nombre de départs estimés, ici 900. Il dépend surtout de la taille du département. Classé faible, modéré ou élevé.", "volume.png", W3, 300, 130),
   carteIndicateur("3", "L’intensité", "Sur 100 salariés en poste, combien correspondent aux départs estimés ?",
@@ -75,7 +75,7 @@ const rang2 = table([W2, G3, W2], [ligneGrille([
     "Ici, 70 départs sur 100 concernent les ouvriers. À ne pas confondre avec la structure : une catégorie peut dominer l’emploi sans dominer les départs. La concentration peut décider du profil.", "concentration.png", W2, 330, 143)], W2, G3)]);
 
 const page1 = [
-  ...entete("Typologie des territoires BITD  ·  fiche de lecture  ·  1 / 4", "Comment lit-on un territoire ?",
+  ...entete("Typologie des territoires Base  ·  fiche de lecture  ·  1 / 4", "Comment lit-on un territoire ?",
     "La typologie ne cherche pas seulement où les départs seront nombreux. Elle distingue des situations de renouvellement différentes, à partir de cinq indicateurs lisibles et de règles explicites. Tous les chiffres ci-dessous sont fictifs."),
   etiquette("Les cinq ingrédients du classement"),
   rang1, vide(160), rang2];
@@ -132,7 +132,7 @@ const blocDroite = cell([
   avantApres], WD, { fill: FOND, pad: 150, padx: 170 });
 
 const page2 = [
-  ...entete("Typologie des territoires BITD  ·  fiche de lecture  ·  2 / 4", "Pourquoi un profil plutôt qu’un autre ?",
+  ...entete("Typologie des territoires Base  ·  fiche de lecture  ·  2 / 4", "Pourquoi un profil plutôt qu’un autre ?",
     "Deux départements peuvent compter des volumes de départs très différents et rencontrer des enjeux de renouvellement inverses. Le profil est ensuite attribué par des règles ordonnées, jamais par un score."),
   table([WG, GG, WD], [[blocAB, gap(GG), blocDroite]])];
 
@@ -154,9 +154,9 @@ const carteProfil = (p, sens, pourquoi, exemple, retenir) => {
     vide(80)], W4, { fill: FOND, pad: 0, padx: 0 }); };
 
 const cartes = [
-  [P.enjeu, "Un grand pôle de la BITD où beaucoup de salariés pourraient partir, et où ces départs représentent une part importante des effectifs actuels.",
+  [P.enjeu, "Un grand pôle de la Base où beaucoup de salariés pourraient partir, et où ces départs représentent une part importante des effectifs actuels.",
     "Les trois voyants sont au plus haut : poids fort, volume de départs élevé, intensité élevée (règle 6).",
-    "8 % de l’emploi BITD national · 900 départs estimés · 14 % de l’emploi actuel à remplacer.",
+    "8 % de l’emploi Base national · 900 départs estimés · 14 % de l’emploi actuel à remplacer.",
     "Priorité : anticiper les recrutements et la transmission des savoir-faire sur plusieurs années."],
   [P.emergent, "Une part importante des salariés pourrait partir d’ici 2030, même si le département n’est pas un très grand pôle ou si le nombre de départs reste limité.",
     "L’intensité est élevée, mais le poids ou le volume ne sont pas au plus haut (règle 7).",
@@ -174,7 +174,7 @@ const cartes = [
     "Aucune règle précédente ne s’applique : ni volume élevé, ni intensité élevée, ni départs concentrés (règle 10).",
     "1 % de l’emploi national · 120 départs · 7 % de l’emploi actuel · première catégorie : 38 % des départs.",
     "« Stable » ne veut dire ni zéro départ, ni absence de difficultés de recrutement : suivi ordinaire."],
-  [P.diffus, "La BITD pèse peu dans ce département, ou y repose sur très peu de salariés.",
+  [P.diffus, "La Base pèse peu dans ce département, ou y repose sur très peu de salariés.",
     "Le poids est faible : part nationale faible, ou effectif sous le plancher retenu pour l’analyse (règle 3).",
     "0,3 % de l’emploi national · 60 salariés · 9 départs, soit 15 % de l’emploi actuel.",
     "Un taux élevé sur un petit effectif ne se lit pas comme celui d’un grand pôle : il ne crée pas de priorité."],
@@ -195,16 +195,16 @@ const garder = cell([
 
 const grille = (cells) => table(Array(7).fill(0).map((_, i) => i % 2 ? G4 : W4), [ligneGrille(cells, W4, G4)]);
 const page3 = [
-  ...entete("Typologie des territoires BITD  ·  fiche de lecture  ·  3 / 4", "Les sept situations territoriales (1 à 4)",
+  ...entete("Typologie des territoires Base  ·  fiche de lecture  ·  3 / 4", "Les sept situations territoriales (1 à 4)",
     "Sept profils, sans échelle unique de gravité : chacun décrit une situation de renouvellement différente. Exemples fictifs ; les classes (faible, moyen, fort…) dépendent des seuils en vigueur."),
   grille(cardCells.slice(0, 4))];
 const page4 = [
-  ...entete("Typologie des territoires BITD  ·  fiche de lecture  ·  4 / 4", "Les sept situations territoriales (5 à 7)",
+  ...entete("Typologie des territoires Base  ·  fiche de lecture  ·  4 / 4", "Les sept situations territoriales (5 à 7)",
     "Les trois derniers profils, dont la situation à expertiser, et les précautions de lecture."),
   grille([...cardCells.slice(4, 7), garder])];
 
 const doc = new Document({
-  creator: "Estimation des départs BITD", title: "Typologie des territoires BITD — fiche de lecture",
+  creator: "Estimation des départs Base", title: "Typologie des territoires Base — fiche de lecture",
   styles: { default: { document: { run: { font: FONT, size: 19, color: ENCRE } } } },
   sections: [
     ...[page1, page2, page3, page4].map(ch => ({ properties: { page: PAGE }, footers: { default: pied("Estimation des départs à l’horizon 2030 · chiffres fictifs · secret statistique respecté") }, children: ch }))] });

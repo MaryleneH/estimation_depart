@@ -32,8 +32,8 @@ if (!isTRUE(get0("STOCK_TOUS_AGES", ifnotfound = TRUE))) {
 } else if (SOURCE_BTS == "parquet") {
   # ---------------------------------------------------------- agrégation Arrow
   if (!requireNamespace("arrow", quietly = TRUE)) stop("Le package 'arrow' est requis.")
-  if (!exists("sirens_bitd")) {
-    sirens_bitd <- readr::read_lines(FICHIER_SIREN); sirens_bitd <- trimws(sirens_bitd[sirens_bitd != ""])
+  if (!exists("sirens_base")) {
+    sirens_base <- readr::read_lines(FICHIER_SIREN); sirens_base <- trimws(sirens_base[sirens_base != ""])
   }
   ds <- arrow::open_dataset(FICHIER_BTS)
   col_siren <- COL_BTS[["siren"]]; col_age <- COL_BTS[["age"]]; col_pcs <- COL_BTS[["pcs"]]
@@ -44,7 +44,7 @@ if (!isTRUE(get0("STOCK_TOUS_AGES", ifnotfound = TRUE))) {
   if ("nom" %in% names(col_geo)) contrat <- c(contrat, geo_nom = unname(col_geo[["nom"]]))
   cles <- setdiff(names(contrat), "age")
   requete <- ds |>
-    filter(.data[[col_siren]] %in% sirens_bitd) |>            # même périmètre BITD, SANS filtre d'âge
+    filter(.data[[col_siren]] %in% sirens_base) |>            # même périmètre Base, SANS filtre d'âge
     select(all_of(unname(contrat))) |>
     rename(all_of(contrat))
   agg <- tryCatch(

@@ -1,7 +1,7 @@
-# Fiche pédagogique « typologie territoriale BITD » (Word, 4 pages A4 paysage)
+# Fiche pédagogique « typologie territoriale Base » (Word, 4 pages A4 paysage)
 
 Hors chaîne : rien ici n'est exécuté par `main.R`. Le document livré est
-`sorties/typologie_territoriale/fiche_pedagogique_typologie_BITD.docx`
+`sorties/typologie_territoriale/fiche_pedagogique_typologie_Base.docx`
 (et un aperçu PDF rendu par LibreOffice à côté). Tous les chiffres de la fiche
 sont **fictifs** ; les règles reprennent `specs/10_typologie_territoriale.md`
 §4 (dix règles ordonnées) et les titres de `PROFILS_TYPOLOGIE` (00h). Si une
@@ -18,7 +18,7 @@ for k in poids volume intensite structure concentration ab; do
   W=$(grep -o 'data-w="[0-9]*"' images/$k.svg | tr -dc 0-9); H=$(grep -o 'data-h="[0-9]*"' images/$k.svg | tr -dc 0-9)
   chromium --headless=new --hide-scrollbars --window-size=$((W*3)),$((H*3)) --screenshot=images/$k.png "file://$PWD/images/$k.svg"
 done
-node gen_fiche.js images ../../sorties/typologie_territoriale/fiche_pedagogique_typologie_BITD.docx
+node gen_fiche.js images ../../sorties/typologie_territoriale/fiche_pedagogique_typologie_Base.docx
 ```
 
 Les PNG sont versionnés : l'étape Chromium n'est nécessaire que si un

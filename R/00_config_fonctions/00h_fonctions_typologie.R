@@ -1,5 +1,5 @@
 # ==============================================================================
-# 00h_fonctions_typologie.R — Typologie nationale des territoires de la BITD
+# 00h_fonctions_typologie.R — Typologie nationale des territoires de la Base
 #                             (fonctions pures, maille DÉPARTEMENT × grande CS)
 # ------------------------------------------------------------------------------
 # RÔLE : couche d'ANALYSE EN AVAL des départs par grande CS (08d). Aucun départ
@@ -29,7 +29,7 @@ PROFILS_TYPOLOGIE <- c(enjeu = "Pôle majeur à renouveler rapidement", emergent
 DEFINITIONS_PROFILS <- tibble::tribble(
   ~cle, ~regle, ~signification, ~attention,
   "enjeu", "poids Fort, volume de départs Élevé, intensité Élevée",
-  "un département qui pèse lourd dans l’emploi BITD, où beaucoup de départs sont attendus et où ils représentent une part importante de l’emploi actuel",
+  "un département qui pèse lourd dans l’emploi Base, où beaucoup de départs sont attendus et où ils représentent une part importante de l’emploi actuel",
   "priorité de renouvellement, à anticiper par des recrutements et des transmissions de compétences sur plusieurs années",
   "emergent", "intensité Élevée, sans réunir toutes les conditions du pôle majeur à renouveler rapidement",
   "le renouvellement y est rapide au regard de l’emploi actuel, même si le volume ou le poids restent plus modestes",
@@ -44,7 +44,7 @@ DEFINITIONS_PROFILS <- tibble::tribble(
   "une implantation installée dont le renouvellement est régulier et réparti entre les catégories",
   "aucun signal particulier, suivi ordinaire",
   "diffus", "poids Faible (part nationale faible ou effectif sous le plancher)",
-  "une présence BITD réduite, dont les parts et les taux sont fragiles car calculés sur de petits effectifs",
+  "une présence Base réduite, dont les parts et les taux sont fragiles car calculés sur de petits effectifs",
   "ne pas sur-interpréter un taux élevé sur un petit effectif ; les chiffres restent visibles mais ne créent pas de priorité",
   "expertiser", "signaux contradictoires ou indicateurs à la frontière d’un seuil (le motif est écrit)",
   "les règles simples ne permettent pas de trancher, et le motif précise ce qui coince",
@@ -89,8 +89,8 @@ classer_par_seuils <- function(x, seuils, libelles) {
                 ifelse(x < seuils[["bas"]], libelles[1], ifelse(x < seuils[["haut"]], libelles[2], libelles[3])))
   unname(out)
 }
-# Poids BITD : classe sur la part nationale, mais un effectif sous le plancher absolu est toujours « Faible ».
-classer_poids_bitd <- function(part_nat_pct, effectif, seuils, effectif_min) {
+# Poids Base : classe sur la part nationale, mais un effectif sous le plancher absolu est toujours « Faible ».
+classer_poids_base <- function(part_nat_pct, effectif, seuils, effectif_min) {
   cl <- classer_par_seuils(part_nat_pct, seuils, CLASSES_TYPOLOGIE$poids)
   ifelse(!is.na(effectif) & effectif < effectif_min, CLASSES_TYPOLOGIE$poids[1], cl)
 }
@@ -182,7 +182,7 @@ points_attention_typologie <- function(d, params) {
     r <- d[i, ]; pts <- character(0)
     if (!is.na(r$type_concentration) && r$type_concentration == "Concentré")
       pts <- c(pts, sprintf("une seule catégorie porte %s %% des départs (%s)", fmt1(r$part_departs_cs_max_pct), libelle_cs_typo(r$cs_volume_departs_max)))
-    if (!is.na(r$classe_poids_bitd) && r$classe_poids_bitd == CLASSES_TYPOLOGIE$poids[1] && !is.na(r$classe_intensite) && r$classe_intensite == CLASSES_TYPOLOGIE$intensite[3] && !isTRUE(r$intensite_extreme_faible_stock))
+    if (!is.na(r$classe_poids_base) && r$classe_poids_base == CLASSES_TYPOLOGIE$poids[1] && !is.na(r$classe_intensite) && r$classe_intensite == CLASSES_TYPOLOGIE$intensite[3] && !isTRUE(r$intensite_extreme_faible_stock))
       pts <- c(pts, "renouvellement rapide mais calculé sur un petit effectif")
     if (!is.na(r$departs_central) && r$departs_central > 0 && (r$departs_haut - r$departs_bas) / r$departs_central >= 0.25)
       pts <- c(pts, sprintf("fourchette d’estimation large (de %d à %d départs)", round(r$departs_bas), round(r$departs_haut)))
@@ -208,10 +208,10 @@ rediger_situation_departement <- function(d, params, comparaisons, avec_cs = rep
   defs <- DEFINITIONS_PROFILS
   vapply(seq_len(nrow(d)), function(i) {
     r <- d[i, ]; nom <- paste0(r$geo_nom, " (", r$geo_code, ")")
-    if (is.na(r$effectif_bitd_total) || is.na(r$departs_central)) return(NA_character_)
-    etat <- sprintf("%s pèse %s %% de l’emploi BITD national (%s salariés), un poids %s%s.", nom, fmt1(r$part_emploi_bitd_national_pct), fmt0(r$effectif_bitd_total),
-                    tolower(ifelse(is.na(r$classe_poids_bitd), "non classé", r$classe_poids_bitd)),
-                    if (!is.na(r$effectif_bitd_total) && r$effectif_bitd_total < params$effectif_min) sprintf(", sous le plancher de %s salariés retenu pour l’analyse", formatC(params$effectif_min, format = "d", big.mark = " ")) else "")
+    if (is.na(r$effectif_base_total) || is.na(r$departs_central)) return(NA_character_)
+    etat <- sprintf("%s pèse %s %% de l’emploi Base national (%s salariés), un poids %s%s.", nom, fmt1(r$part_emploi_base_national_pct), fmt0(r$effectif_base_total),
+                    tolower(ifelse(is.na(r$classe_poids_base), "non classé", r$classe_poids_base)),
+                    if (!is.na(r$effectif_base_total) && r$effectif_base_total < params$effectif_min) sprintf(", sous le plancher de %s salariés retenu pour l’analyse", formatC(params$effectif_min, format = "d", big.mark = " ")) else "")
     structure <- if (avec_cs[i] && !is.na(r$structure_emploi)) {
       if (r$structure_emploi == "Mixte") sprintf(" Son emploi se répartit entre les grandes catégories sans dominante (première : %s, %s %%).", libelle_cs_typo(r$cs_principale), fmt1(r$part_cs_principale_pct))
       else sprintf(" Son emploi est dominé par les %s (%s %%).", libelle_cs_typo(r$cs_principale), fmt1(r$part_cs_principale_pct)) } else ""
@@ -243,7 +243,7 @@ rediger_synthese_profils <- function(synthese, d, comparaisons) {
     departements = { dd <- d[d$profil_typologie == profil_typologie, ]; dd <- dd[order(-dd$departs_central), ]
       paste(head(paste0(dd$geo_nom, " (", dd$geo_code, ")"), 12), collapse = ", ") },
     texte = paste0(sprintf("%d département%s relève%s du profil « %s » : %s. ", n_departements, if (n_departements > 1) "s" else "", if (n_departements > 1) "nt" else "", profil_typologie, signification),
-                   sprintf("Ensemble, ils représentent %s %% de l’emploi BITD et %s %% des départs attendus d’ici 2030 ; leur intensité de renouvellement médiane est de %s %% (ensemble des départements : %s %%). ",
+                   sprintf("Ensemble, ils représentent %s %% de l’emploi Base et %s %% des départs attendus d’ici 2030 ; leur intensité de renouvellement médiane est de %s %% (ensemble des départements : %s %%). ",
                            fmt1(poids_national_emploi_pct), fmt1(poids_national_departs_pct), fmt1(intensite_mediane_pct), fmt1(comparaisons$mediane_intensite)),
                    if (n_concentres > 0) sprintf("Dans %d cas, une seule catégorie porte au moins la moitié des départs. ", n_concentres) else "",
                    sprintf("Consigne de lecture : %s.", consigne_lecture))) |> ungroup() |> select(-cle)
@@ -257,7 +257,7 @@ construire_justification_profil <- function(d, params) {
   vapply(seq_len(nrow(d)), function(i) {
     r <- d[i, ]
     morceaux <- c(
-      sprintf("Poids BITD %s (%s %% de l’emploi BITD national, %s salariés)", tolower(r$classe_poids_bitd), fmt1(r$part_emploi_bitd_national_pct), fmt0(r$effectif_bitd_total)),
+      sprintf("Poids Base %s (%s %% de l’emploi Base national, %s salariés)", tolower(r$classe_poids_base), fmt1(r$part_emploi_base_national_pct), fmt0(r$effectif_base_total)),
       sprintf("volume de départs %s (%s départs estimés)", tolower(r$classe_volume_departs), fmt0(r$departs_central)),
       sprintf("intensité de renouvellement %s (%s : %s %%)", tolower(r$classe_intensite), lib_int, fmt1(r$intensite_renouvellement_pct)),
       if (!is.na(r$structure_emploi)) sprintf("structure %s (%s : %s %%)", tolower(r$structure_emploi), libelle_cs_typo(r$cs_principale), fmt1(r$part_cs_principale_pct)) else NULL,
@@ -299,10 +299,10 @@ construire_typologie_departements <- function(cs_dep, stock = NULL, params = par
   # Par département : totaux, structure, concentration, CS identifiées
   dep <- long |> group_by(across(any_of(c("region_code", "region_nom", "geo_code", "geo_nom")))) |>
     summarise(effectif_champ_total = sum(effectif_champ), effectif_tous_ages_total = if (avec_stock) sum(effectif_tous_ages) else NA_integer_,
-              effectif_bitd_total = sum(effectif_base),
+              effectif_base_total = sum(effectif_base),
               departs_central = sum(departs_central), departs_bas = sum(departs_bas), departs_haut = sum(departs_haut),
               n_cs = n(), .groups = "drop") |>
-    mutate(part_emploi_bitd_national_pct = 100 * effectif_bitd_total / sum(effectif_bitd_total),
+    mutate(part_emploi_base_national_pct = 100 * effectif_base_total / sum(effectif_base_total),
            taux_depart_central_pct = 100 * departs_central / effectif_champ_total,
            part_a_remplacer_pct = if (avec_stock) 100 * departs_central / effectif_tous_ages_total else NA_real_,
            intensite_renouvellement_pct = if (indicateur == "part_a_remplacer_pct") part_a_remplacer_pct else taux_depart_central_pct,
@@ -321,32 +321,32 @@ construire_typologie_departements <- function(cs_dep, stock = NULL, params = par
     tidyr_pivot(cs_order)
   dep <- dep |> left_join(par_dep, by = "geo_code") |> left_join(larges, by = "geo_code")
   # Classes : seuils (terciles provisoires ou fixes) sur les départements au-dessus du plancher
-  retenus <- dep$effectif_bitd_total >= params$effectif_min
-  s_poids <- seuils_classes(dep$part_emploi_bitd_national_pct[retenus], params$methode_classes, c(params$poids_faible, params$poids_fort))
+  retenus <- dep$effectif_base_total >= params$effectif_min
+  s_poids <- seuils_classes(dep$part_emploi_base_national_pct[retenus], params$methode_classes, c(params$poids_faible, params$poids_fort))
   s_int   <- seuils_classes(dep$intensite_renouvellement_pct[retenus], params$methode_classes, c(params$intensite_faible, params$intensite_elevee))
   s_vol   <- seuils_classes(dep$departs_central[retenus], params$methode_classes, c(params$volume_faible, params$volume_eleve))
   frontiere <- function(x, s) { m <- params$marge_frontiere_pct / 100
     (!is.na(x) & !is.na(s[["bas"]]) & abs(x - s[["bas"]]) <= m * s[["bas"]]) | (!is.na(x) & !is.na(s[["haut"]]) & abs(x - s[["haut"]]) <= m * s[["haut"]]) }
   dep <- dep |> mutate(
-    classe_poids_bitd = classer_poids_bitd(part_emploi_bitd_national_pct, effectif_bitd_total, s_poids, params$effectif_min),
+    classe_poids_base = classer_poids_base(part_emploi_base_national_pct, effectif_base_total, s_poids, params$effectif_min),
     classe_intensite  = classer_par_seuils(intensite_renouvellement_pct, s_int, CLASSES_TYPOLOGIE$intensite),
     classe_volume_departs = classer_par_seuils(departs_central, s_vol, CLASSES_TYPOLOGIE$volume),
-    frontiere_poids = frontiere(part_emploi_bitd_national_pct, s_poids), frontiere_intensite = frontiere(intensite_renouvellement_pct, s_int),
+    frontiere_poids = frontiere(part_emploi_base_national_pct, s_poids), frontiere_intensite = frontiere(intensite_renouvellement_pct, s_int),
     frontiere_volume = frontiere(departs_central, s_vol),
     frontiere_dominance = !is.na(part_cs_principale_pct) & abs(part_cs_principale_pct - params$seuil_dominance_cs) <= params$marge_frontiere_pct / 100 * params$seuil_dominance_cs,
     frontiere_concentration = !is.na(part_departs_cs_max_pct) & abs(part_departs_cs_max_pct - params$seuil_concentration) <= params$marge_frontiere_pct / 100 * params$seuil_concentration,
     # seuls les trois AXES qui décident du profil comptent (dominance et concentration sont informatives)
     n_criteres_frontiere = frontiere_poids + frontiere_intensite + frontiere_volume,
-    intensite_extreme_faible_stock = classe_poids_bitd == CLASSES_TYPOLOGIE$poids[1] & !is.na(s_int[["haut"]]) &
+    intensite_extreme_faible_stock = classe_poids_base == CLASSES_TYPOLOGIE$poids[1] & !is.na(s_int[["haut"]]) &
       intensite_renouvellement_pct >= params$facteur_intensite_extreme * s_int[["haut"]])
   axes_fr <- vapply(seq_len(nrow(dep)), function(i) paste(c(if (dep$frontiere_poids[i]) "poids", if (dep$frontiere_intensite[i]) "intensité", if (dep$frontiere_volume[i]) "volume"), collapse = ", "), "")
-  attrib <- attribuer_profil_typologie(dep$classe_poids_bitd, dep$classe_volume_departs, dep$classe_intensite, dep$type_concentration,
+  attrib <- attribuer_profil_typologie(dep$classe_poids_base, dep$classe_volume_departs, dep$classe_intensite, dep$type_concentration,
                                        dep$n_criteres_frontiere, dep$intensite_extreme_faible_stock, params$nb_frontiere_expertise, axes_fr)
   dep$profil_typologie <- attrib$profil; dep$motif_expertise <- attrib$motif
   dep$points_attention <- points_attention_typologie(dep, params)
   dep$justification_profil <- construire_justification_profil(dep, params)
   comparaisons <- list(mediane_intensite = median(dep$intensite_renouvellement_pct, na.rm = TRUE),
-                       mediane_part_nationale = median(dep$part_emploi_bitd_national_pct, na.rm = TRUE))
+                       mediane_part_nationale = median(dep$part_emploi_base_national_pct, na.rm = TRUE))
   dep$situation_texte <- rediger_situation_departement(dep, params, comparaisons)
   dep <- dep |> arrange(geo_code)
   parametres <- tibble(parametre = c("methode_classes", "indicateur_intensite", "base_poids", "seuil_dominance_cs_pct", "seuil_concentration_departs_pct",
@@ -381,7 +381,7 @@ controler_typologie <- function(typo, cs_dep, tol = 1e-6) {
            "Σ grandes CS ≠ total du département.")
   verifier(abs(sum(d$departs_central) - sum(cs_dep$departs_central)) < tol && sum(d$effectif_champ_total) == sum(cs_dep$effectif_champ),
            "total national de la typologie ≠ table cs1 du 08d.")
-  verifier(abs(sum(d$part_emploi_bitd_national_pct) - 100) < 1e-6, "Σ parts nationales ≠ 100.")
+  verifier(abs(sum(d$part_emploi_base_national_pct) - 100) < 1e-6, "Σ parts nationales ≠ 100.")
   verifier(all(d$departs_bas <= d$departs_central + tol & d$departs_central <= d$departs_haut + tol), "fourchette non ordonnée.")
   verifier(all(d$profil_typologie %in% PROFILS_TYPOLOGIE), "profil inconnu.")
   verifier(!any(grepl("tension_departement|departement_en_tension", names(d))), "colonne interdite (tension attribuée au département).")
@@ -412,7 +412,7 @@ appliquer_secret_typologie <- function(typo, diffusion_cs_dep, base, regles = re
   masq_cs <- diffusion_cs_dep |> group_by(geo_code) |> summarise(cs_masquee = any(masque), .groups = "drop")
   d <- d |> left_join(masq_cs, by = "geo_code") |> mutate(cs_masquee = coalesce(cs_masquee, FALSE))
   cols_cs <- grep("^(effectif|part|departs|intensite)_[A-Za-z_]+(_pct)?$", names(d), value = TRUE)
-  cols_cs <- setdiff(cols_cs, c("part_emploi_bitd_national_pct", "part_cs_principale_pct", "part_departs_cs_max_pct", "part_a_remplacer_pct", "departs_central", "departs_bas", "departs_haut", "intensite_renouvellement_pct"))
+  cols_cs <- setdiff(cols_cs, c("part_emploi_base_national_pct", "part_cs_principale_pct", "part_departs_cs_max_pct", "part_a_remplacer_pct", "departs_central", "departs_bas", "departs_haut", "intensite_renouvellement_pct"))
   for (v in cols_cs) {                      # colonne par CS : masque de la cellule
     cs <- sub("^(effectif|part|departs|intensite)_", "", sub("_pct$", "", v))
     m <- diffusion_cs_dep |> mutate(k = gsub("[^A-Za-z]", "_", cs1)) |> filter(k == cs) |> select(geo_code, masque)
@@ -449,12 +449,12 @@ appliquer_secret_typologie <- function(typo, diffusion_cs_dep, base, regles = re
 arrondir_pas <- function(x, pas) ifelse(is.na(x), NA_real_, round(x / pas) * pas)
 proposer_seuils_typologie <- function(departements, effectif_min = TYPO_SEUIL_EFFECTIF_MIN,
                                       pas = c(poids = 0.5, intensite = 1, volume = 10), afficher = TRUE) {
-  requis <- c("effectif_bitd_total", "part_emploi_bitd_national_pct", "intensite_renouvellement_pct", "departs_central")
+  requis <- c("effectif_base_total", "part_emploi_base_national_pct", "intensite_renouvellement_pct", "departs_central")
   manque <- setdiff(requis, names(departements)); if (length(manque)) stop("proposer_seuils_typologie : colonnes absentes : ", paste(manque, collapse = ", "))
   if (!all(c("poids", "intensite", "volume") %in% names(pas)) || any(pas <= 0)) stop("proposer_seuils_typologie : pas = c(poids, intensite, volume) strictement positifs.")
-  d <- departements[!is.na(departements$effectif_bitd_total) & departements$effectif_bitd_total >= effectif_min, ]
+  d <- departements[!is.na(departements$effectif_base_total) & departements$effectif_base_total >= effectif_min, ]
   if (nrow(d) < 3) stop("proposer_seuils_typologie : moins de 3 départements au-dessus du plancher (", effectif_min, ") — aucun tercile calculable.")
-  axes <- list(poids = list(col = "part_emploi_bitd_national_pct", bas = "TYPO_SEUIL_POIDS_FAIBLE", haut = "TYPO_SEUIL_POIDS_FORT", libs = CLASSES_TYPOLOGIE$poids, unite = "% de l'emploi BITD national"),
+  axes <- list(poids = list(col = "part_emploi_base_national_pct", bas = "TYPO_SEUIL_POIDS_FAIBLE", haut = "TYPO_SEUIL_POIDS_FORT", libs = CLASSES_TYPOLOGIE$poids, unite = "% de l'emploi Base national"),
                intensite = list(col = "intensite_renouvellement_pct", bas = "TYPO_SEUIL_INTENSITE_FAIBLE", haut = "TYPO_SEUIL_RENOUVELLEMENT_ELEVE", libs = CLASSES_TYPOLOGIE$intensite, unite = "%"),
                volume = list(col = "departs_central", bas = "TYPO_SEUIL_VOLUME_FAIBLE", haut = "TYPO_SEUIL_VOLUME_ELEVE", libs = CLASSES_TYPOLOGIE$volume, unite = "départs estimés"))
   tableau <- bind_rows(lapply(names(axes), function(a) {
@@ -471,11 +471,11 @@ proposer_seuils_typologie <- function(departements, effectif_min = TYPO_SEUIL_EF
   # distributions observées des seuils métier (pour information, aucune proposition)
   obs <- function(col) if (col %in% names(departements)) { x <- departements[[col]]; x <- x[is.finite(x)]; if (length(x)) quantile(x, c(0, .5, 1), names = FALSE) else rep(NA_real_, 3) } else rep(NA_real_, 3)
   metier <- tibble(parametre = c("TYPO_SEUIL_DOMINANCE_CS", "TYPO_SEUIL_CONCENTRATION_DEPARTS", "TYPO_SEUIL_EFFECTIF_MIN"),
-                   indicateur_observe = c("part_cs_principale_pct", "part_departs_cs_max_pct", "effectif_bitd_total"),
-                   min = c(obs("part_cs_principale_pct")[1], obs("part_departs_cs_max_pct")[1], obs("effectif_bitd_total")[1]),
-                   mediane = c(obs("part_cs_principale_pct")[2], obs("part_departs_cs_max_pct")[2], obs("effectif_bitd_total")[2]),
-                   max = c(obs("part_cs_principale_pct")[3], obs("part_departs_cs_max_pct")[3], obs("effectif_bitd_total")[3]),
-                   n_sous_plancher = c(NA, NA, sum(departements$effectif_bitd_total < effectif_min, na.rm = TRUE)))
+                   indicateur_observe = c("part_cs_principale_pct", "part_departs_cs_max_pct", "effectif_base_total"),
+                   min = c(obs("part_cs_principale_pct")[1], obs("part_departs_cs_max_pct")[1], obs("effectif_base_total")[1]),
+                   mediane = c(obs("part_cs_principale_pct")[2], obs("part_departs_cs_max_pct")[2], obs("effectif_base_total")[2]),
+                   max = c(obs("part_cs_principale_pct")[3], obs("part_departs_cs_max_pct")[3], obs("effectif_base_total")[3]),
+                   n_sous_plancher = c(NA, NA, sum(departements$effectif_base_total < effectif_min, na.rm = TRUE)))
   fmt <- function(x) trimws(formatC(x, format = "fg", digits = 4, decimal.mark = "."))
   bloc <- c("# --- Proposition de seuils fixes (proposer_seuils_typologie) : à relire, puis à coller dans 00_config.R ---",
             sprintf("# %d département(s) au-dessus du plancher TYPO_SEUIL_EFFECTIF_MIN = %s ; bornes = terciles arrondis au pas (poids %s, intensité %s, volume %s)",
@@ -496,11 +496,11 @@ proposer_seuils_typologie <- function(departements, effectif_min = TYPO_SEUIL_EF
 
 # --- Synthèse par profil ------------------------------------------------------------
 synthese_profils <- function(typo, rediger = TRUE) {
-  d <- typo$departements; tot_e <- sum(d$effectif_bitd_total); tot_d <- sum(d$departs_central)
+  d <- typo$departements; tot_e <- sum(d$effectif_base_total); tot_d <- sum(d$departs_central)
   s <- d |> group_by(profil_typologie) |>
-    summarise(n_departements = n(), effectif_bitd_total = sum(effectif_bitd_total), departs_central = sum(departs_central),
-              poids_national_emploi_pct = 100 * effectif_bitd_total / tot_e, poids_national_departs_pct = 100 * departs_central / tot_d,
-              intensite_mediane_pct = median(intensite_renouvellement_pct, na.rm = TRUE), part_nationale_mediane_pct = median(part_emploi_bitd_national_pct),
+    summarise(n_departements = n(), effectif_base_total = sum(effectif_base_total), departs_central = sum(departs_central),
+              poids_national_emploi_pct = 100 * effectif_base_total / tot_e, poids_national_departs_pct = 100 * departs_central / tot_d,
+              intensite_mediane_pct = median(intensite_renouvellement_pct, na.rm = TRUE), part_nationale_mediane_pct = median(part_emploi_base_national_pct),
               n_concentres = sum(type_concentration %in% "Concentré"), n_mixtes = sum(structure_emploi %in% "Mixte"),
               n_a_expertiser_motifs = sum(!is.na(motif_expertise)), .groups = "drop") |>
     mutate(profil_typologie = factor(profil_typologie, levels = PROFILS_TYPOLOGIE)) |> arrange(profil_typologie) |> mutate(profil_typologie = as.character(profil_typologie))
@@ -533,15 +533,15 @@ joindre_signal_tension_localise <- function(typo_dep, tensions = NULL, passage =
 }
 
 # --- Matrice pédagogique (PNG, ggplot2, sans ggrepel) ------------------------------
-png_matrice_typologie <- function(typo, fichier, titre = "Typologie des départements BITD") {
+png_matrice_typologie <- function(typo, fichier, titre = "Typologie des départements Base") {
   if (!requireNamespace("ggplot2", quietly = TRUE)) stop("ggplot2 absent")
-  d <- typo$departements |> filter(is.finite(intensite_renouvellement_pct), is.finite(part_emploi_bitd_national_pct))
+  d <- typo$departements |> filter(is.finite(intensite_renouvellement_pct), is.finite(part_emploi_base_national_pct))
   p <- typo$parametres; val <- function(k) as.numeric(p$valeur[p$parametre == k])
   lib_y <- if (typo$indicateur == "part_a_remplacer_pct") "Intensité : part de l’emploi actuel à remplacer d’ici 2030 (%)" else "Intensité : part des salariés du champ susceptibles de partir d’ici 2030 (%)"
   pal <- c("Mixte" = "#6b7280", "Dominante cadres" = "#08306b", "Dominante professions intermédiaires" = "#2171b5",
            "Dominante employés" = "#4292c6", "Dominante ouvriers" = "#9ecae1")
   d$structure_emploi <- ifelse(is.na(d$structure_emploi), "Mixte", d$structure_emploi)
-  g <- ggplot2::ggplot(d, ggplot2::aes(x = part_emploi_bitd_national_pct, y = intensite_renouvellement_pct)) +
+  g <- ggplot2::ggplot(d, ggplot2::aes(x = part_emploi_base_national_pct, y = intensite_renouvellement_pct)) +
     ggplot2::geom_vline(xintercept = c(val("poids_bas_pct"), val("poids_haut_pct")), linetype = "42", colour = "#666666", linewidth = .4) +
     ggplot2::geom_hline(yintercept = c(val("intensite_bas_pct"), val("intensite_haut_pct")), linetype = "42", colour = "#666666", linewidth = .4) +
     ggplot2::geom_point(ggplot2::aes(size = departs_central, colour = structure_emploi), alpha = .85) +
@@ -549,7 +549,7 @@ png_matrice_typologie <- function(typo, fichier, titre = "Typologie des départe
     ggplot2::scale_colour_manual(values = pal, name = "Structure de l’emploi", drop = TRUE) +
     ggplot2::scale_size_area(max_size = 12, name = "Départs estimés (centrale)") +
     ggplot2::labs(title = titre, subtitle = "Lignes pointillées : seuils des classes (faible / moyen / fort) — règle de classement statistique provisoire",
-                  x = "Poids : part du département dans l’emploi BITD national (%)", y = lib_y,
+                  x = "Poids : part du département dans l’emploi Base national (%)", y = lib_y,
                   caption = "Une position = un département ; la taille du point = volume de départs. Aucune tension DGA / France Travail n’est représentée (maille différente).") +
     ggplot2::theme_minimal(base_size = 11) + ggplot2::theme(legend.position = "bottom", legend.box = "vertical", panel.grid.minor = ggplot2::element_blank())
   ggplot2::ggsave(fichier, g, width = 11, height = 8.5, dpi = 130, bg = "white")

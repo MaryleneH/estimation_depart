@@ -1,5 +1,5 @@
 # ==============================================================================
-# 99c_afficher_bornes_typologie.R — Bornes de classement de la typologie BITD
+# 99c_afficher_bornes_typologie.R — Bornes de classement de la typologie Base
 # ------------------------------------------------------------------------------
 # USAGE   : à lancer SEUL, depuis la racine du dépôt, après main.R (session R
 #           neuve possible, aucun objet de la chaîne requis) :
@@ -29,7 +29,7 @@ lire_classes_typologie <- function(fichier) {
   if (!file.exists(fichier)) return(NULL)
   d <- utils::read.csv2(fichier, fileEncoding = "UTF-8-BOM", stringsAsFactors = FALSE, colClasses = "character", na.strings = c("NA", ""))
   names(d)[1] <- sub("^﻿", "", names(d)[1])
-  requis <- c("classe_poids_bitd", "classe_intensite", "classe_volume_departs", "structure_emploi", "type_concentration")
+  requis <- c("classe_poids_base", "classe_intensite", "classe_volume_departs", "structure_emploi", "type_concentration")
   if (!all(requis %in% names(d))) return(NULL)
   d[, requis]
 }
@@ -67,12 +67,12 @@ formater_bornes_typologie <- function(params, classes = NULL) {
   n_ret <- if (!is.null(params[["n_departements_retenus_seuils"]]) && !is.null(params[["n_departements"]]))
     sprintf("          (%s départements, dont %s au-dessus du plancher pour fixer les bornes)", nb_fr(params[["n_departements"]]), nb_fr(params[["n_departements_retenus_seuils"]])) else NULL
   intensite_lecture <- if (identical(indicateur, "part_a_remplacer_pct"))
-    c("   Lecture : sur 100 salariés actuellement en poste (tous âges)", "   dans la BITD du département, combien correspondent aux", "   départs estimés d'ici 2030.")
+    c("   Lecture : sur 100 salariés actuellement en poste (tous âges)", "   dans la Base du département, combien correspondent aux", "   départs estimés d'ici 2030.")
   else c("   Lecture : ATTENTION, repli : le stock tous âges n'était pas", "   disponible ; l'intensité rapporte les départs aux seuls", "   salariés du champ (âge minimal et plus), pas à l'emploi actuel.", "   Elle n'est pas comparable à une part de l'emploi à remplacer.")
-  poids_base <- if (identical(base, "effectif_tous_ages")) "   Lecture : part de l'emploi BITD français (tous âges) située" else "   Lecture : part des salariés du champ BITD français située"
-  l <- c(trait, "  TYPOLOGIE BITD — BORNES DE CLASSEMENT", trait, "",
+  poids_base <- if (identical(base, "effectif_tous_ages")) "   Lecture : part de l'emploi Base français (tous âges) située" else "   Lecture : part des salariés du champ Base français située"
+  l <- c(trait, "  TYPOLOGIE Base — BORNES DE CLASSEMENT", trait, "",
     paste0("MÉTHODE : ", methode_txt), n_ret, "",
-    "1. POIDS DANS L'EMPLOI BITD NATIONAL", tiret,
+    "1. POIDS DANS L'EMPLOI Base NATIONAL", tiret,
     sprintf("   Faible : moins de %s", pct_fr(po$bas, po$d)),
     sprintf("   Moyen  : de %s à moins de %s", pct_fr(po$bas, po$d), pct_fr(po$haut, po$d)),
     sprintf("   Fort   : %s ou plus", pct_fr(po$haut, po$d)), "",
@@ -101,7 +101,7 @@ formater_bornes_typologie <- function(params, classes = NULL) {
     "Règle commune : une valeur égale à une borne appartient à la", "classe supérieure (ou à « Dominante » / « Concentré »).", trait)
   if (!is.null(classes) && nrow(classes) > 0) {
     cpt <- function(v, niveaux) vapply(niveaux, function(k) sum(v %in% k), 0L)
-    po_n <- cpt(classes$classe_poids_bitd, c("Faible", "Moyen", "Fort")); vo_n <- cpt(classes$classe_volume_departs, c("Faible", "Modéré", "Élevé"))
+    po_n <- cpt(classes$classe_poids_base, c("Faible", "Moyen", "Fort")); vo_n <- cpt(classes$classe_volume_departs, c("Faible", "Modéré", "Élevé"))
     it_n <- cpt(classes$classe_intensite, c("Faible", "Modérée", "Élevée"))
     st_n <- c(Mixte = sum(classes$structure_emploi %in% "Mixte"), Dominante = sum(grepl("^Dominante", classes$structure_emploi)))
     co_n <- cpt(classes$type_concentration, c("Diffus", "Concentré"))
@@ -112,7 +112,7 @@ formater_bornes_typologie <- function(params, classes = NULL) {
       sprintf("Intensité     : Faible %d | Modérée %d | Élevée %d", it_n[1], it_n[2], it_n[3]),
       sprintf("Structure     : Mixte %d | Dominante %d", st_n[["Mixte"]], st_n[["Dominante"]]),
       sprintf("Concentration : Diffus %d | Concentré %d", co_n[1], co_n[2]))
-    nas <- nc(classes$classe_poids_bitd) + nc(classes$classe_intensite) + nc(classes$classe_volume_departs) + nc(classes$structure_emploi) + nc(classes$type_concentration)
+    nas <- nc(classes$classe_poids_base) + nc(classes$classe_intensite) + nc(classes$classe_volume_departs) + nc(classes$structure_emploi) + nc(classes$type_concentration)
     if (nas > 0) l <- c(l, "", "(classes non renseignées : non comptées)")
     l <- c(l, trait)
   }

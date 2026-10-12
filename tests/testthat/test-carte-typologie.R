@@ -18,16 +18,16 @@ P_K <- EK$PROFILS_TYPOLOGIE
 TABLE_TYPO <- tibble::tibble(
   region_code = c("75", "75", "84", "94"), region_nom = "R",
   geo_code = c("33", "64", "01", "2A"), geo_nom = c("Gironde", "Pyrénées-Atlantiques", "Ain", "Corse-du-Sud"),
-  effectif_bitd_total = c(12345, 9876543, 4321, 210), departs_central = c(1234, 5432109, 321, 40), departs_bas = c(1200, 5432100, 300, 36), departs_haut = c(1300, 5432199, 350, 44),
-  part_emploi_bitd_national_pct = c(10.7, 88.8, 3.8, 0.2), intensite_renouvellement_pct = c(10, 99.9, 7.4, 19), indicateur_intensite = "part_a_remplacer_pct", base_poids = "effectif_tous_ages",
-  classe_poids_bitd = c("Fort", "Fort", "Moyen", "Faible"), classe_intensite = c("Élevée", "Faible", "Modérée", "Élevée"), classe_volume_departs = c("Élevé", "Élevé", "Modéré", "Faible"),
+  effectif_base_total = c(12345, 9876543, 4321, 210), departs_central = c(1234, 5432109, 321, 40), departs_bas = c(1200, 5432100, 300, 36), departs_haut = c(1300, 5432199, 350, 44),
+  part_emploi_base_national_pct = c(10.7, 88.8, 3.8, 0.2), intensite_renouvellement_pct = c(10, 99.9, 7.4, 19), indicateur_intensite = "part_a_remplacer_pct", base_poids = "effectif_tous_ages",
+  classe_poids_base = c("Fort", "Fort", "Moyen", "Faible"), classe_intensite = c("Élevée", "Faible", "Modérée", "Élevée"), classe_volume_departs = c("Élevé", "Élevé", "Modéré", "Faible"),
   structure_emploi = c("Dominante cadres", "Mixte", NA, "Mixte"), cs_principale = c("Cadres", "Ouvriers", NA, "Ouvriers"), part_cs_principale_pct = c(45.5, 30, NA, 35),
   cs_volume_departs_max = c("Cadres", "Ouvriers", NA, "Ouvriers"), part_departs_cs_max_pct = c(61, 33, NA, 40), cs_taux_renouvellement_max = c("Cadres", "Employes", NA, "Ouvriers"),
   type_concentration = c("Concentré", "Diffus", NA, "Diffus"),
   profil_typologie = c(P_K[["enjeu"]], "Non diffusé (secret statistique)", "Non diffusé (secret statistique)", P_K[["expertiser"]]),
   motif_expertise = c(NA, NA, NA, "intensité de renouvellement extrême sur un très petit effectif"),
   points_attention = c("une seule catégorie porte 61,0 % des départs (cadres)", NA, NA, NA),
-  situation_texte = c("Gironde (33) pèse 10,7 % de l’emploi BITD national (12 345 salariés), un poids fort. Phrase de test.", "SECRET-FUITE-TEXTE", "Ain (01) pèse 3,8 %. Phrase sans catégorie.", NA),
+  situation_texte = c("Gironde (33) pèse 10,7 % de l’emploi Base national (12 345 salariés), un poids fort. Phrase de test.", "SECRET-FUITE-TEXTE", "Ain (01) pèse 3,8 %. Phrase sans catégorie.", NA),
   masque = c(FALSE, TRUE, FALSE, FALSE), motif_masque = c(NA, "territoire", "cellule cs masquée", NA))
 # espace fine insécable (U+202F, séparateur de milliers de fmt_fr_carte) ramenée à une espace pour les comparaisons
 nrm <- function(x) gsub("\u202f", " ", x)
@@ -44,7 +44,7 @@ test_that("SPEC-TYPO-060 — source : seule la diffusion est admise (masque requ
   # CSV write.csv2 (virgule décimale, BOM facultatif) relu tel quel
   f <- file.path(tempdir(), "typo_diff.csv"); write.csv2(EK$formater_restitution(TABLE_TYPO), f, row.names = FALSE)
   d <- EK$lire_typologie_diffusion(f)
-  expect_type(d$geo_code, "character"); expect_type(d$departs_central, "double"); expect_equal(d$part_emploi_bitd_national_pct[1], 10.7); expect_identical(d$masque, c(FALSE, TRUE, FALSE, FALSE))
+  expect_type(d$geo_code, "character"); expect_type(d$departs_central, "double"); expect_equal(d$part_emploi_base_national_pct[1], 10.7); expect_identical(d$masque, c(FALSE, TRUE, FALSE, FALSE))
   expect_error(EK$lire_typologie_diffusion(file.path(tempdir(), "absent.csv")), "introuvable")
 })
 
@@ -70,7 +70,7 @@ test_that("SPEC-TYPO-061/062 — page interactive : couleur par profil écrite d
   # JSON de détail : lignes de l'infobulle, texte de situation, profils avec consigne ; survol / clic / légende câblés
   j <- jsonlite::fromJSON(regmatches(html, regexpr('(?s)(?<=<script type="application/json" id="donnees">).*?(?=</script>)', html, perl = TRUE)))
   g <- j$territoires[["33"]]; expect_identical(g$cle, "enjeu"); expect_match(g$texte, "^Gironde \\(33\\) pèse 10,7 %")
-  expect_identical(nrm(g$lignes[1:2]), c("10,7 % de l’emploi BITD national · 12 345 salariés", "1 234 départs estimés d’ici 2030 (entre 1 200 et 1 300)"))
+  expect_identical(nrm(g$lignes[1:2]), c("10,7 % de l’emploi Base national · 12 345 salariés", "1 234 départs estimés d’ici 2030 (entre 1 200 et 1 300)"))
   expect_true(any(grepl("^10,0 % de l’emploi actuel à remplacer", g$lignes))); expect_true("Poids fort · volume élevé · intensité élevée" %in% g$lignes)
   expect_true("Emploi dominé par les cadres (45,5 %)" %in% g$lignes); expect_true("Départs portés d’abord par les cadres (61,0 %, concentrés sur cette catégorie)" %in% g$lignes)
   expect_true(any(grepl("^Point\\(s\\) d’attention : une seule catégorie", g$lignes)))
@@ -96,10 +96,10 @@ test_that("SPEC-TYPO-063/064 — version courriel : aucun contenu actif, <title>
   expect_false(grepl("<script", html, fixed = TRUE)); expect_false(grepl(" on[a-z]+=", html)); expect_false(grepl("javascript:", html, fixed = TRUE))
   expect_false(grepl('id="donnees"', html, fixed = TRUE)); expect_false(grepl('id="sans-js"', html, fixed = TRUE))
   expect_equal(lengths(regmatches(html, gregexpr("<title>", html))), 102L)                       # page + un par département
-  expect_true(grepl('<title>Gironde · 33\nPôle majeur à renouveler rapidement\n10,7 % de l’emploi BITD national · 12 345 salariés\n', html, fixed = TRUE))
+  expect_true(grepl('<title>Gironde · 33\nPôle majeur à renouveler rapidement\n10,7 % de l’emploi Base national · 12 345 salariés\n', html, fixed = TRUE))
   expect_true(grepl('<title>Pyrénées-Atlantiques · 64\nNon diffusé (secret statistique)\nRésultat non diffusé — secret statistique</title>', html, fixed = TRUE))
   expect_true(grepl('<title>Paris · 75\nDépartement absent de la typologie\nDépartement absent de la typologie</title>', html, fixed = TRUE))
-  expect_true(grepl('<title>Ain · 01\nNon diffusé (secret statistique)\nProfil non diffusé (secret statistique)\n3,8 % de l’emploi BITD national · 4 321 salariés\n', html, fixed = TRUE))
+  expect_true(grepl('<title>Ain · 01\nNon diffusé (secret statistique)\nProfil non diffusé (secret statistique)\n3,8 % de l’emploi Base national · 4 321 salariés\n', html, fixed = TRUE))
   expect_true(grepl('<details class="bloc-typo" open><summary>Le détail par département</summary>', html, fixed = TRUE))
   expect_true(grepl('<details class="bloc-typo" open><summary>Que signifient les profils ?</summary>', html, fixed = TRUE))
   expect_true(grepl(sprintf('<path fill="%s"', EK$COULEURS_PROFILS[["enjeu"]]), html, fixed = TRUE))
@@ -163,9 +163,9 @@ test_that("SPEC-TYPO-060/061/063 — 08g sur la chaîne de test en mode départe
 test_that("SPEC-TYPO-065 — stabilité du survol et légende : infobulle fixée au viewport, contenu reconstruit seulement au changement, panneau à hauteur stable, masquage au défilement ; aucune entrée « absent » à zéro, sept profils et secret conservés", {
   # (a) légende : table couvrant TOUS les départements du fond -> aucune entrée « absent »
   tout <- tibble::tibble(geo_code = names(FOND_DEP_K), geo_nom = unname(vapply(FOND_DEP_K, `[[`, "", "nom")), region_code = "R", region_nom = "R",
-                         effectif_bitd_total = 1000, departs_central = 100, departs_bas = 95, departs_haut = 105, part_emploi_bitd_national_pct = 100 / 101,
+                         effectif_base_total = 1000, departs_central = 100, departs_bas = 95, departs_haut = 105, part_emploi_base_national_pct = 100 / 101,
                          intensite_renouvellement_pct = 10, indicateur_intensite = "part_a_remplacer_pct", base_poids = "effectif_tous_ages",
-                         classe_poids_bitd = "Moyen", classe_intensite = "Modérée", classe_volume_departs = "Modéré", structure_emploi = "Mixte", cs_principale = "Cadres",
+                         classe_poids_base = "Moyen", classe_intensite = "Modérée", classe_volume_departs = "Modéré", structure_emploi = "Mixte", cs_principale = "Cadres",
                          part_cs_principale_pct = 30, cs_volume_departs_max = "Cadres", part_departs_cs_max_pct = 30, cs_taux_renouvellement_max = "Cadres", type_concentration = "Diffus",
                          profil_typologie = P_K[["stable"]], motif_expertise = NA_character_, points_attention = NA_character_, situation_texte = "Texte.", masque = FALSE, motif_masque = NA_character_)
   tout$profil_typologie[1] <- P_K[["enjeu"]]; tout$masque[2] <- TRUE

@@ -14,7 +14,7 @@
 #   "test"    : table simulée en mémoire (PCS-ESE 4 chiffres, indépendants + NR),
 #               géographie simulée selon GEO_ANALYSE (ze ou departement).
 #   "parquet" : vraie extraction BTS lue avec Arrow en LAZY. Le filtre (âge, SIREN
-#               du périmètre BITD) et la sélection de colonnes sont POUSSÉS au
+#               du périmètre Base) et la sélection de colonnes sont POUSSÉS au
 #               niveau du fichier : Arrow ne matérialise en RAM que le sous-
 #               ensemble utile (crucial si peu de mémoire). collect() en dernier.
 # ==============================================================================
@@ -27,14 +27,14 @@ library(dplyr)
 if (SOURCE_BTS == "parquet") {
   # ------------------------------------------------------- lecture Parquet réel
   if (!file.exists(FICHIER_SIREN)) stop("Liste SIREN introuvable : ", FICHIER_SIREN)
-  sirens_bitd <- readr::read_lines(FICHIER_SIREN)
-  sirens_bitd <- trimws(sirens_bitd[sirens_bitd != ""])
+  sirens_base <- readr::read_lines(FICHIER_SIREN)
+  sirens_base <- trimws(sirens_base[sirens_base != ""])
 
   # Lecture lazy + renommage générique (COL_BTS -> contrat, COL_GEO -> geo_*).
-  bts <- charger_bts_parquet(FICHIER_BTS, COL_BTS, COL_GEO, AGE_MIN_BTS, sirens_bitd)
+  bts <- charger_bts_parquet(FICHIER_BTS, COL_BTS, COL_GEO, AGE_MIN_BTS, sirens_base)
 
   message("01 OK (parquet) -> bts : ", format(nrow(bts), big.mark = " "),
-          " salariés (>= ", AGE_MIN_BTS, " ans, périmètre BITD) chargés en RAM.")
+          " salariés (>= ", AGE_MIN_BTS, " ans, périmètre Base) chargés en RAM.")
 
 } else {
   # ------------------------------------------------------- table test simulée

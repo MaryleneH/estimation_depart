@@ -3,7 +3,7 @@
 ## Intention métier
 
 La chaîne estime les sorties définitives de l'emploi à l'horizon 2030 pour les
-salariés des entreprises du périmètre BITD, à partir d'un âge minimum
+salariés des entreprises du périmètre Base, à partir d'un âge minimum
 configurable. Le champ est défini une seule fois, dans la configuration, et
 toutes les restitutions en dérivent.
 
@@ -29,13 +29,13 @@ Fonctionnalité: Définir le champ de l'estimation des départs
     Et que l'horizon d'étude est 2030
 
   Scénario: [SPEC-CHAMP-001] Inclure un salarié appartenant au champ
-    Étant donné un salarié d'une entreprise du périmètre BITD âgé de 45 ans en 2024
+    Étant donné un salarié d'une entreprise du périmètre Base âgé de 45 ans en 2024
     Et dont la PCS se rattache à une grande catégorie du modèle
     Quand la base d'étude est constituée
     Alors ce salarié doit appartenir au champ de projection
 
   Scénario: [SPEC-CHAMP-002] Exclure un salarié trop jeune du champ de projection
-    Étant donné un salarié du périmètre BITD âgé de 44 ans en 2024
+    Étant donné un salarié du périmètre Base âgé de 44 ans en 2024
     Quand la base d'étude est constituée avec AGE_MIN_BTS égal à 45
     Alors ce salarié ne doit pas appartenir au champ de projection
     Mais il doit compter dans le stock tous âges utilisé comme dénominateur

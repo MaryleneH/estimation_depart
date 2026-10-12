@@ -141,7 +141,7 @@ charger_bts_parquet <- function(fichier, col_bts, col_geo, age_min, sirens) {
   col_age <- col_bts[["age"]]; col_siren <- col_bts[["siren"]]
   ds |>
     filter(.data[[col_age]] >= age_min,           # filtre âge poussé au disque
-           .data[[col_siren]] %in% sirens) |>     # filtre périmètre BITD
+           .data[[col_siren]] %in% sirens) |>     # filtre périmètre Base
     select(all_of(unname(contrat))) |>            # colonnes utiles seulement
     collect() |>                                  # MATÉRIALISATION (RAM) ici
     rename(all_of(contrat)) |>

@@ -31,7 +31,7 @@ la maintenance. Les titres de tests sont ceux des `test_that()` du dépôt.
 | SPEC-TYPO-007 | CS volume max ≠ CS intensité max ; rangs | `identifier_cs_volume_max()`, `identifier_cs_taux_max()` | « SPEC-TYPO-007 — la CS au plus gros volume … » | `cs_volume_departs_max`, `cs_taux_renouvellement_max`, `typologie_departement_cs.csv` |
 | SPEC-TYPO-008 / 009 | concentré (60 % / 50) ; diffus ; borne | `calculer_concentration_departs()` | « SPEC-TYPO-008/009 — concentration … » | `type_concentration` |
 | SPEC-TYPO-010 | classes à trois niveaux, borne incluse en haut | `classer_par_seuils()` | « SPEC-TYPO-010/011/012 — classes et frontières … » | `classe_*` |
-| SPEC-TYPO-011 | plancher d'effectif | `classer_poids_bitd()` | idem | `classe_poids_bitd` |
+| SPEC-TYPO-011 | plancher d'effectif | `classer_poids_base()` | idem | `classe_poids_base` |
 | SPEC-TYPO-012 | terciles = règle provisoire, bornes écrites | `seuils_classes()` | idem ; « SPEC-TYPO-040 … » | `parametres_typologie.csv` |
 | SPEC-TYPO-013 à 017, 019 | profils ordonnés à titres parlants, faible poids ≠ pôle majeur, situation à expertiser avec motif, pôle majeur au renouvellement modéré, frontière sur les trois axes seulement | `attribuer_profil_typologie()` | « SPEC-TYPO-013 à 019 — profils … » ; « SPEC-TYPO-014 — faible poids … » | `profil_typologie`, `motif_expertise` |
 | SPEC-TYPO-018 | justification par règles | `construire_justification_profil()` | « SPEC-TYPO-013 à 019 … » | `justification_profil` |

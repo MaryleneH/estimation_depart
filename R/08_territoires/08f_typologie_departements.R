@@ -1,5 +1,5 @@
 # ==============================================================================
-# 08f_typologie_departements.R — Typologie nationale des territoires de la BITD
+# 08f_typologie_departements.R — Typologie nationale des territoires de la Base
 # ------------------------------------------------------------------------------
 # PRÉREQUIS : objet `departs_cs1` du 08d (table analytique département x cs1,
 #             table de diffusion), `bts_projete` (secret du département entier),
@@ -61,7 +61,7 @@ if (!isTRUE(get0("GENERER_TYPOLOGIE", ifnotfound = FALSE))) {
   }
   typologie_departements <- list(departements = typo_08f$departements, departement_cs = typo_08f$departement_cs,
                                  parametres = typo_08f$parametres, synthese = synth_08f, diffusion = diffusion_08f)
-  cat("\n08f OK -> typologie des territoires BITD (", nrow(typo_08f$departements), " départements ; intensité = ",
+  cat("\n08f OK -> typologie des territoires Base (", nrow(typo_08f$departements), " départements ; intensité = ",
       typo_08f$indicateur, " ; base du poids = ", typo_08f$base_poids, ")\n", sep = "")
   for (i in seq_len(nrow(synth_08f)))
     cat(sprintf("  %-40s %3d département(s) | %5.1f %% de l'emploi | %5.1f %% des départs\n", synth_08f$profil_typologie[i],

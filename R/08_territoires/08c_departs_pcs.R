@@ -14,7 +14,7 @@
 #               diffusion/departs_pcs_<niveau>.csv  secret statistique appliqué (si DEPARTS_PCS_SECRET)
 #               pcs_hors_champ.csv                  PCS exclues par le 01b, agrégées
 # MÉTHODE   : aucune nouvelle formule (voir 00e). pcs = dimension, cs1 = clé.
-# PÉRIMÈTRE : « France entière » = TOUT bts_projete (périmètre BITD, champ
+# PÉRIMÈTRE : « France entière » = TOUT bts_projete (périmètre Base, champ
 #             AGE_MIN_BTS+, PCS rattachables) ; GEO_INTERET, FICHES_SELECTION et
 #             toute sélection de restitution NE S'APPLIQUENT PAS ici — contrôle
 #             explicite ci-dessous. Région et département exigent

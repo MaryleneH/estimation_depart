@@ -38,7 +38,7 @@ cités sont ceux réellement implémentés à la date de rédaction.
 | `07_cartes_et_fiches.md` | Cartes, tableaux de bord, fiches territoriales, langage public |
 | `08_orchestration_et_controles.md` | Ordre d'exécution, étapes facultatives, contrôles et robustesse |
 | `09_matrice_tracabilite.md` | Correspondance specs → code → tests, doctrine de modification |
-| `10_typologie_territoriale.md` | Typologie nationale des départements BITD : poids, structure, volume, intensité, concentration, profils à règles et à titres parlants, situation rédigée ; tensions à une autre maille (couche séparée) ; secret des variables dérivées ; cartes des profils (interactive et courriel) |
+| `10_typologie_territoriale.md` | Typologie nationale des départements Base : poids, structure, volume, intensité, concentration, profils à règles et à titres parlants, situation rédigée ; tensions à une autre maille (couche séparée) ; secret des variables dérivées ; cartes des profils (interactive et courriel) |
 
 La spec 10 est une **couche d'analyse en aval** : elle dépend de la spec 06
 (tables département × grande CS du 08d, stock tous âges), de la spec 04 (secret
@@ -91,7 +91,7 @@ c'est une dette identifiée, pas une omission.
 | Terme | Définition dans ce projet |
 |---|---|
 | BTS | Base Tous Salariés (Insee) : photo 2024 des salariés ; une extraction Parquet ou une table test simulée (`SOURCE_BTS`). |
-| Périmètre BITD | Entreprises (SIREN) de la base industrielle et technologique de défense, listées dans `FICHIER_SIREN`. |
+| Périmètre Base | Entreprises (SIREN) de la Base, listées dans `FICHIER_SIREN`. |
 | Champ | Salariés du périmètre âgés d'au moins `AGE_MIN_BTS` en 2024, dont la PCS se rattache à une grande CS du modèle. |
 | Départ | Sortie définitive de l'emploi d'ici l'horizon : retraite ou fin de carrière, invalidité, décès. Un changement d'employeur n'est pas un départ. |
 | Estimation centrale / basse / haute | Trois jeux de probabilités (`p_central`, `p_bas`, `p_haut`) selon l'hypothèse sur l'âge de départ (correctif δ). |

@@ -1,5 +1,5 @@
 # ==============================================================================
-# Typologie nationale des territoires BITD (00h + 08f) — specs/10 (SPEC-TYPO-*).
+# Typologie nationale des territoires Base (00h + 08f) — specs/10 (SPEC-TYPO-*).
 # Données exclusivement SYNTHÉTIQUES. Chaque bloc cite les identifiants de spec.
 # ==============================================================================
 ET <- new.env()
@@ -27,8 +27,8 @@ test_that("SPEC-TYPO-001/002/004/041 — niveau département seul, Σ grandes CS
   d <- t$departements
   expect_identical(d$geo_code, c("A1", "B2")); expect_type(d$geo_code, "character")
   expect_equal(d$departs_central, c(1000, 500)); expect_equal(d$departs_bas, c(950, 475)); expect_equal(d$departs_haut, c(1050, 525))
-  expect_equal(d$effectif_champ_total, c(20000L, 2000L)); expect_equal(d$effectif_bitd_total, c(40000L, 4000L))
-  expect_identical(t$base_poids, "effectif_tous_ages"); expect_equal(sum(d$part_emploi_bitd_national_pct), 100)
+  expect_equal(d$effectif_champ_total, c(20000L, 2000L)); expect_equal(d$effectif_base_total, c(40000L, 4000L))
+  expect_identical(t$base_poids, "effectif_tous_ages"); expect_equal(sum(d$part_emploi_base_national_pct), 100)
   expect_true(ET$controler_typologie(t, cs))
   expect_false(any(grepl("bassin|tension", names(d))))                 # rien n'est descendu au bassin, rien n'est remonté du bassin
   # SPEC-TYPO-041 : contrôles bloquants — total altéré, profil inconnu, colonne interdite
@@ -84,7 +84,7 @@ test_that("SPEC-TYPO-010/011/012 — classes et frontières : exactement sur le 
   s <- c(bas = 1, haut = 5)
   expect_identical(ET$classer_par_seuils(c(0.99, 1, 1.01, 4.99, 5, 5.01), s, ET$CLASSES_TYPOLOGIE$poids),
                    c("Faible", "Moyen", "Moyen", "Moyen", "Fort", "Fort"))
-  expect_identical(ET$classer_poids_bitd(c(6, 6), c(49, 50), s, effectif_min = 50), c("Faible", "Fort"))   # plancher : 49 < 50 -> Faible
+  expect_identical(ET$classer_poids_base(c(6, 6), c(49, 50), s, effectif_min = 50), c("Faible", "Fort"))   # plancher : 49 < 50 -> Faible
   expect_true(is.na(ET$classer_par_seuils(NA_real_, s, ET$CLASSES_TYPOLOGIE$poids)))
   # terciles = règle provisoire : bornes observées, écrites dans les paramètres
   q <- ET$seuils_classes(c(1, 2, 3, 4, 5, 6), "terciles"); expect_true(q[["bas"]] < q[["haut"]])
@@ -126,7 +126,7 @@ test_that("SPEC-TYPO-013 à 019 — profils à titres parlants : règles ordonn�
   d <- ET$construire_typologie_departements(cs, stock_de(cs, 10), PARAMS)$departements
   expect_identical(d$profil_typologie[d$geo_code == "D4"], P[["expertiser"]])
   expect_match(d$motif_expertise[d$geo_code == "D4"], "renouvellement lent"); expect_true(is.na(d$motif_expertise[d$geo_code == "E5"]))
-  expect_match(d$justification_profil[d$geo_code == "D4"], "^Poids BITD fort .* volume de départs élevé .* intensité de renouvellement faible")
+  expect_match(d$justification_profil[d$geo_code == "D4"], "^Poids Base fort .* volume de départs élevé .* intensité de renouvellement faible")
   expect_false(grepl("LLM|modèle", d$justification_profil[1]))
   # frontière : seuls poids, intensité et volume comptent ; dominance et concentration restent informatives
   cs2 <- dplyr::bind_rows(cellule("P1", "Pi",   c(4000, 3000, 2000, 1000), c(200, 100, 70, 30)),        # dominance 40 % (= seuil), concentration 50 % (= seuil)
@@ -143,7 +143,7 @@ test_that("SPEC-TYPO-014 — faible poids et intensité élevée : « Implantati
                          cellule("G7", "Ga",    c(20, 20, 20, 20),         c(1, 1, 1, 1)))
   d <- ET$construire_typologie_departements(cs, stock_de(cs, 1), PARAMS)$departements
   f <- d[d$geo_code == "F6", ]
-  expect_identical(f$classe_poids_bitd, "Faible"); expect_equal(f$intensite_renouvellement_pct, 30)
+  expect_identical(f$classe_poids_base, "Faible"); expect_equal(f$intensite_renouvellement_pct, 30)
   expect_identical(f$profil_typologie, ET$PROFILS_TYPOLOGIE[["expertiser"]])    # 30 % >= 2 x 10 % : extrême sur faible stock
   expect_true(f$intensite_extreme_faible_stock); expect_match(f$motif_expertise, "petit effectif")
   expect_match(f$situation_texte, "un poids faible, sous le plancher de 50 salariés retenu pour l’analyse\\.")   # 40 salariés < 50
@@ -163,7 +163,7 @@ test_that("SPEC-TYPO-050 à 053 — rédaction par règles : situation du dépar
   a <- d[d$geo_code == "A1", ]; b <- d[d$geo_code == "B2", ]; c3 <- d[d$geo_code == "C3", ]
   # SPEC-TYPO-050 : quatre phrases, dans l'ordre, nombres arrondis (entiers, virgule décimale)
   expect_identical(a$profil_typologie, P[["majeur_modere"]])                                   # Fort, Élevé (1 900 >= 800), Modérée (6,3 %)
-  expect_match(a$situation_texte, "^Alpha \\(A1\\) pèse 63,6 % de l’emploi BITD national \\(30 000 salariés\\), un poids fort\\.")
+  expect_match(a$situation_texte, "^Alpha \\(A1\\) pèse 63,6 % de l’emploi Base national \\(30 000 salariés\\), un poids fort\\.")
   expect_match(a$situation_texte, "Son emploi se répartit entre les grandes catégories sans dominante \\(première : cadres, 33,3 %\\)\\.")
   expect_match(a$situation_texte, "D’ici 2030, 1 900 départs sont attendus \\(entre 1 805 et 1 995 selon l’hypothèse de départ en retraite\\), soit 6,3 % de l’emploi actuel à remplacer, au-dessus de la médiane des départements \\(5,3 %\\) : volume de départs élevé, intensité de renouvellement modérée\\.")
   expect_match(a$situation_texte, "Les cadres portent 31,6 % de ces départs, sans concentration marquée\\. C’est chez les employés que la part à remplacer est la plus élevée\\.")
@@ -202,7 +202,7 @@ test_that("SPEC-TYPO-050 à 053 — rédaction par règles : situation du dépar
   expect_identical(s$profil_typologie, unname(P[P %in% d$profil_typologie]))
   sm <- s[s$profil_typologie == P[["majeur_modere"]], ]
   expect_match(sm$texte, "^1 département relève du profil « Pôle majeur au renouvellement modéré » : un pôle important")
-  expect_match(sm$texte, "Ensemble, ils représentent 63,6 % de l’emploi BITD et [0-9]+,[0-9] % des départs attendus d’ici 2030 ; leur intensité de renouvellement médiane est de 6,3 % \\(ensemble des départements : 5,3 %\\)")
+  expect_match(sm$texte, "Ensemble, ils représentent 63,6 % de l’emploi Base et [0-9]+,[0-9] % des départs attendus d’ici 2030 ; leur intensité de renouvellement médiane est de 6,3 % \\(ensemble des départements : 5,3 %\\)")
   expect_match(sm$texte, "Consigne de lecture : lire le volume en valeur absolue.*\\.$"); expect_identical(sm$departements, "Alpha (A1)")
   se <- s[s$profil_typologie == P[["emergent"]], ]; expect_match(se$texte, "Dans 1 cas, une seule catégorie porte au moins la moitié des départs\\.")
   expect_equal(sum(s$n_a_expertiser_motifs), sum(!is.na(d$motif_expertise)))
@@ -271,7 +271,7 @@ test_that("SPEC-TYPO-030 à 034 — secret : territoire non diffusable masqué ;
   interne <- t$departements; expect_false(anyNA(interne$cs_principale)); expect_false(anyNA(interne$profil_typologie))   # interne COMPLET
   d <- ET$appliquer_secret_typologie(t, dif_cs, base, ET$regles_secret())
   l2 <- d[d$geo_code == "L2", ]; k1 <- d[d$geo_code == "K1", ]; a1 <- d[d$geo_code == "A1", ]
-  expect_true(l2$masque); expect_true(is.na(l2$departs_central)); expect_true(is.na(l2$effectif_bitd_total)); expect_identical(l2$profil_typologie, "Non diffusé (secret statistique)")
+  expect_true(l2$masque); expect_true(is.na(l2$departs_central)); expect_true(is.na(l2$effectif_base_total)); expect_identical(l2$profil_typologie, "Non diffusé (secret statistique)")
   m3 <- d[d$geo_code == "M3", ]; expect_true(m3$masque); expect_identical(m3$motif_masque, "territoire")   # secondaire : le total national est publié (08d France)
   expect_equal(sum(d$masque), 2)
   expect_false(k1$masque); expect_true(is.na(k1$effectif_Cadres)); expect_true(is.na(k1$departs_Cadres)); expect_false(is.na(k1$effectif_Ouvriers))
@@ -327,10 +327,10 @@ test_that("SPEC-TYPO-040 — chaîne réelle en mode département : 08f en aval 
 
 test_that("SPEC-TYPO-042 — proposer_seuils_typologie : terciles arrondis au pas, comptes par classe, bloc prêt à coller, seuils métier seulement observés, rien d'appliqué", {
   set.seed(7)
-  d <- tibble::tibble(geo_code = sprintf("%02d", 1:30), effectif_bitd_total = c(20L, 30L, round(runif(28, 200, 5000))),
-                      part_emploi_bitd_national_pct = NA_real_, intensite_renouvellement_pct = round(runif(30, 6, 22), 2), departs_central = round(runif(30, 20, 900), 1),
+  d <- tibble::tibble(geo_code = sprintf("%02d", 1:30), effectif_base_total = c(20L, 30L, round(runif(28, 200, 5000))),
+                      part_emploi_base_national_pct = NA_real_, intensite_renouvellement_pct = round(runif(30, 6, 22), 2), departs_central = round(runif(30, 20, 900), 1),
                       part_cs_principale_pct = round(runif(30, 28, 55), 1), part_departs_cs_max_pct = round(runif(30, 30, 70), 1))
-  d$part_emploi_bitd_national_pct <- 100 * d$effectif_bitd_total / sum(d$effectif_bitd_total)
+  d$part_emploi_base_national_pct <- 100 * d$effectif_base_total / sum(d$effectif_base_total)
   out <- ET$proposer_seuils_typologie(d, effectif_min = 50, pas = c(poids = 0.5, intensite = 1, volume = 10), afficher = FALSE)
   t <- out$tableau
   expect_identical(t$axe, c("poids", "intensite", "volume")); expect_true(all(t$n == 28))              # 2 départements sous le plancher écartés

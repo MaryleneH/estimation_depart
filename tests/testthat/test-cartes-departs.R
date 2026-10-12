@@ -173,9 +173,9 @@ test_that("cs1 et France entière : couverture par CS, carte-support nationale s
 
 test_that("CHAMP : source unique construite depuis la configuration (AGE_MIN_BTS, PCS_VERS_CS1), jamais codée en dur ; libellés UI sans nom de colonne", {
   ch <- EC$construire_libelle_champ()
-  expect_identical(ch$court, sprintf("salariés de %d ans ou plus · entreprises du périmètre BITD", EC$AGE_MIN_BTS))
+  expect_identical(ch$court, sprintf("salariés de %d ans ou plus · entreprises du périmètre Base", EC$AGE_MIN_BTS))
   expect_identical(ch$salaries_age, sprintf("salariés de %d ans ou plus", EC$AGE_MIN_BTS))
-  expect_true(any(grepl("périmètre BITD", ch$detaille))); expect_false(any(grepl("champ", ch$detaille)))     # langage simple : jamais « champ »
+  expect_true(any(grepl("périmètre Base", ch$detaille))); expect_false(any(grepl("champ", ch$detaille)))     # langage simple : jamais « champ »
   expect_true(any(grepl("cadres, professions intermédiaires, employés, ouvriers", ch$detaille)))
   expect_true(any(grepl("agriculteurs exploitants, artisans, commerçants et chefs d’entreprise", ch$detaille)))
   expect_true(any(grepl("d’ici 2030", ch$detaille)))
@@ -185,7 +185,7 @@ test_that("CHAMP : source unique construite depuis la configuration (AGE_MIN_BTS
   assign("DIR_DATA", file.path(RACINE, "data"), envir = E50)
   sys.source(chemin_script("00f_fonctions_cartes.R"), envir = E50)
   ch50 <- E50$construire_libelle_champ()
-  expect_identical(ch50$court, "salariés de 50 ans ou plus · entreprises du périmètre BITD"); expect_false(any(grepl("ouvriers", ch50$detaille)))
+  expect_identical(ch50$court, "salariés de 50 ans ou plus · entreprises du périmètre Base"); expect_false(any(grepl("ouvriers", ch50$detaille)))
   expect_identical(E50$construire_libelles_public(ch50)$salaries_age, "Salariés de 50 ans ou plus")
   expect_identical(E50$construire_libelles_public(ch50)$legende$effectif, "Nombre de salariés de 50 ans ou plus")
   for (nv in c("france", "departement")) {
@@ -227,7 +227,7 @@ test_that("08e sur les sorties réelles du dépôt : 6 cartes HTML (+ PNG), comp
     expect_true(file.exists(fh), label = paste(dm, nv))
     expect_identical(file.exists(file.path(d, "cartes_departs", dm, sprintf("carte_%s_%s.png", dm, nv))), nv != "france", label = paste(dm, nv))
     h <- paste(readLines(fh, encoding = "UTF-8", warn = FALSE), collapse = "\n")
-    expect_true(grepl(sprintf("<b>Salariés de %d ans ou plus</b> · entreprises du périmètre BITD", env$AGE_MIN_BTS), h, fixed = TRUE), label = paste(dm, nv))   # qui est concerné, en tête de CHAQUE page
+    expect_true(grepl(sprintf("<b>Salariés de %d ans ou plus</b> · entreprises du périmètre Base", env$AGE_MIN_BTS), h, fixed = TRUE), label = paste(dm, nv))   # qui est concerné, en tête de CHAQUE page
     expect_true(grepl("Résultat non diffusé — secret statistique", h, fixed = TRUE), label = paste(dm, nv))
     # LANGAGE PUBLIC : aucun jargon statistique dans les pages
     texte <- gsub("<script type=\"application/json\"[^<]*</script>", "", h)                    # hors données embarquées

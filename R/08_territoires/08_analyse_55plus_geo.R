@@ -285,7 +285,7 @@ g <- quadrant_geo |>
                        AGE_SENIOR, AGE_SENIOR),
     caption = sprintf(paste0("Lecture : le classement est RELATIF aux médianes du périmètre — dans tous les territoires, la plupart des %d+ de 2024 ",
                              "seront partis d'ici 2030 (taux de %.0f à %.0f %%).\n",
-                             "Champ : salariés de %s en 2024, périmètre BITD. Scénario central (δ = %.2f an). ",
+                             "Champ : salariés de %s en 2024, périmètre Base. Scénario central (δ = %.2f an). ",
                              "Sources : DREES, EACR invalidité, mortalité Insee — calculs propres · données : table test"),
                       AGE_SENIOR,
                       min(quadrant_geo$taux_depart_55plus_pct),
