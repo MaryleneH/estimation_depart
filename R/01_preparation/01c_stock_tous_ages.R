@@ -2,10 +2,15 @@
 # 01c_stock_tous_ages.R — Effectifs ACTUELS tous âges par territoire x grande CS
 # ------------------------------------------------------------------------------
 # PRÉREQUIS : 00_config.R (STOCK_TOUS_AGES, SOURCE_BTS, FICHIER_BTS, COL_BTS,
-#             COL_GEO, PCS_VERS_CS1, bloc GEO_*), 00c (normaliser_geo), objet
+#             COL_GEO, PCS_VERS_CS1, bloc GEO_*, STOCK_TOUS_AGES_TRANCHES), 00c
+#             (normaliser_geo), 00h (tranches_stock_ages, pyramide), objet
 #             `bts` du 01/01b (champ AGE_MIN_BTS+, cs1, contrat geo_*).
 # PRODUIT   : objet `stock_tous_ages` (geo_code, geo_nom, cs1, effectif_tous_ages)
-#             ou NULL si indisponible — jamais bloquant.
+#             ou NULL si indisponible — jamais bloquant ; objet `stock_tranches_ages`
+#             (pyramide des âges, specs/02 SPEC-PREP-014, specs/10 §12) : liste
+#             cs (geo_code, geo_nom, cs1, tranche_age, effectif) et territoire
+#             (geo_code, tranche_age, effectif, n_entreprises, part_dominante_pct),
+#             ou NULL (STOCK_TOUS_AGES_TRANCHES = FALSE, stock indisponible).
 # POURQUOI  : le modèle projette les départs des AGE_MIN_BTS ans et + (en dessous,
 #             les sorties définitives d'ici 2030 sont marginales), mais
 #             le DÉNOMINATEUR qui parle à un décideur est l'effectif actuel de la
@@ -25,6 +30,11 @@ if (!exists("normaliser_geo")) stop("Exécutez d'abord R/00c_fonctions_geo.R (ou
 library(dplyr)
 
 stock_tous_ages <- NULL
+stock_tranches_ages <- NULL
+tranches_01c <- if (!isTRUE(get0("STOCK_TOUS_AGES_TRANCHES", ifnotfound = FALSE))) NULL else if (!exists("tranches_stock_ages")) {
+  message("01c : fonctions de la pyramide (00h) non chargées -> pyramide des âges non construite (stock_tranches_ages = NULL).")
+  NULL
+} else tranches_stock_ages()
 
 if (!isTRUE(get0("STOCK_TOUS_AGES", ifnotfound = TRUE))) {
   message("01c : effectifs tous âges désactivés (STOCK_TOUS_AGES = FALSE).")
@@ -80,6 +90,41 @@ if (!isTRUE(get0("STOCK_TOUS_AGES", ifnotfound = TRUE))) {
     message("01c OK (parquet) -> stock_tous_ages : ", format(sum(stock_tous_ages$effectif_tous_ages), big.mark = " "),
             " salariés tous âges (âge minimal observé : ", age_min_obs, ") sur ",
             n_distinct(stock_tous_ages$geo_code), " territoires.")
+    if (!is.null(tranches_01c)) {
+      # Pyramide : même lecture, même périmètre ; tranche calculée par Arrow sur l'âge
+      # (somme d'indicatrices), comptage par cellule x SIREN pour le secret.
+      b2 <- tranches_01c$borne_inf[2]; b3 <- tranches_01c$borne_inf[3]; b4 <- tranches_01c$borne_inf[4]
+      contrat_t <- c(contrat, siren = unname(col_siren))
+      requete_t <- ds |>
+        filter(.data[[col_siren]] %in% sirens_base) |>
+        select(all_of(unname(contrat_t))) |>
+        rename(all_of(contrat_t)) |>
+        mutate(tranche_i = 1L + as.integer(age >= b2) + as.integer(age >= b3) + as.integer(age >= b4))
+      cles_t <- c(cles, "tranche_i", "siren")
+      agg_t <- tryCatch(
+        requete_t |> group_by(across(all_of(cles_t))) |> summarise(n = n(), .groups = "drop") |> collect(),
+        error = function(e) {
+          message("01c : agrégation Arrow par tranche non supportée (", conditionMessage(e), ") -> comptage en R.")
+          requete_t |> collect() |> group_by(across(all_of(cles_t))) |> summarise(n = n(), .groups = "drop")
+        })
+      agg_t <- agg_t |>
+        mutate(.pcs_txt = trimws(sub("\\.0$", "", as.character(pcs))),
+               cs1 = unname(PCS_VERS_CS1[substr(.pcs_txt, 1, 1)]),
+               tranche_age = tranches_01c$cle[tranche_i]) |>
+        filter(!is.na(cs1)) |>
+        normaliser_geo(geo_source = GEO_SOURCE, geo_analyse = GEO_ANALYSE, largeur = GEO_CODE_LARGEUR,
+                       referentiels = GEO_REFERENTIELS, passages = GEO_PASSAGES,
+                       geo_interet = GEO_INTERET, prefixe = "01c") |>
+        mutate(geo_code = ifelse(is.na(geo_code), "inconnu", as.character(geo_code)))
+      n_age_na_01c <- sum(agg_t$n[is.na(agg_t$tranche_age)])
+      if (n_age_na_01c > 0)
+        message("01c : ", n_age_na_01c, " salarié(s) d'âge manquant comptés dans stock_tous_ages mais dans aucune tranche de la pyramide.")
+      agg_t <- agg_t |> filter(!is.na(tranche_age))
+      stock_tranches_ages <- list(
+        cs = agg_t |> group_by(geo_code, geo_nom, cs1, tranche_age) |> summarise(effectif = sum(n), .groups = "drop"),
+        territoire = indicateurs_secret_effectif(agg_t, c("geo_code", "tranche_age")))
+      rm(b2, b3, b4, contrat_t, requete_t, cles_t, agg_t)
+    }
   }
 
 } else {
@@ -93,6 +138,26 @@ if (!isTRUE(get0("STOCK_TOUS_AGES", ifnotfound = TRUE))) {
     mutate(effectif_tous_ages = n_champ + round(n_champ * runif(n(), 1.5, 3.0))) |>
     select(-n_champ)
   message("01c OK (test) -> stock_tous_ages simulé (", nrow(stock_tous_ages), " cellules).")
+  if (!is.null(tranches_01c)) {
+    # Pyramide simulée : tranches du champ EXACTES (bts) ; moins de AGE_MIN_BTS ans
+    # (stock simulé ci-dessus) répartis entre jeunes et milieu par un tirage
+    # reproductible ; secret des tranches simulées = indicateurs du territoire.
+    champ_01c <- bts |> mutate(tranche_age = affecter_tranche_stock(age_2024, tranches_01c))
+    set.seed(GRAINE + 2)
+    moins_01c <- stock_tous_ages |>
+      left_join(bts |> count(geo_code, cs1, name = "n_champ"), by = c("geo_code", "cs1")) |>
+      mutate(n_moins = effectif_tous_ages - coalesce(n_champ, 0L), jeunes = round(n_moins * runif(n(), 0.15, 0.6)), milieu = n_moins - jeunes)
+    cs_01c <- bind_rows(champ_01c |> count(geo_code, geo_nom, cs1, tranche_age, name = "effectif"),
+                        moins_01c |> transmute(geo_code, geo_nom, cs1, tranche_age = "jeunes", effectif = jeunes),
+                        moins_01c |> transmute(geo_code, geo_nom, cs1, tranche_age = "milieu", effectif = milieu))
+    sec_01c <- indicateurs_secret_effectif(bts, "geo_code") |> select(geo_code, n_entreprises, part_dominante_pct)
+    terr_01c <- bind_rows(indicateurs_secret_effectif(champ_01c, c("geo_code", "tranche_age")),
+                          cs_01c |> filter(tranche_age %in% c("jeunes", "milieu")) |> group_by(geo_code, tranche_age) |>
+                            summarise(effectif = sum(effectif), .groups = "drop") |> left_join(sec_01c, by = "geo_code"))
+    stock_tranches_ages <- list(cs = cs_01c |> arrange(geo_code, cs1, match(tranche_age, tranches_01c$cle)),
+                                territoire = terr_01c |> arrange(geo_code, match(tranche_age, tranches_01c$cle)))
+    rm(champ_01c, moins_01c, cs_01c, sec_01c, terr_01c)
+  }
 }
 
 # Cohérence : le champ est inclus dans le stock (jamais moins de salariés tous
@@ -104,4 +169,21 @@ if (!is.null(stock_tous_ages)) {
   if (nrow(incoherent) > 0)
     stop("01c : ", nrow(incoherent), " cellule(s) territoire x CS avec un effectif tous âges ",
          "inférieur au champ (ou absent) : périmètres SIREN / géographie incohérents entre 01 et 01c.")
+}
+
+# Pyramide : les tranches du champ égalent EXACTEMENT le champ (SPEC-PREP-014) ;
+# sans stock tous âges, aucune pyramide complète (repli du 08f sur le champ).
+if (is.null(stock_tous_ages)) stock_tranches_ages <- NULL
+if (!is.null(stock_tranches_ages)) {
+  champ_t <- stock_tranches_ages$cs |> filter(tranche_age %in% tranches_01c$cle[tranches_01c$dans_champ]) |>
+    group_by(geo_code, cs1) |> summarise(n_tranches = sum(effectif), .groups = "drop")
+  verif_t <- bts |> count(geo_code, cs1, name = "n_champ") |> full_join(champ_t, by = c("geo_code", "cs1")) |>
+    filter(is.na(n_champ) | is.na(n_tranches) | n_champ != n_tranches)
+  if (nrow(verif_t) > 0)
+    stop("01c : ", nrow(verif_t), " cellule(s) territoire x CS où les tranches ", tranches_01c$libelle[3], " et ", tranches_01c$libelle[4],
+         " de la pyramide diffèrent du champ : périmètres SIREN / âge / géographie incohérents entre 01 et 01c ",
+         "(STOCK_TOUS_AGES_TRANCHES = FALSE pour désactiver la pyramide complète).")
+  message("01c OK -> stock_tranches_ages : pyramide des âges (", paste(tranches_01c$libelle, collapse = ", "), ") sur ",
+          n_distinct(stock_tranches_ages$territoire$geo_code), " territoires ; tranches du champ = champ.")
+  rm(champ_t, verif_t)
 }

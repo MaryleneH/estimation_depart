@@ -36,10 +36,12 @@ LIBELLES_CARTE_TYPO <- list(
   definitions_titre = "Que signifient les profils ?")
 COLONNES_NUM_TYPO <- c("effectif_base_total", "effectif_champ_total", "effectif_tous_ages_total", "departs_central", "departs_bas", "departs_haut",
                        "part_emploi_base_national_pct", "intensite_renouvellement_pct", "taux_depart_central_pct", "part_a_remplacer_pct",
-                       "part_cs_principale_pct", "part_departs_cs_max_pct")
+                       "part_cs_principale_pct", "part_departs_cs_max_pct",
+                       "pyramide_jeunes_pct", "pyramide_milieu_pct", "pyramide_vague_pct", "pyramide_seniors_pct", "ratio_releve", "ratio_vague_seniors")
 COLONNES_TEXTE_TYPO <- c("profil_typologie", "classe_poids_base", "classe_intensite", "classe_volume_departs", "structure_emploi", "cs_principale",
                          "cs_volume_departs_max", "cs_taux_renouvellement_max", "type_concentration", "motif_expertise", "points_attention",
-                         "situation_texte", "justification_profil", "indicateur_intensite", "base_poids")
+                         "situation_texte", "justification_profil", "indicateur_intensite", "base_poids",
+                         "pyramide_source", "pyramide_libelles", "classe_releve", "classe_vague_suivante", "pyramide_masquee")
 
 # --- Lecture de la table de diffusion (write.csv2, avec ou sans BOM) --------------
 lire_typologie_diffusion <- function(fichier) {
@@ -112,9 +114,31 @@ lignes_detail_typologie <- function(r, indicateur = NULL) {
                                            else sprintf("Emploi dominé par les %s (%s %%)", libelle_cs_typo(r$cs_principale), f1(r$part_cs_principale_pct)) } else NULL,
          if (!is.na(r$cs_volume_departs_max)) sprintf("Départs portés d’abord par les %s (%s %%%s)", libelle_cs_typo(r$cs_volume_departs_max), f1(r$part_departs_cs_max_pct),
                                                      if (identical(r$type_concentration, "Concentré")) ", concentrés sur cette catégorie" else "") else NULL,
+         ligne_pyramide_typologie(r),
          if (!is.na(r$motif_expertise)) paste0("À examiner : ", r$motif_expertise) else NULL,
          if (!is.na(r$points_attention)) paste0("Point(s) d’attention : ", r$points_attention) else NULL)
   if (length(l) == 0) LIBELLES_CARTE_TYPO$profil_non_diffuse else l
+}
+# Pyramide des âges (axe descriptif, specs/10 §12) : une ligne, ou rien si absente ; jamais une tranche masquée.
+libelles_pyramide_typo <- function(r) if (is.null(r[["pyramide_libelles"]]) || is.na(r$pyramide_libelles)) NULL else strsplit(r$pyramide_libelles, " | ", fixed = TRUE)[[1]]
+parts_pyramide_typo <- function(r) {   # NULL si la pyramide complète n'est pas diffusée
+  v <- vapply(c("pyramide_jeunes_pct", "pyramide_milieu_pct", "pyramide_vague_pct", "pyramide_seniors_pct"), function(k) if (is.null(r[[k]])) NA_real_ else as.numeric(r[[k]]), 0)
+  lib <- libelles_pyramide_typo(r)
+  if (anyNA(v) || length(lib) != 4) NULL else list(libelles = lib, parts = unname(v))
+}
+ligne_pyramide_typologie <- function(r) {
+  f1 <- function(x) fmt_fr_carte(x, 1)
+  if (isTRUE(as.logical(r[["pyramide_masquee"]]))) return("Pyramide des âges non diffusée (secret statistique)")
+  py <- parts_pyramide_typo(r)
+  if (!is.null(py)) {
+    rel <- if (!is.null(r[["ratio_releve"]]) && !is.na(r$ratio_releve))
+      sprintf(" · %s%s de %s pour un de %s", if (!is.null(r[["classe_releve"]]) && !is.na(r$classe_releve)) paste0(r$classe_releve, " : ") else "", f1(r$ratio_releve), py$libelles[1], py$libelles[4]) else ""
+    return(paste0("Pyramide des âges : ", paste(sprintf("%s %% %s", vapply(py$parts, f1, ""), py$libelles), collapse = " · "), rel))
+  }
+  lib <- libelles_pyramide_typo(r)
+  if (!is.null(r[["ratio_vague_seniors"]]) && !is.na(r$ratio_vague_seniors) && length(lib) == 4)
+    return(sprintf("Au sein du champ : %s salarié(s) de %s pour un de %s (pyramide complète indisponible)", f1(r$ratio_vague_seniors), lib[3], lib[4]))
+  NULL
 }
 titre_profil_typo <- function(r, prep) if (!is.na(r$cle)) prep$profils[[r$cle]] else if (r$statut == "sans") LIBELLES_CARTE_TYPO$absent else LIBELLE_NON_DIFFUSE_TYPO
 couleur_territoire_typo <- function(r) if (!is.na(r$cle)) COULEURS_PROFILS[[r$cle]] else if (r$statut == "sans") COULEURS_CARTE$sans_donnee else COULEURS_CARTE$secret

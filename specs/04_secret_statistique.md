@@ -330,6 +330,16 @@ Fonctionnalité: Appliquer le secret au bon moment
     Et aucune valeur masquée ne doit être récupérable depuis le HTML, le JavaScript, le JSON embarqué ou un attribut
 ```
 
+```gherkin
+  Scénario: [SPEC-SEC-033] Protéger les cellules de la pyramide des âges
+    Étant donné les cellules département × tranche d'âge de la pyramide (spec 10, §12)
+    Quand la typologie est diffusée
+    Alors chaque cellule est soumise au secret primaire (salariés, entreprises, dominance en effectif) puis au secondaire, le bloc étant le département dont le total est publié
+    Et dès qu'une cellule est masquée, toutes les parts, ratios et classes de la pyramide de ce département sont NA, pour qu'aucune tranche ne se retrouve par différence
+    Et les effectifs par tranche et le détail par grande CS ne sont jamais diffusés
+    Et une cellule regroupée par le 01d prend pour nombre d'entreprises le maximum de ses composantes (borne basse du vrai nombre) et pour dominance la plus forte de ses composantes (jamais moins de masquage)
+```
+
 ## 7. Exemple d'acceptation complet
 
 ```gherkin

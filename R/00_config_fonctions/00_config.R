@@ -211,7 +211,12 @@ STOCK_TOUS_AGES  <- TRUE          # effectifs ACTUELS tous âges par territoire 
                                   # dénominateur de la « part de la catégorie à remplacer »
                                   # des fiches et du CSV 08b. Exige une extraction NON
                                   # préfiltrée sur l'âge (sinon désactivé avec avertissement).
-GENERER_FICHES   <- TRUE          # FALSE = étape 09 ignorée, chaîne inchangée
+STOCK_TOUS_AGES_TRANCHES <- TRUE  # pyramide des âges tous âges (01c, objet stock_tranches_ages) : axe descriptif
+                                  # de la typologie (specs/10 §12). Exige STOCK_TOUS_AGES et la même extraction
+                                  # non préfiltrée ; sinon repli sur la pyramide du champ (08f), sans arrêt.
+AGE_BORNE_JEUNES <- 30            # tranches de la pyramide : moins de 30 ans, 30 à AGE_MIN_BTS - 1, AGE_MIN_BTS
+                                  # à AGE_SENIOR - 1, AGE_SENIOR et plus (seule cette borne se règle ici)
+GENERER_FICHES   <- TRUE         # FALSE = étape 09 ignorée, chaîne inchangée
 # --- Finalisation des CSV pour Excel (script 99b, fin de main.R) --------------
 NORMALISER_CSV_EXCEL <- TRUE      # TRUE = BOM UTF-8 ajouté à tous les CSV de DIR_SORTIES
                                   # (contenu inchangé octet pour octet, idempotent).
@@ -264,6 +269,12 @@ TYPO_SEUIL_VOLUME_ELEVE         <- 300
 TYPO_MARGE_FRONTIERE_PCT        <- 3    # % relatif : un axe (poids, intensité, volume) à moins de 3 % d'un seuil est « à la frontière »
 TYPO_NB_CRITERES_FRONTIERE      <- 2    # au moins 2 de ces 3 axes à la frontière -> « Situation à expertiser » (motif écrit)
 TYPO_FACTEUR_INTENSITE_EXTREME  <- 2    # poids faible ET intensité >= 2 x seuil « élevée » -> « Situation à expertiser »
+# Pyramide des âges (specs/10 §12) : axe DESCRIPTIF, n'entre dans aucune règle de profil.
+TYPO_METHODE_PYRAMIDE     <- "terciles" # "terciles" (provisoire, mêmes départements retenus) ou "fixes" (seuils ci-dessous)
+TYPO_SEUIL_RELEVE_FRAGILE <- 0.8  # moins de AGE_BORNE_JEUNES ans pour un AGE_SENIOR+ : < fragile ; >= solide
+TYPO_SEUIL_RELEVE_SOLIDE  <- 1.5
+TYPO_SEUIL_VAGUE_FAIBLE   <- 20   # % de AGE_MIN_BTS à AGE_SENIOR - 1 ans dans l'emploi tous âges : < faible ; >= forte
+TYPO_SEUIL_VAGUE_FORTE    <- 25
 # --- Cartes des profils de la typologie (script 08g) : sorties/typologie_territoriale/cartes/ --
 GENERER_CARTE_TYPOLOGIE <- TRUE   # FALSE = étape ignorée. Lit UNIQUEMENT typologie_territoriale/diffusion/ (08f) ;
                                   # carte_typologie.html (interactive : survol = détail, clic = épingler, légende cliquable),
@@ -397,3 +408,8 @@ if (AGE_SENIOR > BORNES_SUP_TRANCHES[length(BORNES_SUP_TRANCHES)])
 if (AGE_MIN_BTS >= AGE_MAX_TEST)
   stop(sprintf("AGE_MIN_BTS = %d >= AGE_MAX_TEST = %d : la table test serait vide.",
                AGE_MIN_BTS, AGE_MAX_TEST))
+# Pyramide des âges (specs/10 §12) : la borne des « jeunes » doit rester sous le champ
+if (!is.numeric(AGE_BORNE_JEUNES) || length(AGE_BORNE_JEUNES) != 1 || is.na(AGE_BORNE_JEUNES) ||
+    AGE_BORNE_JEUNES != round(AGE_BORNE_JEUNES) || AGE_BORNE_JEUNES < 16 || AGE_BORNE_JEUNES >= AGE_MIN_BTS)
+  stop(sprintf("AGE_BORNE_JEUNES doit être un entier unique, au moins 16 et inférieur à AGE_MIN_BTS = %d ; reçu : %s.",
+               AGE_MIN_BTS, paste(deparse(AGE_BORNE_JEUNES), collapse = "")))

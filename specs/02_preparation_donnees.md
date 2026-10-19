@@ -109,6 +109,18 @@ Fonctionnalité: Préparer des données cohérentes pour la projection
     Et chaque code recodé est compté, affiché et écrit dans sorties/geo_hors_passage_<zonage>.csv
     Et les scripts 08c et 08d s'exécutent ensuite sans arrêt, « inconnu » étant compté à part et hors cartes
     Mais hors zonage département, ou avec RECODER_GEO_HORS_PASSAGE faux, rien n'est modifié et le comportement antérieur (arrêt explicite dans 08c) est conservé
+
+  Scénario: [SPEC-PREP-014] Construire la pyramide des âges tous âges
+    Étant donné une extraction permettant d'observer les salariés sous AGE_MIN_BTS
+    Et STOCK_TOUS_AGES et STOCK_TOUS_AGES_TRANCHES vrais
+    Quand le script 01c est exécuté
+    Alors stock_tranches_ages contient cs (territoire × grande CS × tranche : effectif) et territoire (territoire × tranche : effectif, nombre d'entreprises, part de l'entreprise dominante en effectif), selon les quatre tranches de tranches_stock_ages() (spec 10, §12)
+    Et la somme des tranches du champ (vague et seniors) égale l'effectif du champ de bts par territoire × grande CS, sinon arrêt explicite
+    Et les salariés d'âge manquant sont comptés et signalés, jamais répartis dans une tranche
+    Et stock_tous_ages (total par territoire × grande CS) est inchangé
+    Et en mode test, les moins de AGE_MIN_BTS simulés sont répartis entre jeunes et milieu par une règle déterministe (graine fixe), les tranches du champ venant exactement de bts
+    Et sans stock tous âges ou avec STOCK_TOUS_AGES_TRANCHES faux, stock_tranches_ages vaut NULL, sans arrêt
+    Et le 01d recode aussi stock_tranches_ages : effectifs sommés, nombre d'entreprises et part dominante du territoire regroupé pris au maximum (règle prudente : jamais moins de masquage)
 ```
 
 ## Traçabilité

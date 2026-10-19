@@ -68,7 +68,16 @@ parametres_typologie <- function() list(
   marge_frontiere_pct       = TYPO_MARGE_FRONTIERE_PCT,
   nb_frontiere_expertise    = TYPO_NB_CRITERES_FRONTIERE,
   facteur_intensite_extreme = TYPO_FACTEUR_INTENSITE_EXTREME,
-  indicateur_intensite      = TYPO_INDICATEUR_INTENSITE)
+  indicateur_intensite      = TYPO_INDICATEUR_INTENSITE,
+  # pyramide des âges (axe descriptif, specs/10 §12)
+  methode_pyramide          = TYPO_METHODE_PYRAMIDE,
+  releve_fragile            = TYPO_SEUIL_RELEVE_FRAGILE,
+  releve_solide             = TYPO_SEUIL_RELEVE_SOLIDE,
+  vague_faible              = TYPO_SEUIL_VAGUE_FAIBLE,
+  vague_forte               = TYPO_SEUIL_VAGUE_FORTE,
+  age_jeunes                = AGE_BORNE_JEUNES,
+  age_min                   = AGE_MIN_BTS,
+  age_senior                = AGE_SENIOR)
 
 # --- Seuils d'une classe à trois niveaux ---------------------------------------
 # methode "terciles" = RÈGLE DE CLASSEMENT STATISTIQUE PROVISOIRE : bornes =
@@ -186,6 +195,13 @@ points_attention_typologie <- function(d, params) {
       pts <- c(pts, "renouvellement rapide mais calculé sur un petit effectif")
     if (!is.na(r$departs_central) && r$departs_central > 0 && (r$departs_haut - r$departs_bas) / r$departs_central >= 0.25)
       pts <- c(pts, sprintf("fourchette d’estimation large (de %d à %d départs)", round(r$departs_bas), round(r$departs_haut)))
+    # pyramide des âges (axe descriptif, SPEC-TYPO-094) : colonnes absentes ou NA = aucun point
+    if (isTRUE(r[["classe_releve"]] %in% CLASSES_PYRAMIDE$releve[1]) && isTRUE(r$classe_intensite %in% CLASSES_TYPOLOGIE$intensite[3]))
+      pts <- c(pts, sprintf("relève fragile : %s salarié(s) de moins de %d ans pour un salarié de %d ans et plus, alors que le renouvellement d’ici 2030 est rapide",
+                            fmt1(r$ratio_releve), params$age_jeunes, params$age_senior))
+    if (isTRUE(r[["classe_vague_suivante"]] %in% CLASSES_PYRAMIDE$vague[3]) && isTRUE(r$classe_intensite %in% CLASSES_TYPOLOGIE$intensite[1]))
+      pts <- c(pts, sprintf("vague de départs importante après 2030 : %s %% des salariés ont de %d à %d ans, alors que le renouvellement d’ici 2030 est lent",
+                            fmt1(r$pyramide_vague_pct), params$age_min, params$age_senior - 1))
     axes <- c(if (isTRUE(r$frontiere_poids)) "poids", if (isTRUE(r$frontiere_intensite)) "intensité", if (isTRUE(r$frontiere_volume)) "volume")
     if (length(axes) > 0 && !(r$profil_typologie %in% PROFILS_TYPOLOGIE[["expertiser"]]))
       pts <- c(pts, paste0("proche d’un seuil de classe (", paste(axes, collapse = ", "), ") : la classe peut basculer d’une édition à l’autre"))
@@ -228,8 +244,25 @@ rediger_situation_departement <- function(d, params, comparaisons, avec_cs = rep
     lecture <- if (nrow(def) == 1) sprintf(" Profil « %s » : %s.", def$titre, def$signification) else sprintf(" Profil : %s.", r$profil_typologie)
     if (!is.na(r$motif_expertise)) lecture <- paste0(lecture, " À examiner : ", r$motif_expertise, ".")
     if (!is.na(r$points_attention)) lecture <- paste0(lecture, " Point(s) d’attention : ", r$points_attention, ".")
-    paste0(etat, structure, dyn, conc, lecture)
+    paste0(etat, structure, dyn, conc, phrase_pyramide(r, params), lecture)
   }, "")
+}
+# Phrase de la pyramide (gabarit fixe, SPEC-TYPO-094) : vide si la pyramide est absente ou masquée.
+phrase_pyramide <- function(r, params) {
+  fmt1 <- function(x) formatC(x, format = "f", digits = 1, decimal.mark = ",")
+  src <- r[["pyramide_source"]]
+  if (is.null(src) || is.na(src)) return("")
+  if (src == "tous_ages") {
+    v <- c(r[["pyramide_jeunes_pct"]], r[["pyramide_milieu_pct"]], r[["pyramide_vague_pct"]], r[["pyramide_seniors_pct"]], r[["ratio_releve"]])
+    if (length(v) != 5 || anyNA(v)) return("")
+    lib <- strsplit(r$pyramide_libelles, " | ", fixed = TRUE)[[1]]
+    return(sprintf(" Pyramide des âges : %s %% de %s, %s %% de %s, %s %% de %s et %s %% de %s ; %s salarié(s) de moins de %d ans pour un de %d ans et plus%s.",
+                   fmt1(v[1]), lib[1], fmt1(v[2]), lib[2], fmt1(v[3]), lib[3], fmt1(v[4]), lib[4], fmt1(v[5]), params$age_jeunes, params$age_senior,
+                   if (!is.na(r$classe_releve)) paste0(" (", tolower(r$classe_releve), ")") else ""))
+  }
+  if (is.null(r[["ratio_vague_seniors"]]) || is.na(r$ratio_vague_seniors)) return("")
+  sprintf(" Au sein du champ, %s salarié(s) de %d à %d ans pour un de %d ans et plus (pyramide complète indisponible).",
+          fmt1(r$ratio_vague_seniors), params$age_min, params$age_senior - 1, params$age_senior)
 }
 # Synthèse rédigée par profil (titre, règle, signification, consigne, chiffres, départements)
 rediger_synthese_profils <- function(synthese, d, comparaisons) {
@@ -268,12 +301,78 @@ construire_justification_profil <- function(d, params) {
   }, "")
 }
 
+# --- Pyramide des âges : axe DESCRIPTIF (specs/10 §12) -------------------------------
+# Elle décrit ce que l'horizon 2030 ne voit pas (la relève, la vague suivante) et
+# n'entre dans aucune règle de profil. Quatre tranches de clés fixes ; bornes tirées
+# de la configuration (AGE_BORNE_JEUNES, AGE_MIN_BTS, AGE_SENIOR), jamais en dur.
+CLES_PYRAMIDE <- c("jeunes", "milieu", "vague", "seniors")
+CLASSES_PYRAMIDE <- list(releve = c("Relève fragile", "Relève intermédiaire", "Relève solide"), vague = c("Faible", "Modérée", "Forte"))
+tranches_stock_ages <- function(age_jeunes = AGE_BORNE_JEUNES, age_min = AGE_MIN_BTS, age_senior = AGE_SENIOR) {
+  if (!(age_jeunes < age_min && age_min < age_senior)) stop("tranches_stock_ages : bornes non ordonnées (", age_jeunes, ", ", age_min, ", ", age_senior, ").")
+  tibble(cle = CLES_PYRAMIDE, borne_inf = c(-Inf, age_jeunes, age_min, age_senior), borne_sup = c(age_jeunes - 1, age_min - 1, age_senior - 1, Inf),
+         libelle = c(sprintf("moins de %d ans", age_jeunes), sprintf("%d-%d ans", age_jeunes, age_min - 1),
+                     sprintf("%d-%d ans", age_min, age_senior - 1), sprintf("%d ans et plus", age_senior)),
+         dans_champ = c(FALSE, FALSE, TRUE, TRUE))
+}
+# Clé de tranche d'un âge en années révolues ; NA si l'âge manque (jamais réparti).
+affecter_tranche_stock <- function(age, tranches = tranches_stock_ages()) {
+  b <- tranches$borne_inf
+  tranches$cle[1L + (age >= b[2]) + (age >= b[3]) + (age >= b[4])]
+}
+# Indicateurs de secret d'une cellule de STOCK (pas de départ : dominance en effectif).
+# d : une ligne par salarié, ou une ligne par cellule x entreprise avec une colonne n.
+indicateurs_secret_effectif <- function(d, cles) {
+  manque <- setdiff(c(cles, "siren"), names(d)); if (length(manque)) stop("indicateurs_secret_effectif : colonnes absentes : ", paste(manque, collapse = ", "))
+  d <- if ("n" %in% names(d)) d |> group_by(across(all_of(c(cles, "siren")))) |> summarise(n = sum(n), .groups = "drop")
+       else d |> count(across(all_of(c(cles, "siren"))), name = "n")
+  d |> group_by(across(all_of(cles))) |>
+    summarise(effectif = sum(n), n_entreprises = n(), part_dominante_pct = 100 * max(n) / sum(n), .groups = "drop")
+}
+# Source de la pyramide : stock par tranche du 01c (complète) ; sinon le champ
+# (bts_projete : tranches vague et seniors seulement) ; sinon NULL (rien inventé).
+# Chaque département porte toutes ses tranches (tranche vide = 0 salarié, 0 entreprise).
+preparer_pyramide_departements <- function(stock_tranches = NULL, base_champ = NULL, tranches = tranches_stock_ages()) {
+  grille <- function(t, cles) {
+    g <- expand.grid(geo_code = sort(unique(t$geo_code)), tranche_age = cles, stringsAsFactors = FALSE)
+    as_tibble(g) |> left_join(t, by = c("geo_code", "tranche_age")) |>
+      mutate(effectif = coalesce(as.numeric(effectif), 0), n_entreprises = coalesce(as.integer(n_entreprises), 0L), part_dominante_pct = coalesce(part_dominante_pct, 0))
+  }
+  if (!is.null(stock_tranches) && !is.null(stock_tranches$territoire)) {
+    t <- stock_tranches$territoire |> mutate(geo_code = as.character(geo_code)) |> select(geo_code, tranche_age, effectif, n_entreprises, part_dominante_pct)
+    inconnues <- setdiff(unique(t$tranche_age), tranches$cle)
+    if (length(inconnues)) stop("preparer_pyramide_departements : tranche(s) inconnue(s) dans le stock : ", paste(inconnues, collapse = ", "))
+    return(list(source = "tous_ages", departement = grille(t, tranches$cle), cs = stock_tranches$cs, tranches = tranches))
+  }
+  if (!is.null(base_champ) && all(c("geo_code", "siren", "age_2024", "p_central") %in% names(base_champ))) {
+    b <- base_champ |> mutate(geo_code = ifelse(is.na(geo_code), "inconnu", as.character(geo_code)), tranche_age = affecter_tranche_stock(age_2024, tranches))
+    hors <- !b$tranche_age %in% tranches$cle[tranches$dans_champ]
+    if (any(hors)) stop("preparer_pyramide_departements : ", sum(hors), " salarié(s) du champ hors des tranches du champ (âge manquant ou sous AGE_MIN_BTS).")
+    t <- b |> count(geo_code, tranche_age, name = "effectif") |>
+      left_join(indicateurs_secret(b, c("geo_code", "tranche_age")), by = c("geo_code", "tranche_age"))
+    return(list(source = "champ", departement = grille(t, tranches$cle[tranches$dans_champ]), cs = NULL, tranches = tranches))
+  }
+  NULL
+}
+# Indicateurs par département : effectifs et parts par tranche, relève, vague suivante.
+indicateurs_pyramide <- function(pyr) {
+  t <- pyr$departement; tr <- pyr$tranches; complete <- identical(pyr$source, "tous_ages")
+  out <- tibble(geo_code = sort(unique(t$geo_code)))
+  for (k in tr$cle) { v <- t[t$tranche_age == k, ]; out[[paste0("pyramide_n_", k)]] <- v$effectif[match(out$geo_code, v$geo_code)] }
+  tot <- rowSums(as.matrix(out[, paste0("pyramide_n_", tr$cle)]))
+  for (k in tr$cle) out[[paste0("pyramide_", k, "_pct")]] <- if (complete) ifelse(tot > 0, 100 * out[[paste0("pyramide_n_", k)]] / tot, NA_real_) else NA_real_
+  ratio <- function(a, b) ifelse(!is.na(a) & !is.na(b) & b > 0, a / b, NA_real_)
+  out |> mutate(pyramide_source = pyr$source, pyramide_libelles = paste(tr$libelle, collapse = " | "),
+                ratio_releve = if (complete) ratio(pyramide_n_jeunes, pyramide_n_seniors) else NA_real_,
+                ratio_vague_seniors = ratio(pyramide_n_vague, pyramide_n_seniors))
+}
+
 # --- Construction complète ---------------------------------------------------------
 # cs_dep : table département x cs1 EXACTE du 08d (departs_cs1$analytique$departement) ;
 # stock  : stock_tous_ages (geo_code, cs1, effectif_tous_ages) ou NULL ;
-# params : parametres_typologie().
+# params : parametres_typologie() ;
+# pyramide : preparer_pyramide_departements() ou NULL (axe descriptif : aucun effet sur les profils).
 # Retourne list(departements, departement_cs, parametres, base_poids).
-construire_typologie_departements <- function(cs_dep, stock = NULL, params = parametres_typologie(), ordre_cs = unname(PCS_VERS_CS1)) {
+construire_typologie_departements <- function(cs_dep, stock = NULL, params = parametres_typologie(), ordre_cs = unname(PCS_VERS_CS1), pyramide = NULL) {
   requis <- c("geo_code", "geo_nom", "cs1", "effectif_champ", "departs_central", "departs_bas", "departs_haut")
   manque <- setdiff(requis, names(cs_dep)); if (length(manque)) stop("construire_typologie_departements : colonnes absentes : ", paste(manque, collapse = ", "))
   if (anyDuplicated(cs_dep[, c("geo_code", "cs1")]) > 0) stop("construire_typologie_departements : doublons département x cs1.")
@@ -339,7 +438,16 @@ construire_typologie_departements <- function(cs_dep, stock = NULL, params = par
     n_criteres_frontiere = frontiere_poids + frontiere_intensite + frontiere_volume,
     intensite_extreme_faible_stock = classe_poids_base == CLASSES_TYPOLOGIE$poids[1] & !is.na(s_int[["haut"]]) &
       intensite_renouvellement_pct >= params$facteur_intensite_extreme * s_int[["haut"]])
-  axes_fr <- vapply(seq_len(nrow(dep)), function(i) paste(c(if (dep$frontiere_poids[i]) "poids", if (dep$frontiere_intensite[i]) "intensité", if (dep$frontiere_volume[i]) "volume"), collapse = ", "), "")
+  # Pyramide des âges : axe descriptif, classé sur les mêmes départements retenus (SPEC-TYPO-093)
+  s_rel <- s_vag <- c(bas = NA_real_, haut = NA_real_)
+  if (!is.null(pyramide)) {
+    dep <- dep |> left_join(indicateurs_pyramide(pyramide), by = "geo_code")
+    s_rel <- seuils_classes(dep$ratio_releve[retenus], params$methode_pyramide, c(params$releve_fragile, params$releve_solide))
+    s_vag <- seuils_classes(dep$pyramide_vague_pct[retenus], params$methode_pyramide, c(params$vague_faible, params$vague_forte))
+    dep$classe_releve <- classer_par_seuils(dep$ratio_releve, s_rel, CLASSES_PYRAMIDE$releve)
+    dep$classe_vague_suivante <- classer_par_seuils(dep$pyramide_vague_pct, s_vag, CLASSES_PYRAMIDE$vague)
+  }
+  axes_fr <-vapply(seq_len(nrow(dep)), function(i) paste(c(if (dep$frontiere_poids[i]) "poids", if (dep$frontiere_intensite[i]) "intensité", if (dep$frontiere_volume[i]) "volume"), collapse = ", "), "")
   attrib <- attribuer_profil_typologie(dep$classe_poids_base, dep$classe_volume_departs, dep$classe_intensite, dep$type_concentration,
                                        dep$n_criteres_frontiere, dep$intensite_extreme_faible_stock, params$nb_frontiere_expertise, axes_fr)
   dep$profil_typologie <- attrib$profil; dep$motif_expertise <- attrib$motif
@@ -355,8 +463,13 @@ construire_typologie_departements <- function(cs_dep, stock = NULL, params = par
                        valeur = c(params$methode_classes, indicateur, base_poids, params$seuil_dominance_cs, params$seuil_concentration, params$effectif_min,
                                   s_poids[["bas"]], s_poids[["haut"]], s_int[["bas"]], s_int[["haut"]], s_vol[["bas"]], s_vol[["haut"]],
                                   params$marge_frontiere_pct, params$nb_frontiere_expertise, params$facteur_intensite_extreme, nrow(dep), sum(retenus)))
+  if (!is.null(pyramide))
+    parametres <- bind_rows(parametres, tibble(
+      parametre = c("pyramide_source", "age_borne_jeunes", "age_min_champ", "age_senior", "methode_pyramide", "releve_bas", "releve_haut", "vague_bas_pct", "vague_haut_pct"),
+      valeur = as.character(c(pyramide$source, params$age_jeunes, params$age_min, params$age_senior, params$methode_pyramide,
+                              s_rel[["bas"]], s_rel[["haut"]], s_vag[["bas"]], s_vag[["haut"]]))))
   list(departements = dep, departement_cs = long |> select(-effectif_base), parametres = parametres, base_poids = base_poids, indicateur = indicateur,
-       comparaisons = comparaisons, params = params)
+       comparaisons = comparaisons, params = params, pyramide = pyramide)
 }
 # pivot large sans tidyr : une colonne par mesure x CS (effectif_<cs>, part_<cs>_pct, departs_<cs>, intensite_<cs>_pct)
 tidyr_pivot <- function(long, cs_order) {
@@ -400,7 +513,9 @@ controler_typologie <- function(typo, cs_dep, tol = 1e-6) {
 # NA et les profils qui en dépendent (« Renouvellement porté par une catégorie »,
 # « Implantation stable ») deviennent « Non diffusé (secret statistique) » ;
 # (4) les textes (situation_texte, points_attention, motif_expertise) ne citent
-# jamais une catégorie masquée et sont NA pour un territoire masqué (SPEC-TYPO-054).
+# jamais une catégorie masquée et sont NA pour un territoire masqué (SPEC-TYPO-054) ;
+# (5) pyramide des âges : une tranche masquée -> parts, ratios et classes NA, effectifs
+# par tranche jamais diffusés (SPEC-TYPO-095).
 appliquer_secret_typologie <- function(typo, diffusion_cs_dep, base, regles = regles_secret()) {
   d <- typo$departements
   if (!"masque" %in% names(diffusion_cs_dep)) stop("appliquer_secret_typologie : table de diffusion du 08d requise (colonne masque).")
@@ -424,15 +539,27 @@ appliquer_secret_typologie <- function(typo, diffusion_cs_dep, base, regles = re
   for (v in derivees) d[[v]][d$cs_masquee] <- NA
   dep_cs_profil <- d$cs_masquee & d$profil_typologie %in% PROFILS_TYPOLOGIE[c("concentre", "stable")]
   d$profil_typologie[dep_cs_profil] <- "Non diffusé (secret statistique)"
-  # points d'attention et texte : recalculés sans aucune information par catégorie quand une cellule est masquée
-  d$points_attention[d$cs_masquee] <- points_attention_typologie(d[d$cs_masquee, ], typo$params)
+  # (5) pyramide des âges (SPEC-TYPO-095) : règle Insee sur les tranches, bloc = département ;
+  # une seule tranche masquée suffit à retirer toute la pyramide (aucune différence possible)
+  pyr_masquee <- rep(FALSE, nrow(d))
+  if (!is.null(typo$pyramide)) {
+    pm <- typo$pyramide$departement |> group_by(geo_code) |>
+      mutate(.m = masquer_cellules(effectif, n_entreprises, part_dominante_pct, regles)) |> summarise(m = any(.m), .groups = "drop")
+    pyr_masquee <- d$geo_code %in% pm$geo_code[pm$m]
+    cols_pyr <- intersect(c(grep("^pyramide_.+_pct$", names(d), value = TRUE), "ratio_releve", "ratio_vague_seniors", "classe_releve", "classe_vague_suivante"), names(d))
+    for (v in cols_pyr) d[[v]][pyr_masquee] <- NA
+    d$pyramide_masquee <- pyr_masquee
+  }
+  # points d'attention et texte : recalculés sans aucune information par catégorie (ni par tranche) masquée
+  a_recalculer <- d$cs_masquee | pyr_masquee
+  d$points_attention[a_recalculer] <- points_attention_typologie(d[a_recalculer, ], typo$params)
   d$situation_texte <- ifelse(dep_cs_profil, NA_character_, rediger_situation_departement(d, typo$params, typo$comparaisons, avec_cs = !d$cs_masquee))
   mesures <- setdiff(names(d), c("region_code", "region_nom", "geo_code", "geo_nom", "masque", "cs_masquee", "indicateur_intensite", "base_poids"))
   for (v in mesures) d[[v]][d$masque] <- NA
   d$profil_typologie[d$masque] <- "Non diffusé (secret statistique)"
   d$justification_profil[d$masque | dep_cs_profil] <- NA_character_
   d$situation_texte[d$masque] <- NA_character_
-  d |> select(-starts_with("frontiere_"), -n_criteres_frontiere, -intensite_extreme_faible_stock, -egalite_structure, -cs_masquee) |>
+  d |> select(-starts_with("frontiere_"), -n_criteres_frontiere, -intensite_extreme_faible_stock, -egalite_structure, -cs_masquee, -starts_with("pyramide_n_")) |>
     mutate(motif_masque = ifelse(masque, "territoire", ifelse(dep_cs_profil, "cellule cs masquée", NA_character_)))
 }
 

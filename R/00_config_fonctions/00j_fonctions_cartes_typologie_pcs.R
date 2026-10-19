@@ -29,6 +29,7 @@ LIBELLES_TYPO_PCS <- list(
   top_titre = "Métiers les plus concernés par les départs", top_retenu = "Top non diffusé : une seule cellule PCS protégée (secret statistique)",
   top_vide = "Aucune PCS diffusable", pcs_non_diffusees = "PCS non diffusées (secret statistique)",
   specificite = "Part dans les départs du territoire, face à la France", colorer = "Colorer la carte par cette PCS", retour_profils = "Revenir aux profils",
+  pyramide_titre = "Pyramide des âges (emploi actuel tous âges)",
   retour_regions = "Toutes les régions", niveau_regions = "Régions", niveau_departements = "Départements",
   courriel_note = "Version pour envoi par courriel, sans script : survolez un territoire pour lire ses chiffres ; le détail de chaque territoire est dans les blocs dépliables sous les cartes. La coloration de la carte par PCS est réservée à la page interactive.")
 COULEUR_EGALITE <- "#C9D2DC"
@@ -139,6 +140,13 @@ html_table_top <- function(t, avec_france = FALSE) {
             if (avec_france) "<th>Part des départs en France</th>" else ""), lignes, "</tbody></table>",
     if (t$n_masquees > 0) sprintf('<p class="note">%d %s.</p>', t$n_masquees, echap_html_carte(LIBELLES_TYPO_PCS$pcs_non_diffusees)) else "")
 }
+html_barres_pyramide <- function(r) {   # pyramide en barres statiques (courriel) ; rien si absente ou non diffusée
+  py <- parts_pyramide_typo(r); if (is.null(py)) return("")
+  mx <- max(py$parts); if (!is.finite(mx) || mx <= 0) mx <- 1
+  c(sprintf('<h3>%s</h3>', LIBELLES_TYPO_PCS$pyramide_titre), '<ul class="top">',
+    sprintf('<li><div class="lib"><span>%s</span><small>%s %%</small></div><div class="b"><span style="width:%s%%"></span></div></li>', echap_html_carte(py$libelles),
+            vapply(py$parts, function(x) f1_(x), ""), formatC(100 * py$parts / mx, format = "f", digits = 2, decimal.mark = ".")), '</ul>')
+}
 html_comptes_region <- function(r, profils = PROFILS_TYPOLOGIE) {
   parts <- c(unlist(r$comptes), non_diffuses = r$n_non_diffuses); tot <- sum(parts)
   if (tot == 0) return(sprintf('<p class="note">%s</p>', LIBELLES_TYPO_PCS$absent))
@@ -198,6 +206,8 @@ js_cartes_typologie_pcs <- function() paste(
   ' if(t.n_masquees>0)cont.appendChild(el("p","note",t.n_masquees+" "+L.pcs_non_diffusees+"."));',
   ' if(avecChips){var ch=el("div","chips");t.top.forEach(function(r){var b=el("button",null,libPcs(r.pcs));b.type="button";b.setAttribute("data-pcs",r.pcs);b.setAttribute("aria-pressed",etat.pcs===r.pcs?"true":"false");b.title=L.colorer;b.addEventListener("click",function(){etat.pcs=(etat.pcs===r.pcs)?null:r.pcs;rendre();panneau()});ch.appendChild(b)});',
   '  if(etat.pcs){var rb=el("button",null,L.retour_profils);rb.type="button";rb.addEventListener("click",function(){etat.pcs=null;rendre();panneau()});ch.appendChild(rb)}cont.appendChild(el("h3",null,L.colorer));cont.appendChild(ch)}}',
+  'function barresPyramide(py,cont){if(!py)return;cont.appendChild(el("h3",null,L.pyramide_titre));var mx=Math.max.apply(null,py.parts)||1,ul=el("ul","top");',
+  ' py.libelles.forEach(function(l,i){var e=el("li");var lib=el("div","lib");lib.appendChild(el("span",null,l));lib.appendChild(el("small",null,fmt(py.parts[i],1)+" %"));e.appendChild(lib);var b=el("div","b"),s=el("span");s.style.width=(100*py.parts[i]/mx)+"%";b.appendChild(s);e.appendChild(b);ul.appendChild(e)});cont.appendChild(ul)}',
   'function specificite(t,cont){if(!t.top||!t.top.length||t.statut!=="ok")return;var ok=t.top.filter(function(r){return r.part!=null&&r.pf!=null});if(!ok.length)return;cont.appendChild(el("h3",null,L.specificite));',
   ' var mx=Math.max.apply(null,ok.map(function(r){return Math.max(r.part,r.pf)}))||1,ul=el("ul","spec");ok.forEach(function(r){var e=el("li");e.appendChild(el("div",null,libPcs(r.pcs)));var ax=el("div","axe");var a=100*r.part/mx,f=100*r.pf/mx;var seg=el("span","seg");seg.style.left=Math.min(a,f)+"%";seg.style.width=Math.abs(a-f)+"%";ax.appendChild(seg);',
   '  var pd=el("span","pt d");pd.style.left=a+"%";pd.title="Territoire : "+fmt(r.part,1)+" %";ax.appendChild(pd);var pfr=el("span","pt f");pfr.style.left=f+"%";pfr.title="France : "+fmt(r.pf,1)+" %";ax.appendChild(pfr);e.appendChild(ax);',
@@ -205,7 +215,7 @@ js_cartes_typologie_pcs <- function() paste(
   'function panneau(){DP.innerHTML="";DP.scrollTop=0;',
   ' if(etat.dep){var t=D.departements[etat.dep],p=t.cle?D.profils[t.cle]:null;DP.appendChild(titre(t.nom+" · "+etat.dep,p?p.titre:(t.st==="sans"?L.absent:L.non_diffuse),p?p.couleur:D.couleurs.secret,p?p.clair:false));',
   '  if(t.region&&D.regions[t.region]){var rl=el("button","lien","← "+D.regions[t.region].nom);rl.type="button";rl.addEventListener("click",function(){etat.dep=null;etat.region=t.region;rendre();panneau()});DP.appendChild(rl)}',
-  '  var ul=el("ul","lignes");t.lignes.forEach(function(l){ul.appendChild(el("li",null,l))});DP.appendChild(ul);DP.appendChild(el("h3",null,L.top_titre));barresTop(t.top,DP,true);specificite(t.top,DP);return}',
+  '  var ul=el("ul","lignes");t.lignes.forEach(function(l){ul.appendChild(el("li",null,l))});DP.appendChild(ul);barresPyramide(t.pyramide,DP);DP.appendChild(el("h3",null,L.top_titre));barresTop(t.top,DP,true);specificite(t.top,DP);return}',
   ' if(etat.region){var r=D.regions[etat.region];DP.appendChild(titre(r.nom,r.titre,r.couleur,r.clair));var rb=el("button","lien","← "+L.retour_regions);rb.type="button";rb.addEventListener("click",function(){etat.region=null;etat.dep=null;etat.niveau="region";etat.pcs=null;rendre();panneau()});DP.appendChild(rb);',
   '  DP.appendChild(el("h3",null,"Départements par profil"));var w=el("div");w.innerHTML=r.html_comptes;DP.appendChild(w);var dl=el("ul","lignes");r.departements.forEach(function(c){var li2=el("li");var b=el("button","lien",D.departements[c].nom+" · "+c);b.type="button";b.addEventListener("click",function(){etat.dep=c;etat.niveau="departement";rendre();panneau()});li2.appendChild(b);var pp=D.departements[c].cle?D.profils[D.departements[c].cle].titre:L.non_diffuse;li2.appendChild(el("span",null," — "+pp));dl.appendChild(li2)});DP.appendChild(dl);',
   '  DP.appendChild(el("h3",null,L.top_titre+" (région)"));barresTop(r.top,DP,false);return}',
@@ -236,7 +246,8 @@ donnees_json_typo_pcs <- function(prep, champ = construire_libelle_champ()) {
   reg_de <- list(); for (rc in names(prep$regions)) for (c in prep$regions[[rc]]$departements) reg_de[[c]] <- rc
   deps <- setNames(lapply(seq_len(nrow(prep$territoires)), function(i) { r <- prep$territoires[i, ]; t <- prep$departements[[r$code]]
     x <- list(nom = r$nom, st = r$statut, couleur = couleur_territoire_typo(r), lignes = as.list(lignes_detail_typologie(r, prep$indicateur)), lignes_top = as.list(lignes_top_pcs(t)), top = top_json(t))
-    if (!is.na(r$cle)) x$cle <- r$cle; if (!is.null(reg_de[[r$code]])) x$region <- reg_de[[r$code]]; x }), prep$territoires$code)
+    if (!is.na(r$cle)) x$cle <- r$cle; if (!is.null(reg_de[[r$code]])) x$region <- reg_de[[r$code]]
+    py <- if (r$statut == "masque") NULL else parts_pyramide_typo(r); if (!is.null(py)) x$pyramide <- list(libelles = py$libelles, parts = round(py$parts, 2)); x }), prep$territoires$code)
   regs <- lapply(prep$regions, function(r) { parts <- c(unlist(r$comptes), non_diffuses = r$n_non_diffuses)
     list(nom = r$nom, cle = if (is.na(r$cle)) NULL else r$cle, titre = titre_region_typo(r, P), couleur = couleur_region_typo(r), clair = is.na(r$cle) || isTRUE(clair[r$cle]),
          n_departements = r$n_departements, departements = as.list(r$departements), comptes = r$comptes, n_non_diffuses = r$n_non_diffuses,
@@ -302,7 +313,7 @@ html_blocs_territoires <- function(prep) {   # version courriel : un bloc dépli
   deps <- unlist(lapply(seq_len(nrow(tt)), function(i) { r <- tt[i, ]; tp <- prep$departements[[r$code]]
     c(sprintf('<details class="terr"><summary><span class="sw" style="background:%s"></span>%s · %s — %s</summary>', couleur_territoire_typo(r), echap_html_carte(r$nom), r$code, echap_html_carte(titre_profil_typo(r, prep))),
       sprintf('<ul class="lignes">%s</ul>', paste(sprintf("<li>%s</li>", echap_html_carte(lignes_detail_typologie(r, prep$indicateur))), collapse = "")),
-      if (r$statut == "masque") "" else c(sprintf('<h3>%s</h3>', LIBELLES_TYPO_PCS$top_titre), html_table_top(tp, avec_france = TRUE)), '</details>') }))
+      if (r$statut == "masque") "" else c(html_barres_pyramide(r), sprintf('<h3>%s</h3>', LIBELLES_TYPO_PCS$top_titre), html_table_top(tp, avec_france = TRUE)), '</details>') }))
   c('<details class="bloc-typo" open><summary>Le détail par région</summary>', regs, '</details>',
     '<details class="bloc-typo" open><summary>Le détail par département</summary>', deps, '</details>')
 }
