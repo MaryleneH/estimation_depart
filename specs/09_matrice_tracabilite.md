@@ -9,14 +9,14 @@ la maintenance. Les titres de tests sont ceux des `test_that()` du dépôt.
 | Domaine | Identifiants | Code principal | Tests principaux |
 |---|---|---|---|
 | Champ d'étude | SPEC-CHAMP-001 à 008 | `00_config.R`, `01_fabriquer_donnees_test.R`, `01b`, `01c`, `00f` (`construire_libelle_champ`) | `test-age-min.R`, `test-cartes-departs.R` (CHAMP) |
-| Préparation | SPEC-PREP-001 à 012 | `01_*`, `02_*`, `00c_fonctions_geo.R` | `test-geo.R`, `test-departs-pcs.R` (passage, hors champ), `test-fiches.R` (stock tous âges) |
+| Préparation | SPEC-PREP-001 à 014 | `01_*`, `02_*`, `00c_fonctions_geo.R` | `test-geo.R`, `test-departs-pcs.R` (passage, hors champ), `test-fiches.R` (stock tous âges) |
 | Projection | SPEC-PROJ-001 à 009 | `03_parametres_csp.R`, `04_projection_2030.R`, `00d` (`ajouter_parts_causes`) | `test-snapshot.R`, `test-non-regression-ze.R`, `test-format-restitution.R` (non-régression numérique) |
-| Secret statistique | SPEC-SEC-001 à 032 | `00d_fonctions_fiches.R`, `00e_fonctions_departs_pcs.R`, `08b`, `08c`, `08d`, `09` | `test-fiches.R`, `test-departs-geo-cs.R`, `test-departs-pcs.R`, `test-departs-cs1.R`, `test-cartes-departs.R` (SECRET) |
+| Secret statistique | SPEC-SEC-001 à 033 | `00d_fonctions_fiches.R`, `00e_fonctions_departs_pcs.R`, `08b`, `08c`, `08d`, `09` | `test-fiches.R`, `test-departs-geo-cs.R`, `test-departs-pcs.R`, `test-departs-cs1.R`, `test-cartes-departs.R` (SECRET) |
 | Restitution / arrondi | SPEC-REST-001 à 010 | `00g_format_restitution.R`, JavaScript de `00f` | `test-format-restitution.R`, `test-fiches.R` (cohérence interne) |
 | Restitutions territoriales | SPEC-GEO-001 à 011 | `00e`, `08`, `08b`, `08c`, `08d`, `00c` | `test-departs-pcs.R`, `test-departs-cs1.R`, `test-departs-geo-cs.R`, `test-non-regression-ze.R` |
 | Cartes et fiches | SPEC-PUB-001 à 020 | `00f_fonctions_cartes.R`, `08e`, `00d`, `09` | `test-cartes-departs.R`, `test-fiches.R` |
 | Orchestration | SPEC-ORCH-001 à 012 | `main.R`, `99b_normaliser_csv_excel.R` | `test-snapshot.R`, `test-normaliser-csv-excel.R`, `test-fiches.R` (chaîne) |
-| Typologie territoriale | SPEC-TYPO-001 à 085 | `00h_fonctions_typologie.R`, `08f_typologie_departements.R`, `00_config.R` (TYPO_*) | `test-typologie-territoriale.R` |
+| Typologie territoriale | SPEC-TYPO-001 à 095 | `00h_fonctions_typologie.R`, `08f_typologie_departements.R`, `01c` (pyramide), `00_config.R` (TYPO_*, AGE_BORNE_JEUNES) | `test-typologie-territoriale.R`, `test-typologie-pyramide.R` |
 
 ## Typologie territoriale (spec 10) : besoin → règle → implémentation → test → sortie
 
@@ -49,6 +49,12 @@ la maintenance. Les titres de tests sont ceux des `test_that()` du dépôt.
 | SPEC-TYPO-084 | version courriel sans contenu actif, deux cartes, blocs dépliables natifs | `generer_cartes_typologie_pcs_courriel()` | « SPEC-TYPO-084 … » | `cartes/carte_typologie_pcs_courriel.html` |
 | SPEC-TYPO-085 | 08h sur la chaîne et seul ; table absente = message | `08h_cartes_typologie_pcs.R` | « SPEC-TYPO-085 … » | les deux pages |
 | SPEC-TYPO-070 | bornes effectives en console (99c) : cinq indicateurs, méthode, plancher, repli d'intensité, répartition, fichiers absents | `99c_afficher_bornes_typologie.R` | `test-afficher-bornes-typologie.R` (quatre blocs) | console |
+| SPEC-TYPO-090 | tranches de la pyramide tirées de AGE_BORNE_JEUNES, AGE_MIN_BTS, AGE_SENIOR ; borne des jeunes contrôlée | `tranches_stock_ages()`, `affecter_tranche_stock()`, `00_config.R` | `test-typologie-pyramide.R` « SPEC-TYPO-090 — tranches … » | `pyramide_libelles` |
+| SPEC-TYPO-091 | parts par tranche, relève (jeunes / seniors), vague suivante ; aucun senior = NA | `preparer_pyramide_departements()`, `indicateurs_pyramide()` | « SPEC-TYPO-091 — pyramide complète … » | `pyramide_<clé>_pct`, `ratio_releve`, `ratio_vague_seniors` |
+| SPEC-TYPO-092 | repli sur le champ (`bts_projete`) ; sans source, rien de créé | `preparer_pyramide_departements()`, `phrase_pyramide()`, `08f` | « SPEC-TYPO-092 — repli sur le champ … » | `pyramide_source` |
+| SPEC-TYPO-093 | classes de relève et de vague suivante, bornes écrites ; profils inchangés | `construire_typologie_departements()` | « SPEC-TYPO-093 — classes … » | `classe_releve`, `classe_vague_suivante`, `parametres_typologie.csv`, 99c (bloc 6) |
+| SPEC-TYPO-094 | points d'attention relève fragile / vague après 2030 ; phrase par gabarit | `points_attention_typologie()`, `phrase_pyramide()` | « SPEC-TYPO-094 — points d'attention … » | `points_attention`, `situation_texte` |
+| SPEC-TYPO-095 | secret des tranches (bloc département), pyramide entière masquée, effectifs par tranche internes ; cartes muettes | `appliquer_secret_typologie()`, `ligne_pyramide_typologie()`, `html_barres_pyramide()`, `js_cartes_typologie_pcs()` | « SPEC-TYPO-095 / SPEC-SEC-033 — secret … » ; « SPEC-TYPO-095 — cartes … » | `diffusion/typologie_departements.csv` (`pyramide_masquee`), cartes 08g / 08h, `interne/pyramide_ages_departement_cs.csv` |
 | SPEC-TYPO-065 | survol et défilement stables (infobulle fixe, contenu reconstruit au changement seul, panneau à hauteur stable, masquage au défilement) ; légende sans entrée « absent » à zéro | `js_carte_typologie()`, `css_carte_typologie()`, `html_legende_typologie()`, `png_carte_typologie()` | « SPEC-TYPO-065 — stabilité du survol et légende … » ; test navigateur (Playwright, hors suite) | `cartes/carte_typologie.html` |
 | SPEC-TYPO-020 à 023 | tension de bassin jamais attribuée au département, jamais de départs au bassin, pas de FAP → CS, nommage | `joindre_signal_tension_localise()`, `controler_typologie()` | « SPEC-TYPO-020 à 023 — tensions … » | `nb_bassins_signales`, `presence_signal_tension_localise` (non produits par défaut) |
 | SPEC-TYPO-030 | département non diffusable, secondaire sur le bloc national | `appliquer_secret_typologie()` | « SPEC-TYPO-030 à 034 — secret … » | `diffusion/typologie_departements.csv` (`masque`, `motif_masque`) |
@@ -68,6 +74,7 @@ la maintenance. Les titres de tests sont ceux des `test_that()` du dépôt.
 | SPEC-PREP-002 | codes géographiques en texte | `normaliser_geo()` | `test-geo.R` « codes : toujours en texte, « 01 », « 2A », « 2B », « 33 » intacts » |
 | SPEC-PREP-006 | PCS hors champ tracées | `01b`, `08c` | `test-departs-pcs.R` « fichiers : … pcs_hors_champ agrégée avec total = exclusions du 01b » |
 | SPEC-PREP-013 | département sans région dans la table de passage → « inconnu », tracé, sans arrêt | `01d_recoder_geo_hors_passage.R` | `test-recoder-geo-hors-passage.R` « SPEC-PREP-013 — le code « 99 » sans région est recodé « inconnu », compté, tracé ; ajouter_region ne s'arrête plus » |
+| SPEC-PREP-014 | pyramide tous âges (01c) : tranches du champ = champ, total = stock tous âges, mode test déterministe, désactivable ; recodage 01d prudent | `01c_stock_tous_ages.R`, `01d_recoder_geo_hors_passage.R`, `indicateurs_secret_effectif()` | `test-typologie-pyramide.R` « SPEC-PREP-014 — 01c (mode test) … » ; « SPEC-PREP-014 / SPEC-SEC-033 — 01d … » |
 | SPEC-PREP-008 | stock tous âges indisponible non bloquant | `01c`, `00d` | `test-fiches.R` « STOCK_TOUS_AGES = FALSE : chaîne inchangée, fiches en repli, CSV 08b sans colonnes tous âges » |
 | SPEC-PROJ-009 | modèle inchangé par les évolutions de restitution | `04`, références figées | `test-snapshot.R` ; `test-format-restitution.R` « NON-RÉGRESSION numérique … » |
 | SPEC-SEC-001 à 008 | règle primaire Insee, bornes | `secret_primaire()`, `indicateurs_secret()` | `test-fiches.R` « secret statistique, règle Insee BTS : < 5 salariés OU < 3 entreprises OU une entreprise > 85 %, puis secondaire » |
@@ -75,6 +82,7 @@ la maintenance. Les titres de tests sont ceux des `test_that()` du dépôt.
 | SPEC-SEC-016 à 022 | blocs par niveau et dimension | `blocs_secret()` | `test-departs-cs1.R` « H. secret : MÊME implémentation que departs_pcs … » |
 | SPEC-SEC-023 à 027 | interne complet / diffusion masquée, contrôle final | `08c`, `08d` | `test-departs-pcs.R` « fichiers : interne/ toujours, diffusion/ seulement avec DEPARTS_PCS_SECRET » |
 | SPEC-SEC-031 | aucune valeur masquée dans une page | `preparer_carte_departs()`, `donnees_json_carte()` | `test-cartes-departs.R` « SECRET : aucune valeur masquée dans la structure, le JSON, le HTML ni les infobulles ; table interne refusée » |
+| SPEC-SEC-033 | cellules de la pyramide des âges : primaire + secondaire par département, pyramide entière masquée, regroupement 01d prudent | `appliquer_secret_typologie()`, `01d` | `test-typologie-pyramide.R` « SPEC-TYPO-095 / SPEC-SEC-033 — secret … » ; « SPEC-PREP-014 / SPEC-SEC-033 — 01d … » |
 | SPEC-REST-001, 002, 005 | demi vers le haut, NA jamais 0 | `arrondir_nombre_personnes()` | `test-format-restitution.R` « arrondir_nombre_personnes : cas limites documentés, demi vers le haut, NA jamais 0 » |
 | SPEC-REST-006 | additivité total / composantes | `arrondir_composantes_avec_total()` | « arrondir_composantes_avec_total : la somme affichée des composantes = le total affiché » |
 | SPEC-GEO-001 | France jamais restreinte | `preparer_base_departs()` | `test-departs-pcs.R` « France entière : indépendante de GEO_INTERET et de toute sélection de restitution » |

@@ -10,7 +10,8 @@
 #           facultatif : interne/typologie_departements.csv (classes déjà
 #           attribuées, pour la répartition des départements).
 # AFFICHE : les bornes des cinq indicateurs et les conditions de passage d'une
-#           classe à l'autre, en français, sans rien recalculer ni inventer.
+#           classe à l'autre, en français, sans rien recalculer ni inventer ;
+#           la pyramide des âges (bloc 6, descriptif) si le 08f l'a écrite.
 #           Fichier absent ou incomplet = message avec la marche à suivre.
 # RÈGLES  : specs/10 §3 (classe supérieure à partir de la borne, incluse),
 #           §2 (dominance et concentration : seuil atteint = Dominante / Concentré),
@@ -98,6 +99,7 @@ formater_bornes_typologie <- function(params, classes = NULL) {
     sprintf("   Diffus    : aucune catégorie n'atteint %s des départs", pct_fr(con)),
     sprintf("   Concentré : une catégorie porte %s des départs ou plus", pct_fr(con)), "",
     "   Lecture : les départs concernent-ils surtout une", "   catégorie de salariés ?", "",
+    lignes_pyramide_bornes(params, tiret),
     "Règle commune : une valeur égale à une borne appartient à la", "classe supérieure (ou à « Dominante » / « Concentré »).", trait)
   if (!is.null(classes) && nrow(classes) > 0) {
     cpt <- function(v, niveaux) vapply(niveaux, function(k) sum(v %in% k), 0L)
@@ -117,6 +119,28 @@ formater_bornes_typologie <- function(params, classes = NULL) {
     l <- c(l, trait)
   }
   l
+}
+
+# Pyramide des âges (specs/10 §12) : bloc descriptif, présent seulement si le 08f l'a écrit
+lignes_pyramide_bornes <- function(params, tiret) {
+  src <- params[["pyramide_source"]]; if (is.null(src) || is.na(src)) return(NULL)
+  num <- function(k) suppressWarnings(as.numeric(params[[k]]))
+  j <- num("age_borne_jeunes"); a <- num("age_min_champ"); s <- num("age_senior")
+  if (anyNA(c(j, a, s))) return(NULL)
+  meth <- if (identical(params[["methode_pyramide"]], "fixes")) "seuils fixes" else "terciles provisoires"
+  tete <- c("6. PYRAMIDE DES ÂGES (descriptif : n'entre pas dans le profil)", tiret,
+            sprintf("   Tranches : moins de %s ans | %s-%s ans | %s-%s ans | %s ans et plus", nb_fr(j), nb_fr(j), nb_fr(a - 1), nb_fr(a), nb_fr(s - 1), nb_fr(s)))
+  if (identical(src, "champ"))
+    return(c(tete, "   Repli : stock par tranche indisponible ; seul le rapport",
+             sprintf("   %s-%s ans / %s ans et plus au sein du champ est calculé (sans classe).", nb_fr(a), nb_fr(s - 1), nb_fr(s)), ""))
+  rb <- num("releve_bas"); rh <- num("releve_haut"); vb <- num("vague_bas_pct"); vh <- num("vague_haut_pct")
+  c(tete, sprintf("   Bornes : %s", meth),
+    sprintf("   Relève (moins de %s ans pour un de %s ans et plus) :", nb_fr(j), nb_fr(s)),
+    if (anyNA(c(rb, rh))) "     bornes non calculées (moins de 3 départements renseignés)" else
+      c(sprintf("     fragile : moins de %s", nb_fr(rb)), sprintf("     intermédiaire : de %s à moins de %s", nb_fr(rb), nb_fr(rh)), sprintf("     solide : %s ou plus", nb_fr(rh))),
+    sprintf("   Vague suivante (part des %s-%s ans dans l'emploi tous âges) :", nb_fr(a), nb_fr(s - 1)),
+    if (anyNA(c(vb, vh))) "     bornes non calculées (moins de 3 départements renseignés)" else
+      c(sprintf("     Faible : moins de %s", pct_fr(vb)), sprintf("     Modérée : de %s à moins de %s", pct_fr(vb), pct_fr(vh)), sprintf("     Forte : %s ou plus", pct_fr(vh))), "")
 }
 
 # --- Affichage : lit les fichiers de la dernière exécution, écrit dans la console -----------

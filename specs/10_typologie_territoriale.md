@@ -25,6 +25,8 @@ spec 06 (tables département × grande CS, stock tous âges), spec 08
 |---|---|---|---|---|---|
 | Effectif du champ et départs par grande CS | `departs_cs1$analytique$departement` (08d, exact) | `effectif_champ`, `departs_central`, `departs_bas`, `departs_haut` | département × cs1 | — | indicateurs de secret présents (interne) |
 | Emploi actuel tous âges | `stock_tous_ages` (01c) | `effectif_tous_ages` | département × cs1 | — | aucun masque (effectifs) |
+| Pyramide des âges tous âges | `stock_tranches_ages` (01c) | `effectif`, `n_entreprises`, `part_dominante_pct` | département × tranche (et × cs1 en interne) | — | règle Insee + secondaire par département (§12) |
+| Pyramide du champ (repli) | `bts_projete` | `age_2024` | département × tranche du champ | — | règle Insee + secondaire par département (§12) |
 | Masques des cellules | `departs_cs1$diffusion$departement` (08d) | `masque`, `motif_masque` | département × cs1 | — | règle Insee + secondaire |
 | Secret du département entier | `bts_projete` | `indicateurs_secret(base, "geo_code")` | département | — | règle Insee |
 
@@ -62,6 +64,10 @@ salariés actuellement en poste dans la Base du département, combien devraient
 | `TYPO_MARGE_FRONTIERE_PCT` | « à la frontière » d'un seuil de classe (axes poids, intensité, volume **seulement**) | 3 % relatif | \|x − seuil\| ≤ 3 % du seuil |
 | `TYPO_NB_CRITERES_FRONTIERE` | nombre d'axes à la frontière déclenchant l'expertise | 2 | n ≥ 2 → Situation à expertiser |
 | `TYPO_FACTEUR_INTENSITE_EXTREME` | intensité extrême sur stock faible | 2 × seuil « élevée » | ≥ → Situation à expertiser |
+| `AGE_BORNE_JEUNES` | borne des « jeunes » de la pyramide (§12) | 30 ans | âge < borne → jeunes |
+| `TYPO_METHODE_PYRAMIDE` | bornes des classes de relève et de vague suivante | `terciles` (provisoire) ; `fixes` | — |
+| `TYPO_SEUIL_RELEVE_FRAGILE` / `_SOLIDE` | classes de relève (méthode fixes) | 0,8 / 1,5 jeune pour un senior | x < bas → fragile ; x ≥ haut → solide |
+| `TYPO_SEUIL_VAGUE_FAIBLE` / `_FORTE` | classes de vague suivante (méthode fixes) | 20 % / 25 % | x < bas → Faible ; x ≥ haut → Forte |
 
 Les seuils de dominance et de concentration sont **informatifs** : leur
 proximité est tracée (`frontiere_dominance`, `frontiere_concentration`, table
@@ -425,6 +431,7 @@ Fonctionnalité: Produire des sorties contrôlées
     Étant donné l'exécution du 08f après le 08d
     Alors sorties/typologie_territoriale/interne/ contient typologie_departements.csv, typologie_departement_cs.csv, synthese_profils.csv, profils_definitions.csv, parametres_typologie.csv et matrice_typologie.png
     Et diffusion/typologie_departements.csv est produit si TYPO_SECRET
+    Et interne/pyramide_ages_departement_cs.csv (département × grande CS × tranche) est produit si la pyramide complète est disponible (§12)
     Et les nombres de personnes sont arrondis à l'entier en restitution, les parts à une décimale, les objets exacts restant intacts
     Et les objets du 08, 08b, 08c et 08d sont strictement inchangés après le 08f
 
@@ -589,6 +596,106 @@ Fonctionnalité: Explorer les métiers concernés par les départs, de la régio
     Alors les deux pages sont écrites, les objets amont sont inchangés, une table absente produit un message avec le chemin attendu, jamais un arrêt
 ```
 
+## 12. Pyramide des âges : un axe descriptif (relève et vague suivante)
+
+L'intensité du renouvellement est déjà une conséquence de l'âge : un
+indicateur « part des 55 ans et plus » la compterait deux fois. L'axe âge
+décrit donc ce que l'horizon 2030 ne voit pas : **la relève** (jeunes salariés
+en poste face aux seniors) et **la vague suivante** (salariés qui partiront
+surtout après 2030). C'est un axe **descriptif**, comme la structure par CS :
+il n'entre dans aucune des dix règles, ne change aucun des sept profils ni
+aucune couleur de carte ; il ajoute une classe, des points d'attention et une
+phrase.
+
+Tranches (`tranches_stock_ages()`, 00h) : quatre tranches de clés fixes, dont
+les bornes viennent de la configuration, jamais écrites en dur :
+
+| Clé | Tranche | Bornes |
+|---|---|---|
+| `jeunes` | moins de `AGE_BORNE_JEUNES` ans | âge < `AGE_BORNE_JEUNES` |
+| `milieu` | de `AGE_BORNE_JEUNES` à `AGE_MIN_BTS − 1` ans | hors champ |
+| `vague` | de `AGE_MIN_BTS` à `AGE_SENIOR − 1` ans | dans le champ |
+| `seniors` | `AGE_SENIOR` ans et plus | dans le champ |
+
+Sources (`preparer_pyramide_departements()`, 00h) :
+
+| Situation | Source | Tranches | `pyramide_source` |
+|---|---|---|---|
+| Pyramide complète | `stock_tranches_ages` (01c, extraction non préfiltrée) | les quatre | `tous_ages` |
+| Repli | `bts_projete` (champ seulement) | `vague`, `seniors` | `champ` |
+| Aucune source | — | aucune : colonnes absentes, rien n'est inventé | — |
+
+Indicateurs (table interne ; en diffusion après secret) :
+
+| Indicateur | Définition | Numérateur | Dénominateur |
+|---|---|---|---|
+| `pyramide_<clé>_pct` | forme de la pyramide (complète seulement) | effectif de la tranche | Σ des quatre tranches du département |
+| `ratio_releve` | relève : jeunes salariés pour un senior (complète seulement) | effectif `jeunes` | effectif `seniors` (0 → NA) |
+| `ratio_vague_seniors` | vague suivante face aux seniors, **au sein du champ** (les deux sources) | effectif `vague` | effectif `seniors` (0 → NA) |
+| `pyramide_n_<clé>` | effectifs par tranche (interne seulement) | — | — |
+| `classe_releve` | Relève fragile / intermédiaire / solide | `ratio_releve` | — |
+| `classe_vague_suivante` | Faible / Modérée / Forte | `pyramide_vague_pct` | — |
+| `pyramide_libelles` | libellés des quatre tranches, séparés par « \| » (cartes) | — | — |
+
+Paramètres : `STOCK_TOUS_AGES_TRANCHES` (activer la pyramide complète),
+`AGE_BORNE_JEUNES` (30 ; entier, 16 ≤ borne < `AGE_MIN_BTS`),
+`TYPO_METHODE_PYRAMIDE` (`terciles` provisoires ou `fixes`),
+`TYPO_SEUIL_RELEVE_FRAGILE` / `_SOLIDE` (méthode fixes, jeunes pour un senior),
+`TYPO_SEUIL_VAGUE_FAIBLE` / `_FORTE` (méthode fixes, %). Même règle de borne
+que les autres axes (borne incluse dans la classe supérieure), mêmes
+départements retenus pour les terciles (plancher `TYPO_SEUIL_EFFECTIF_MIN`).
+Les bornes effectives sont écrites dans `parametres_typologie.csv`.
+
+```gherkin
+Fonctionnalité: Décrire la pyramide des âges de chaque département sans changer les profils
+
+  Scénario: [SPEC-TYPO-090] Définir les tranches à partir de la configuration
+    Étant donné AGE_BORNE_JEUNES, AGE_MIN_BTS et AGE_SENIOR
+    Quand les tranches de la pyramide sont définies
+    Alors elles sont « moins de AGE_BORNE_JEUNES ans », « AGE_BORNE_JEUNES à AGE_MIN_BTS − 1 ans », « AGE_MIN_BTS à AGE_SENIOR − 1 ans », « AGE_SENIOR ans et plus », de clés jeunes, milieu, vague, seniors
+    Et un changement de AGE_MIN_BTS ou de AGE_SENIOR déplace les bornes sans autre modification
+    Et une borne des jeunes non entière, inférieure à 16 ou supérieure ou égale à AGE_MIN_BTS arrête la configuration
+
+  Scénario: [SPEC-TYPO-091] Calculer la pyramide complète, la relève et la vague suivante
+    Étant donné la pyramide tous âges d'un département (jeunes 20, milieu 50, vague 20, seniors 10)
+    Quand la typologie est construite
+    Alors pyramide_jeunes_pct = 20, pyramide_milieu_pct = 50, pyramide_vague_pct = 20, pyramide_seniors_pct = 10
+    Et ratio_releve = 2 (deux jeunes pour un senior) et ratio_vague_seniors = 2
+    Et un département sans senior a des ratios NA, jamais infinis
+    Et pyramide_source vaut « tous_ages »
+
+  Scénario: [SPEC-TYPO-092] Se replier sur le champ sans pyramide complète
+    Étant donné le stock par tranche indisponible (STOCK_TOUS_AGES_TRANCHES faux, extraction préfiltrée, stock tous âges indisponible)
+    Quand la typologie est construite avec bts_projete
+    Alors seul ratio_vague_seniors est calculé, au sein du champ, et pyramide_source vaut « champ »
+    Et pyramide_<clé>_pct, ratio_releve, classe_releve et classe_vague_suivante sont NA
+    Et la phrase rédigée le dit (« au sein du champ … pyramide complète indisponible »)
+    Et sans aucune source, aucune colonne de pyramide n'est créée et les textes sont inchangés
+
+  Scénario: [SPEC-TYPO-093] Classer la relève et la vague suivante sans changer les profils
+    Quand les classes de la pyramide sont attribuées
+    Alors classe_releve vaut « Relève fragile » sous la borne basse, « Relève intermédiaire » entre les bornes, « Relève solide » à partir de la borne haute
+    Et classe_vague_suivante vaut « Faible », « Modérée » ou « Forte » selon la même règle
+    Et les bornes (terciles provisoires sur les départements retenus, ou seuils fixes) sont écrites dans parametres_typologie.csv
+    Et profil_typologie, motif_expertise, les classes de poids, d'intensité et de volume et les frontières sont identiques avec ou sans pyramide
+
+  Scénario: [SPEC-TYPO-094] Signaler la relève fragile et la vague après 2030
+    Étant donné un département à relève fragile et à intensité Élevée
+    Alors ses points d'attention contiennent « relève fragile » avec le nombre de jeunes pour un senior
+    Étant donné un département à vague suivante Forte et à intensité Faible
+    Alors ses points d'attention contiennent « vague de départs importante après 2030 » avec la part des AGE_MIN_BTS à AGE_SENIOR − 1 ans
+    Et la situation rédigée contient une phrase sur la pyramide (ou sur le champ en repli), construite par gabarit fixe
+
+  Scénario: [SPEC-TYPO-095] Protéger la pyramide par le secret statistique
+    Étant donné les cellules département × tranche, avec leur nombre d'entreprises et la part de l'entreprise dominante
+    Quand la diffusion est produite
+    Alors la règle Insee (primaire puis secondaire, bloc = département dont le total est publié) est appliquée aux tranches
+    Et dès qu'une tranche d'un département est masquée, toute sa pyramide (parts, ratios, classes) est NA et pyramide_masquee est vrai
+    Et les points d'attention et la situation ne citent alors aucune tranche
+    Et les effectifs par tranche (pyramide_n_*) et le détail département × grande CS × tranche restent en interne/
+    Et un département entièrement masqué n'a aucune valeur de pyramide
+```
+
 ## Limites
 
 - Maille département : aucune lecture infra-départementale n'est possible à
@@ -614,7 +721,11 @@ Code :
   `construire_justification_profil()`, `construire_typologie_departements()`,
   `controler_typologie()`, `appliquer_secret_typologie()`, `synthese_profils()`,
   `joindre_signal_tension_localise()`, `png_matrice_typologie()`,
-  `proposer_seuils_typologie()` (aide au réglage, SPEC-TYPO-042)
+  `proposer_seuils_typologie()` (aide au réglage, SPEC-TYPO-042),
+  `tranches_stock_ages()`, `affecter_tranche_stock()`,
+  `indicateurs_secret_effectif()`, `preparer_pyramide_departements()`,
+  `indicateurs_pyramide()` (pyramide des âges, SPEC-TYPO-090 à 095)
+- `R/01_preparation/01c_stock_tous_ages.R` — `stock_tranches_ages`
 - `R/08_territoires/08f_typologie_departements.R`
 - `R/00_config_fonctions/00i_fonctions_carte_typologie.R` —
   `lire_typologie_diffusion()`, `preparer_carte_typologie()`,

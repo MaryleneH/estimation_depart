@@ -67,6 +67,7 @@ Fonctionnalité: Définir le champ de l'estimation des départs
     Alors le numérateur doit provenir des départs attendus du champ
     Et le dénominateur doit provenir du stock actuel tous âges
     Et ces deux populations ne doivent jamais être confondues ni additionnées
+    Et la pyramide des âges tous âges (stock_tranches_ages, spec 10 §12) ne sert qu'à décrire l'emploi actuel : jamais additionnée au stock projeté, ses tranches du champ égalant l'effectif du champ
 
   Scénario: [SPEC-CHAMP-007] Définir un départ
     Étant donné un salarié appartenant au champ

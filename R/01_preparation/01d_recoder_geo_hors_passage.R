@@ -13,7 +13,7 @@
 # PRÉREQUIS : objets `bts` (01 / 01b) et, s'il existe, `stock_tous_ages` (01c) ;
 #            fonctions 00c (lire_passage_geo) ; GEO_ANALYSE, GEO_PASSAGES,
 #            RECODER_GEO_HORS_PASSAGE (00).
-# PRODUIT  : `bts` et `stock_tous_ages` recodés ; objet `geo_hors_passage`
+# PRODUIT  : `bts`, `stock_tous_ages` et `stock_tranches_ages` recodés ; objet `geo_hors_passage`
 #            (table des codes recodés) ; sorties/geo_hors_passage_<zonage>.csv.
 # RÈGLES   : aucune perte silencieuse (chaque code recodé est compté, tracé,
 #            affiché) ; aucune donnée inventée (pas de région attribuée) ; sans
@@ -54,6 +54,21 @@ if (!isTRUE(get0("RECODER_GEO_HORS_PASSAGE", ifnotfound = TRUE))) {
           summarise(effectif_tous_ages = sum(effectif_tous_ages), .groups = "drop")
       }
       rm(s, hs)
+    }
+    if (exists("stock_tranches_ages") && !is.null(stock_tranches_ages)) {   # pyramide : même recodage (SPEC-PREP-014)
+      sc <- stock_tranches_ages$cs |> mutate(geo_code = as.character(geo_code))
+      hc <- !is.na(sc$geo_code) & sc$geo_code != "inconnu" & !(sc$geo_code %in% passage_01d$code_source)
+      sc$geo_nom[hc] <- "Territoire inconnu"; sc$geo_code[hc] <- "inconnu"
+      st <- stock_tranches_ages$territoire |> mutate(geo_code = as.character(geo_code))
+      ht <- !is.na(st$geo_code) & st$geo_code != "inconnu" & !(st$geo_code %in% passage_01d$code_source)
+      st$geo_code[ht] <- "inconnu"
+      # regroupement PRUDENT pour le secret : nombre d'entreprises = maximum des composantes
+      # (borne basse du vrai nombre), dominance = la plus forte (jamais moins de masquage)
+      stock_tranches_ages <- list(
+        cs = sc |> group_by(geo_code, geo_nom, cs1, tranche_age) |> summarise(effectif = sum(effectif), .groups = "drop"),
+        territoire = st |> group_by(geo_code, tranche_age) |>
+          summarise(effectif = sum(effectif), n_entreprises = max(n_entreprises), part_dominante_pct = max(part_dominante_pct), .groups = "drop"))
+      rm(sc, hc, st, ht)
     }
     dir.create(DIR_SORTIES, showWarnings = FALSE, recursive = TRUE)
     fichier_01d <- file.path(DIR_SORTIES, sprintf("geo_hors_passage_%s.csv", GEO_ANALYSE))
