@@ -1,9 +1,13 @@
 # Tests navigateur de la carte interactive de la typologie (hors suite R)
 
 `test_carte_typologie.js` ouvre `carte_typologie.html` dans Chromium (Playwright)
-et vérifie, sur un écran de bureau (1368 px) et un écran mobile (390 px),
-le scénario SPEC-TYPO-065 :
+et vérifie, sur deux écrans de bureau (1368×820 et 1280×720) et un écran mobile
+(390 px), le scénario SPEC-TYPO-065 :
 
+0. écran de bureau : le premier écran (en-tête compact, carte avec tous ses
+   départements, panneau « situation », légende) tient dans la fenêtre sans
+   défiler ; seul le panneau défile en interne ; aucun défilement de page
+   pendant le survol ;
 1. survol de douze départements et du département au texte le plus long :
    hauteur défilable du document, largeur, position de la carte et hauteur du
    panneau « situation » inchangées ; infobulle toujours dans l'écran ;
@@ -12,7 +16,8 @@ le scénario SPEC-TYPO-065 :
    infobulle masquée pendant le défilement ;
 3. épinglage par clic, défilement, survol d'un autre département : le
    département épinglé reste affiché ; second clic = libération ;
-4. filtrage par la légende (estompage des autres profils) et retour ;
+4. filtrage par la légende (estompage des autres profils), profil isolé
+   affiché dans le panneau (signification, consigne), et retour ;
 5. légende sans entrée « absent » lorsque le compte est nul.
 
 ```bash
