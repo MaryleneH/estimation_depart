@@ -33,7 +33,8 @@ LIBELLES_CARTE_TYPO <- list(
   detail_initial = "Survolez un département pour lire sa situation ; cliquez pour la garder affichée.",
   detail_non_diffuse = "Le détail de ce département n’est pas diffusé (secret statistique).",
   tableau_titre = "Le détail par département",
-  definitions_titre = "Que signifient les profils ?")
+  definitions_titre = "Que signifient les profils ?",
+  apropos = "À propos de cette carte", retour_carte = "↑ Revenir à la carte")
 COLONNES_NUM_TYPO <- c("effectif_base_total", "effectif_champ_total", "effectif_tous_ages_total", "departs_central", "departs_bas", "departs_haut",
                        "part_emploi_base_national_pct", "intensite_renouvellement_pct", "taux_depart_central_pct", "part_a_remplacer_pct",
                        "part_cs_principale_pct", "part_departs_cs_max_pct",
@@ -179,6 +180,20 @@ css_carte_typologie <- function(S = STYLE_CONTOURS_CARTE) paste(
   '.tab-typo{width:100%;border-collapse:collapse;font-size:14px;margin:0 0 14px}.tab-typo th,.tab-typo td{text-align:left;vertical-align:top;padding:8px 8px;border-top:1px solid var(--filet);line-height:1.45}.tab-typo th{font-size:13px;color:var(--texte);letter-spacing:.03em;text-transform:uppercase;border-top:0}.tab-typo td.num{white-space:nowrap;text-align:right}.tab-typo .sw{display:inline-block;width:12px;height:12px;border-radius:2px;vertical-align:-1px;margin-right:6px;border:1px solid #5B6470}.tab-typo td.sit{min-width:280px}',
   '.tab-defs td:first-child{white-space:nowrap;font-weight:700}@media(max-width:700px){.tab-typo td.sit{min-width:0}.tab-typo th,.tab-typo td{padding:6px 5px}}',
   sprintf('.courriel-typo use{stroke:%s;stroke-width:%s;vector-effect:non-scaling-stroke}.courriel-typo use:hover{stroke:%s;stroke-width:%s}', S$couleur, S$largeur, S$survol_couleur, S$survol_largeur),
+  # PREMIER ÉCRAN des pages interactives (08g, 08h ; SPEC-TYPO-065) : en-tête compact, présentation repliée
+  '.ecran .page-header{padding-bottom:10px;margin-bottom:12px}.ecran .kicker{font-size:12px;margin:0 0 2px}.ecran .page-title{font-size:24px}.ecran .page-title small{display:inline;font-size:16px;margin-left:10px}',
+  '.apropos{margin:6px 0 0}.apropos summary{cursor:pointer;color:var(--bleu);font-weight:600;font-size:14px;list-style:none;display:inline-block;padding:2px 6px;border-radius:6px}.apropos summary::-webkit-details-marker{display:none}.apropos summary::before{content:"▸ "}.apropos[open] summary::before{content:"▾ "}.apropos summary:hover,.apropos summary:focus-visible{background:#e3eaf2;outline:none}',
+  # légende compacte : titre et nombre sur une ligne ; la signification reste dans le HTML (title du bouton, panneau au clic, définitions)
+  '.ecran .typo-legende .sig{display:none}.ecran .typo-legende li{margin:1px 0}.ecran .typo-legende button,.ecran .typo-legende .item{padding:2px 6px;font-size:13.5px}.ecran .typo-legende .sw{margin-top:2px}.ecran .legend-title{margin:0 0 4px}.ecran .legende-bloc .note{margin-top:6px}',
+  '.retour-carte{display:none}',
+  # écran LARGE : en-tête + scène = hauteur de la fenêtre ; carte entière dans sa colonne ; seul le panneau défile (hauteur fixe)
+  '@media(min-width:901px){.page-ecran{padding-top:10px}.ecran{display:flex;flex-direction:column;height:calc(100vh - 22px);min-height:560px}@supports(height:100dvh){.ecran{height:calc(100dvh - 22px)}}',
+  '.ecran .page-header{flex:none}.ecran .scene{flex:1 1 auto;min-height:0;grid-template-columns:400px minmax(0,1fr);gap:20px;align-items:stretch}',
+  '.ecran .panneau{display:flex;flex-direction:column;min-height:0;overflow:hidden;padding:12px 14px}.ecran .panneau>*{flex:none}',
+  '.ecran .detail{flex:1 1 0;min-height:140px;height:auto;margin:0 0 10px}.ecran .legende-bloc{flex:0 0 auto;min-height:0;max-height:38%;overflow-y:auto;scrollbar-width:thin}',
+  '.ecran .carte{height:100%;min-height:0}.ecran .carte svg{height:100%;width:100%}}',
+  # écran ÉTROIT : carte au-dessus, panneau dessous, lien de retour vers la carte
+  '@media(max-width:900px){.ecran .carte{order:-1}.retour-carte{display:inline-block;margin:0 0 12px;font-size:14px;color:var(--bleu)}#carte{scroll-margin-top:8px}.detail{scroll-margin-top:8px}}',
   sep = "\n")
 js_carte_typologie <- function() paste(
   '(function(){',
@@ -187,6 +202,8 @@ js_carte_typologie <- function() paste(
   'var B=$("bulle"),C=$("carte"),U=$("survol"),DET=$("detail-texte"),DT=$("detail-titre"),DA=$("detail-aide"),DP=$("detail"),pin=null,filtre=null;',
   # état du survol : le contenu de l'infobulle et du panneau n'est reconstruit QUE si le département change ; la position est mise à jour seule
   'var codeBulle=null,codeDetail=null,codeSurvol=null,tScroll=0;',
+  # écran large : la hauteur du panneau est donnée par la mise en page (premier écran) ; écran étroit : stabilisée par mesure
+  'function large(){return window.matchMedia("(min-width:901px)").matches}',
   'function ligne(el,txt,cls){var d=document.createElement("div");if(cls)d.className=cls;d.textContent=txt;el.appendChild(d);return d}',
   'function surligner(code){if(!U)return;var p=code&&$("t-"+code);if(p){U.setAttribute("d",p.getAttribute("d"));U.classList.add("on")}else{U.classList.remove("on");U.setAttribute("d","")}}',
   'function bulle(code){var t=D.territoires[code],el=document.createElement("div");ligne(el,t.nom+" · "+code,"tooltip-title");',
@@ -196,10 +213,14 @@ js_carte_typologie <- function() paste(
   ' DT.innerHTML="";DT.appendChild(document.createTextNode(t.nom+" · "+code));if(p){var s=document.createElement("span");s.className="pf";s.textContent=p.titre;s.style.background=p.couleur;s.style.color=(t.cle==="diffus"||t.cle==="expertiser"||t.cle==="stable")?"#1F2933":"#fff";DT.appendChild(s)}',
   ' DET.textContent=t.texte?t.texte:(t.st==="sans"?L.absent:(t.st==="masque"?L.detail_non_diffuse:t.lignes.join(" · ")));DA.textContent=pin===code?"Épinglé : cliquez de nouveau pour libérer.":(p?"Consigne de lecture : "+p.consigne+".":"");DP.scrollTop=0;DP.classList.toggle("defilable",DP.scrollHeight>DP.clientHeight+1);DP.classList.remove("bas")}',
   # hauteur stable du panneau : mesure (hors écran, même largeur) du contenu le plus long ; bornée à 70 % de la fenêtre (60 % sur écran étroit, où le panneau est AU-DESSUS de la carte) avec défilement interne au-delà, jamais de troncature
-  'function stabiliserDetail(){if(!DP)return;var m=DP.cloneNode(true);m.id="";m.style.cssText="position:absolute;visibility:hidden;height:auto;min-height:0;max-height:none;overflow:visible;width:"+DP.getBoundingClientRect().width+"px;left:-9999px;top:0";DP.parentNode.appendChild(m);',
+  'function stabiliserDetail(){if(!DP)return;if(large()){DP.style.height="";return}var m=DP.cloneNode(true);m.id="";m.style.cssText="position:absolute;visibility:hidden;height:auto;min-height:0;max-height:none;overflow:visible;width:"+DP.getBoundingClientRect().width+"px;left:-9999px;top:0";DP.parentNode.appendChild(m);',
   ' var mt=m.querySelector(".detail-titre"),mx=m.querySelector(".detail-texte"),ma=m.querySelector(".detail-aide"),h=0;',
   ' Object.keys(D.territoires).forEach(function(code){var t=D.territoires[code],p=t.cle?D.profils[t.cle]:null;mt.textContent=t.nom+" · "+code+(p?" "+p.titre:"");mx.textContent=t.texte?t.texte:(t.lignes||[]).join(" · ");ma.textContent=p?"Consigne de lecture : "+p.consigne+".":"Épinglé : cliquez de nouveau pour libérer.";h=Math.max(h,m.offsetHeight)});',
-  ' DP.parentNode.removeChild(m);var cap=Math.round(window.innerHeight*(window.innerWidth>900?0.7:0.6));DP.style.height=Math.min(Math.ceil(h)+2,cap)+"px"}',
+  ' DP.parentNode.removeChild(m);var cap=Math.round(window.innerHeight*0.6);DP.style.height=Math.min(Math.ceil(h)+2,cap)+"px"}',
+  # profil isolé par la légende : titre, signification et consigne dans le panneau ; retour au bon contenu quand la souris quitte la carte
+  'function detailProfil(k){var p=D.profils[k];if(!DET||!p)return;codeDetail="#"+k;DT.innerHTML="";DT.appendChild(document.createTextNode("Profil isolé"));var s=document.createElement("span");s.className="pf";s.textContent=p.titre;s.style.background=p.couleur;s.style.color=(k==="diffus"||k==="expertiser"||k==="stable")?"#1F2933":"#fff";DT.appendChild(s);',
+  ' DET.textContent=p.titre+" ("+p.n+" département"+(p.n>1?"s":"")+") : "+p.signification+".";DA.textContent="Consigne de lecture : "+p.consigne+". Cliquez de nouveau le profil dans la légende pour tout afficher.";DP.scrollTop=0;DP.classList.toggle("defilable",DP.scrollHeight>DP.clientHeight+1);DP.classList.remove("bas")}',
+  'function revenirDetail(){if(pin)detail(pin);else if(filtre)detailProfil(filtre);else detail(null)}',
   # infobulle : contenu (si le département change) puis position, en coordonnées de la fenêtre, bornée à l'écran
   'function montrerBulle(code){if(code!==codeBulle){B.innerHTML=bulle(code);codeBulle=code}B.style.display="block"}',
   'function placerBulle(x,y){var vw=window.innerWidth,vh=window.innerHeight,w=B.offsetWidth,h=B.offsetHeight,px=x+16,py=y+16;if(px+w>vw-8)px=x-w-16;if(py+h>vh-8)py=y-h-16;if(px<4)px=4;if(py<4)py=4;B.style.left=px+"px";B.style.top=py+"px"}',
@@ -207,31 +228,34 @@ js_carte_typologie <- function() paste(
   'function appliquerFiltre(){document.querySelectorAll("path.t").forEach(function(p){p.classList.toggle("dim",!!filtre&&p.getAttribute("data-cle")!==filtre)});document.querySelectorAll(".typo-legende button").forEach(function(b){b.setAttribute("aria-pressed",b.getAttribute("data-cle")===filtre?"true":"false")})}',
   'if(C){document.querySelectorAll("path.t").forEach(function(p){var code=p.getAttribute("data-code");',
   ' p.addEventListener("mousemove",function(ev){survoler(code);if(Date.now()-tScroll<150)return;montrerBulle(code);placerBulle(ev.clientX,ev.clientY)});',
-  ' p.addEventListener("mouseleave",function(){B.style.display="none";codeSurvol=null;surligner(pin);detail(pin)});',
-  ' p.addEventListener("click",function(){pin=(pin===code)?null:code;surligner(pin);detail(pin||code,true)});',
+  ' p.addEventListener("mouseleave",function(){B.style.display="none";codeSurvol=null;surligner(pin);revenirDetail()});',
+  ' p.addEventListener("click",function(){pin=(pin===code)?null:code;surligner(pin);detail(pin||code,true);if(!large()&&DP)DP.scrollIntoView({behavior:"smooth",block:"start"})});',
   ' p.addEventListener("keydown",function(ev){if(ev.key==="Enter"||ev.key===" "){ev.preventDefault();pin=(pin===code)?null:code;detail(pin||code,true)}});',
   ' p.addEventListener("focus",function(){survoler(code);montrerBulle(code);placerBulle(12,12)});p.addEventListener("blur",function(){B.style.display="none";codeSurvol=null;surligner(pin)})})}',
   # défilement : l'infobulle est masquée (elle réapparaît au prochain mouvement) ; rien d'autre ne bouge
   'window.addEventListener("scroll",function(){tScroll=Date.now();if(B&&B.style.display==="block")B.style.display="none"},{passive:true});',
   'if(DP)DP.addEventListener("scroll",function(){DP.classList.toggle("bas",DP.scrollTop+DP.clientHeight>=DP.scrollHeight-2)},{passive:true});',
-  'var tRedim=null;window.addEventListener("resize",function(){clearTimeout(tRedim);tRedim=setTimeout(stabiliserDetail,150)});',
-  'document.querySelectorAll(".typo-legende button").forEach(function(b){b.addEventListener("click",function(){var k=b.getAttribute("data-cle");filtre=(filtre===k)?null:k;appliquerFiltre()})});',
+  'var tRedim=null;window.addEventListener("resize",function(){clearTimeout(tRedim);tRedim=setTimeout(function(){stabiliserDetail();if(DP)DP.classList.toggle("defilable",DP.scrollHeight>DP.clientHeight+1)},150)});',
+  'document.querySelectorAll(".typo-legende button").forEach(function(b){b.addEventListener("click",function(){var k=b.getAttribute("data-cle");filtre=(filtre===k)?null:k;appliquerFiltre();if(!pin){if(filtre)detailProfil(filtre);else detail(null,true)}})});',
   'detail(null,true);stabiliserDetail();',
   '})();', sep = "\n")
 
 # --- Briques HTML --------------------------------------------------------------------
-html_entete_typologie <- function(prep, champ, bandeau = TRUE, sous_qui = NULL) {
+# compact = TRUE (page interactive, premier écran) : titre seul, présentation dans « À propos de cette carte » (fermé)
+html_entete_typologie <- function(prep, champ, bandeau = TRUE, sous_qui = NULL, compact = FALSE) {
   P <- construire_libelles_public(champ); LT <- LIBELLES_CARTE_TYPO
   base <- if (identical(prep$base_poids, "effectif_champ")) paste0("aux ", P$salaries_age_min, " des entreprises du périmètre Base") else "à l’emploi actuel, tous âges, des entreprises du périmètre Base"
   c('<header class="page-header">', sprintf('<p class="kicker">%s</p>', echap_html_carte(LT$kicker)),
     sprintf('<h1 class="page-title" id="titre">%s<small>Départs attendus d’ici 2030 · par département</small></h1>', echap_html_carte(LT$titre)),
-    sprintf('<p class="page-subtitle"><span class="cat-qui">%s</span></p>', echap_html_carte(if (is.null(sous_qui)) LT$sous_titre else sous_qui)),
     if (bandeau) html_bandeau_sans_js() else "",
+    if (compact) sprintf('<details class="apropos"><summary>%s</summary>', LIBELLES_CARTE_TYPO$apropos) else "",
+    sprintf('<p class="page-subtitle"><span class="cat-qui">%s</span></p>', echap_html_carte(if (is.null(sous_qui)) LT$sous_titre else sous_qui)),
     '<div class="study-scope" role="note" aria-label="Qui est concerné">',
     sprintf('<span class="scope-text"><b>%s</b> · entreprises du périmètre Base</span>', echap_html_carte(P$salaries_age)),
     sprintf('<span class="scope-text">Poids et intensité rapportés %s.</span>', echap_html_carte(base)),
     '</div>',
     '<p class="context">Les couleurs donnent le profil ; les zones grisées correspondent à un profil ou un département non diffusé (secret statistique) ; les zones blanches sont absentes de la typologie.</p>',
+    if (compact) '</details>' else "",
     '</header>')
 }
 html_legende_typologie <- function(prep, interactive = TRUE) {
@@ -239,14 +263,15 @@ html_legende_typologie <- function(prep, interactive = TRUE) {
   item <- function(col, lib, n, sig = NULL, cle = NULL, sans = FALSE) {
     inner <- sprintf('<span class="sw%s" style="background:%s"></span><span><span class="lib">%s<span class="n">%d</span></span>%s</span>',
                      if (sans) " sans" else "", col, echap_html_carte(lib), n, if (!is.null(sig)) sprintf('<span class="sig">%s</span>', echap_html_carte(sig)) else "")
-    if (interactive && !is.null(cle)) sprintf('<li><button type="button" data-cle="%s" aria-pressed="false">%s</button></li>', cle, inner) else sprintf('<li><span class="item">%s</span></li>', inner)
+    if (interactive && !is.null(cle)) sprintf('<li><button type="button" data-cle="%s" aria-pressed="false"%s>%s</button></li>', cle,
+                                              if (!is.null(sig)) sprintf(' title="%s"', echap_html_carte(sig)) else "", inner) else sprintf('<li><span class="item">%s</span></li>', inner)
   }
-  c('<div class="legend-title">Profils (nombre de départements)</div><ul class="typo-legende" id="legende">',
+  c('<div class="legende-bloc"><div class="legend-title">Profils (nombre de départements)</div><ul class="typo-legende" id="legende">',
     vapply(names(prep$profils), function(k) item(COULEURS_PROFILS[[k]], prep$profils[[k]], prep$comptes[[k]], defs$signification[defs$cle == k], k), ""),
     item(COULEURS_CARTE$secret, LIBELLES_CARTE_TYPO$profil_non_diffuse, prep$comptes[["profil_masque"]] + prep$comptes[["masque"]]),
     # un département réellement absent de la typologie garde sa propre entrée (jamais assimilé au secret) ; aucune entrée à 0
     if (prep$comptes[["sans"]] > 0) item(COULEURS_CARTE$sans_donnee, LIBELLES_CARTE_TYPO$absent, prep$comptes[["sans"]], sans = TRUE) else "", '</ul>',
-    if (interactive) '<p class="note">Cliquez un profil pour l’isoler sur la carte ; cliquez de nouveau pour tout afficher.</p>' else "")
+    if (interactive) '<p class="note">Cliquez un profil pour l’isoler sur la carte et lire sa définition ; cliquez de nouveau pour tout afficher.</p>' else "", '</div>')
 }
 html_definitions_profils <- function(prep, ouvert = FALSE) {
   defs <- DEFINITIONS_PROFILS
@@ -298,16 +323,17 @@ generer_carte_typologie <- function(prep, fond, fichier_html, champ = construire
             if (sans) S$sans_couleur else S$couleur, if (sans) S$sans_largeur else S$largeur, if (sans) ' stroke-dasharray="3 2"' else "",
             lay$chemins[[code]], echap_html_carte(paste0(r$nom, " — ", titre_profil_typo(r, prep)))) }, "")
   html <- c('<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8">', sprintf('<title>%s</title>', echap_html_carte(titre_page)),
-            '<meta name="viewport" content="width=device-width, initial-scale=1">', '<style>', css_cartes(), css_carte_typologie(), '</style></head><body><div class="page">',
-            html_entete_typologie(prep, champ, bandeau = TRUE),
-            '<div class="grille"><aside class="panneau">',
+            '<meta name="viewport" content="width=device-width, initial-scale=1">', '<style>', css_cartes(), css_carte_typologie(), '</style></head><body><div class="page page-ecran">',
+            '<div class="ecran">', html_entete_typologie(prep, champ, bandeau = TRUE, compact = TRUE),
+            '<div class="grille scene"><aside class="panneau">',
             sprintf('<div class="detail" id="detail" role="status"><p class="detail-titre" id="detail-titre"></p><p class="detail-texte" id="detail-texte">%s</p><p class="detail-aide" id="detail-aide"></p></div>', echap_html_carte(LIBELLES_CARTE_TYPO$detail_initial)),
+            sprintf('<a class="retour-carte" href="#carte">%s</a>', LIBELLES_CARTE_TYPO$retour_carte),
             html_legende_typologie(prep, interactive = TRUE),
             if (length(lay$encarts) > 0) '<p class="note">Outre-mer en encarts, chacun à sa propre échelle.</p>' else "",
             '</aside><div class="carte" id="carte">',
             sprintf('<svg viewBox="0 0 %d %d" role="img" aria-label="%s">', lay$largeur, lay$hauteur, echap_html_carte(titre_page)),
             html_encarts_typo(lay), paths, html_limites_regions_typo(fond_regions), '<path id="survol" fill="none" d="" aria-hidden="true"></path>',
-            '</svg><div class="bulle" id="bulle" role="status"></div></div></div>',
+            '</svg><div class="bulle" id="bulle" role="status"></div></div></div></div>',
             html_definitions_profils(prep), html_tableau_typologie(prep), html_pied_typologie(champ, source_note),
             '<script type="application/json" id="donnees">', donnees_json_typologie(prep), '</script>', '<script>', js_carte_typologie(), '</script>', '</div></body></html>')
   dir.create(dirname(fichier_html), showWarnings = FALSE, recursive = TRUE)

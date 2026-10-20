@@ -203,3 +203,38 @@ test_that("SPEC-TYPO-065 — stabilité du survol et légende : infobulle fixée
   m <- tout$geo_code[2]; j <- jsonlite::fromJSON(regmatches(html, regexpr('(?s)(?<=<script type="application/json" id="donnees">).*?(?=</script>)', html, perl = TRUE)))
   expect_identical(j$territoires[[m]]$st, "masque"); expect_null(j$territoires[[m]]$texte); expect_identical(unlist(j$territoires[[m]]$lignes), EK$LIBELLES_UI$secret)
 })
+
+test_that("SPEC-TYPO-065 / 061 / 062 — premier écran : en-tête compact (présentation repliée), scène à la hauteur de la fenêtre, panneau à défilement interne, légende compacte (signification en title et au clic) ; courriel inchangé", {
+  tout <- tibble::tibble(geo_code = names(FOND_DEP_K), geo_nom = unname(vapply(FOND_DEP_K, `[[`, "", "nom")), region_code = "R", region_nom = "R",
+                         effectif_base_total = 1000, departs_central = 100, departs_bas = 95, departs_haut = 105, part_emploi_base_national_pct = 100 / 101,
+                         intensite_renouvellement_pct = 10, indicateur_intensite = "part_a_remplacer_pct", base_poids = "effectif_tous_ages",
+                         profil_typologie = P_K[["stable"]], situation_texte = "Texte.", masque = FALSE, motif_masque = NA_character_)
+  tout$masque[2] <- TRUE
+  p <- EK$preparer_carte_typologie(tout, FOND_DEP_K)
+  f <- file.path(tempdir(), "carte_typo_ecran.html"); EK$generer_carte_typologie(p, FOND_DEP_K, f, fond_regions = FOND_REG_K); html <- lire_html(f)
+  # structure : premier écran = en-tête compact + scène (panneau | carte) ; définitions et tableau dessous
+  expect_true(grepl('<div class="page page-ecran"><div class="ecran"><header class="page-header">', gsub("\n", "", html), fixed = TRUE))
+  expect_true(grepl('<details class="apropos"><summary>À propos de cette carte</summary>', html, fixed = TRUE))
+  i_ecran <- regexpr('<div class="ecran">', html, fixed = TRUE); i_def <- regexpr(EK$LIBELLES_CARTE_TYPO$definitions_titre, html, fixed = TRUE)
+  expect_true(i_ecran > 0 && i_def > i_ecran); expect_true(grepl('<div class="grille scene"><aside class="panneau">', gsub("\n", "", html), fixed = TRUE))
+  expect_true(grepl('<a class="retour-carte" href="#carte">', html, fixed = TRUE))
+  # CSS : hauteur de la fenêtre sur écran large, panneau seul à défiler, carte entière ; écran étroit : carte au-dessus
+  css <- regmatches(html, regexpr("(?s)<style>.*?</style>", html, perl = TRUE))
+  for (s in c("@media(min-width:901px)", ".ecran{display:flex;flex-direction:column;height:calc(100vh - 22px);min-height:560px}", ".ecran .detail{flex:1 1 0;",
+              ".ecran .carte svg{height:100%;width:100%}", ".ecran .typo-legende .sig{display:none}", "@media(max-width:900px){.ecran .carte{order:-1}"))
+    expect_true(grepl(s, css, fixed = TRUE), label = s)
+  # légende : la signification reste dans le HTML (title du bouton) ; clic = profil isolé dans le panneau
+  defs <- EK$DEFINITIONS_PROFILS
+  expect_true(grepl(sprintf('data-cle="stable" aria-pressed="false" title="%s"', defs$signification[defs$cle == "stable"]), html, fixed = TRUE))
+  js <- regmatches(html, regexpr("(?s)<script>\\s*\\(function\\(\\)\\{.*?</script>", html, perl = TRUE))
+  for (s in c("function large(){return window.matchMedia(\"(min-width:901px)\").matches}", "if(large()){DP.style.height=\"\";return}", "function detailProfil(k)",
+              "function revenirDetail(){if(pin)detail(pin);else if(filtre)detailProfil(filtre);else detail(null)}", "if(!large()&&DP)DP.scrollIntoView("))
+    expect_true(grepl(s, js, fixed = TRUE), label = s)
+  # secret inchangé : rien du département masqué
+  j <- jsonlite::fromJSON(regmatches(html, regexpr('(?s)(?<=<script type="application/json" id="donnees">).*?(?=</script>)', html, perl = TRUE)))
+  expect_identical(j$territoires[[tout$geo_code[2]]]$st, "masque"); expect_null(j$territoires[[tout$geo_code[2]]]$texte)
+  # version courriel : ni premier écran, ni bloc replié, légende complète visible
+  fc <- file.path(tempdir(), "carte_typo_ecran_courriel.html"); EK$generer_carte_typologie_courriel(p, FOND_DEP_K, fc, fond_regions = FOND_REG_K); hc <- lire_html(fc)
+  expect_false(grepl('class="ecran"', hc, fixed = TRUE)); expect_false(grepl('class="apropos"', hc, fixed = TRUE)); expect_false(grepl("<script", hc, fixed = TRUE))
+  expect_true(grepl(sprintf('<span class="sig">%s</span>', defs$signification[defs$cle == "stable"]), hc, fixed = TRUE))
+})

@@ -478,14 +478,14 @@ Fonctionnalité: Cartographier les profils sans révéler une valeur protégée
   Scénario: [SPEC-TYPO-061] Colorer chaque département par son profil
     Quand la page interactive est produite
     Alors chaque département porte la couleur de son profil (COULEURS_PROFILS), gris s'il est masqué ou si son profil n'est pas diffusé, blanc pointillé s'il est absent
-    Et la légende donne, par profil, le titre, le nombre de départements et la signification
+    Et la légende donne, par profil, le titre, le nombre de départements et la signification ; dans la page interactive elle est compacte (titre et nombre sur une ligne), la signification restant dans le HTML (infobulle native du bouton, panneau au clic, section des définitions)
     Et les couleurs, la légende et le détail sont écrits dans le HTML (lisibles sans script)
 
   Scénario: [SPEC-TYPO-062] Afficher le détail au survol
     Quand un département est survolé dans la page interactive
     Alors l'infobulle donne le nom, le profil, le poids, les départs et leur fourchette, l'intensité, les classes, la structure, la catégorie qui porte les départs, le motif d'expertise et les points d'attention
     Et le panneau « situation » affiche situation_texte ; un clic l'épingle, un second clic le libère
-    Et un clic sur un profil de la légende isole ses départements
+    Et un clic sur un profil de la légende isole ses départements et affiche dans le panneau le titre du profil, sa signification et sa consigne de lecture
 
   Scénario: [SPEC-TYPO-063] Produire une version sans aucun contenu actif pour le courriel
     Quand la version courriel est produite
@@ -501,12 +501,18 @@ Fonctionnalité: Cartographier les profils sans révéler une valeur protégée
     Et il n'apparaît que sous son code, son nom et « Résultat non diffusé — secret statistique », en gris
     Et un département au profil non diffusé garde ses chiffres mais aucune catégorie
 
-  Scénario: [SPEC-TYPO-065] Survoler et défiler sans aucun saut ; légende sans entrée vide
+  Scénario: [SPEC-TYPO-065] Tout lire sans défiler ; survoler et défiler sans aucun saut ; légende sans entrée vide
     Étant donné la page interactive ouverte dans un navigateur
+    Quand la fenêtre est large (plus de 900 px)
+    Alors le premier écran (en-tête compact, carte entière avec l'outre-mer, panneau « situation » et légende) tient dans la hauteur de la fenêtre, avec un plancher de 560 px
+    Et la page n'a pas à défiler pour survoler n'importe quel département et lire sa situation : seul le panneau défile en interne, à hauteur fixe donnée par la mise en page
+    Et le texte de présentation de l'en-tête reste disponible dans un bloc « À propos de cette carte » fermé par défaut ; définitions et tableau restent sous le premier écran
+    Quand la fenêtre est étroite (900 px ou moins)
+    Alors la carte est au-dessus du panneau ; un toucher sur un département fait défiler jusqu'au panneau, qui porte un lien de retour vers la carte ; la hauteur du panneau est stabilisée (hauteur du texte le plus long, bornée à 60 % de la fenêtre, défilement interne au-delà)
     Quand un département est survolé puis que la page défile, le curseur restant sur la carte
     Alors l'infobulle est positionnée par rapport à la fenêtre (position fixe) et bornée à l'écran : elle n'agrandit jamais la zone défilable
     Et son contenu n'est reconstruit que lorsque le département survolé change ; seule sa position suit le curseur
-    Et le panneau « situation » n'est mis à jour que si le département change, et sa hauteur est stabilisée (hauteur du texte le plus long, bornée à 70 % de la fenêtre, 60 % sur écran étroit, avec défilement interne au-delà) : la carte ne se déplace jamais sous le curseur
+    Et le panneau « situation » n'est mis à jour que si le département change, et sa hauteur ne varie jamais : la carte ne se déplace jamais sous le curseur
     Et l'infobulle est masquée pendant le défilement et réapparaît au mouvement suivant
     Et l'épinglage, le filtrage par la légende, le contour du département survolé et le secret sont inchangés
     Et la légende ne contient pas l'entrée « Département absent de la typologie » lorsque son compte est nul ; les sept profils et l'entrée du secret sont toujours présents ; un département réellement absent garde sa propre entrée, distincte du secret (HTML interactif, courriel et PNG)
@@ -583,6 +589,7 @@ Fonctionnalité: Explorer les métiers concernés par les départs, de la régio
     Alors le panneau donne son profil, ses chiffres, son top de PCS en barres et la spécificité de chaque PCS face à la France
     Et cliquer une PCS du top recolore tous les départements selon les départs de cette PCS (classes à bornes rondes, gris = non diffusé, blanc = aucun salarié observé)
     Et un bouton ramène aux profils
+    Et la page suit la disposition de SPEC-TYPO-065 : sur écran large, carte, panneau et légende tiennent dans la fenêtre, seul le panneau défile en interne ; sur écran étroit, carte au-dessus, défilement vers le panneau au clic
 
   Scénario: [SPEC-TYPO-084] Version courriel sans contenu actif
     Quand la version courriel est produite

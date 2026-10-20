@@ -229,7 +229,7 @@ js_cartes_typologie_pcs <- function() paste(
   'function brancher(sel,niveau){document.querySelectorAll(sel).forEach(function(p){var code=p.getAttribute("data-code");',
   ' p.addEventListener("mousemove",function(ev){var cle=niveau+code+(etat.pcs||"");if(cle!==codeBulle){B.innerHTML=bulle(code,niveau);codeBulle=cle}surligner(p);if(Date.now()-tScroll<150)return;B.style.display="block";placer(ev.clientX,ev.clientY)});',
   ' p.addEventListener("mouseleave",function(){B.style.display="none";surligner(null)});',
-  ' p.addEventListener("click",function(){if(niveau==="region"){etat.region=code;etat.dep=null;etat.niveau="departement"}else{etat.dep=code;etat.region=D.departements[code].region||etat.region}rendre();panneau()});',
+  ' p.addEventListener("click",function(){if(niveau==="region"){etat.region=code;etat.dep=null;etat.niveau="departement"}else{etat.dep=code;etat.region=D.departements[code].region||etat.region}rendre();panneau();if(niveau!=="region"&&!window.matchMedia("(min-width:901px)").matches)DP.scrollIntoView({behavior:"smooth",block:"start"})});',
   ' p.addEventListener("keydown",function(ev){if(ev.key==="Enter"||ev.key===" "){ev.preventDefault();p.dispatchEvent(new MouseEvent("click"))}})})}',
   'brancher("path.r","region");brancher("path.t","departement");',
   'document.querySelectorAll(".niveaux button").forEach(function(b){b.addEventListener("click",function(){etat.niveau=b.getAttribute("data-niveau");if(etat.niveau==="region"){etat.region=null;etat.dep=null;etat.pcs=null}document.querySelectorAll(".niveaux button").forEach(function(x){x.setAttribute("aria-pressed",x===b?"true":"false")});rendre();panneau()})});',
@@ -285,14 +285,16 @@ svg_departements_typo <- function(prep, fond_dep, lay_dep, interactive = TRUE, S
             if (sans) ' stroke-dasharray="3 2"' else "", lay_dep$chemins[[code]], if (interactive) sprintf(' tabindex="0" aria-label="%s"', echap_html_carte(paste0(r$nom, " — ", titre_profil_typo(r, prep)))) else "",
             if (interactive) "" else paste0("<title>", echap_html_carte(titre), "</title>")) }, "")
 }
-html_entete_typo_pcs <- function(champ, bandeau, sous_titre) {
+html_entete_typo_pcs <- function(champ, bandeau, sous_titre, compact = FALSE) {
   P <- construire_libelles_public(champ); LT <- LIBELLES_TYPO_PCS
   c('<header class="page-header">', sprintf('<p class="kicker">%s</p>', echap_html_carte(LT$kicker)),
     sprintf('<h1 class="page-title" id="titre">%s<small>Départs attendus d’ici 2030 · régions et départements</small></h1>', echap_html_carte(LT$titre)),
-    sprintf('<p class="page-subtitle"><span class="cat-qui">%s</span></p>', echap_html_carte(sous_titre)), if (bandeau) html_bandeau_sans_js() else "",
+    if (bandeau) html_bandeau_sans_js() else "", if (compact) sprintf('<details class="apropos"><summary>%s</summary>', LIBELLES_CARTE_TYPO$apropos) else "",
+    sprintf('<p class="page-subtitle"><span class="cat-qui">%s</span></p>', echap_html_carte(sous_titre)),
     '<div class="study-scope" role="note" aria-label="Qui est concerné">', sprintf('<span class="scope-text"><b>%s</b> · entreprises du périmètre Base</span>', echap_html_carte(P$salaries_age)),
     '<span class="scope-text">Une région n’a pas de profil propre : elle est colorée par le profil le plus fréquent de ses départements.</span></div>',
-    '<p class="context">Les métiers sont les PCS fines (nomenclature PCS-ESE 2017). Seules les PCS diffusables sont classées ; les PCS protégées par le secret statistique ne sont comptées qu’en nombre, jamais en valeur.</p>', '</header>')
+    '<p class="context">Les métiers sont les PCS fines (nomenclature PCS-ESE 2017). Seules les PCS diffusables sont classées ; les PCS protégées par le secret statistique ne sont comptées qu’en nombre, jamais en valeur.</p>',
+    if (compact) '</details>' else "", '</header>')
 }
 html_legende_statique_typo_pcs <- function(prep, niveau) {
   P <- prep$profils; S <- STYLE_CONTOURS_CARTE
@@ -323,17 +325,18 @@ generer_cartes_typologie_pcs <- function(prep, fond_dep, fond_reg, fichier_html,
   lay_d <- projeter_fond(fond_dep); lay_r <- projeter_fond(fond_reg); LT <- LIBELLES_TYPO_PCS
   html <- c('<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8">', sprintf('<title>%s</title>', echap_html_carte(titre_page_typo_pcs())),
             '<meta name="viewport" content="width=device-width, initial-scale=1">', '<style>', css_cartes(), css_carte_typologie(), css_cartes_typologie_pcs(),
-            'body.niveau-region #g-deps{display:none}body.niveau-departement #g-regs{display:none}body.niveau-departement #g-limites{display:inline}#g-limites{display:none}', '</style></head><body class="niveau-region"><div class="page">',
-            html_entete_typo_pcs(champ, TRUE, LT$sous_titre),
-            '<div class="grille"><aside class="panneau">',
+            'body.niveau-region #g-deps{display:none}body.niveau-departement #g-regs{display:none}body.niveau-departement #g-limites{display:inline}#g-limites{display:none}', '</style></head><body class="niveau-region"><div class="page page-ecran">',
+            '<div class="ecran">', html_entete_typo_pcs(champ, TRUE, LT$sous_titre, compact = TRUE),
+            '<div class="grille scene"><aside class="panneau">',
             sprintf('<div class="niveaux" role="group" aria-label="Niveau"><button type="button" data-niveau="region" aria-pressed="true">%s</button><button type="button" data-niveau="departement" aria-pressed="false">%s</button></div>', LT$niveau_regions, LT$niveau_departements),
             '<div class="detail" id="detail" role="status"><p class="detail-titre">Cliquez une région pour voir ses départements et les métiers les plus concernés.</p></div>',
-            '<div class="legend-title" id="legende-titre">Profil le plus fréquent parmi les départements de la région</div><ul class="typo-legende" id="legende">', html_legende_statique_typo_pcs(prep, "region"), '</ul>',
+            sprintf('<a class="retour-carte" href="#carte">%s</a>', LIBELLES_CARTE_TYPO$retour_carte),
+            '<div class="legende-bloc"><div class="legend-title" id="legende-titre">Profil le plus fréquent parmi les départements de la région</div><ul class="typo-legende" id="legende">', html_legende_statique_typo_pcs(prep, "region"), '</ul></div>',
             if (length(lay_d$encarts) > 0) '<p class="note">Outre-mer en encarts, chacun à sa propre échelle.</p>' else "",
             '</aside><div class="carte" id="carte">',
             sprintf('<svg viewBox="0 0 %d %d" role="img" aria-label="%s">', lay_d$largeur, lay_d$hauteur, echap_html_carte(titre_page_typo_pcs())),
             html_encarts_typo(lay_d), '<g id="g-regs">', svg_regions_typo(prep, fond_reg, lay_r, TRUE), '</g>', '<g id="g-deps">', svg_departements_typo(prep, fond_dep, lay_d, TRUE), '</g>',
-            '<g id="g-limites">', html_limites_regions_typo(fond_reg), '</g>', '<path id="survol" fill="none" d="" aria-hidden="true"></path>', '</svg><div class="bulle" id="bulle" role="status"></div></div></div>',
+            '<g id="g-limites">', html_limites_regions_typo(fond_reg), '</g>', '<path id="survol" fill="none" d="" aria-hidden="true"></path>', '</svg><div class="bulle" id="bulle" role="status"></div></div></div></div>',
             html_definitions_profils(prep), html_pied_typologie(champ, source_note),
             '<script type="application/json" id="donnees">', donnees_json_typo_pcs(prep, champ), '</script>', '<script>', js_cartes_typologie_pcs(), '</script>', '</div></body></html>')
   dir.create(dirname(fichier_html), showWarnings = FALSE, recursive = TRUE); writeLines(enc2utf8(html), fichier_html, useBytes = TRUE); invisible(fichier_html)

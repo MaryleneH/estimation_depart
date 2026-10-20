@@ -133,6 +133,10 @@ test_that("SPEC-TYPO-083 — département : profil, chiffres, top en barres, sp�
   expect_identical(d$top$top$pcs, c("382a", "473b", "623a", "543a", "624d")); expect_equal(d$top$top$c, c(300, 250, 250, 100, 40)); expect_equal(d$top$top$part, c(30, 25, 25, 10, 4))
   expect_equal(d$top$top$pf[1], round(100 * 920 / 2450, 2)); expect_equal(d$top$n_masquees, 2L)
   expect_identical(j$pcs[["382a"]]$lib, LIB_P[["382a"]]); expect_equal(j$pcs[["382a"]]$v[["33"]], 300); expect_equal(j$pcs[["382a"]]$v[["69"]], 400)
+  # disposition SPEC-TYPO-065 : premier écran (en-tête compact, panneau à défilement interne, légende en bloc), retour carte, défilement au clic sur écran étroit
+  expect_true(grepl('<div class="page page-ecran"><div class="ecran">', gsub("\n", "", html), fixed = TRUE)); expect_true(grepl('<details class="apropos">', html, fixed = TRUE))
+  expect_true(grepl('<div class="legende-bloc"><div class="legend-title" id="legende-titre">', html, fixed = TRUE)); expect_true(grepl('<a class="retour-carte" href="#carte">', html, fixed = TRUE))
+  expect_true(grepl('if(niveau!=="region"&&!window.matchMedia("(min-width:901px)").matches)DP.scrollIntoView(', html, fixed = TRUE))
   expect_identical(j$couleurs$classes, EP$COULEURS_CARTE$classes)
   js <- regmatches(html, regexpr("(?s)<script>\\s*\\(function\\(\\)\\{.*?</script>", html, perl = TRUE))
   for (s in c("function classesRondes(vals)", "function pasRond(x)", 'etat.pcs=(etat.pcs===r.pcs)?null:r.pcs', "function specificite(t,cont)", 'el("ul","top")', 'el("ul","spec")',
