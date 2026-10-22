@@ -727,12 +727,23 @@ feuille `TENSION_FEUILLE` (« Sheet1 »), une ligne par PCS stratégique. Colonn
 - `indice_confiance` (qualité du rattachement PCS → FAP) ;
 - `ind_tension_d` (indicateur synthétique) ;
 - sept composantes : `ind_int_emb_d`, `ind_main_oeuvre_d`, `ind_dur_empl_d`,
-  `ind_condition_travail_d`, `ind_mismatch_geo_d`, `ind_inacttract_salariale_d`,
-  `ind_specif_form_emploi_d` ;
+  `ind_cond_travail_d`, `ind_mismatch_geo_d`, `ind_inattract_salariale_d`,
+  `ind_specif_form_empl_d` ;
 - `emploi_fap_toussecteurs` et `emploi_pcs_défense` sont lues mais non utilisées.
 
 Les indicateurs sont des **rangs** (quintiles, ou déciles) calculés sur toutes les
-FAP.
+FAP. Depuis l'édition 2023, la Dares affine le niveau le plus fort en deux
+sous-classes, **5.1 et 5.2** (5.2 la plus forte). Règle de lecture :
+- chaque valeur est ramenée à **une décimale** avant contrôle (absorbe les
+  imprécisions de virgule flottante, par exemple 5,0999 → 5.1) ; les valeurs ainsi
+  corrigées sont comptées en console, jamais en silence ;
+- une valeur admise est un entier de 1 à `TENSION_RANG_MAX`, ou le niveau maximal suivi
+  d'une décimale de `TENSION_SOUS_NIVEAUX` (par défaut 1 et 2) ; toute autre valeur
+  arrête l'étape ;
+- `rang_*` est le **niveau entier** (5.1 → 5) : c'est lui qui sert au seuil, aux
+  variantes de robustesse, à la composante dominante et aux classes ; `rang_*_fin`
+  garde la valeur fine pour l'affichage et la matrice. Les ex aequo entre composantes
+  sont départagés par la valeur fine, puis par l'ordre de `TENSION_COMPOSANTES`.
 
 **Indicateurs** (fonctions `00k_fonctions_tension.R`) :
 
@@ -765,7 +776,7 @@ minimum et l'effectif du champ atteint `TYPO_SEUIL_EFFECTIF_MIN`.
 - x = part des salariés du champ susceptibles de partir (08c France) ; y = rang de
   tension.
 - Repère x = la même part pour l'ensemble du champ en France ; repère y = le seuil
-  de rang.
+  de rang ; y porte la valeur fine (5.1 et 5.2 graduées quand elles existent).
 - Quadrants : « Métiers critiques » (départs au moins au repère et en tension),
   « Relève à organiser » (départs au moins au repère, hors tension), « Recrutement
   déjà difficile » (sous le repère, en tension), « Sous contrôle ».
@@ -778,7 +789,8 @@ Fonctionnalité: Lire, avec la typologie, si les départs portent sur des métie
     Étant donné le classeur PCS → FAP avec ses indicateurs de tension
     Quand le 08i le lit
     Alors seule la feuille TENSION_FEUILLE est lue, tout en texte puis converti sous contrôle
-    Et une feuille absente, une colonne absente, une PCS en double, un rang non entier ou hors de 1 à TENSION_RANG_MAX arrêtent l'étape avec un message qui nomme la colonne et les PCS en cause
+    Et une feuille absente, une colonne absente, une PCS en double, ou un rang qui n'est ni un entier de 1 à TENSION_RANG_MAX ni un sous-niveau admis du niveau maximal (TENSION_SOUS_NIVEAUX : 5.1, 5.2) arrêtent l'étape avec un message qui nomme la colonne et les PCS en cause
+    Et une valeur ramenée à une décimale (5,0999 → 5.1) est acceptée et comptée en console ; le niveau entier sert au seuil, la valeur fine à l'affichage et à la matrice
     Et une colonne cs1, grande CS ou tension départementale arrête l'étape
     Et un rang manquant donne une tension inconnue, comptée à part, jamais 0
     Et les PCS de la liste absentes des départs de la Base sont listées en console et dans la table interne

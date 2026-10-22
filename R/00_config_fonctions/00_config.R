@@ -299,13 +299,16 @@ TENSION_COLS <- c(pcs = "PCS", pcs_libelle = "Lib PCS", fap_code = "FAP228", fap
 # Composantes : colonne du classeur, libellé pédagogique, levier. L'ORDRE départage les ex aequo.
 TENSION_COMPOSANTES <- list(
   main_oeuvre         = c(colonne = "ind_main_oeuvre_d",          libelle = "manque de main-d’œuvre disponible",     levier = "attirer et élargir les viviers de recrutement"),
-  specif_form_emploi  = c(colonne = "ind_specif_form_emploi_d",   libelle = "formation spécifique au métier",        levier = "former tôt : les formations sont spécifiques et longues"),
-  condition_travail   = c(colonne = "ind_condition_travail_d",    libelle = "conditions de travail contraignantes",  levier = "fidéliser en améliorant les conditions de travail"),
-  inattract_salariale = c(colonne = "ind_inacttract_salariale_d", libelle = "faible attractivité salariale",         levier = "agir sur la rémunération"),
+  specif_form_emploi  = c(colonne = "ind_specif_form_empl_d",     libelle = "formation spécifique au métier",        levier = "former tôt : les formations sont spécifiques et longues"),
+  condition_travail   = c(colonne = "ind_cond_travail_d",         libelle = "conditions de travail contraignantes",  levier = "fidéliser en améliorant les conditions de travail"),
+  inattract_salariale = c(colonne = "ind_inattract_salariale_d",  libelle = "faible attractivité salariale",         levier = "agir sur la rémunération"),
   mismatch_geo        = c(colonne = "ind_mismatch_geo_d",         libelle = "inadéquation géographique",             levier = "favoriser la mobilité et l’implantation"),
   dur_empl            = c(colonne = "ind_dur_empl_d",             libelle = "emplois peu durables",                  levier = "stabiliser les emplois"),
   int_emb             = c(colonne = "ind_int_emb_d",              libelle = "forte intensité d’embauche",            levier = "anticiper les recrutements"))
 TENSION_RANG_MAX   <- 5              # rangs de 1 à 5 (quintiles) ; 10 pour des déciles
+TENSION_SOUS_NIVEAUX <- c(1, 2)      # sous-classes admises du niveau MAXIMAL (Dares, depuis 2023 : 5.1 et 5.2, 5.2 la plus forte) ;
+                                     # NULL = aucune. Le seuil « en tension » et les classes lisent le niveau entier (5.1 -> 5) ;
+                                     # la valeur fine sert à l'affichage et à la matrice. Les valeurs sont ramenées à 1 décimale.
 TENSION_SEUIL_RANG <- 4              # métier « en tension » à partir de ce rang inclus (4 et 5 : tension forte et très forte)
 TENSION_CONFIANCE_MIN <- NULL        # faible confiance du rattachement PCS -> FAP : indice_confiance < valeur ; NULL = plus bas
                                      # niveau observé (si au moins deux niveaux). Sert au test de robustesse.
@@ -444,3 +447,7 @@ if (!is.numeric(TENSION_RANG_MAX) || length(TENSION_RANG_MAX) != 1 || TENSION_RA
     TENSION_SEUIL_RANG < 2 || TENSION_SEUIL_RANG > TENSION_RANG_MAX)
   stop(sprintf("TENSION_RANG_MAX (entier >= 2) et TENSION_SEUIL_RANG (entier de 2 à TENSION_RANG_MAX) incohérents : %s / %s.",
                paste(deparse(TENSION_RANG_MAX), collapse = ""), paste(deparse(TENSION_SEUIL_RANG), collapse = "")))
+if (!is.null(TENSION_SOUS_NIVEAUX) && (!is.numeric(TENSION_SOUS_NIVEAUX) || anyNA(TENSION_SOUS_NIVEAUX) || any(TENSION_SOUS_NIVEAUX != round(TENSION_SOUS_NIVEAUX)) ||
+    any(TENSION_SOUS_NIVEAUX < 1 | TENSION_SOUS_NIVEAUX > 9) || is.unsorted(TENSION_SOUS_NIVEAUX, strictly = TRUE)))
+  stop("TENSION_SOUS_NIVEAUX doit être NULL ou des chiffres de 1 à 9 strictement croissants (décimales du niveau maximal, ex. c(1, 2) = 5.1, 5.2) ; reçu : ",
+       paste(deparse(TENSION_SOUS_NIVEAUX), collapse = ""))

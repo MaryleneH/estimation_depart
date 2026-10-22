@@ -52,11 +52,12 @@ if (!isTRUE(get0("GENERER_EXPOSITION_TENSION", ifnotfound = FALSE))) {
   write.csv2(restituer_08i(mat_int_08i$metiers), file.path(dir_int_08i, "metiers_strategiques_tension.csv"), row.names = FALSE)
   param_08i <- tibble(parametre = c("fichier", "feuille", "rang_max", "seuil_rang", "seuil_confiance_applique", "methode_classes", "exposition_bas_pct", "exposition_haut_pct",
                                     "couverture_min_pct", "effectif_min", "exposition_france_pct", "couverture_france_pct", "variantes_robustesse",
-                                    "n_pcs_liste", "n_pcs_presentes", "n_pcs_en_tension", "n_departements", "n_departements_retenus_bornes"),
+                                    "n_pcs_liste", "n_pcs_presentes", "n_pcs_en_tension", "n_departements", "n_departements_retenus_bornes", "sous_niveaux_admis"),
                       valeur = as.character(c(basename(FICHIER_PCS_FAP_TENSION), par_08i$feuille, par_08i$rang_max, par_08i$seuil_rang, expo_08i$seuil_confiance, par_08i$methode,
                                               expo_08i$bornes[["bas"]], expo_08i$bornes[["haut"]], par_08i$couverture_min, par_08i$effectif_min,
                                               expo_08i$france$exposition_pct, expo_08i$france$couverture_pct, paste(expo_08i$variantes, collapse = ", "),
-                                              nrow(met_08i), sum(met_08i$present_base), sum(met_08i$en_tension %in% TRUE), nrow(expo_08i$departements), expo_08i$n_retenus)))
+                                              nrow(met_08i), sum(met_08i$present_base), sum(met_08i$en_tension %in% TRUE), nrow(expo_08i$departements), expo_08i$n_retenus,
+                                              if (length(par_08i$sous_niveaux)) paste(par_08i$rang_max + par_08i$sous_niveaux / 10, collapse = ", ") else "aucun")))
   write.csv2(param_08i, file.path(dir_int_08i, "parametres_exposition_tension.csv"), row.names = FALSE)
 
   dif_08i <- NULL; fiche_08i <- NA_character_
@@ -70,7 +71,7 @@ if (!isTRUE(get0("GENERER_EXPOSITION_TENSION", ifnotfound = FALSE))) {
     mat_08i <- matrice_metiers_tension(met_08i, departs_pcs$analytique$france, departs_pcs$diffusion$france, par_08i)
     dir_dif_08i <- file.path(dir_typo_08i, "diffusion"); dir.create(dir_dif_08i, showWarnings = FALSE, recursive = TRUE)
     write.csv2(restituer_08i(dif_08i), file.path(dir_dif_08i, "exposition_tension_departements.csv"), row.names = FALSE)
-    write.csv2(restituer_08i(mat_08i$metiers |> select(pcs = pcs_source, pcs_libelle, fap_code, fap_libelle, rang_tension, en_tension, composante_dominante = composante_libelle,
+    write.csv2(restituer_08i(mat_08i$metiers |> select(pcs = pcs_source, pcs_libelle, fap_code, fap_libelle, rang_tension, rang_tension_fin, en_tension, composante_dominante = composante_libelle,
                                                       levier, faible_confiance, statut, taux_depart_central_pct, departs_central, quadrant)),
                file.path(dir_dif_08i, "metiers_strategiques_tension.csv"), row.names = FALSE)
     png_08i <- file.path(dir_dif_08i, "matrice_metiers_tension.png")

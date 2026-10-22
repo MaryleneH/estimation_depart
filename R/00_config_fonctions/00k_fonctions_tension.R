@@ -25,13 +25,16 @@ CAUSES_FRAGILITE <- c(hypothese_bas = "hypothèse de départ", hypothese_haut = 
 # --- Paramètres (source unique : 00_config.R) --------------------------------------
 parametres_tension <- function() list(
   fichier = FICHIER_PCS_FAP_TENSION, feuille = TENSION_FEUILLE, cols = TENSION_COLS, composantes = TENSION_COMPOSANTES,
-  rang_max = TENSION_RANG_MAX, seuil_rang = TENSION_SEUIL_RANG, confiance_min = get0("TENSION_CONFIANCE_MIN", ifnotfound = NULL),
+  rang_max = TENSION_RANG_MAX, sous_niveaux = get0("TENSION_SOUS_NIVEAUX", ifnotfound = NULL), seuil_rang = TENSION_SEUIL_RANG, confiance_min = get0("TENSION_CONFIANCE_MIN", ifnotfound = NULL),
   methode = TENSION_METHODE_CLASSES, expo_faible = TENSION_SEUIL_EXPO_FAIBLE, expo_forte = TENSION_SEUIL_EXPO_FORTE,
   couverture_min = TENSION_COUVERTURE_MIN_PCT, effectif_min = TYPO_SEUIL_EFFECTIF_MIN)
 
 # --- Lecture contrôlée du classeur (SPEC-TYPO-100) ----------------------------------
-# Une ligne par PCS (une seule FAP) ; rangs entiers de 1 à rang_max ; rang manquant =
-# tension inconnue (jamais 0). Les colonnes d'emploi éventuelles ne sont pas lues.
+# Une ligne par PCS (une seule FAP) ; rangs entiers de 1 à rang_max, ou niveau maximal
+# avec un sous-niveau admis (Dares 2023 : 5.1, 5.2), valeurs ramenées à UNE décimale
+# (5,0999 -> 5.1, compté) ; rang manquant = tension inconnue (jamais 0). Produit
+# rang_<k> (niveau ENTIER, pour le seuil) et rang_<k>_fin (valeur fine, affichage).
+# Les colonnes d'emploi éventuelles ne sont pas lues.
 lire_pcs_fap_tension <- function(fichier = params$fichier, params = parametres_tension()) {
   if (!requireNamespace("readxl", quietly = TRUE)) stop("lire_pcs_fap_tension : le paquet readxl est requis.")
   if (!file.exists(fichier)) stop("lire_pcs_fap_tension : classeur introuvable : ", fichier)
@@ -56,15 +59,19 @@ lire_pcs_fap_tension <- function(fichier = params$fichier, params = parametres_t
               poids_pcs = num(params$cols[["poids_pcs"]]), indice_confiance = num(params$cols[["indice_confiance"]]))
   dup <- unique(d$pcs_source[duplicated(d$pcs)])
   if (length(dup)) stop("lire_pcs_fap_tension : PCS en double (une seule ligne, donc une seule FAP, par PCS) : ", paste(dup, collapse = ", "))
+  admis <- c(seq_len(params$rang_max), if (length(params$sous_niveaux)) params$rang_max + params$sous_niveaux / 10)
+  n_ramenees <- 0L
   rang <- function(col) {
-    s <- txt(col); r <- suppressWarnings(as.numeric(sub(",", ".", s, fixed = TRUE)))
-    bad <- !is.na(s) & (is.na(r) | r != round(r) | r < 1 | r > params$rang_max)
-    if (any(bad)) stop(sprintf("lire_pcs_fap_tension : colonne « %s » : %d valeur(s) qui ne sont pas des rangs entiers de 1 à %d (PCS %s ; valeurs %s) — réglez TENSION_RANG_MAX (10 pour des déciles).",
-                               col, sum(bad), params$rang_max, paste(head(d$pcs_source[bad], 8), collapse = ", "), paste(head(s[bad], 8), collapse = ", ")))
-    as.integer(r)
+    s <- txt(col); brut <- suppressWarnings(as.numeric(sub(",", ".", s, fixed = TRUE))); r <- round(brut, 1)
+    bad <- !is.na(s) & (is.na(r) | !vapply(r, function(v) !is.na(v) && any(abs(admis - v) < 1e-9), TRUE))
+    if (any(bad)) stop(sprintf("lire_pcs_fap_tension : colonne « %s » : %d valeur(s) hors de l'échelle admise (%s) (PCS %s ; valeurs %s) — réglez TENSION_RANG_MAX (10 pour des déciles) ou TENSION_SOUS_NIVEAUX.",
+                               col, sum(bad), paste(format(admis, drop0trailing = TRUE), collapse = ", "), paste(head(d$pcs_source[bad], 8), collapse = ", "), paste(head(s[bad], 8), collapse = ", ")))
+    n_ramenees <<- n_ramenees + sum(!is.na(brut) & abs(brut - r) > 1e-9)
+    r
   }
-  d$rang_tension <- rang(params$cols[["tension"]])
-  for (k in names(params$composantes)) d[[paste0("rang_", k)]] <- rang(params$composantes[[k]][["colonne"]])
+  fin <- rang(params$cols[["tension"]]); d$rang_tension <- as.integer(floor(fin + 1e-9)); d$rang_tension_fin <- fin
+  for (k in names(params$composantes)) { fin <- rang(params$composantes[[k]][["colonne"]]); d[[paste0("rang_", k)]] <- as.integer(floor(fin + 1e-9)); d[[paste0("rang_", k, "_fin")]] <- fin }
+  if (n_ramenees > 0) message("lire_pcs_fap_tension : ", n_ramenees, " valeur(s) de rang ramenée(s) à une décimale (imprécision de virgule flottante, ex. 5,0999 -> 5.1).")
   d
 }
 
@@ -74,13 +81,15 @@ lire_pcs_fap_tension <- function(fichier = params$fichier, params = parametres_t
 # indice < confiance_min ; NULL = plus bas niveau observé (si >= 2 niveaux) ; NA = faible.
 tension_metiers <- function(d, params = parametres_tension(), seuil = params$seuil_rang) {
   cles <- names(params$composantes)
-  m <- as.matrix(d[, paste0("rang_", cles), drop = FALSE])
+  m <- as.matrix(d[, paste0("rang_", cles), drop = FALSE]); mf <- as.matrix(d[, paste0("rang_", cles, "_fin"), drop = FALSE])
   dom <- character(nrow(d)); exa <- logical(nrow(d))
   for (i in seq_len(nrow(d))) {
-    r <- m[i, ]; dom[i] <- NA_character_
+    r <- m[i, ]; f <- mf[i, ]; dom[i] <- NA_character_
     if (all(is.na(r))) next
     mx <- max(r, na.rm = TRUE); if (mx < seuil) next
-    gagnants <- which(!is.na(r) & r == mx); dom[i] <- cles[gagnants[1]]; exa[i] <- length(gagnants) > 1
+    # ex aequo sur le niveau entier : la valeur fine (5.2 > 5.1) tranche d'abord, puis l'ordre de la configuration
+    cand <- which(!is.na(r) & r == mx); mxf <- max(f[cand]); gagnants <- cand[abs(f[cand] - mxf) < 1e-9]
+    dom[i] <- cles[gagnants[1]]; exa[i] <- length(gagnants) > 1
   }
   lib <- vapply(params$composantes, function(k) unname(k[["libelle"]]), ""); lev <- vapply(params$composantes, function(k) unname(k[["levier"]]), "")
   conf <- d$indice_confiance
@@ -100,7 +109,7 @@ exposition_departements <- function(dep_pcs, metiers, params = parametres_tensio
   manque <- setdiff(requis, names(dep_pcs)); if (length(manque)) stop("exposition_departements : colonnes absentes : ", paste(manque, collapse = ", "))
   if (!is.character(dep_pcs$geo_code)) stop("exposition_departements : geo_code doit être un texte.")
   t <- dep_pcs |> mutate(pcs_n = normaliser_code_pcs(pcs)) |>
-    left_join(metiers |> select(pcs_n = pcs, rang_tension, composante_dominante, faible_confiance, pcs_libelle), by = "pcs_n")
+    left_join(metiers |> select(pcs_n = pcs, rang_tension, rang_tension_fin, composante_dominante, faible_confiance, pcs_libelle), by = "pcs_n")
   t$strategique <- !is.na(t$rang_tension)
   t$part <- ifelse(t$strategique & t$rang_tension >= params$seuil_rang, "A", ifelse(t$strategique, "B", "C"))
   calc <- function(col = "departs_central", seuil = params$seuil_rang, sans_faible = FALSE) {
@@ -231,7 +240,7 @@ matrice_metiers_tension <- function(metiers, fr_analytique, fr_diffusion = NULL,
                              ifelse(taux_depart_central_pct >= ref_x, ifelse(en_tension, QUADRANTS_TENSION[["critique"]], QUADRANTS_TENSION[["releve"]]),
                                     ifelse(en_tension, QUADRANTS_TENSION[["difficile"]], QUADRANTS_TENSION[["controle"]]))))
   m$departs_central[m$statut != "diffusé"] <- NA; m$taux_depart_central_pct[m$statut != "diffusé"] <- NA
-  list(metiers = m |> select(-masque), ref_x = ref_x, seuil_rang = params$seuil_rang, rang_max = params$rang_max)
+  list(metiers = m |> select(-masque), ref_x = ref_x, seuil_rang = params$seuil_rang, rang_max = params$rang_max, sous_niveaux = params$sous_niveaux)
 }
 
 # --- Trois messages pour la fiche (gabarits fixes) ------------------------------------
@@ -263,12 +272,19 @@ png_matrice_metiers_tension <- function(mat, fichier) {
   if (!requireNamespace("ggplot2", quietly = TRUE)) stop("ggplot2 absent")
   d <- mat$metiers |> filter(statut == "diffusé")
   if (nrow(d) == 0) stop("aucun métier stratégique diffusable")
-  d$y <- d$rang_tension + ave(seq_len(nrow(d)), d$rang_tension, FUN = function(i) { k <- order(order(d$taux_depart_central_pct[i])); pmin(0.38, pmax(-0.38, (k - (length(i) + 1) / 2) * 0.14)) })
+  # y = valeur fine ; l'axe est ORDINAL (des rangs) : chaque sous-niveau (5.1, 5.2) est écarté d'un demi-cran
+  # au-dessus de son niveau (5 -> 5, 5.1 -> 5,5, 5.2 -> 6) pour rester lisible ; points d'un même niveau légèrement dispersés
+  fin <- if ("rang_tension_fin" %in% names(d)) d$rang_tension_fin else d$rang_tension
+  pos <- function(v) floor(v + 1e-9) + round((v - floor(v + 1e-9)) * 10) * 0.5
+  d$y <- pos(fin) + ave(seq_len(nrow(d)), round(fin, 1), FUN = function(i) { k <- order(order(d$taux_depart_central_pct[i])); pmin(0.2, pmax(-0.2, (k - (length(i) + 1) / 2) * 0.1)) })
   d$quadrant <- factor(d$quadrant, levels = unname(QUADRANTS_TENSION)); d$confiance <- ifelse(d$faible_confiance, "faible", "bonne")
   d$etiquette <- ifelse(d$quadrant == QUADRANTS_TENSION[["critique"]], ifelse(is.na(d$pcs_libelle), d$pcs_source, d$pcs_libelle), NA_character_)
   pal <- setNames(c("#b2182b", "#ef8a62", "#67a9cf", "#9aa5b1"), unname(QUADRANTS_TENSION))
   xr <- mat$ref_x; ys <- mat$seuil_rang - 0.5; xmax <- max(d$taux_depart_central_pct, xr) * 1.08
-  lib_y <- c("1 (la plus faible)", if (mat$rang_max > 2) as.character(2:(mat$rang_max - 1)), paste0(mat$rang_max, " (la plus forte)"))
+  sn <- if (length(mat$sous_niveaux)) mat$rang_max + mat$sous_niveaux / 10 else numeric(0); sn <- sn[sn %in% round(fin, 1)]
+  br_y <- c(seq_len(mat$rang_max), pos(sn))
+  lib_y <- c("1 (la plus faible)", if (mat$rang_max > 2) as.character(2:(mat$rang_max - 1)), if (length(sn)) as.character(mat$rang_max) else paste0(mat$rang_max, " (la plus forte)"),
+             if (length(sn)) paste0(format(sn, nsmall = 1), ifelse(sn == max(sn), " (la plus forte)", "")))
   g <- ggplot2::ggplot(d, ggplot2::aes(x = taux_depart_central_pct, y = y)) +
     ggplot2::annotate("rect", xmin = xr, xmax = Inf, ymin = ys, ymax = Inf, fill = "#fde0dc", alpha = .6) +
     ggplot2::geom_vline(xintercept = xr, linetype = "42", colour = "#555555") + ggplot2::geom_hline(yintercept = ys, linetype = "42", colour = "#555555") +
@@ -280,7 +296,7 @@ png_matrice_metiers_tension <- function(mat, fichier) {
     ggplot2::annotate("text", x = -Inf, y = -Inf, label = QUADRANTS_TENSION[["controle"]], hjust = -0.05, vjust = -1, fontface = "bold", colour = "#5b6470", size = 3.6) +
     ggplot2::scale_colour_manual(values = pal, drop = FALSE, name = NULL) +
     ggplot2::scale_shape_manual(values = c(bonne = 16, faible = 1), name = "Rattachement PCS → FAP", labels = c(bonne = "fiable", faible = "faible confiance")) +
-    ggplot2::scale_y_continuous(breaks = seq_len(mat$rang_max), labels = lib_y, limits = c(0.5, mat$rang_max + 0.5)) +
+    ggplot2::scale_y_continuous(breaks = br_y, labels = lib_y, limits = c(0.5, max(br_y) + 0.5)) +
     ggplot2::scale_x_continuous(limits = c(0, xmax), labels = function(x) paste0(format(x, decimal.mark = ","), " %")) +
     ggplot2::labs(title = "Les métiers stratégiques : vont-ils partir, et se recrutent-ils facilement ?",
                   subtitle = sprintf("Pointillés : départs moyens de l’ensemble des salariés concernés (%s %%) et seuil « en tension » (rang %d sur %d)",
