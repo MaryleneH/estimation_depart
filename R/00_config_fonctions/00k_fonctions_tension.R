@@ -20,7 +20,10 @@ CLASSES_EXPOSITION <- c("Faible", "Modérée", "Forte")
 # Quatre situations de métier, libellés FACTUELS (ils décrivent, ils ne jugent pas ; SPEC-TYPO-104)
 QUADRANTS_TENSION <- c(critique = "Départs rapides et métier en tension", releve = "Départs rapides, métier hors tension",
                        difficile = "Départs modérés, métier en tension", controle = "Départs modérés, métier hors tension")
-COULEURS_SITUATIONS <- c(critique = "#fbe4e1", releve = "#fff1dc", difficile = "#e3eef9", controle = "#eef1f4")
+COULEURS_SITUATIONS <- c(critique = "#fbe4e1", releve = "#fff1dc", difficile = "#e3eef9", controle = "#eef1f4")   # fonds (tableau, classeur)
+COULEURS_POINTS_SITUATIONS <- c(critique = "#b2182b", releve = "#ef8a62", difficile = "#67a9cf", controle = "#9aa5b1")   # points (PNG, SVG)
+COULEURS_CLASSES_EXPOSITION <- c(Faible = "#eef1f4", "Modérée" = "#fff1dc", Forte = "#fbe4e1")   # fonds de lignes du classeur
+TITRES_MESSAGES_TENSION <- c("Renouvellement rapide et métiers en tension", "Métiers à départs rapides et en tension", "Le levier")
 CAUSES_FRAGILITE <- c(hypothese_bas = "hypothèse de départ", hypothese_haut = "hypothèse de départ",
                       seuil_plus = "seuil de tension", seuil_moins = "seuil de tension", confiance = "rattachement PCS → FAP")
 
@@ -29,7 +32,8 @@ parametres_tension <- function() list(
   fichier = FICHIER_PCS_FAP_TENSION, feuille = TENSION_FEUILLE, cols = TENSION_COLS, composantes = TENSION_COMPOSANTES,
   rang_max = TENSION_RANG_MAX, sous_niveaux = get0("TENSION_SOUS_NIVEAUX", ifnotfound = NULL), seuil_rang = TENSION_SEUIL_RANG, confiance_min = get0("TENSION_CONFIANCE_MIN", ifnotfound = NULL),
   methode = TENSION_METHODE_CLASSES, expo_faible = TENSION_SEUIL_EXPO_FAIBLE, expo_forte = TENSION_SEUIL_EXPO_FORTE,
-  couverture_min = TENSION_COUVERTURE_MIN_PCT, effectif_min = TYPO_SEUIL_EFFECTIF_MIN)
+  couverture_min = TENSION_COUVERTURE_MIN_PCT, effectif_min = TYPO_SEUIL_EFFECTIF_MIN,
+  classeur_excel = isTRUE(get0("TENSION_CLASSEUR_EXCEL", ifnotfound = TRUE)))
 
 # --- Lecture contrôlée du classeur (SPEC-TYPO-100) ----------------------------------
 # Une ligne par PCS (une seule FAP) ; rangs entiers de 1 à rang_max, ou niveau maximal
@@ -282,7 +286,7 @@ png_matrice_metiers_tension <- function(mat, fichier) {
   d$y <- pos(fin) + ave(seq_len(nrow(d)), round(fin, 1), FUN = function(i) { k <- order(order(d$taux_depart_central_pct[i])); pmin(0.2, pmax(-0.2, (k - (length(i) + 1) / 2) * 0.1)) })
   d$quadrant <- factor(d$quadrant, levels = unname(QUADRANTS_TENSION)); d$confiance <- ifelse(d$faible_confiance, "faible", "bonne")
   d$etiquette <- ifelse(d$quadrant == QUADRANTS_TENSION[["critique"]], ifelse(is.na(d$pcs_libelle), d$pcs_source, d$pcs_libelle), NA_character_)
-  pal <- setNames(c("#b2182b", "#ef8a62", "#67a9cf", "#9aa5b1"), unname(QUADRANTS_TENSION))
+  pal <- setNames(unname(COULEURS_POINTS_SITUATIONS), unname(QUADRANTS_TENSION))
   xr <- mat$ref_x; ys <- mat$seuil_rang - 0.5; xmax <- max(d$taux_depart_central_pct, xr) * 1.08
   sn <- if (length(mat$sous_niveaux)) mat$rang_max + mat$sous_niveaux / 10 else numeric(0); sn <- sn[sn %in% round(fin, 1)]
   br_y <- c(seq_len(mat$rang_max), pos(sn))
@@ -311,6 +315,53 @@ png_matrice_metiers_tension <- function(mat, fichier) {
   invisible(fichier)
 }
 
+# --- Matrice en SVG pour la fiche : sans script, libellés au survol (SPEC-TYPO-104) ----
+# Même géométrie que le PNG (axe y ordinal, demi-crans 5.1 / 5.2, repères en pointillés,
+# zone « départs rapides et métier en tension » teintée). AUCUN libellé de métier imprimé :
+# chaque point porte un <title> natif, affiché par le navigateur au survol de la souris.
+# Métiers DIFFUSABLES seulement ; rend une chaîne <svg> (vide s'il n'y a aucun point).
+svg_matrice_metiers_tension <- function(mat, params = parametres_tension()) {
+  e <- function(x) { x <- gsub("&", "&amp;", as.character(x), fixed = TRUE); x <- gsub("<", "&lt;", x, fixed = TRUE); gsub(">", "&gt;", x, fixed = TRUE) }
+  f0 <- function(x) ifelse(is.na(x), "n.d.", formatC(round(x), format = "d", big.mark = " ")); f1 <- function(x) ifelse(is.na(x), "n.d.", formatC(x, format = "f", digits = 1, decimal.mark = ","))
+  n <- function(x) formatC(x, format = "f", digits = 1)
+  d <- mat$metiers[mat$metiers$statut == "diffusé", ]
+  if (nrow(d) == 0) return("")
+  fin <- if ("rang_tension_fin" %in% names(d)) d$rang_tension_fin else d$rang_tension
+  pos <- function(v) floor(v + 1e-9) + round((v - floor(v + 1e-9)) * 10) * 0.5
+  y <- pos(fin) + ave(seq_len(nrow(d)), round(fin, 1), FUN = function(i) { k <- order(order(d$taux_depart_central_pct[i])); pmin(0.2, pmax(-0.2, (k - (length(i) + 1) / 2) * 0.1)) })
+  xr <- mat$ref_x; ys_seuil <- mat$seuil_rang - 0.5; xmax <- max(d$taux_depart_central_pct, xr) * 1.08
+  sn <- if (length(mat$sous_niveaux)) mat$rang_max + mat$sous_niveaux / 10 else numeric(0); sn <- sn[sn %in% round(fin, 1)]
+  br_y <- c(seq_len(mat$rang_max), pos(sn)); ymax <- max(br_y)
+  lib_y <- c("1 (la plus faible)", if (mat$rang_max > 2) as.character(2:(mat$rang_max - 1)), if (length(sn)) as.character(mat$rang_max) else paste0(mat$rang_max, " (la plus forte)"),
+             if (length(sn)) paste0(format(sn, nsmall = 1, decimal.mark = ","), ifelse(sn == max(sn), " (la plus forte)", "")))
+  # géométrie (unités du viewBox ; largeur 100 % de la page)
+  W <- 900; H <- 540; L <- 150; R <- 24; T <- 26; B <- 76; pw <- W - L - R; ph <- H - T - B
+  sx <- function(v) L + pw * v / xmax; sy <- function(v) T + ph * ((ymax + 0.5) - v) / ymax
+  br_x <- pretty(c(0, xmax)); br_x <- br_x[br_x <= xmax]
+  cle <- names(QUADRANTS_TENSION)[match(d$quadrant, QUADRANTS_TENSION)]; coul <- unname(COULEURS_POINTS_SITUATIONS[cle])
+  bulle <- sprintf("%s (PCS %s)\nFamille professionnelle : %s%s\nDéparts attendus d’ici 2030 : %s%s\nPart des salariés du métier susceptibles de partir : %s %% (France, tous métiers : %s %%)\nTension du métier en France : %s sur %d%s\nSituation : %s\nRattachement PCS → FAP : %s%s",
+                   ifelse(is.na(d$pcs_libelle), paste0("PCS ", d$pcs_source), d$pcs_libelle), d$pcs_source, ifelse(is.na(d$fap_libelle), "n.d.", d$fap_libelle), ifelse(is.na(d$fap_code), "", paste0(" (", d$fap_code, ")")),
+                   f0(d$departs_central), ifelse(is.na(d$departs_bas) | is.na(d$departs_haut), "", paste0(" (de ", f0(d$departs_bas), " à ", f0(d$departs_haut), ")")), f1(d$taux_depart_central_pct), f1(xr),
+                   format(fin, decimal.mark = ","), mat$rang_max, ifelse(d$en_tension %in% TRUE, " : en tension", " : hors tension"), d$quadrant,
+                   ifelse(d$faible_confiance, "à confirmer (faible confiance)", "fiable"),
+                   ifelse(is.na(d$composante_libelle), "", paste0("\nCe qui pèse le plus : ", d$composante_libelle, " · levier : ", d$levier)))
+  points <- sprintf('<circle cx="%s" cy="%s" r="7" fill="%s" stroke="%s" stroke-width="2"><title>%s</title></circle>',
+                    n(sx(d$taux_depart_central_pct)), n(sy(y)), ifelse(d$faible_confiance, "#ffffff", coul), coul, e(bulle))
+  c(sprintf('<svg class="mat" viewBox="0 0 %d %d" role="img" aria-label="Matrice des métiers stratégiques : part susceptible de partir et tension en France ; survolez un point pour lire le métier">', W, H),
+    sprintf('<rect x="%s" y="%s" width="%s" height="%s" fill="#fde0dc" opacity="0.6"/>', n(sx(xr)), n(T), n(sx(xmax) - sx(xr)), n(sy(ys_seuil) - T)),
+    paste(sprintf('<line x1="%s" y1="%s" x2="%s" y2="%s" stroke="#e5e9ee" stroke-width="1"/>', n(L), n(sy(br_y)), n(sx(xmax)), n(sy(br_y))), collapse = ""),
+    paste(sprintf('<line x1="%s" y1="%s" x2="%s" y2="%s" stroke="#e5e9ee" stroke-width="1"/>', n(sx(br_x)), n(T), n(sx(br_x)), n(T + ph)), collapse = ""),
+    paste(sprintf('<text x="%s" y="%s" font-size="13" fill="#52606D" text-anchor="middle">%s %%</text>', n(sx(br_x)), n(T + ph + 20), format(br_x, decimal.mark = ",")), collapse = ""),
+    paste(sprintf('<text x="%s" y="%s" font-size="13" fill="#52606D" text-anchor="end" dominant-baseline="middle">%s</text>', n(L - 8), n(sy(br_y)), e(lib_y)), collapse = ""),
+    sprintf('<line x1="%s" y1="%s" x2="%s" y2="%s" stroke="#555555" stroke-width="1.5" stroke-dasharray="6 4"/>', n(sx(xr)), n(T), n(sx(xr)), n(T + ph)),
+    sprintf('<line x1="%s" y1="%s" x2="%s" y2="%s" stroke="#555555" stroke-width="1.5" stroke-dasharray="6 4"/>', n(L), n(sy(ys_seuil)), n(sx(xmax)), n(sy(ys_seuil))),
+    sprintf('<text x="%s" y="%s" font-size="12" fill="#555555">France : %s %%</text>', n(sx(xr) + 5), n(T + 14), f1(xr)),
+    sprintf('<text x="%s" y="%s" font-size="12" fill="#555555" text-anchor="end">seuil « en tension » : rang %d</text>', n(sx(xmax) - 4), n(sy(ys_seuil) - 6), mat$seuil_rang),
+    sprintf('<text x="%s" y="%s" font-size="14" fill="#1F2933" text-anchor="middle">Part des salariés du métier susceptibles de partir d’ici 2030</text>', n(L + pw / 2), n(H - 30)),
+    sprintf('<text x="18" y="%s" font-size="14" fill="#1F2933" text-anchor="middle" transform="rotate(-90 18 %s)">Tension du métier en France (rang)</text>', n(T + ph / 2), n(T + ph / 2)),
+    paste(points, collapse = ""), "</svg>")
+}
+
 # --- Tableau des métiers stratégiques, groupés par situation (SPEC-TYPO-105, sans script) ----
 # Une ligne par métier DIFFUSABLE ; les autres (secret, tension inconnue, absents) ne sont que des comptes.
 html_tableau_metiers_tension <- function(mat, params = parametres_tension()) {
@@ -337,12 +388,20 @@ html_tableau_metiers_tension <- function(mat, params = parametres_tension()) {
 }
 
 # --- Fiche d'une page, sans script (SPEC-TYPO-105) --------------------------------------
+# `png` : conservé pour la compatibilité des appels ; le PNG reste un fichier à part et n'est
+# plus embarqué (illisible) : l'annexe repliée porte la matrice SVG, libellés au survol.
 generer_fiche_exposition_tension <- function(messages, fichier, png = NULL, champ = construire_libelle_champ(), params = parametres_tension(),
                                              bornes = c(bas = NA, haut = NA), n_forte = NA_integer_, source_note = "calculs propres", mat = NULL) {
   e <- function(x) { x <- gsub("&", "&amp;", x, fixed = TRUE); x <- gsub("<", "&lt;", x, fixed = TRUE); gsub(">", "&gt;", x, fixed = TRUE) }
   f1 <- function(x) if (is.na(x)) "n.d." else formatC(x, format = "f", digits = 1, decimal.mark = ",")
-  img <- if (!is.null(png) && file.exists(png)) sprintf('<details class="annexe"><summary>Version graphique (annexe)</summary><img alt="Matrice des métiers stratégiques : départs et tension" src="data:image/png;base64,%s"></details>',
-                                                       jsonlite::base64_enc(readBin(png, "raw", file.info(png)$size))) else ""
+  svg <- if (is.null(mat)) "" else svg_matrice_metiers_tension(mat, params)
+  annexe <- if (!nzchar(svg[1])) "" else
+    c('<details class="annexe"><summary>Version graphique (annexe)</summary>',
+      '<p class="note">Un point = un métier stratégique diffusable. Aucun nom n’est imprimé pour que le graphique reste lisible : <b>survolez un point avec la souris</b> pour lire le métier, ses départs, sa part susceptible de partir, sa tension et sa situation.</p>',
+      svg,
+      '<ul class="leg-mat">', sprintf('<li><i style="background:%s;border-color:%s"></i>%s</li>', COULEURS_POINTS_SITUATIONS, COULEURS_POINTS_SITUATIONS, e(QUADRANTS_TENSION[names(COULEURS_POINTS_SITUATIONS)])),
+      '<li><i style="background:#fff;border-color:#52606D"></i>point creux : rattachement PCS → FAP à confirmer</li></ul>',
+      '<p class="note">Pointillés : part susceptible de partir de l’ensemble des salariés concernés en France (verticale) et seuil « en tension » (horizontale) ; la zone teintée est celle des départs rapides et des métiers en tension. La tension est celle de la famille professionnelle en France : elle ne mesure pas la tension d’un territoire.</p></details>')
   tableau <- if (is.null(mat)) '<p class="note">Tableau des métiers non disponible.</p>' else html_tableau_metiers_tension(mat, params)
   css <- paste('body{margin:0;background:#fff;color:#1F2933;font-family:-apple-system,"Segoe UI",Roboto,Arial,sans-serif;font-size:16px;line-height:1.5}',
                '.page{max-width:1100px;margin:0 auto;padding:28px 32px 40px}h1{font-size:28px;margin:0 0 4px}.sous{color:#52606D;margin:0 0 18px}',
@@ -354,9 +413,11 @@ generer_fiche_exposition_tension <- function(messages, fichier, png = NULL, cham
                '.tab-met thead th{font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#52606D;border-top:0;border-bottom:2px solid #c9ced6}.tab-met thead small,.tab-met td small{display:block;font-size:12px;color:#52606D;font-weight:400;text-transform:none;letter-spacing:0}',
                '.tab-met td:first-child{min-width:190px}.tab-met td:nth-child(2){min-width:120px}.tab-met .num{text-align:right;white-space:nowrap}.tab-met tbody tr:nth-child(even):not(.sit) td{background:#fafbfc}.tab-met tr.sit th{font-size:14px;font-weight:700;color:#1F2933;padding:9px 8px;border-top:2px solid #fff}.tab-met tr.sit .n{font-weight:500;color:#52606D;margin-left:8px}.tab-met td.vide{color:#52606D;font-style:italic}',
                '.reg{display:inline-flex;gap:2px;vertical-align:middle;margin-right:6px}.reg i{display:inline-block;width:10px;height:14px;border:1px solid #9aa5b1;border-radius:2px;background:#fff}.reg i.on{background:#1D4E89;border-color:#1D4E89}.regv{font-weight:700}.conf{color:#8a5a00;background:#fff3d6;padding:1px 6px;border-radius:999px;font-size:12.5px}',
-               'details.annexe{margin-top:18px;border:1px solid #DDE3EA;border-radius:8px;padding:0 14px 6px}details.annexe summary{cursor:pointer;font-weight:600;color:#1D4E89;padding:10px 0}details.annexe img{margin-top:6px}',
+               'details.annexe{margin-top:18px;border:1px solid #DDE3EA;border-radius:8px;padding:0 14px 6px}details.annexe summary{cursor:pointer;font-weight:600;color:#1D4E89;padding:10px 0}',
+               'svg.mat{display:block;width:100%;height:auto;max-height:640px;margin:6px 0 4px;border:1px solid #DDE3EA;border-radius:8px;background:#fff}svg.mat circle{cursor:help}svg.mat circle:hover{stroke-width:4;r:9}',
+               '.leg-mat{list-style:none;display:flex;flex-wrap:wrap;gap:6px 18px;padding:0;margin:6px 0 8px;font-size:13.5px}.leg-mat i{display:inline-block;width:12px;height:12px;border-radius:50%;border:2px solid;vertical-align:-2px;margin-right:6px}',
                '@media(max-width:700px){.tab-met th:nth-child(2),.tab-met td:nth-child(2),.tab-met th:nth-child(7),.tab-met td:nth-child(7),.tab-met th:nth-child(8),.tab-met td:nth-child(8){display:none}.tab-met tr.sit th{display:table-cell}.page{padding:18px 14px 30px}}', sep = "\n")
-  titres <- c("Renouvellement rapide et métiers en tension", "Métiers à départs rapides et en tension", "Le levier")
+  titres <- TITRES_MESSAGES_TENSION
   html <- c('<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">',
             '<title>Départs attendus et difficultés de recrutement</title><style>', css, '</style></head><body><div class="page">',
             '<h1>Départs attendus et difficultés de recrutement</h1>',
@@ -378,10 +439,115 @@ generer_fiche_exposition_tension <- function(messages, fichier, png = NULL, cham
             '<li>Robustesse : la classe est recalculée avec les hypothèses de départ basse et haute, un seuil de tension un cran plus strict et un cran plus large, et sans les rattachements PCS → FAP de faible confiance ; « robuste » si elle ne change jamais.</li>',
             '<li>Secret statistique : un département n’est montré que si ses parts respectent la règle Insee et ne permettent de retrouver aucune valeur masquée ; seuls des pourcentages et des classes sont diffusés.</li></ul>',
             sprintf('<p class="note">Carte associée : <a href="../cartes/carte_typologie.html">carte des profils</a> (hachures = exposition forte). Sources : %s ; tension par famille professionnelle (FAP) en France, rattachée aux PCS stratégiques.</p>', e(source_note)),
-            img, '</div></body></html>')
+            annexe, '</div></body></html>')
   if (any(grepl("<script", html, fixed = TRUE)) || any(grepl(" on[a-z]+=", html)) || any(grepl("javascript:", html, fixed = TRUE)))
     stop("generer_fiche_exposition_tension : contenu actif détecté.")
   dir.create(dirname(fichier), showWarnings = FALSE, recursive = TRUE)
   writeLines(enc2utf8(html), fichier, useBytes = TRUE)
+  invisible(fichier)
+}
+
+# --- Classeur Excel pour les commanditaires (SPEC-TYPO-108) ------------------------------
+# Quatre feuilles (Lisez-moi, Départements, Métiers, Paramètres) construites à partir des
+# SEULES tables de diffusion (secret déjà appliqué) : aucun calcul nouveau, aucun effectif.
+# tables_classeur_tension() rend des data.frames aux colonnes en clair ; ecrire_classeur_tension()
+# les écrit (openxlsx avec mise en forme, sinon writexl sans mise en forme, sinon message).
+tables_classeur_tension <- function(dif, mat, messages, parametres, params = parametres_tension(), bornes = c(bas = NA, haut = NA), n_forte = NA_integer_,
+                                    champ = construire_libelle_champ(), source_note = "calculs propres", date = Sys.Date()) {
+  if (any(grepl("^departs_|^effectif_|n_entreprises|part_dominante", names(dif)))) stop("tables_classeur_tension : effectif ou indicateur de secret dans la table des départements.")
+  oui_non <- function(x) ifelse(is.na(x), NA_character_, ifelse(x, "oui", "non"))
+  f1 <- function(x) if (is.na(x)) "n.d." else formatC(x, format = "f", digits = 1, decimal.mark = ",")
+  # Départements : une ligne par département ; non diffusé = aucune valeur
+  dep <- data.frame(check.names = FALSE, stringsAsFactors = FALSE,
+    Code = as.character(dif$geo_code), `Département` = dif$geo_nom, `Diffusé` = ifelse(dif$tension_diffusee, "oui", "non diffusé (secret statistique)"),
+    `Exposition (%)` = arrondir_taux(dif$tension_exposition_pct), `Repère France (%)` = arrondir_taux(dif$tension_exposition_france_pct), `Couverture (%)` = arrondir_taux(dif$tension_couverture_pct),
+    Classe = ifelse(dif$tension_diffusee & is.na(dif$tension_classe) & !is.na(dif$tension_couverture_pct), "non interprétée (couverture insuffisante)", dif$tension_classe),
+    Robustesse = dif$tension_robustesse, `Sensible à` = dif$tension_causes, Levier = dif$tension_levier, Composante = dif$tension_composante,
+    `Métiers en tension les plus concernés` = dif$tension_metiers, `Renouvellement rapide et exposition forte` = oui_non(dif$tension_cumul), Texte = dif$tension_texte)
+  if (any(!is.na(as.matrix(dep[!dif$tension_diffusee, -(1:3), drop = FALSE])))) stop("tables_classeur_tension : valeur présente pour un département non diffusé.")
+  dep <- dep[order(dep$Code), , drop = FALSE]; rownames(dep) <- NULL
+  # Métiers : une ligne par PCS stratégique (niveau France), situations dans l'ordre, départs décroissants
+  m <- mat$metiers; fin <- if ("rang_tension_fin" %in% names(m)) m$rang_tension_fin else m$rang_tension
+  met <- data.frame(check.names = FALSE, stringsAsFactors = FALSE,
+    Situation = ifelse(m$statut == "diffusé", m$quadrant, NA_character_), `Métier` = ifelse(is.na(m$pcs_libelle), paste0("PCS ", m$pcs_source), m$pcs_libelle), `Code PCS` = m$pcs_source,
+    `Famille professionnelle` = m$fap_libelle, `Code FAP` = m$fap_code,
+    `Départs d’ici 2030` = arrondir_nombre_personnes(m$departs_central), `Fourchette basse` = arrondir_nombre_personnes(m$departs_bas), `Fourchette haute` = arrondir_nombre_personnes(m$departs_haut),
+    `Part susceptible de partir (%)` = arrondir_taux(m$taux_depart_central_pct), `Repère France (%)` = ifelse(m$statut == "diffusé", arrondir_taux(mat$ref_x), NA_real_),
+    `Tension (rang)` = m$rang_tension, `Tension (valeur fine)` = fin, `En tension` = oui_non(m$en_tension),
+    `Composante qui pèse le plus` = m$composante_libelle, Levier = m$levier, `Rattachement PCS → FAP` = ifelse(m$faible_confiance, "à confirmer", "fiable"), Statut = m$statut)
+  if (any(!is.na(as.matrix(met[met$Statut != "diffusé", c("Départs d’ici 2030", "Fourchette basse", "Fourchette haute", "Part susceptible de partir (%)"), drop = FALSE]))))
+    stop("tables_classeur_tension : départ présent pour un métier non diffusé.")
+  met <- met[order(match(met$Situation, unname(QUADRANTS_TENSION), nomatch = length(QUADRANTS_TENSION) + 1), -ifelse(is.na(m$departs_central), -1, m$departs_central), met$`Code PCS`), , drop = FALSE]
+  rownames(met) <- NULL
+  # Lisez-moi : le texte de la fiche, en cellules (une colonne) ; attr "gras" = titres
+  titre <- function(x) structure(x, gras = TRUE)
+  lignes <- list(titre("Départs attendus et difficultés de recrutement"),
+    paste0(construire_libelles_public(champ)$salaries_age, " · entreprises du périmètre Base · départs attendus d’ici 2030 · métiers stratégiques"),
+    paste0("Classeur produit le ", format(date, "%d/%m/%Y"), ". Sources : ", source_note, " ; tension par famille professionnelle (FAP) en France, rattachée aux PCS stratégiques."), "",
+    titre("Trois messages"), paste0(TITRES_MESSAGES_TENSION, " : ", messages), "",
+    titre("Comment lire"),
+    "Ce que dit la carte des profils : sa couleur indique combien de salariés vont partir d’ici 2030, et à quel rythme.",
+    sprintf("Ce qu’ajoute l’exposition : un département d’exposition forte a une grande part des départs de ses métiers stratégiques qui concerne des métiers en tension en France (rang %d ou plus sur %d).", params$seuil_rang, params$rang_max),
+    "Le croisement des deux : un département à renouvellement rapide et d’exposition forte cumule les deux difficultés ; la feuille Métiers dit quels métiers sont concernés, et le levier indique la nature de la tension.",
+    sprintf("Un métier est « à départs rapides » quand la part de ses salariés susceptibles de partir d’ici 2030 atteint celle de l’ensemble des salariés concernés en France (%s %%) ; il est « en tension » quand sa famille professionnelle atteint le rang %d sur %d en France.", f1(mat$ref_x), params$seuil_rang, params$rang_max), "",
+    titre("Ce que ce classeur ne dit pas"),
+    "Ce n’est pas une prédiction de pénurie. La tension est mesurée pour le métier en France entière, pas dans le département : « exposé » veut dire que les départs du département portent sur des métiers difficiles à recruter, pas que le département manque de candidats.", "",
+    titre("Méthode en bref"),
+    "Exposition = départs attendus des métiers stratégiques en tension ÷ départs attendus des métiers stratégiques (estimation centrale) ; repère : la même part en France.",
+    sprintf("Classes : faible sous %s %%, forte à partir de %s %% (%s) ; %s département(s) d’exposition forte. Non interprétée si les métiers stratégiques portent moins de %s %% des départs du département.",
+            f1(bornes[["bas"]]), f1(bornes[["haut"]]), if (identical(params$methode, "fixes")) "seuils fixes" else "terciles, règle provisoire", if (is.na(n_forte)) "n.d." else n_forte, f1(params$couverture_min)),
+    "Robustesse : la classe est recalculée avec les hypothèses de départ basse et haute, un seuil de tension un cran plus strict et un cran plus large, et sans les rattachements PCS → FAP de faible confiance ; « robuste » si elle ne change jamais.",
+    "Secret statistique : un département n’est montré que si ses parts respectent la règle Insee et ne permettent de retrouver aucune valeur masquée ; seuls des pourcentages, des classes et des textes sont diffusés. Une cellule vide est une valeur non diffusée, jamais un zéro.", "",
+    titre("Les feuilles"),
+    "Départements : une ligne par département. Exposition = sur 100 départs attendus des métiers stratégiques, part concernant des métiers en tension en France ; Repère France = la même part en France ; Couverture = part des départs du département portés par les métiers stratégiques ; Classe (faible, modérée, forte) ; Robustesse et Sensible à (variantes qui changent la classe) ; Levier et Composante (nature de la tension la plus fréquente) ; Métiers en tension les plus concernés (cellules diffusables) ; Renouvellement rapide et exposition forte ; Texte.",
+    sprintf("Métiers : une ligne par PCS stratégique de la liste, au niveau France. Situation ; départs attendus d’ici 2030 et fourchette (estimation centrale, basse, haute) ; part susceptible de partir et repère France ; tension en France (rang de 1 à %d, valeur fine%s) ; composante qui pèse le plus ; levier ; rattachement PCS → FAP (fiable ou à confirmer) ; Statut (diffusé, non diffusé pour secret statistique, tension inconnue, absente de la Base).",
+            params$rang_max, if (length(params$sous_niveaux)) paste0(" : ", paste(params$rang_max + params$sous_niveaux / 10, collapse = " et "), " affinent le niveau le plus fort") else ""),
+    "Paramètres : seuils et bornes effectifs de ce calcul.")
+  gras <- vapply(lignes, function(x) isTRUE(attr(x, "gras")), TRUE); gras <- rep(gras, lengths(lignes)); lignes <- unlist(lapply(lignes, as.character))
+  lisez <- data.frame(texte = lignes, stringsAsFactors = FALSE); attr(lisez, "gras") <- gras
+  list("Lisez-moi" = lisez, "Départements" = dep, "Métiers" = met, "Paramètres" = as.data.frame(parametres, stringsAsFactors = FALSE))
+}
+
+# Écrit le classeur ; rend le chemin (invisible) ou NA_character_ si aucun paquet ne le permet.
+# moteur : "auto" (openxlsx s'il est installé, sinon writexl), "openxlsx" ou "writexl" (tests).
+# L'appelant (08i) entoure l'appel d'un tryCatch : un classeur n'arrête jamais la chaîne.
+ecrire_classeur_tension <- function(tables, fichier, moteur = c("auto", "openxlsx", "writexl")) {
+  moteur <- match.arg(moteur)
+  dir.create(dirname(fichier), showWarnings = FALSE, recursive = TRUE)
+  if (moteur != "writexl" && requireNamespace("openxlsx", quietly = TRUE)) {
+    wb <- openxlsx::createWorkbook()
+    st_ent <- openxlsx::createStyle(fontColour = "#FFFFFF", fgFill = "#1D4E89", textDecoration = "bold", valign = "center", wrapText = TRUE)
+    st_titre <- openxlsx::createStyle(fontSize = 16, textDecoration = "bold", fontColour = "#1D4E89"); st_gras <- openxlsx::createStyle(fontSize = 12, textDecoration = "bold")
+    st_wrap <- openxlsx::createStyle(wrapText = TRUE, valign = "top"); st_pct <- openxlsx::createStyle(numFmt = "0.0"); st_pers <- openxlsx::createStyle(numFmt = "#,##0")
+    largeur <- function(t) pmin(60, pmax(10, vapply(seq_along(t), function(j) max(nchar(c(names(t)[j], as.character(t[[j]]))), na.rm = TRUE) * 0.9 + 2, 0)))
+    for (nom in names(tables)) {
+      t <- tables[[nom]]; openxlsx::addWorksheet(wb, nom, gridLines = nom != "Lisez-moi")
+      if (nom == "Lisez-moi") {
+        openxlsx::writeData(wb, nom, t, colNames = FALSE); openxlsx::setColWidths(wb, nom, 1, 125)
+        openxlsx::addStyle(wb, nom, st_wrap, rows = seq_len(nrow(t)), cols = 1)
+        g <- which(attr(t, "gras") %in% TRUE); if (length(g)) openxlsx::addStyle(wb, nom, st_gras, rows = g, cols = 1, stack = TRUE)
+        openxlsx::addStyle(wb, nom, st_titre, rows = 1, cols = 1, stack = TRUE)
+      } else {
+        openxlsx::writeData(wb, nom, t, headerStyle = st_ent, withFilter = nrow(t) > 0)
+        openxlsx::freezePane(wb, nom, firstRow = TRUE); openxlsx::setRowHeights(wb, nom, 1, 34)
+        l <- largeur(t); l[names(t) == "Texte"] <- 90; openxlsx::setColWidths(wb, nom, seq_along(t), l)
+        if (nrow(t) > 0) {
+          lignes <- 1 + seq_len(nrow(t))
+          j <- grep("\\(%\\)$", names(t)); if (length(j)) openxlsx::addStyle(wb, nom, st_pct, rows = lignes, cols = j, gridExpand = TRUE, stack = TRUE)
+          j <- grep("^Départs d’ici|^Fourchette", names(t)); if (length(j)) openxlsx::addStyle(wb, nom, st_pers, rows = lignes, cols = j, gridExpand = TRUE, stack = TRUE)
+          teinte <- if (nom == "Départements") unname(COULEURS_CLASSES_EXPOSITION[t$Classe]) else if (nom == "Métiers") unname(COULEURS_SITUATIONS[names(QUADRANTS_TENSION)[match(t$Situation, QUADRANTS_TENSION)]]) else NULL
+          for (coul in unique(teinte[!is.na(teinte)])) openxlsx::addStyle(wb, nom, openxlsx::createStyle(fgFill = coul), rows = lignes[teinte %in% coul], cols = seq_along(t), gridExpand = TRUE, stack = TRUE)
+          j <- which(names(t) == "Texte"); if (length(j)) openxlsx::addStyle(wb, nom, st_wrap, rows = lignes, cols = j, gridExpand = TRUE, stack = TRUE)
+        }
+      }
+    }
+    openxlsx::saveWorkbook(wb, fichier, overwrite = TRUE)
+  } else if (moteur != "openxlsx" && requireNamespace("writexl", quietly = TRUE)) {
+    message("ecrire_classeur_tension : classeur écrit sans mise en forme (writexl", if (moteur == "auto") ", paquet openxlsx absent" else "", ").")
+    writexl::write_xlsx(lapply(tables, function(t) { attr(t, "gras") <- NULL; as.data.frame(t, stringsAsFactors = FALSE) }), fichier)
+  } else {
+    message("ecrire_classeur_tension : ni openxlsx ni writexl : classeur non produit (les CSV de diffusion restent la référence).")
+    return(invisible(NA_character_))
+  }
   invisible(fichier)
 }
