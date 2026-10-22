@@ -1,5 +1,5 @@
 # ==============================================================================
-# Exposition au recrutement difficile : les « deux horloges » (00k, 08i, 00i) —
+# Exposition au recrutement difficile (00k, 08i, 00i) —
 # specs/10 §13 (SPEC-TYPO-100 à 107), SPEC-SEC-034.
 # Données exclusivement SYNTHÉTIQUES (classeurs fictifs écrits dans tempdir()).
 # ==============================================================================
@@ -100,7 +100,7 @@ test_that("SPEC-TYPO-103 — classes sur les mêmes bornes ; robustesse : hypoth
   expect_equal(e2$n_retenus, 4L); expect_false(anyNA(e2$bornes))
 })
 
-test_that("SPEC-TYPO-104 / 105 — matrice nationale (quadrants, cellule masquée, PCS absente), deux horloges, trois messages", {
+test_that("SPEC-TYPO-104 / 105 — matrice nationale (quadrants, cellule masquée, PCS absente), cumul renouvellement rapide et exposition forte, trois messages", {
   fr <- DEP_T |> dplyr::group_by(pcs, cs1) |> dplyr::summarise(effectif_champ = sum(effectif_champ), departs_central = sum(departs_central), .groups = "drop") |>
     dplyr::mutate(taux_depart_central_pct = 100 * departs_central / effectif_champ)
   fr_dif <- fr |> dplyr::mutate(masque = pcs == "5b5b")
@@ -112,12 +112,13 @@ test_that("SPEC-TYPO-104 / 105 — matrice nationale (quadrants, cellule masqué
   expect_identical(unname(q["4b4b"]), "Départs rapides, métier hors tension")                                                                                  # 51 % >= repère, hors tension
   expect_identical(unname(s["5b5b"]), "non diffusé (secret statistique)"); expect_true(is.na(m$metiers$taux_depart_central_pct[m$metiers$pcs == "5b5b"]))
   expect_identical(unname(s["9z9z"]), "absente de la Base"); expect_identical(unname(s["8u8u"]), "tension inconnue")
-  expect_identical(ET2$deux_horloges(c(ET2$PROFILS_TYPOLOGIE[["enjeu"]], ET2$PROFILS_TYPOLOGIE[["stable"]], ET2$PROFILS_TYPOLOGIE[["emergent"]]), c("Forte", "Forte", "Modérée")),
+  expect_identical(ET2$cumul_renouvellement_tension(c(ET2$PROFILS_TYPOLOGIE[["enjeu"]], ET2$PROFILS_TYPOLOGIE[["stable"]], ET2$PROFILS_TYPOLOGIE[["emergent"]]), c("Forte", "Forte", "Modérée")),
                    c(TRUE, FALSE, FALSE))
-  dif <- tibble::tibble(geo_code = c("D1", "D3"), geo_nom = c("Un", "Trois"), tension_deux_horloges = c(FALSE, TRUE))
+  dif <- tibble::tibble(geo_code = c("D1", "D3"), geo_nom = c("Un", "Trois"), tension_cumul = c(FALSE, TRUE))
   typo <- tibble::tibble(geo_code = c("D1", "D3"), masque = FALSE, departs_central = c(300, 100))
   msg <- ET2$messages_fiche_tension(dif, typo, m)
-  expect_length(msg, 3); expect_match(msg[1], "Les deux horloges sonnent ensemble dans 1 département (Trois (D3))", fixed = TRUE); expect_match(msg[1], "25 % des départs", fixed = TRUE)
+  expect_length(msg, 3); expect_match(msg[1], "1 département cumule un renouvellement rapide d’ici 2030 et des départs portés surtout par des métiers en tension en France : Trois (D3).", fixed = TRUE); expect_match(msg[1], "25 % des départs", fixed = TRUE)
+  expect_false(any(grepl("horloge", msg, ignore.case = TRUE)))
   expect_match(msg[2], "^1 métier stratégique cumule des départs plus rapides que la moyenne et une tension forte en France"); expect_false(any(grepl("critique|Sous contrôle", msg))); expect_match(msg[3], "^Aucune composante de la tension n’atteint le seuil")   # le seul métier critique (2A2A) n'a aucune composante en tension
   f <- tempfile(fileext = ".html"); ET2$generer_fiche_exposition_tension(msg, f, NULL, ET2$construire_libelle_champ(), PAR_T, c(bas = 25, haut = 50), 1L, mat = m)
   h <- paste(readLines(f, encoding = "UTF-8"), collapse = "\n")
@@ -133,6 +134,7 @@ test_that("SPEC-TYPO-104 / 105 — matrice nationale (quadrants, cellule masqué
   ET2$generer_fiche_exposition_tension(msg, f, png, ET2$construire_libelle_champ(), PAR_T, c(bas = 25, haut = 50), 1L, mat = m); h2 <- paste(readLines(f, encoding = "UTF-8"), collapse = "\n")
   expect_true(grepl('<details class="annexe"><summary>Version graphique (annexe)</summary><img', h2, fixed = TRUE)); expect_true(regexpr("<details class=\"annexe\"", h2) > regexpr("<table class=\"tab-met\"", h2))
   expect_false(grepl("<script|javascript:| on[a-z]+=", h)); expect_match(h, "Ce que cette page ne dit pas", fixed = TRUE); expect_match(h, "Salariés de 45 ans ou plus", fixed = TRUE)
+  expect_false(grepl("horloge", h, ignore.case = TRUE)); expect_match(h, "<h1>Départs attendus et difficultés de recrutement</h1>", fixed = TRUE)
   expect_false(grepl('c\\("', h))
 })
 
@@ -155,7 +157,7 @@ test_that("SPEC-TYPO-106 / SPEC-SEC-034 — secret : tout ou rien, part sous le 
   expect_false(any(grepl("^departs_|^effectif_|n_entreprises|part_dominante", names(d))))
   expect_true(is.na(d$tension_metiers[d$geo_code == "D7"]))      # métiers cités : cellules diffusables seulement (les deux de A sont masquées)
   expect_identical(d$tension_metiers[d$geo_code == "D3"], "Métier 2A2A")
-  expect_true(d$tension_deux_horloges[d$geo_code == "D3"])        # profil enjeu + exposition forte
+  expect_true(d$tension_cumul[d$geo_code == "D3"])        # profil enjeu + exposition forte
 })
 
 test_that("SPEC-TYPO-107 — carte des profils : hachures pour l'exposition forte seulement, jamais un département masqué ; courriel sans script ; lecture du fichier voisin ; rien sans lui", {
@@ -173,7 +175,7 @@ test_that("SPEC-TYPO-107 — carte des profils : hachures pour l'exposition fort
   expo <- tibble::tibble(geo_code = tout$geo_code[1:4], geo_nom = "x", tension_diffusee = c(TRUE, TRUE, TRUE, FALSE), tension_exposition_pct = c(60, 61, 10, NA),
                          tension_exposition_france_pct = 40, tension_couverture_pct = 70, tension_classe = c("Forte", "Forte", "Faible", NA), tension_robustesse = "robuste",
                          tension_causes = NA, tension_levier = "anticiper les recrutements", tension_composante = "forte intensité d’embauche", tension_metiers = "Métier X",
-                         tension_deux_horloges = FALSE, tension_texte = c("Sur 100 départs… phrase A.", "FUITE-MASQUE", "Phrase C.", NA))
+                         tension_cumul = FALSE, tension_texte = c("Sur 100 départs… phrase A.", "FUITE-MASQUE", "Phrase C.", NA))
   utils::write.csv2(expo, file.path(dir, "exposition_tension_departements.csv"), row.names = FALSE)
   d <- ET2$lire_typologie_diffusion(f_typo); expect_true(all(c("tension_classe", "tension_exposition_pct") %in% names(d))); expect_type(d$tension_exposition_pct, "double")
   p <- ET2$preparer_carte_typologie(d, fond); expect_equal(unname(p$comptes[["hachures"]]), 1)          # le 2e (Forte) est masqué

@@ -45,7 +45,7 @@ COLONNES_TEXTE_TYPO <- c("profil_typologie", "classe_poids_base", "classe_intens
                          "situation_texte", "justification_profil", "indicateur_intensite", "base_poids",
                          "pyramide_source", "pyramide_libelles", "classe_releve", "classe_vague_suivante", "pyramide_masquee",
                          "tension_diffusee", "tension_classe", "tension_robustesse", "tension_causes", "tension_levier", "tension_composante", "tension_metiers",
-                         "tension_deux_horloges", "tension_texte")
+                         "tension_cumul", "tension_texte")
 
 # --- Lecture de la table de diffusion (write.csv2, avec ou sans BOM) --------------
 lire_typologie_diffusion <- function(fichier) {

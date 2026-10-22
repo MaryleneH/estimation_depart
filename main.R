@@ -15,7 +15,7 @@ source("R/00_config_fonctions/00f_fonctions_cartes.R")        # -> fonctions car
 source("R/00_config_fonctions/00h_fonctions_typologie.R")     # -> fonctions typologie des territoires (08f)
 source("R/00_config_fonctions/00i_fonctions_carte_typologie.R") # -> fonctions cartes des profils de la typologie (08g)
 source("R/00_config_fonctions/00j_fonctions_cartes_typologie_pcs.R") # -> fonctions cartes profils et métiers, régions -> départements (08h)
-source("R/00_config_fonctions/00k_fonctions_tension.R")     # -> fonctions exposition au recrutement difficile, « deux horloges » (08i)
+source("R/00_config_fonctions/00k_fonctions_tension.R")     # -> fonctions exposition au recrutement difficile (08i)
 source("R/01_preparation/01_fabriquer_donnees_test.R")   # -> objet : bts (contrat geo_code/geo_nom/geo_type)
 source("R/01_preparation/01b_agreger_pcs.R")             # -> cs1 agrégée (si AGGREGER_PCS)
 source("R/01_preparation/01c_stock_tous_ages.R")         # -> stock_tous_ages : effectifs actuels TOUS ÂGES par
