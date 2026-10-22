@@ -80,7 +80,7 @@ test_that("SPEC-TYPO-092 — repli sur le champ (bts_projete) : seul le rapport 
   d <- t$departements
   expect_equal(d$ratio_vague_seniors, c(3, 3, 3)); expect_true(all(d$pyramide_source == "champ"))
   for (v in c("pyramide_jeunes_pct", "pyramide_vague_pct", "ratio_releve", "classe_releve", "classe_vague_suivante")) expect_true(all(is.na(d[[v]])), label = v)
-  expect_true(all(grepl("Au sein du champ, 3,0 salarié(s) de 45 à 54 ans pour un de 55 ans et plus (pyramide complète indisponible).", d$situation_texte, fixed = TRUE)))
+  expect_true(all(grepl("Au sein du champ, 3,0 salariés de 45 à 54 ans pour 1 salarié de 55 ans et plus (pyramide complète indisponible).", d$situation_texte, fixed = TRUE)))
   expect_identical(t$parametres$valeur[t$parametres$parametre == "pyramide_source"], "champ")
   # un salarié du champ sans tranche du champ (âge manquant) = arrêt explicite, jamais une perte
   expect_error(EP$preparer_pyramide_departements(NULL, dplyr::mutate(base, age_2024 = replace(age_2024, 1, NA))), "hors des tranches")
@@ -122,11 +122,11 @@ test_that("SPEC-TYPO-094 — points d'attention « relève fragile » et « vagu
   d <- t$departements
   a <- d[d$geo_code == "A1", ]; b <- d[d$geo_code == "B2", ]; dd <- d[d$geo_code == "D4", ]
   expect_identical(a$classe_intensite, "Élevée"); expect_identical(a$classe_releve, "Relève fragile")
-  expect_true(grepl("relève fragile : 0,5 salarié(s) de moins de 30 ans pour un salarié de 55 ans et plus, alors que le renouvellement d’ici 2030 est rapide", a$points_attention, fixed = TRUE))
+  expect_true(grepl("relève fragile : 0,5 salarié de moins de 30 ans pour 1 salarié de 55 ans et plus, alors que le renouvellement d’ici 2030 est rapide", a$points_attention, fixed = TRUE))
   expect_identical(b$classe_intensite, "Faible"); expect_identical(b$classe_vague_suivante, "Forte")
   expect_true(grepl("vague de départs importante après 2030 : 50,0 % des salariés ont de 45 à 54 ans, alors que le renouvellement d’ici 2030 est lent", b$points_attention, fixed = TRUE))
   expect_false(grepl("relève|vague", dplyr::coalesce(dd$points_attention, "")))                # fragile mais intensité modérée ; vague forte mais intensité non faible : aucun point
-  expect_true(grepl("Pyramide des âges : 5,0 % de moins de 30 ans, 75,0 % de 30-44 ans, 10,0 % de 45-54 ans et 10,0 % de 55 ans et plus ; 0,5 salarié(s) de moins de 30 ans pour un de 55 ans et plus (relève fragile).",
+  expect_true(grepl("Pyramide des âges : 5,0 % de moins de 30 ans, 75,0 % de 30-44 ans, 10,0 % de 45-54 ans et 10,0 % de 55 ans et plus ; 0,5 salarié de moins de 30 ans pour 1 salarié de 55 ans et plus (relève fragile).",
                     a$situation_texte, fixed = TRUE))
 })
 
@@ -216,7 +216,7 @@ test_that("SPEC-TYPO-095 — cartes : ligne de pyramide et barres, jamais pour u
             pyramide_seniors_pct = 10, ratio_releve = 2, ratio_vague_seniors = 2, classe_releve = "Relève solide", pyramide_source = "tous_ages",
             pyramide_libelles = "moins de 30 ans | 30-44 ans | 45-54 ans | 55 ans et plus", pyramide_masquee = "FALSE")
   l <- EP$lignes_detail_typologie(r)
-  expect_true(any(grepl("Pyramide des âges : 20,0 % moins de 30 ans · 50,0 % 30-44 ans · 20,0 % 45-54 ans · 10,0 % 55 ans et plus · Relève solide : 2,0 de moins de 30 ans pour un de 55 ans et plus", l, fixed = TRUE)))
+  expect_true(any(grepl("Pyramide des âges : 20,0 % moins de 30 ans · 50,0 % 30-44 ans · 20,0 % 45-54 ans · 10,0 % 55 ans et plus · 2,0 salariés de moins de 30 ans pour 1 salarié de 55 ans et plus (relève solide)", l, fixed = TRUE)))
   h <- paste(EP$html_barres_pyramide(r), collapse = "")
   expect_true(grepl("Pyramide des âges (emploi actuel tous âges)", h, fixed = TRUE)); expect_true(grepl("width:40.00%", h, fixed = TRUE))   # 20 / 50
   expect_false(grepl("<script|on[a-z]+=", h))
@@ -225,7 +225,7 @@ test_that("SPEC-TYPO-095 — cartes : ligne de pyramide et barres, jamais pour u
   expect_true("Pyramide des âges non diffusée (secret statistique)" %in% EP$lignes_detail_typologie(rmq))
   expect_identical(EP$html_barres_pyramide(rmq), "")
   rc <- modifyList(rmq, list(pyramide_masquee = "FALSE", pyramide_source = "champ", ratio_vague_seniors = 1.5))
-  expect_true(any(grepl("Au sein du champ : 1,5 salarié(s) de 45-54 ans pour un de 55 ans et plus (pyramide complète indisponible)", EP$lignes_detail_typologie(rc), fixed = TRUE)))
+  expect_true(any(grepl("Au sein du champ : 1,5 salarié de 45-54 ans pour 1 salarié de 55 ans et plus (pyramide complète indisponible)", EP$lignes_detail_typologie(rc), fixed = TRUE)))
   r0 <- r[setdiff(names(r), grep("pyramide|ratio_|classe_releve", names(r), value = TRUE))]                               # table sans pyramide : aucune ligne
   expect_false(any(grepl("Pyramide|champ", EP$lignes_detail_typologie(r0))))
   expect_identical(EP$lignes_detail_typologie(modifyList(r, list(statut = "masque"))), EP$LIBELLES_UI$secret)

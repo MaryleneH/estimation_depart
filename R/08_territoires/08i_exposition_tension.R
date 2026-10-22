@@ -82,7 +82,7 @@ if (!isTRUE(get0("GENERER_EXPOSITION_TENSION", ifnotfound = FALSE))) {
     fiche_08i <- file.path(dir_dif_08i, "fiche_exposition_tension.html")
     source_08i <- if (identical(get0("SOURCE_BTS", ifnotfound = ""), "parquet")) "BTS 2024, DREES, EACR, Insee — calculs propres" else "table test — calculs propres"
     generer_fiche_exposition_tension(msg_08i, fiche_08i, png_08i, construire_libelle_champ(), par_08i, expo_08i$bornes,
-                                     sum(dif_08i$tension_classe %in% "Forte"), source_08i)
+                                     sum(dif_08i$tension_classe %in% "Forte"), source_08i, mat = mat_08i)
   }
   exposition_tension <- list(metiers = met_08i, departements = expo_08i$departements, diffusion = dif_08i, bornes = expo_08i$bornes, france = expo_08i$france)
   cat(sprintf("\n08i OK -> exposition au recrutement difficile : %d PCS stratégiques (%d présentes dans la Base, %d en tension en France, rang >= %d sur %d)\n",

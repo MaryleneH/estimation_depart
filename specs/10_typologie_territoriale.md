@@ -483,8 +483,9 @@ Fonctionnalité: Cartographier les profils sans révéler une valeur protégée
 
   Scénario: [SPEC-TYPO-062] Afficher le détail au survol
     Quand un département est survolé dans la page interactive
-    Alors l'infobulle donne le nom, le profil, le poids, les départs et leur fourchette, l'intensité, les classes, la structure, la catégorie qui porte les départs, le motif d'expertise et les points d'attention
-    Et le panneau « situation » affiche situation_texte ; un clic l'épingle, un second clic le libère
+    Alors l'infobulle donne le nom, le profil, puis des rubriques courtes (poids, départs, pyramide des âges, recrutement) avec leurs puces
+    Et le panneau « situation » affiche le détail en RUBRIQUES titrées et en puces (poids dans l'emploi Base ; départs attendus d'ici 2030 ; emploi par grande catégorie ; pyramide des âges ; recrutement si l'exposition existe ; lecture : profil et signification, motif d'expertise, chaque point d'attention en puce séparée, consigne de lecture), construites par règles à partir des seules colonnes de diffusion ; une rubrique vide est omise ; un clic l'épingle, un second clic le libère
+    Et situation_texte reste le texte du CSV, du tableau des situations et de la version courriel
     Et un clic sur un profil de la légende isole ses départements et affiche dans le panneau le titre du profil, sa signification et sa consigne de lecture
 
   Scénario: [SPEC-TYPO-063] Produire une version sans aucun contenu actif pour le courriel
@@ -586,7 +587,7 @@ Fonctionnalité: Explorer les métiers concernés par les départs, de la régio
 
   Scénario: [SPEC-TYPO-083] Lire un département et colorer la carte par une PCS
     Quand un département est cliqué
-    Alors le panneau donne son profil, ses chiffres, son top de PCS en barres et la spécificité de chaque PCS face à la France
+    Alors le panneau donne son profil, ses chiffres dans les mêmes rubriques et puces que la carte des profils (SPEC-TYPO-062), son top de PCS en barres et la spécificité de chaque PCS face à la France
     Et cliquer une PCS du top recolore tous les départements selon les départs de cette PCS (classes à bornes rondes, gris = non diffusé, blanc = aucun salarié observé)
     Et un bouton ramène aux profils
     Et la page suit la disposition de SPEC-TYPO-065 : sur écran large, carte, panneau et légende tiennent dans la fenêtre, seul le panneau défile en interne ; sur écran étroit, carte au-dessus, défilement vers le panneau au clic
@@ -688,7 +689,7 @@ Fonctionnalité: Décrire la pyramide des âges de chaque département sans chan
 
   Scénario: [SPEC-TYPO-094] Signaler la relève fragile et la vague après 2030
     Étant donné un département à relève fragile et à intensité Élevée
-    Alors ses points d'attention contiennent « relève fragile » avec le nombre de jeunes pour un senior
+    Alors ses points d'attention contiennent « relève fragile » avec la phrase de relève : « 1,4 salarié de moins de AGE_BORNE_JEUNES ans pour 1 salarié de AGE_SENIOR ans et plus » (pluriel à partir de 2), la même partout (situation, infobulle, panneau) ; le repli dit « 3,0 salariés de AGE_MIN_BTS à AGE_SENIOR − 1 ans pour 1 salarié de AGE_SENIOR ans et plus »
     Étant donné un département à vague suivante Forte et à intensité Faible
     Alors ses points d'attention contiennent « vague de départs importante après 2030 » avec la part des AGE_MIN_BTS à AGE_SENIOR − 1 ans
     Et la situation rédigée contient une phrase sur la pyramide (ou sur le champ en repli), construite par gabarit fixe
@@ -777,9 +778,10 @@ minimum et l'effectif du champ atteint `TYPO_SEUIL_EFFECTIF_MIN`.
   tension.
 - Repère x = la même part pour l'ensemble du champ en France ; repère y = le seuil
   de rang ; y porte la valeur fine (5.1 et 5.2 graduées quand elles existent).
-- Quadrants : « Métiers critiques » (départs au moins au repère et en tension),
-  « Relève à organiser » (départs au moins au repère, hors tension), « Recrutement
-  déjà difficile » (sous le repère, en tension), « Sous contrôle ».
+- Quatre situations, aux libellés FACTUELS (ils décrivent, ils ne jugent pas) :
+  « Départs rapides et métier en tension » (départs au moins au repère et en tension),
+  « Départs rapides, métier hors tension », « Départs modérés, métier en tension »,
+  « Départs modérés, métier hors tension ».
 - Faible confiance = symbole creux.
 
 ```gherkin
@@ -816,14 +818,14 @@ Fonctionnalité: Lire, avec la typologie, si les départs portent sur des métie
 
   Scénario: [SPEC-TYPO-104] Placer les métiers stratégiques dans la matrice nationale
     Quand la matrice est produite
-    Alors chaque métier diffusable au niveau France reçoit un quadrant parmi les quatre
+    Alors chaque métier diffusable au niveau France reçoit une situation parmi les quatre, au libellé factuel
     Et un métier dont la cellule France est masquée n'est compté qu'en nombre
-    Et le PNG distingue les rattachements de faible confiance et ne nomme que les métiers critiques
+    Et le PNG distingue les rattachements de faible confiance et ne nomme que les métiers à départs rapides et en tension ; il est une annexe repliée de la fiche
 
   Scénario: [SPEC-TYPO-105] Rédiger les phrases et les leviers par gabarits fixes
     Quand les textes sont produits
     Alors chaque département diffusé reçoit une phrase : exposition, repère France, classe, robustesse, couverture, levier le plus fréquent
-    Et la fiche porte trois messages (deux horloges, métiers critiques, levier dominant), « Comment lire » et « Ce que cette page ne dit pas » (ni une prédiction de pénurie, ni une tension mesurée dans le département)
+    Et la fiche porte trois messages (deux horloges ; métiers à départs rapides et en tension ; levier dominant), puis un TABLEAU des métiers stratégiques diffusables groupés par situation (métier et code, famille professionnelle, départs et fourchette, part susceptible de partir face au repère France, tension en France avec sa réglette et sa valeur fine, composante qui pèse le plus, levier, confiance du rattachement), les métiers non diffusés, de tension inconnue ou absents n'étant que des comptes ; puis « Comment lire » et « Ce que cette page ne dit pas » (ni une prédiction de pénurie, ni une tension mesurée dans le département)
     Et aucun texte n'est généré : uniquement des gabarits et des règles
 
   Scénario: [SPEC-TYPO-106] Protéger l'exposition par le secret statistique

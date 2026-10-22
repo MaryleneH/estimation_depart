@@ -212,10 +212,12 @@ js_cartes_typologie_pcs <- function() paste(
   ' var mx=Math.max.apply(null,ok.map(function(r){return Math.max(r.part,r.pf)}))||1,ul=el("ul","spec");ok.forEach(function(r){var e=el("li");e.appendChild(el("div",null,libPcs(r.pcs)));var ax=el("div","axe");var a=100*r.part/mx,f=100*r.pf/mx;var seg=el("span","seg");seg.style.left=Math.min(a,f)+"%";seg.style.width=Math.abs(a-f)+"%";ax.appendChild(seg);',
   '  var pd=el("span","pt d");pd.style.left=a+"%";pd.title="Territoire : "+fmt(r.part,1)+" %";ax.appendChild(pd);var pfr=el("span","pt f");pfr.style.left=f+"%";pfr.title="France : "+fmt(r.pf,1)+" %";ax.appendChild(pfr);e.appendChild(ax);',
   '  var v=el("div","val");v.appendChild(el("span",null,"territoire "+fmt(r.part,1)+" %"));v.appendChild(el("span",null,"France "+fmt(r.pf,1)+" %"));e.appendChild(v);ul.appendChild(e)});cont.appendChild(ul);cont.appendChild(el("p","detail-aide","Point bleu : part de la PCS dans les départs du département ; point gris : sa part dans les départs nationaux. Un écart décrit une spécificité, pas une tension."))}',
+  # rubriques titrées + puces du département (mêmes que la carte des profils, SPEC-TYPO-083) ; repli sur les lignes
+  'function rendreBlocs(cont,t){if(t.blocs&&t.blocs.length){t.blocs.forEach(function(b){cont.appendChild(el("h3","rub",b.t));var ul=el("ul","puces");b.p.forEach(function(x){ul.appendChild(el("li",null,x))});cont.appendChild(ul)})}else{var ul=el("ul","lignes");(t.lignes||[]).forEach(function(l){ul.appendChild(el("li",null,l))});cont.appendChild(ul)}}',
   'function panneau(){DP.innerHTML="";DP.scrollTop=0;',
   ' if(etat.dep){var t=D.departements[etat.dep],p=t.cle?D.profils[t.cle]:null;DP.appendChild(titre(t.nom+" · "+etat.dep,p?p.titre:(t.st==="sans"?L.absent:L.non_diffuse),p?p.couleur:D.couleurs.secret,p?p.clair:false));',
   '  if(t.region&&D.regions[t.region]){var rl=el("button","lien","← "+D.regions[t.region].nom);rl.type="button";rl.addEventListener("click",function(){etat.dep=null;etat.region=t.region;rendre();panneau()});DP.appendChild(rl)}',
-  '  var ul=el("ul","lignes");t.lignes.forEach(function(l){ul.appendChild(el("li",null,l))});DP.appendChild(ul);barresPyramide(t.pyramide,DP);DP.appendChild(el("h3",null,L.top_titre));barresTop(t.top,DP,true);specificite(t.top,DP);return}',
+  '  rendreBlocs(DP,t);barresPyramide(t.pyramide,DP);DP.appendChild(el("h3",null,L.top_titre));barresTop(t.top,DP,true);specificite(t.top,DP);return}',
   ' if(etat.region){var r=D.regions[etat.region];DP.appendChild(titre(r.nom,r.titre,r.couleur,r.clair));var rb=el("button","lien","← "+L.retour_regions);rb.type="button";rb.addEventListener("click",function(){etat.region=null;etat.dep=null;etat.niveau="region";etat.pcs=null;rendre();panneau()});DP.appendChild(rb);',
   '  DP.appendChild(el("h3",null,"Départements par profil"));var w=el("div");w.innerHTML=r.html_comptes;DP.appendChild(w);var dl=el("ul","lignes");r.departements.forEach(function(c){var li2=el("li");var b=el("button","lien",D.departements[c].nom+" · "+c);b.type="button";b.addEventListener("click",function(){etat.dep=c;etat.niveau="departement";rendre();panneau()});li2.appendChild(b);var pp=D.departements[c].cle?D.profils[D.departements[c].cle].titre:L.non_diffuse;li2.appendChild(el("span",null," — "+pp));dl.appendChild(li2)});DP.appendChild(dl);',
   '  DP.appendChild(el("h3",null,L.top_titre+" (région)"));barresTop(r.top,DP,false);return}',
@@ -245,7 +247,8 @@ donnees_json_typo_pcs <- function(prep, champ = construire_libelle_champ()) {
     if (!is.na(r$part_pct)) x$part <- round(r$part_pct, 2); if (!is.na(r$part_france_pct)) x$pf <- round(r$part_france_pct, 2); x }))
   reg_de <- list(); for (rc in names(prep$regions)) for (c in prep$regions[[rc]]$departements) reg_de[[c]] <- rc
   deps <- setNames(lapply(seq_len(nrow(prep$territoires)), function(i) { r <- prep$territoires[i, ]; t <- prep$departements[[r$code]]
-    x <- list(nom = r$nom, st = r$statut, couleur = couleur_territoire_typo(r), lignes = as.list(lignes_detail_typologie(r, prep$indicateur)), lignes_top = as.list(lignes_top_pcs(t)), top = top_json(t))
+    x <- list(nom = r$nom, st = r$statut, couleur = couleur_territoire_typo(r), lignes = as.list(lignes_detail_typologie(r, prep$indicateur)), blocs = blocs_detail_typologie(r, prep$indicateur),
+              lignes_top = as.list(lignes_top_pcs(t)), top = top_json(t))
     if (!is.na(r$cle)) x$cle <- r$cle; if (!is.null(reg_de[[r$code]])) x$region <- reg_de[[r$code]]
     py <- if (r$statut == "masque") NULL else parts_pyramide_typo(r); if (!is.null(py)) x$pyramide <- list(libelles = py$libelles, parts = round(py$parts, 2)); x }), prep$territoires$code)
   regs <- lapply(prep$regions, function(r) { parts <- c(unlist(r$comptes), non_diffuses = r$n_non_diffuses)

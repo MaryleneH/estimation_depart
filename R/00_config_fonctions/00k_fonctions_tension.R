@@ -17,8 +17,10 @@
 library(dplyr)
 
 CLASSES_EXPOSITION <- c("Faible", "Modérée", "Forte")
-QUADRANTS_TENSION <- c(critique = "Métiers critiques", releve = "Relève à organiser",
-                       difficile = "Recrutement déjà difficile", controle = "Sous contrôle")
+# Quatre situations de métier, libellés FACTUELS (ils décrivent, ils ne jugent pas ; SPEC-TYPO-104)
+QUADRANTS_TENSION <- c(critique = "Départs rapides et métier en tension", releve = "Départs rapides, métier hors tension",
+                       difficile = "Départs modérés, métier en tension", controle = "Départs modérés, métier hors tension")
+COULEURS_SITUATIONS <- c(critique = "#fbe4e1", releve = "#fff1dc", difficile = "#e3eef9", controle = "#eef1f4")
 CAUSES_FRAGILITE <- c(hypothese_bas = "hypothèse de départ", hypothese_haut = "hypothèse de départ",
                       seuil_plus = "seuil de tension", seuil_moins = "seuil de tension", confiance = "rattachement PCS → FAP")
 
@@ -233,13 +235,14 @@ appliquer_secret_exposition <- function(expo, metiers, base, dif_pcs_dep, typo_d
 matrice_metiers_tension <- function(metiers, fr_analytique, fr_diffusion = NULL, params = parametres_tension()) {
   ref_x <- 100 * sum(fr_analytique$departs_central) / sum(fr_analytique$effectif_champ)
   fr <- (if (is.null(fr_diffusion)) fr_analytique |> mutate(masque = FALSE) else fr_diffusion) |>
-    transmute(pcs = normaliser_code_pcs(pcs), masque, departs_central, taux_depart_central_pct)
+    mutate(pcs = normaliser_code_pcs(pcs)) |> select(pcs, masque, departs_central, any_of(c("departs_bas", "departs_haut")), taux_depart_central_pct)
   m <- metiers |> left_join(fr, by = "pcs") |>
     mutate(statut = ifelse(is.na(masque), "absente de la Base", ifelse(masque, "non diffusé (secret statistique)", ifelse(is.na(en_tension), "tension inconnue", "diffusé"))),
            quadrant = ifelse(statut != "diffusé", NA_character_,
                              ifelse(taux_depart_central_pct >= ref_x, ifelse(en_tension, QUADRANTS_TENSION[["critique"]], QUADRANTS_TENSION[["releve"]]),
                                     ifelse(en_tension, QUADRANTS_TENSION[["difficile"]], QUADRANTS_TENSION[["controle"]]))))
-  m$departs_central[m$statut != "diffusé"] <- NA; m$taux_depart_central_pct[m$statut != "diffusé"] <- NA
+  for (v in c("departs_bas", "departs_haut")) if (!v %in% names(m)) m[[v]] <- NA_real_
+  for (v in c("departs_central", "departs_bas", "departs_haut", "taux_depart_central_pct")) m[[v]][m$statut != "diffusé"] <- NA
   list(metiers = m |> select(-masque), ref_x = ref_x, seuil_rang = params$seuil_rang, rang_max = params$rang_max, sous_niveaux = params$sous_niveaux)
 }
 
@@ -255,14 +258,14 @@ messages_fiche_tension <- function(dif, typo_dif, mat) {
             f0(100 * sum(ok$departs_central[ok$geo_code %in% dh$geo_code]) / sum(ok$departs_central)))
   mm <- mat$metiers |> filter(statut == "diffusé"); cr <- mm |> filter(quadrant == QUADRANTS_TENSION[["critique"]]) |> arrange(desc(departs_central))
   m2 <- if (nrow(cr) == 0) "Aucun métier stratégique ne cumule des départs plus rapides que la moyenne et une tension forte en France." else
-    sprintf("%d métier%s stratégique%s %s critique%s : %s plus vite que la moyenne et se recrute%s difficilement en France (%s). %s %s %s %% des départs des métiers stratégiques.",
-            nrow(cr), pl(nrow(cr)), pl(nrow(cr)), if (nrow(cr) > 1) "sont" else "est", pl(nrow(cr)), if (nrow(cr) > 1) "ils partent" else "il part", if (nrow(cr) > 1) "nt" else "",
+    sprintf("%d métier%s stratégique%s cumule%s des départs plus rapides que la moyenne et une tension forte en France : %s. %s %s %s %% des départs des métiers stratégiques.",
+            nrow(cr), pl(nrow(cr)), pl(nrow(cr)), if (nrow(cr) > 1) "nt" else "",
             noms(ifelse(is.na(cr$pcs_libelle), paste0("PCS ", cr$pcs_source), cr$pcs_libelle)), if (nrow(cr) > 1) "Ils" else "Il", if (nrow(cr) > 1) "portent" else "porte",
             f0(100 * sum(cr$departs_central) / sum(mm$departs_central)))
   base_lev <- if (nrow(cr) > 0) cr else mm |> filter(en_tension %in% TRUE)
   lv <- base_lev |> filter(!is.na(levier)) |> count(levier, composante_libelle, sort = TRUE)
   m3 <- if (nrow(lv) == 0) "Aucune composante de la tension n’atteint le seuil pour ces métiers : pas de levier dominant." else
-    sprintf("Levier le plus fréquent %s : %s (%s), pour %d métier%s sur %d.", if (nrow(cr) > 0) "pour ces métiers critiques" else "pour les métiers en tension",
+    sprintf("Levier le plus fréquent %s : %s (%s), pour %d métier%s sur %d.", if (nrow(cr) > 0) "pour ces métiers" else "pour les métiers en tension",
             lv$levier[1], lv$composante_libelle[1], lv$n[1], pl(lv$n[1]), nrow(base_lev))
   c(m1, m2, m3)
 }
@@ -308,29 +311,65 @@ png_matrice_metiers_tension <- function(mat, fichier) {
   invisible(fichier)
 }
 
+# --- Tableau des métiers stratégiques, groupés par situation (SPEC-TYPO-105, sans script) ----
+# Une ligne par métier DIFFUSABLE ; les autres (secret, tension inconnue, absents) ne sont que des comptes.
+html_tableau_metiers_tension <- function(mat, params = parametres_tension()) {
+  e <- function(x) { x <- gsub("&", "&amp;", as.character(x), fixed = TRUE); x <- gsub("<", "&lt;", x, fixed = TRUE); gsub(">", "&gt;", x, fixed = TRUE) }
+  f0 <- function(x) ifelse(is.na(x), "n.d.", formatC(round(x), format = "d", big.mark = " ")); f1 <- function(x) ifelse(is.na(x), "n.d.", formatC(x, format = "f", digits = 1, decimal.mark = ","))
+  m <- mat$metiers; d <- m[m$statut == "diffusé", ]
+  reglette <- function(ent, fin) sprintf('<span class="reg" aria-label="tension %s sur %d">%s</span><span class="regv">%s</span>', format(fin, decimal.mark = ","), mat$rang_max,
+                                         paste(ifelse(seq_len(mat$rang_max) <= ent, '<i class="on"></i>', "<i></i>"), collapse = ""), format(fin, decimal.mark = ","))
+  entete <- sprintf('<thead><tr><th>Métier (PCS)</th><th>Famille professionnelle</th><th class="num">Départs d’ici 2030</th><th class="num">Part susceptible de partir<br><small>France : %s %%</small></th><th>Tension en France<br><small>1 = la plus faible, %d = la plus forte</small></th><th>Ce qui pèse le plus</th><th>Levier</th><th>Rattachement</th></tr></thead>',
+                    f1(mat$ref_x), mat$rang_max)
+  corps <- unlist(lapply(names(QUADRANTS_TENSION), function(k) {
+    g <- d[d$quadrant %in% QUADRANTS_TENSION[[k]], ]; g <- g[order(-g$departs_central, g$pcs), ]
+    c(sprintf('<tr class="sit sit-%s"><th colspan="8" style="background:%s">%s <span class="n">%d métier%s</span></th></tr>', k, COULEURS_SITUATIONS[[k]], e(QUADRANTS_TENSION[[k]]), nrow(g), if (nrow(g) > 1) "s" else ""),
+      if (nrow(g) == 0) '<tr><td colspan="8" class="vide">Aucun métier stratégique diffusable dans cette situation.</td></tr>' else
+        sprintf('<tr><td><b>%s</b><br><small>PCS %s</small></td><td>%s<br><small>%s</small></td><td class="num">%s<br><small>%s à %s</small></td><td class="num">%s %%</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>',
+                e(ifelse(is.na(g$pcs_libelle), paste0("PCS ", g$pcs_source), g$pcs_libelle)), e(g$pcs_source), e(ifelse(is.na(g$fap_libelle), "", g$fap_libelle)), e(ifelse(is.na(g$fap_code), "", g$fap_code)),
+                f0(g$departs_central), f0(g$departs_bas), f0(g$departs_haut), f1(g$taux_depart_central_pct),
+                mapply(reglette, g$rang_tension, if ("rang_tension_fin" %in% names(g)) g$rang_tension_fin else g$rang_tension),
+                e(ifelse(is.na(g$composante_libelle), "aucune composante au-dessus du seuil", g$composante_libelle)), e(ifelse(is.na(g$levier), "—", g$levier)),
+                ifelse(g$faible_confiance, '<span class="conf">à confirmer</span>', "fiable"))) }))
+  autres <- table(factor(m$statut[m$statut != "diffusé"], levels = c("non diffusé (secret statistique)", "tension inconnue", "absente de la Base")))
+  pied <- if (sum(autres) > 0) sprintf('<p class="note">Hors tableau : %s.</p>', paste(sprintf("%d métier%s %s", autres, ifelse(autres > 1, "s", ""), c("non diffusé(s) (secret statistique)", "de tension inconnue (rang manquant)", "sans salarié du champ dans la Base"))[autres > 0], collapse = " ; ")) else ""
+  c('<table class="tab-met">', entete, "<tbody>", corps, "</tbody></table>", pied)
+}
+
 # --- Fiche d'une page, sans script (SPEC-TYPO-105) --------------------------------------
 generer_fiche_exposition_tension <- function(messages, fichier, png = NULL, champ = construire_libelle_champ(), params = parametres_tension(),
-                                             bornes = c(bas = NA, haut = NA), n_forte = NA_integer_, source_note = "calculs propres") {
+                                             bornes = c(bas = NA, haut = NA), n_forte = NA_integer_, source_note = "calculs propres", mat = NULL) {
   e <- function(x) { x <- gsub("&", "&amp;", x, fixed = TRUE); x <- gsub("<", "&lt;", x, fixed = TRUE); gsub(">", "&gt;", x, fixed = TRUE) }
   f1 <- function(x) if (is.na(x)) "n.d." else formatC(x, format = "f", digits = 1, decimal.mark = ",")
-  img <- if (!is.null(png) && file.exists(png)) sprintf('<img alt="Matrice des métiers stratégiques : départs et tension" src="data:image/png;base64,%s">',
-                                                       jsonlite::base64_enc(readBin(png, "raw", file.info(png)$size))) else '<p class="note">Matrice non disponible.</p>'
+  img <- if (!is.null(png) && file.exists(png)) sprintf('<details class="annexe"><summary>Version graphique (annexe)</summary><img alt="Matrice des métiers stratégiques : départs et tension" src="data:image/png;base64,%s"></details>',
+                                                       jsonlite::base64_enc(readBin(png, "raw", file.info(png)$size))) else ""
+  tableau <- if (is.null(mat)) '<p class="note">Tableau des métiers non disponible.</p>' else html_tableau_metiers_tension(mat, params)
   css <- paste('body{margin:0;background:#fff;color:#1F2933;font-family:-apple-system,"Segoe UI",Roboto,Arial,sans-serif;font-size:16px;line-height:1.5}',
                '.page{max-width:1100px;margin:0 auto;padding:28px 32px 40px}h1{font-size:28px;margin:0 0 4px}.sous{color:#52606D;margin:0 0 18px}',
                '.msgs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:0 0 18px}@media(max-width:860px){.msgs{grid-template-columns:1fr}}',
                '.msg{border:1px solid #DDE3EA;border-left:5px solid #1D4E89;border-radius:10px;padding:12px 14px;background:#F5F7FA}.msg b{display:block;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:#1D4E89;margin-bottom:4px}',
                'img{width:100%;height:auto;border:1px solid #DDE3EA;border-radius:8px}h2{font-size:18px;margin:20px 0 6px}ul{margin:4px 0 0;padding-left:20px}',
-               '.cadre{border:1px solid #e0b96a;border-left-width:5px;background:#fff8e6;border-radius:8px;padding:10px 14px;margin-top:16px}.note{font-size:13.5px;color:#52606D}', sep = "\n")
-  titres <- c("Les deux horloges", "Les métiers critiques", "Le levier")
+               '.cadre{border:1px solid #e0b96a;border-left-width:5px;background:#fff8e6;border-radius:8px;padding:10px 14px;margin-top:16px}.note{font-size:13.5px;color:#52606D}',
+               '.tab-met{width:100%;border-collapse:collapse;font-size:14px;margin:6px 0 4px}.tab-met th,.tab-met td{text-align:left;vertical-align:top;padding:7px 8px;border-top:1px solid #DDE3EA;line-height:1.4}',
+               '.tab-met thead th{font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#52606D;border-top:0;border-bottom:2px solid #c9ced6}.tab-met thead small,.tab-met td small{display:block;font-size:12px;color:#52606D;font-weight:400;text-transform:none;letter-spacing:0}',
+               '.tab-met td:first-child{min-width:190px}.tab-met td:nth-child(2){min-width:120px}.tab-met .num{text-align:right;white-space:nowrap}.tab-met tbody tr:nth-child(even):not(.sit) td{background:#fafbfc}.tab-met tr.sit th{font-size:14px;font-weight:700;color:#1F2933;padding:9px 8px;border-top:2px solid #fff}.tab-met tr.sit .n{font-weight:500;color:#52606D;margin-left:8px}.tab-met td.vide{color:#52606D;font-style:italic}',
+               '.reg{display:inline-flex;gap:2px;vertical-align:middle;margin-right:6px}.reg i{display:inline-block;width:10px;height:14px;border:1px solid #9aa5b1;border-radius:2px;background:#fff}.reg i.on{background:#1D4E89;border-color:#1D4E89}.regv{font-weight:700}.conf{color:#8a5a00;background:#fff3d6;padding:1px 6px;border-radius:999px;font-size:12.5px}',
+               'details.annexe{margin-top:18px;border:1px solid #DDE3EA;border-radius:8px;padding:0 14px 6px}details.annexe summary{cursor:pointer;font-weight:600;color:#1D4E89;padding:10px 0}details.annexe img{margin-top:6px}',
+               '@media(max-width:700px){.tab-met th:nth-child(2),.tab-met td:nth-child(2),.tab-met th:nth-child(7),.tab-met td:nth-child(7),.tab-met th:nth-child(8),.tab-met td:nth-child(8){display:none}.tab-met tr.sit th{display:table-cell}.page{padding:18px 14px 30px}}', sep = "\n")
+  titres <- c("Les deux horloges", "Départs rapides et tension", "Le levier")
   html <- c('<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">',
             '<title>Départs et recrutement</title><style>', css, '</style></head><body><div class="page">',
             '<h1>Départs et recrutement : les deux horloges</h1>',
             sprintf('<p class="sous">%s · entreprises du périmètre Base · départs attendus d’ici 2030 · métiers stratégiques</p>', e(construire_libelles_public(champ)$salaries_age)),
-            '<div class="msgs">', sprintf('<div class="msg"><b>%s</b>%s</div>', titres, e(messages)), '</div>', img,
+            '<div class="msgs">', sprintf('<div class="msg"><b>%s</b>%s</div>', titres, e(messages)), '</div>',
+            '<h2>Les métiers stratégiques, situation par situation</h2>',
+            sprintf('<p class="note">Un métier est « à départs rapides » quand la part de ses salariés susceptibles de partir d’ici 2030 atteint celle de l’ensemble des salariés concernés en France (%s %%) ; il est « en tension » quand sa famille professionnelle atteint le rang %d sur %d en France.</p>', f1(if (is.null(mat)) NA else mat$ref_x), params$seuil_rang, params$rang_max),
+            tableau,
             '<h2>Comment lire</h2><ul>',
             '<li><b>L’horloge démographique</b> : la couleur de la carte des profils dit combien de salariés vont partir, et à quel rythme.</li>',
             sprintf('<li><b>L’horloge du recrutement</b> : un département hachuré a une exposition forte : une grande part des départs de ses métiers stratégiques concerne des métiers en tension en France (rang %d ou plus sur %d).</li>', params$seuil_rang, params$rang_max),
-            '<li><b>Les deux ensemble</b> : un département à renouvellement rapide <i>et</i> hachuré est la priorité ; la matrice dit quels métiers, et le levier dit quelle réponse.</li></ul>',
+            '<li><b>Les deux ensemble</b> : un département à renouvellement rapide <i>et</i> hachuré mérite d’être regardé en premier ; le tableau dit quels métiers, et le levier dit quelle réponse.</li>',
+            '<li><b>Le tableau</b> : chaque métier est classé selon ses départs (rapides ou modérés) et la tension de sa famille professionnelle en France ; la réglette donne le rang de tension, « à confirmer » signale un rattachement PCS → famille professionnelle de faible confiance.</li></ul>',
             '<div class="cadre"><b>Ce que cette page ne dit pas.</b> Ce n’est pas une prédiction de pénurie. La tension est mesurée pour le métier en France entière, pas dans le département : « exposé » veut dire que les départs du département portent sur des métiers difficiles à recruter, pas que le département manque de candidats.</div>',
             '<h2>Méthode en bref</h2><ul>',
             '<li>Exposition = départs attendus des métiers stratégiques en tension ÷ départs attendus des métiers stratégiques (estimation centrale) ; repère : la même part en France.</li>',
@@ -339,7 +378,7 @@ generer_fiche_exposition_tension <- function(messages, fichier, png = NULL, cham
             '<li>Robustesse : la classe est recalculée avec les hypothèses de départ basse et haute, un seuil de tension un cran plus strict et un cran plus large, et sans les rattachements PCS → FAP de faible confiance ; « robuste » si elle ne change jamais.</li>',
             '<li>Secret statistique : un département n’est montré que si ses parts respectent la règle Insee et ne permettent de retrouver aucune valeur masquée ; seuls des pourcentages et des classes sont diffusés.</li></ul>',
             sprintf('<p class="note">Carte associée : <a href="../cartes/carte_typologie.html">carte des profils</a> (hachures = exposition forte). Sources : %s ; tension par famille professionnelle (FAP) en France, rattachée aux PCS stratégiques.</p>', e(source_note)),
-            '</div></body></html>')
+            img, '</div></body></html>')
   if (any(grepl("<script", html, fixed = TRUE)) || any(grepl(" on[a-z]+=", html)) || any(grepl("javascript:", html, fixed = TRUE)))
     stop("generer_fiche_exposition_tension : contenu actif détecté.")
   dir.create(dirname(fichier), showWarnings = FALSE, recursive = TRUE)

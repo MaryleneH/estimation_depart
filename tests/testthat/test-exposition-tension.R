@@ -107,9 +107,9 @@ test_that("SPEC-TYPO-104 / 105 — matrice nationale (quadrants, cellule masqué
   m <- ET2$matrice_metiers_tension(MET_T, fr, fr_dif, PAR_T)
   expect_equal(m$ref_x, 100 * sum(fr$departs_central) / sum(fr$effectif_champ))
   q <- setNames(m$metiers$quadrant, m$metiers$pcs); s <- setNames(m$metiers$statut, m$metiers$pcs)
-  expect_identical(unname(q["2a2a"]), "Métiers critiques"); expect_identical(unname(q["1b1b"]), "Relève à organiser")
-  expect_identical(unname(q["5a5a"]), "Recrutement déjà difficile"); expect_identical(unname(q["4a4a"]), "Recrutement déjà difficile")   # 49 % < repère 50,4 %
-  expect_identical(unname(q["4b4b"]), "Relève à organiser")                                                                                  # 51 % >= repère, hors tension
+  expect_identical(unname(q["2a2a"]), "Départs rapides et métier en tension"); expect_identical(unname(q["1b1b"]), "Départs rapides, métier hors tension")
+  expect_identical(unname(q["5a5a"]), "Départs modérés, métier en tension"); expect_identical(unname(q["4a4a"]), "Départs modérés, métier en tension")   # 49 % < repère 50,4 %
+  expect_identical(unname(q["4b4b"]), "Départs rapides, métier hors tension")                                                                                  # 51 % >= repère, hors tension
   expect_identical(unname(s["5b5b"]), "non diffusé (secret statistique)"); expect_true(is.na(m$metiers$taux_depart_central_pct[m$metiers$pcs == "5b5b"]))
   expect_identical(unname(s["9z9z"]), "absente de la Base"); expect_identical(unname(s["8u8u"]), "tension inconnue")
   expect_identical(ET2$deux_horloges(c(ET2$PROFILS_TYPOLOGIE[["enjeu"]], ET2$PROFILS_TYPOLOGIE[["stable"]], ET2$PROFILS_TYPOLOGIE[["emergent"]]), c("Forte", "Forte", "Modérée")),
@@ -118,9 +118,20 @@ test_that("SPEC-TYPO-104 / 105 — matrice nationale (quadrants, cellule masqué
   typo <- tibble::tibble(geo_code = c("D1", "D3"), masque = FALSE, departs_central = c(300, 100))
   msg <- ET2$messages_fiche_tension(dif, typo, m)
   expect_length(msg, 3); expect_match(msg[1], "Les deux horloges sonnent ensemble dans 1 département (Trois (D3))", fixed = TRUE); expect_match(msg[1], "25 % des départs", fixed = TRUE)
-  expect_match(msg[2], "métiers stratégiques sont critiques|métier stratégique est critique"); expect_match(msg[3], "^Aucune composante de la tension n’atteint le seuil")   # le seul métier critique (2A2A) n'a aucune composante en tension
-  f <- tempfile(fileext = ".html"); ET2$generer_fiche_exposition_tension(msg, f, NULL, ET2$construire_libelle_champ(), PAR_T, c(bas = 25, haut = 50), 1L)
+  expect_match(msg[2], "^1 métier stratégique cumule des départs plus rapides que la moyenne et une tension forte en France"); expect_false(any(grepl("critique|Sous contrôle", msg))); expect_match(msg[3], "^Aucune composante de la tension n’atteint le seuil")   # le seul métier critique (2A2A) n'a aucune composante en tension
+  f <- tempfile(fileext = ".html"); ET2$generer_fiche_exposition_tension(msg, f, NULL, ET2$construire_libelle_champ(), PAR_T, c(bas = 25, haut = 50), 1L, mat = m)
   h <- paste(readLines(f, encoding = "UTF-8"), collapse = "\n")
+  # tableau des métiers par situation : quatre sections factuelles, lignes des seuls diffusables, comptes des autres, réglette de tension
+  for (k in unname(ET2$QUADRANTS_TENSION)) expect_true(grepl(paste0("<th colspan=\"8\" style=\"background:#[0-9a-f]{6}\">", k), h), label = k)
+  expect_false(grepl("critique|Sous contrôle|Relève à organiser", gsub("<[^>]+>", " ", h)))                        # texte visible : aucun libellé jugeant (les clés CSS ne comptent pas)
+  expect_true(grepl("<b>Métier 2A2A</b><br><small>PCS 2A2A</small>", h, fixed = TRUE)); expect_false(grepl("Métier 5B5B", h, fixed = TRUE))   # 5b5b masqué en France : jamais dans le tableau
+  expect_true(grepl("Hors tableau : 1 métier non diffusé(s) (secret statistique) ; 1 métier de tension inconnue (rang manquant) ; 1 métier sans salarié du champ dans la Base.", h, fixed = TRUE))
+  expect_true(grepl('<span class="reg" aria-label="tension 4 sur 5"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i></span>', h, fixed = TRUE))
+  expect_true(grepl('<span class="conf">à confirmer</span>', h, fixed = TRUE))                                            # 5a5a : faible confiance
+  expect_true(grepl("<h2>Les métiers stratégiques, situation par situation</h2>", h, fixed = TRUE)); expect_false(grepl("<img", h, fixed = TRUE))   # sans PNG : pas d'annexe
+  png <- tempfile(fileext = ".png"); ET2$png_matrice_metiers_tension(m, png)
+  ET2$generer_fiche_exposition_tension(msg, f, png, ET2$construire_libelle_champ(), PAR_T, c(bas = 25, haut = 50), 1L, mat = m); h2 <- paste(readLines(f, encoding = "UTF-8"), collapse = "\n")
+  expect_true(grepl('<details class="annexe"><summary>Version graphique (annexe)</summary><img', h2, fixed = TRUE)); expect_true(regexpr("<details class=\"annexe\"", h2) > regexpr("<table class=\"tab-met\"", h2))
   expect_false(grepl("<script|javascript:| on[a-z]+=", h)); expect_match(h, "Ce que cette page ne dit pas", fixed = TRUE); expect_match(h, "Salariés de 45 ans ou plus", fixed = TRUE)
   expect_false(grepl('c\\("', h))
 })

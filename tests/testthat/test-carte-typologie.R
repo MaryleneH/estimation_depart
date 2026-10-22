@@ -75,6 +75,18 @@ test_that("SPEC-TYPO-061/062 — page interactive : couleur par profil écrite d
   expect_true("Emploi dominé par les cadres (45,5 %)" %in% g$lignes); expect_true("Départs portés d’abord par les cadres (61,0 %, concentrés sur cette catégorie)" %in% g$lignes)
   expect_true(any(grepl("^Point\\(s\\) d’attention : une seule catégorie", g$lignes)))
   expect_true(any(grepl("^À examiner : intensité de renouvellement extrême", j$territoires[["2A"]]$lignes)))
+  # SPEC-TYPO-062 : rubriques et puces du panneau (blocs), construites à partir des seules colonnes de diffusion
+  b <- j$territoires[["33"]]$blocs; expect_identical(b$t, c("Poids dans l’emploi Base", "Départs attendus d’ici 2030", "Emploi par grande catégorie", "Lecture"))
+  expect_identical(nrm(unlist(b$p[[1]])), c("10,7 % de l’emploi Base national, soit 12 345 salariés", "Poids fort"))
+  expect_identical(nrm(unlist(b$p[[2]])), c("1 234 départs estimés (entre 1 200 et 1 300 selon l’hypothèse de départ en retraite)", "10,0 % de l’emploi actuel à remplacer d’ici 2030", "Volume de départs élevé, intensité de renouvellement élevée"))
+  expect_identical(nrm(unlist(b$p[[3]])), c("Emploi dominé par les cadres (45,5 %)", "Les cadres portent 61,0 % des départs : renouvellement concentré sur cette catégorie"))
+  expect_identical(unlist(b$p[[4]])[1], paste0("Profil « ", P_K[["enjeu"]], " » : ", EK$DEFINITIONS_PROFILS$signification[EK$DEFINITIONS_PROFILS$cle == "enjeu"]))
+  expect_true(any(grepl("^Point d’attention : une seule catégorie porte 61,0 %", unlist(b$p[[4]])))); expect_true(any(grepl("^Consigne de lecture : ", unlist(b$p[[4]]))))
+  expect_identical(b$b, c(TRUE, TRUE, FALSE, FALSE))                                                              # infobulle : poids et départs seulement
+  b2 <- j$territoires[["2A"]]$blocs; expect_true(any(grepl("^À examiner : intensité de renouvellement extrême", unlist(b2$p[[length(b2$p)]]))))
+  expect_length(j$territoires[["64"]]$blocs, 0)                                                                   # département masqué : aucune rubrique
+  bp <- j$territoires[["01"]]$blocs; expect_false("Emploi par grande catégorie" %in% bp$t); expect_true(EK$LIBELLES_CARTE_TYPO$profil_non_diffuse %in% unlist(bp$p))   # profil non diffusé : aucune catégorie
+  for (s in c('function rendreBlocs(cont,t){', 'h.className="rub"', 'ul.className="puces"', "rendreBlocs(DET,t)", 'ligne(b,x.t,"tooltip-rub")')) expect_true(grepl(s, html, fixed = TRUE), label = s)
   expect_identical(j$profils$enjeu$titre, EK$PROFILS_TYPOLOGIE[["enjeu"]]); expect_equal(j$profils$enjeu$n, 1L); expect_true(nzchar(j$profils$enjeu$consigne))
   for (s in c('addEventListener("mousemove"', 'addEventListener("click"', 'pin=(pin===code)?null:code', '.typo-legende button', 'classList.toggle("dim"', 'getElementById("sans-js")'))
     expect_true(grepl(s, html, fixed = TRUE), label = s)
