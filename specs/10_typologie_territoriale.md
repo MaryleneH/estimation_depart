@@ -703,6 +703,142 @@ Fonctionnalité: Décrire la pyramide des âges de chaque département sans chan
     Et un département entièrement masqué n'a aucune valeur de pyramide
 ```
 
+## 13. Exposition au recrutement difficile : les « deux horloges » (08i)
+
+La typologie lit l'**horloge démographique** : combien de salariés partent, et à
+quel rythme. Cette section ajoute l'**horloge du recrutement** : les départs d'un
+département portent-ils sur des métiers difficiles à recruter ? Un département
+n'est vraiment exposé que si les deux horloges sonnent ensemble.
+
+**Principe.** La tension est une **propriété nationale du métier** : elle est
+mesurée par FAP en France entière, sans aucune maille territoriale. Elle n'est
+jamais attribuée au département. On écrit « ses départs portent sur des métiers en
+tension en France », jamais « le département est en tension ». Le pont entre les
+deux nomenclatures est la PCS : la liste des PCS stratégiques donne, pour chacune,
+sa FAP et les indicateurs de tension de cette FAP. SPEC-TYPO-020 à 023 restent
+vraies : aucun départ au bassin, aucune correspondance FAP → grande CS.
+
+**Source** (`FICHIER_PCS_FAP_TENSION`, hors dépôt ; gabarit fictif
+`data/templates/pcs_fap_tension_template.xlsx`). C'est un classeur Excel ; on lit la
+feuille `TENSION_FEUILLE` (« Sheet1 »), une ligne par PCS stratégique. Colonnes
+(noms réglables par `TENSION_COLS` et `TENSION_COMPOSANTES`) :
+- `PCS`, `Lib PCS`, `FAP228`, `LIB_FAP228` ;
+- `poids_pcs` (poids de la PCS dans sa FAP : information, jamais une pondération) ;
+- `indice_confiance` (qualité du rattachement PCS → FAP) ;
+- `ind_tension_d` (indicateur synthétique) ;
+- sept composantes : `ind_int_emb_d`, `ind_main_oeuvre_d`, `ind_dur_empl_d`,
+  `ind_condition_travail_d`, `ind_mismatch_geo_d`, `ind_inacttract_salariale_d`,
+  `ind_specif_form_emploi_d` ;
+- `emploi_fap_toussecteurs` et `emploi_pcs_défense` sont lues mais non utilisées.
+
+Les indicateurs sont des **rangs** (quintiles, ou déciles) calculés sur toutes les
+FAP.
+
+**Indicateurs** (fonctions `00k_fonctions_tension.R`) :
+
+| Indicateur | Définition |
+|---|---|
+| `en_tension` (métier) | rang de `ind_tension_d` ≥ `TENSION_SEUIL_RANG` (par défaut 4 sur 5 : tension forte ou très forte) |
+| composante dominante, levier (métier) | composante au rang le plus élevé, retenue seulement si ce rang atteint le seuil ; ex aequo : ordre de `TENSION_COMPOSANTES` ; chaque composante porte un levier rédigé |
+| `faible_confiance` (métier) | `indice_confiance` < `TENSION_CONFIANCE_MIN` ; si ce paramètre vaut NULL, le plus bas niveau observé (s'il existe au moins deux niveaux) ; confiance manquante = faible |
+| A, B, C (département) | départs (08c, exacts) des PCS stratégiques en tension (A), stratégiques hors tension (B), et de toutes les autres PCS, y compris les stratégiques de tension inconnue (C) |
+| `exposition_pct` | 100 × A / (A + B) : sur 100 départs des métiers stratégiques, combien concernent des métiers en tension |
+| `couverture_pct` | 100 × (A + B) / (A + B + C) : poids des métiers stratégiques dans les départs du département |
+| `exposition_france_pct` | même calcul sur la France entière (repère) |
+| `classe_exposition` | Faible / Modérée / Forte : bornes `TENSION_METHODE_CLASSES` (terciles provisoires sur les départements retenus, ou seuils fixes `TENSION_SEUIL_EXPO_FAIBLE` / `_FORTE`) ; borne incluse en haut ; NA si couverture < `TENSION_COUVERTURE_MIN_PCT` |
+| `robustesse` | `robuste` si la classe reste la même pour les cinq variantes ; sinon `à confirmer`, avec les causes |
+| levier du département | composante dominante la plus fréquente dans A, pondérée par les départs |
+| `deux_horloges` | profil « Pôle majeur à renouveler rapidement » ou « Renouvellement rapide à surveiller » ET exposition Forte |
+
+Les cinq variantes de robustesse appliquent les **mêmes bornes** que le calcul
+central :
+- `departs_bas` ;
+- `departs_haut` ;
+- seuil de rang + 1 ;
+- seuil de rang − 1 ;
+- sans les rattachements de faible confiance.
+
+Les départements retenus pour les terciles sont ceux dont la couverture atteint le
+minimum et l'effectif du champ atteint `TYPO_SEUIL_EFFECTIF_MIN`.
+
+**Matrice des métiers stratégiques (France).**
+- x = part des salariés du champ susceptibles de partir (08c France) ; y = rang de
+  tension.
+- Repère x = la même part pour l'ensemble du champ en France ; repère y = le seuil
+  de rang.
+- Quadrants : « Métiers critiques » (départs au moins au repère et en tension),
+  « Relève à organiser » (départs au moins au repère, hors tension), « Recrutement
+  déjà difficile » (sous le repère, en tension), « Sous contrôle ».
+- Faible confiance = symbole creux.
+
+```gherkin
+Fonctionnalité: Lire, avec la typologie, si les départs portent sur des métiers difficiles à recruter
+
+  Scénario: [SPEC-TYPO-100] Lire et contrôler la source de tension
+    Étant donné le classeur PCS → FAP avec ses indicateurs de tension
+    Quand le 08i le lit
+    Alors seule la feuille TENSION_FEUILLE est lue, tout en texte puis converti sous contrôle
+    Et une feuille absente, une colonne absente, une PCS en double, un rang non entier ou hors de 1 à TENSION_RANG_MAX arrêtent l'étape avec un message qui nomme la colonne et les PCS en cause
+    Et une colonne cs1, grande CS ou tension départementale arrête l'étape
+    Et un rang manquant donne une tension inconnue, comptée à part, jamais 0
+    Et les PCS de la liste absentes des départs de la Base sont listées en console et dans la table interne
+
+  Scénario: [SPEC-TYPO-101] Garder la tension comme propriété nationale du métier
+    Quand l'exposition est calculée
+    Alors aucune colonne ne qualifie la tension d'un département
+    Et chaque texte dit « métiers en tension en France »
+    Et aucune correspondance FAP → grande CS n'est construite
+
+  Scénario: [SPEC-TYPO-102] Calculer l'exposition et la couverture
+    Étant donné un département où A = 30, B = 70 et C = 100 départs
+    Alors exposition_pct = 30 et couverture_pct = 50
+    Et le repère France est calculé de la même façon sur l'ensemble des départements
+    Et une couverture inférieure à TENSION_COUVERTURE_MIN_PCT donne une classe NA (« non interprétée »)
+    Et aucun départ n'est recalculé : les départs sont ceux du 08c
+
+  Scénario: [SPEC-TYPO-103] Classer l'exposition et tester sa robustesse
+    Quand les classes sont attribuées
+    Alors Faible, Modérée, Forte suivent les bornes de TENSION_METHODE_CLASSES, écrites dans parametres_exposition_tension.csv
+    Et la classe est recalculée avec departs_bas, departs_haut, le seuil de rang ± 1 et sans les rattachements de faible confiance, sur les mêmes bornes
+    Et robustesse vaut « robuste » si aucune variante ne change la classe, sinon « à confirmer » avec les causes (« hypothèse de départ », « seuil de tension », « rattachement PCS → FAP »)
+
+  Scénario: [SPEC-TYPO-104] Placer les métiers stratégiques dans la matrice nationale
+    Quand la matrice est produite
+    Alors chaque métier diffusable au niveau France reçoit un quadrant parmi les quatre
+    Et un métier dont la cellule France est masquée n'est compté qu'en nombre
+    Et le PNG distingue les rattachements de faible confiance et ne nomme que les métiers critiques
+
+  Scénario: [SPEC-TYPO-105] Rédiger les phrases et les leviers par gabarits fixes
+    Quand les textes sont produits
+    Alors chaque département diffusé reçoit une phrase : exposition, repère France, classe, robustesse, couverture, levier le plus fréquent
+    Et la fiche porte trois messages (deux horloges, métiers critiques, levier dominant), « Comment lire » et « Ce que cette page ne dit pas » (ni une prédiction de pénurie, ni une tension mesurée dans le département)
+    Et aucun texte n'est généré : uniquement des gabarits et des règles
+
+  Scénario: [SPEC-TYPO-106] Protéger l'exposition par le secret statistique
+    Étant donné les trois parts A, B, C d'un département, dont le total est publié
+    Quand la diffusion est produite
+    Alors l'exposition n'est publiée que si chaque part non vide satisfait la règle Insee (salariés, entreprises, dominance), sinon rien de l'exposition n'est publié pour ce département
+    Et elle n'est pas publiée si une part contient exactement une cellule PCS masquée dans la diffusion du 08c (différenciation)
+    Et un département masqué dans la diffusion de la typologie n'a aucune valeur
+    Et la diffusion ne contient que des pourcentages, des classes et des textes, jamais un effectif ; les métiers cités sont des cellules PCS diffusables
+
+  Scénario: [SPEC-TYPO-107] Montrer l'exposition sur la carte des profils, sans rien changer sans elle
+    Étant donné diffusion/exposition_tension_departements.csv à côté de la table de diffusion de la typologie
+    Quand le 08g produit les cartes
+    Alors un département d'exposition Forte est hachuré (motif SVG, aussi dans la version courriel sans script), la couleur restant celle de son profil
+    Et la légende ajoute une entrée « hachures » avec le nombre de départements, le détail ajoute une ligne et le panneau la phrase
+    Et un département masqué n'est jamais hachuré et n'embarque aucune valeur d'exposition
+    Et sans ce fichier, ou sans le classeur de tension (message, jamais d'arrêt), les pages et les sorties sont celles d'avant ; le PNG du 08g reste inchangé
+```
+
+Sorties (08i) :
+- `interne/exposition_tension_departements.csv`, `interne/metiers_strategiques_tension.csv`,
+  `interne/parametres_exposition_tension.csv` ;
+- `diffusion/exposition_tension_departements.csv`, `diffusion/metiers_strategiques_tension.csv`,
+  `diffusion/matrice_metiers_tension.png` ;
+- `diffusion/fiche_exposition_tension.html` : une page, sans script, pour une lecture en une minute.
+
+
 ## Limites
 
 - Maille département : aucune lecture infra-départementale n'est possible à
@@ -741,6 +877,12 @@ Code :
   `generer_carte_typologie_courriel()`, `png_carte_typologie()`,
   `COULEURS_PROFILS`, `LIBELLES_CARTE_TYPO` (SPEC-TYPO-060 à 064)
 - `R/08_territoires/08g_carte_typologie.R` (relançable seul)
+- `R/00_config_fonctions/00k_fonctions_tension.R` — `parametres_tension()`,
+  `lire_pcs_fap_tension()`, `tension_metiers()`, `exposition_departements()`,
+  `appliquer_secret_exposition()`, `matrice_metiers_tension()`,
+  `rediger_exposition_departement()`, `messages_fiche_tension()`,
+  `png_matrice_metiers_tension()`, `generer_fiche_exposition_tension()`
+  (SPEC-TYPO-100 à 107) ; `R/08_territoires/08i_exposition_tension.R`
 - `R/00_config_fonctions/00_config.R` — section typologie, `GENERER_CARTE_TYPOLOGIE`
 - `data/templates/tensions_fap_territoires_template.csv`
 

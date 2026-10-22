@@ -288,6 +288,31 @@ GENERER_CARTES_TYPOLOGIE_PCS <- TRUE  # FALSE = étape ignorée. Lit UNIQUEMENT 
                                   # à la France, coloration de la carte par PCS) et carte_typologie_pcs_courriel.html
                                   # (si CARTES_COURRIEL : AUCUN script). Relançable seul : source("R/08_territoires/08h_cartes_typologie_pcs.R").
 TYPO_PCS_TOP_N <- 5               # nombre maximal de PCS classées par territoire (seules les cellules diffusables ; jamais le complément)
+# --- Exposition au recrutement difficile : les « deux horloges » (script 08i, specs/10 §13) ---------
+# La tension est une propriété NATIONALE du métier (FAP), jamais du département. Le pont est la PCS :
+# un classeur Excel (hors dépôt) donne, par PCS stratégique, sa FAP et les RANGS de tension de cette FAP.
+GENERER_EXPOSITION_TENSION <- TRUE   # FALSE = étape ignorée ; classeur absent = message, jamais d'arrêt
+FICHIER_PCS_FAP_TENSION <- file.path(DIR_DATA, "pcs_fap_tension.xlsx")   # hors Git ; gabarit fictif data/templates/
+TENSION_FEUILLE <- "Sheet1"          # feuille lue (la seconde du classeur fourni)
+TENSION_COLS <- c(pcs = "PCS", pcs_libelle = "Lib PCS", fap_code = "FAP228", fap_libelle = "LIB_FAP228",
+                  poids_pcs = "poids_pcs", indice_confiance = "indice_confiance", tension = "ind_tension_d")
+# Composantes : colonne du classeur, libellé pédagogique, levier. L'ORDRE départage les ex aequo.
+TENSION_COMPOSANTES <- list(
+  main_oeuvre         = c(colonne = "ind_main_oeuvre_d",          libelle = "manque de main-d’œuvre disponible",     levier = "attirer et élargir les viviers de recrutement"),
+  specif_form_emploi  = c(colonne = "ind_specif_form_emploi_d",   libelle = "formation spécifique au métier",        levier = "former tôt : les formations sont spécifiques et longues"),
+  condition_travail   = c(colonne = "ind_condition_travail_d",    libelle = "conditions de travail contraignantes",  levier = "fidéliser en améliorant les conditions de travail"),
+  inattract_salariale = c(colonne = "ind_inacttract_salariale_d", libelle = "faible attractivité salariale",         levier = "agir sur la rémunération"),
+  mismatch_geo        = c(colonne = "ind_mismatch_geo_d",         libelle = "inadéquation géographique",             levier = "favoriser la mobilité et l’implantation"),
+  dur_empl            = c(colonne = "ind_dur_empl_d",             libelle = "emplois peu durables",                  levier = "stabiliser les emplois"),
+  int_emb             = c(colonne = "ind_int_emb_d",              libelle = "forte intensité d’embauche",            levier = "anticiper les recrutements"))
+TENSION_RANG_MAX   <- 5              # rangs de 1 à 5 (quintiles) ; 10 pour des déciles
+TENSION_SEUIL_RANG <- 4              # métier « en tension » à partir de ce rang inclus (4 et 5 : tension forte et très forte)
+TENSION_CONFIANCE_MIN <- NULL        # faible confiance du rattachement PCS -> FAP : indice_confiance < valeur ; NULL = plus bas
+                                     # niveau observé (si au moins deux niveaux). Sert au test de robustesse.
+TENSION_METHODE_CLASSES   <- "terciles"  # classes d'exposition : "terciles" (provisoire) ou "fixes" (seuils ci-dessous, en %)
+TENSION_SEUIL_EXPO_FAIBLE <- 25
+TENSION_SEUIL_EXPO_FORTE  <- 50
+TENSION_COUVERTURE_MIN_PCT <- 30     # % des départs du département portés par les métiers stratégiques : en dessous, non interprété
 FICHES_SECRET    <- TRUE          # TRUE  = secret statistique appliqué (version DIFFUSABLE).
                                   # FALSE = USAGE INTERNE : aucun masquage, tous les
                                   # territoires, bloc des entreprises (SIREN) ; écrit dans
@@ -413,3 +438,9 @@ if (!is.numeric(AGE_BORNE_JEUNES) || length(AGE_BORNE_JEUNES) != 1 || is.na(AGE_
     AGE_BORNE_JEUNES != round(AGE_BORNE_JEUNES) || AGE_BORNE_JEUNES < 16 || AGE_BORNE_JEUNES >= AGE_MIN_BTS)
   stop(sprintf("AGE_BORNE_JEUNES doit être un entier unique, au moins 16 et inférieur à AGE_MIN_BTS = %d ; reçu : %s.",
                AGE_MIN_BTS, paste(deparse(AGE_BORNE_JEUNES), collapse = "")))
+# Exposition au recrutement difficile (specs/10 §13) : seuil de rang dans l'échelle
+if (!is.numeric(TENSION_RANG_MAX) || length(TENSION_RANG_MAX) != 1 || TENSION_RANG_MAX != round(TENSION_RANG_MAX) || TENSION_RANG_MAX < 2 ||
+    !is.numeric(TENSION_SEUIL_RANG) || length(TENSION_SEUIL_RANG) != 1 || TENSION_SEUIL_RANG != round(TENSION_SEUIL_RANG) ||
+    TENSION_SEUIL_RANG < 2 || TENSION_SEUIL_RANG > TENSION_RANG_MAX)
+  stop(sprintf("TENSION_RANG_MAX (entier >= 2) et TENSION_SEUIL_RANG (entier de 2 à TENSION_RANG_MAX) incohérents : %s / %s.",
+               paste(deparse(TENSION_RANG_MAX), collapse = ""), paste(deparse(TENSION_SEUIL_RANG), collapse = "")))
