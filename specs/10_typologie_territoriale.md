@@ -784,6 +784,20 @@ minimum et l'effectif du champ atteint `TYPO_SEUIL_EFFECTIF_MIN`.
   « Départs rapides, métier hors tension », « Départs modérés, métier en tension »,
   « Départs modérés, métier hors tension ».
 - Faible confiance = symbole creux.
+- Deux rendus : un PNG (fichier à part) et, dans la fiche, la même matrice en **SVG
+  en ligne, sans script** : aucun libellé de métier n'est imprimé (ils se
+  chevaucheraient) ; chaque point porte un `<title>` natif lu au survol de la souris
+  (métier, code PCS, famille professionnelle, départs et fourchette, part
+  susceptible de partir, tension, situation, rattachement). Seuls les métiers
+  diffusables y figurent.
+
+**Classeur Excel** (`diffusion/exposition_tension.xlsx`, `TENSION_CLASSEUR_EXCEL`).
+La même information que la fiche, pour être reprise, triée, filtrée et transmise :
+quatre feuilles (Lisez-moi, Départements, Métiers, Paramètres), alimentées
+exclusivement par les tables de diffusion déjà protégées par le secret ; aucun
+calcul nouveau, aucun effectif. Écrit avec `openxlsx` (mise en forme) ou, à
+défaut, `writexl` (sans mise en forme) ; sans l'un ni l'autre, message. Un classeur
+qui échoue n'arrête jamais la chaîne.
 
 ```gherkin
 Fonctionnalité: Lire, avec la typologie, si les départs portent sur des métiers difficiles à recruter
@@ -821,7 +835,8 @@ Fonctionnalité: Lire, avec la typologie, si les départs portent sur des métie
     Quand la matrice est produite
     Alors chaque métier diffusable au niveau France reçoit une situation parmi les quatre, au libellé factuel
     Et un métier dont la cellule France est masquée n'est compté qu'en nombre
-    Et le PNG distingue les rattachements de faible confiance et ne nomme que les métiers à départs rapides et en tension ; il est une annexe repliée de la fiche
+    Et le PNG distingue les rattachements de faible confiance et ne nomme que les métiers à départs rapides et en tension ; il reste un fichier à part
+    Et la fiche porte, en annexe repliée, la même matrice en SVG sans script : un point par métier diffusable, coloré par situation, creux si le rattachement est de faible confiance, sans libellé imprimé ; le survol d'un point affiche le métier, son code PCS, sa famille professionnelle, ses départs et leur fourchette, sa part susceptible de partir, sa tension et sa situation ; aucun métier non diffusable, aucune valeur masquée
 
   Scénario: [SPEC-TYPO-105] Rédiger les phrases et les leviers par gabarits fixes
     Quand les textes sont produits
@@ -844,6 +859,16 @@ Fonctionnalité: Lire, avec la typologie, si les départs portent sur des métie
     Et la légende ajoute une entrée « hachures » avec le nombre de départements, le détail ajoute une ligne et le panneau la phrase
     Et un département masqué n'est jamais hachuré et n'embarque aucune valeur d'exposition
     Et sans ce fichier, ou sans le classeur de tension (message, jamais d'arrêt), les pages et les sorties sont celles d'avant ; le PNG du 08g reste inchangé
+
+  Scénario: [SPEC-TYPO-108] Fournir le classeur Excel de l'exposition
+    Étant donné les tables de diffusion du 08i (départements, métiers, paramètres) et les trois messages de la fiche
+    Quand TENSION_CLASSEUR_EXCEL vaut TRUE
+    Alors diffusion/exposition_tension.xlsx contient quatre feuilles, dans l'ordre : Lisez-moi (titre, champ, date, les trois messages, « Comment lire », « Ce que ce classeur ne dit pas », méthode en bref, description des feuilles), Départements (une ligne par département, colonnes en clair), Métiers (une ligne par PCS stratégique, groupées par situation puis par départs décroissants), Paramètres (seuils et bornes effectifs)
+    Et chaque valeur provient d'une table de diffusion : aucun effectif, aucune colonne departs_* ou effectif_*, aucun indicateur de secret
+    Et un département non diffusé n'a aucune valeur et porte la mention « non diffusé (secret statistique) » ; un métier non diffusé, de tension inconnue ou absent porte son statut et aucun départ
+    Et avec openxlsx, les en-têtes sont en gras, les volets figés, les filtres posés, les lignes teintées par classe (Départements) ou par situation (Métiers), la classe et la situation restant lisibles en texte
+    Et sans openxlsx, writexl écrit le même contenu sans mise en forme, avec un message ; sans les deux, message et pas de classeur
+    Et un échec d'écriture du classeur est un message, jamais un arrêt ; TENSION_CLASSEUR_EXCEL = FALSE ne produit pas de classeur
 ```
 
 Sorties (08i) :
@@ -851,7 +876,10 @@ Sorties (08i) :
   `interne/parametres_exposition_tension.csv` ;
 - `diffusion/exposition_tension_departements.csv`, `diffusion/metiers_strategiques_tension.csv`,
   `diffusion/matrice_metiers_tension.png` ;
-- `diffusion/fiche_exposition_tension.html` : une page, sans script, pour une lecture en une minute.
+- `diffusion/fiche_exposition_tension.html` : une page, sans script, pour une lecture en une minute
+  (matrice SVG en annexe repliée, libellés au survol) ;
+- `diffusion/exposition_tension.xlsx` : classeur à quatre feuilles (SPEC-TYPO-108), si
+  `TENSION_CLASSEUR_EXCEL`.
 
 
 ## Limites
@@ -896,8 +924,10 @@ Code :
   `lire_pcs_fap_tension()`, `tension_metiers()`, `exposition_departements()`,
   `appliquer_secret_exposition()`, `matrice_metiers_tension()`,
   `rediger_exposition_departement()`, `messages_fiche_tension()`,
-  `png_matrice_metiers_tension()`, `generer_fiche_exposition_tension()`
-  (SPEC-TYPO-100 à 107) ; `R/08_territoires/08i_exposition_tension.R`
+  `png_matrice_metiers_tension()`, `svg_matrice_metiers_tension()`,
+  `html_tableau_metiers_tension()`, `generer_fiche_exposition_tension()`,
+  `tables_classeur_tension()`, `ecrire_classeur_tension()`
+  (SPEC-TYPO-100 à 108) ; `R/08_territoires/08i_exposition_tension.R`
 - `R/00_config_fonctions/00_config.R` — section typologie, `GENERER_CARTE_TYPOLOGIE`
 - `data/templates/tensions_fap_territoires_template.csv`
 

@@ -316,6 +316,9 @@ TENSION_METHODE_CLASSES   <- "terciles"  # classes d'exposition : "terciles" (pr
 TENSION_SEUIL_EXPO_FAIBLE <- 25
 TENSION_SEUIL_EXPO_FORTE  <- 50
 TENSION_COUVERTURE_MIN_PCT <- 30     # % des départs du département portés par les métiers stratégiques : en dessous, non interprété
+TENSION_CLASSEUR_EXCEL <- TRUE       # TRUE = diffusion/exposition_tension.xlsx (Lisez-moi, Départements, Métiers, Paramètres), même contenu
+                                     # que la fiche HTML, issu des seules tables de diffusion ; openxlsx (mise en forme) ou writexl ;
+                                     # échec ou paquet absent = message, jamais d'arrêt. FALSE = pas de classeur.
 FICHES_SECRET    <- TRUE          # TRUE  = secret statistique appliqué (version DIFFUSABLE).
                                   # FALSE = USAGE INTERNE : aucun masquage, tous les
                                   # territoires, bloc des entreprises (SIREN) ; écrit dans

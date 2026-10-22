@@ -130,9 +130,20 @@ test_that("SPEC-TYPO-104 / 105 — matrice nationale (quadrants, cellule masqué
   expect_true(grepl('<span class="reg" aria-label="tension 4 sur 5"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i></span>', h, fixed = TRUE))
   expect_true(grepl('<span class="conf">à confirmer</span>', h, fixed = TRUE))                                            # 5a5a : faible confiance
   expect_true(grepl("<h2>Les métiers stratégiques, situation par situation</h2>", h, fixed = TRUE)); expect_false(grepl("<img", h, fixed = TRUE))   # sans PNG : pas d'annexe
-  png <- tempfile(fileext = ".png"); ET2$png_matrice_metiers_tension(m, png)
-  ET2$generer_fiche_exposition_tension(msg, f, png, ET2$construire_libelle_champ(), PAR_T, c(bas = 25, haut = 50), 1L, mat = m); h2 <- paste(readLines(f, encoding = "UTF-8"), collapse = "\n")
-  expect_true(grepl('<details class="annexe"><summary>Version graphique (annexe)</summary><img', h2, fixed = TRUE)); expect_true(regexpr("<details class=\"annexe\"", h2) > regexpr("<table class=\"tab-met\"", h2))
+  png <- tempfile(fileext = ".png"); ET2$png_matrice_metiers_tension(m, png); expect_true(file.exists(png))   # le PNG reste un fichier à part
+  # annexe repliée : matrice SVG sans script, un <title> par métier diffusable (libellé au survol), aucun libellé imprimé, aucun masqué
+  expect_true(grepl('<details class="annexe"><summary>Version graphique (annexe)</summary>', h, fixed = TRUE)); expect_true(regexpr("<details class=\"annexe\"", h) > regexpr("<table class=\"tab-met\"", h))
+  expect_false(grepl("data:image/png", h, fixed = TRUE))
+  svg <- regmatches(h, regexpr("(?s)<svg class=\"mat\".*?</svg>", h, perl = TRUE)); expect_length(svg, 1)
+  n_dif <- sum(m$metiers$statut == "diffusé"); expect_equal(lengths(regmatches(svg, gregexpr("<circle ", svg))), n_dif); expect_equal(lengths(regmatches(svg, gregexpr("<title>", svg))), n_dif)
+  expect_true(grepl("<title>Métier 2A2A (PCS 2A2A)\nFamille professionnelle : Famille fictive (F2A2A)\nDéparts attendus d’ici 2030 : 60\nPart des salariés du métier susceptibles de partir : 60,0 % (France, tous métiers : 50,4 %)\nTension du métier en France : 4 sur 5 : en tension\nSituation : Départs rapides et métier en tension\nRattachement PCS → FAP : fiable</title>", svg, fixed = TRUE))
+  expect_true(grepl("<title>Métier 5A5A (PCS 5A5A)", svg, fixed = TRUE)); expect_true(grepl('fill="#ffffff" stroke="#67a9cf"', svg, fixed = TRUE))   # faible confiance : point creux, couleur de la situation
+  expect_false(grepl("5B5B|8U8U|9Z9Z", svg)); expect_false(grepl("<text[^>]*>Métier", svg))                                                             # masqué, inconnu, absent : jamais ; aucun libellé imprimé
+  expect_true(grepl('>5 (la plus forte)</text>', svg, fixed = TRUE)); expect_true(grepl("stroke-dasharray", svg, fixed = TRUE))
+  expect_true(grepl('<ul class="leg-mat">', h, fixed = TRUE)); expect_true(grepl("point creux : rattachement PCS → FAP à confirmer", h, fixed = TRUE))
+  m0 <- m; m0$metiers$statut <- "non diffusé (secret statistique)"; expect_identical(ET2$svg_matrice_metiers_tension(m0, PAR_T), "")
+  ET2$generer_fiche_exposition_tension(msg, f, png, ET2$construire_libelle_champ(), PAR_T, c(bas = 25, haut = 50), 1L, mat = m0); h0 <- paste(readLines(f, encoding = "UTF-8"), collapse = "\n")
+  expect_false(grepl("<details", h0, fixed = TRUE)); expect_false(grepl("<svg", h0, fixed = TRUE))                                                        # rien de diffusable : pas d'annexe
   expect_false(grepl("<script|javascript:| on[a-z]+=", h)); expect_match(h, "Ce que cette page ne dit pas", fixed = TRUE); expect_match(h, "Salariés de 45 ans ou plus", fixed = TRUE)
   expect_false(grepl("horloge", h, ignore.case = TRUE)); expect_match(h, "<h1>Départs attendus et difficultés de recrutement</h1>", fixed = TRUE)
   expect_false(grepl('c\\("', h))
@@ -221,6 +232,70 @@ test_that("SPEC-TYPO-107 — 08i sur la chaîne de test : sorties, objets amont 
   expect_false(any(grepl("^departs_|^effectif_|n_entreprises|part_dominante", names(dif))))
   expect_setequal(dif$geo_code, unique(env$departs_pcs$analytique$departement$geo_code))
   h <- paste(readLines(file.path(dt, "diffusion", "fiche_exposition_tension.html"), encoding = "UTF-8"), collapse = "\n")
-  expect_false(grepl("<script", h, fixed = TRUE)); expect_true(grepl("data:image/png;base64,", h, fixed = TRUE))
+  expect_false(grepl("<script", h, fixed = TRUE)); expect_false(grepl("data:image/png", h, fixed = TRUE)); expect_true(grepl('<svg class="mat"', h, fixed = TRUE))
   E <- env$exposition_tension; expect_equal(nrow(E$metiers), 12L); expect_true(all(E$metiers$present_base))
+  # classeur Excel (SPEC-TYPO-108) : produit sur la chaîne, relu ; mêmes valeurs que les CSV de diffusion ; désactivable
+  fx <- file.path(dt, "diffusion", "exposition_tension.xlsx"); expect_true(file.exists(fx))
+  expect_identical(readxl::excel_sheets(fx), c("Lisez-moi", "Départements", "Métiers", "Paramètres"))
+  xd <- readxl::read_excel(fx, sheet = "Départements"); expect_identical(xd$Code, sort(dif$geo_code))
+  expect_equal(xd$`Exposition (%)`[match(dif$geo_code, xd$Code)], dif$tension_exposition_pct); expect_identical(xd$Classe[match(dif$geo_code, xd$Code)][!is.na(dif$tension_classe)], dif$tension_classe[!is.na(dif$tension_classe)])
+  xm <- readxl::read_excel(fx, sheet = "Métiers"); cm <- utils::read.csv2(file.path(dt, "diffusion", "metiers_strategiques_tension.csv"), colClasses = c(pcs = "character"))
+  expect_setequal(xm$`Code PCS`, cm$pcs); expect_equal(xm$`Départs d’ici 2030`[match(cm$pcs, xm$`Code PCS`)], cm$departs_central)
+  xp <- readxl::read_excel(fx, sheet = "Paramètres"); expect_identical(names(xp), c("parametre", "valeur")); expect_true("seuil_rang" %in% xp$parametre)
+  unlink(fx); assign("TENSION_CLASSEUR_EXCEL", FALSE, envir = env); sourcer_scripts("08i_exposition_tension.R", env); expect_false(file.exists(fx))
+  assign("TENSION_CLASSEUR_EXCEL", TRUE, envir = env)
+})
+
+test_that("SPEC-TYPO-108 — classeur Excel : quatre feuilles issues des tables de diffusion, colonnes en clair, non diffusés sans valeur, aucun effectif, relecture ; repli writexl", {
+  fr <- DEP_T |> dplyr::group_by(pcs, cs1) |> dplyr::summarise(effectif_champ = sum(effectif_champ), departs_central = sum(departs_central), .groups = "drop") |>
+    dplyr::mutate(taux_depart_central_pct = 100 * departs_central / effectif_champ)
+  m <- ET2$matrice_metiers_tension(MET_T, fr, fr |> dplyr::mutate(masque = pcs == "5b5b"), PAR_T)
+  dif <- tibble::tibble(geo_code = c("D3", "D1", "D2", "D6"), geo_nom = c("Trois", "Un", "Deux", "Six"), tension_diffusee = c(TRUE, TRUE, TRUE, FALSE),
+                        tension_exposition_pct = c(60, 30, NA, NA), tension_exposition_france_pct = c(40.26, 40.26, 40.26, NA), tension_couverture_pct = c(100, 50, 9.52, NA),
+                        tension_classe = c("Forte", "Modérée", NA, NA), tension_robustesse = c("à confirmer", "robuste", NA, NA), tension_causes = c("seuil de tension", NA, NA, NA),
+                        tension_levier = c(NA, "attirer et élargir les viviers de recrutement", NA, NA), tension_composante = c(NA, "manque de main-d’œuvre disponible", NA, NA),
+                        tension_metiers = c("Métier 2A2A", "Métier 1A1A", NA, NA), tension_cumul = c(TRUE, FALSE, NA, NA), tension_texte = c("Phrase D3.", "Phrase D1.", "Phrase D2.", NA))
+  param <- tibble::tibble(parametre = c("seuil_rang", "rang_max"), valeur = c("4", "5"))
+  tb <- ET2$tables_classeur_tension(dif, m, c("M1.", "M2.", "M3."), param, PAR_T, c(bas = 25, haut = 50), 1L, ET2$construire_libelle_champ(), "table test", as.Date("2030-01-01"))
+  expect_identical(names(tb), c("Lisez-moi", "Départements", "Métiers", "Paramètres"))
+  d <- tb$Départements
+  expect_identical(names(d), c("Code", "Département", "Diffusé", "Exposition (%)", "Repère France (%)", "Couverture (%)", "Classe", "Robustesse", "Sensible à", "Levier", "Composante",
+                               "Métiers en tension les plus concernés", "Renouvellement rapide et exposition forte", "Texte"))
+  expect_identical(d$Code, c("D1", "D2", "D3", "D6")); expect_identical(d$Diffusé, c("oui", "oui", "oui", "non diffusé (secret statistique)"))
+  expect_equal(d$`Exposition (%)`, c(30, NA, 60, NA)); expect_equal(d$`Repère France (%)`, c(40.3, 40.3, 40.3, NA)); expect_equal(d$`Couverture (%)`[2], 9.5)
+  expect_identical(d$Classe, c("Modérée", "non interprétée (couverture insuffisante)", "Forte", NA)); expect_identical(d$`Renouvellement rapide et exposition forte`, c("non", NA, "oui", NA))
+  expect_true(all(is.na(unlist(d[d$Code == "D6", -(1:3)]))))                                                                     # non diffusé : aucune valeur
+  expect_false(any(grepl("^departs_|^effectif_|n_entreprises|part_dominante", names(d))))
+  mt <- tb$Métiers
+  expect_identical(names(mt), c("Situation", "Métier", "Code PCS", "Famille professionnelle", "Code FAP", "Départs d’ici 2030", "Fourchette basse", "Fourchette haute", "Part susceptible de partir (%)",
+                                "Repère France (%)", "Tension (rang)", "Tension (valeur fine)", "En tension", "Composante qui pèse le plus", "Levier", "Rattachement PCS → FAP", "Statut"))
+  expect_equal(nrow(mt), nrow(MET_T))
+  expect_identical(mt$Situation[1:6], c("Départs rapides et métier en tension", "Départs rapides, métier hors tension", "Départs rapides, métier hors tension", "Départs modérés, métier en tension", "Départs modérés, métier en tension", "Départs modérés, métier en tension"))
+  expect_equal(mt$`Départs d’ici 2030`[1:6], c(60, 110, 51, 49, 40, 40)); expect_identical(mt$`Code PCS`[5:6], c("1A1A", "5A5A"))   # ordre : situation, départs décroissants, puis code
+  expect_identical(mt$Statut[7:9], c("non diffusé (secret statistique)", "tension inconnue", "absente de la Base")); expect_true(all(is.na(mt$Situation[7:9])))
+  expect_true(all(is.na(unlist(mt[7:9, c("Départs d’ici 2030", "Fourchette basse", "Fourchette haute", "Part susceptible de partir (%)", "Repère France (%)")]))))
+  expect_identical(mt$`Rattachement PCS → FAP`[mt$`Code PCS` == "5A5A"], "à confirmer"); expect_identical(mt$`Tension (rang)`[mt$`Code PCS` == "1A1A"], 5L)
+  li <- tb$`Lisez-moi`; expect_identical(names(li), "texte"); expect_identical(li$texte[1], "Départs attendus et difficultés de recrutement"); expect_true(attr(li, "gras")[1]); expect_false(attr(li, "gras")[2])
+  expect_true("Trois messages" %in% li$texte); expect_true(any(grepl("^Renouvellement rapide et métiers en tension : M1\\.$", li$texte))); expect_true(any(grepl("Classeur produit le 01/01/2030", li$texte, fixed = TRUE)))
+  expect_true(any(grepl("Ce que ce classeur ne dit pas", li$texte, fixed = TRUE))); expect_true(any(grepl("faible sous 25,0 %, forte à partir de 50,0 % (seuils fixes)", li$texte, fixed = TRUE)))
+  expect_false(any(grepl("horloge|critique|Sous contrôle", li$texte, ignore.case = TRUE)))
+  expect_identical(tb$Paramètres$parametre, c("seuil_rang", "rang_max"))
+  # garde : un effectif dans la table des départements arrête la construction (le 08i le transforme en message)
+  expect_error(ET2$tables_classeur_tension(dif |> dplyr::mutate(departs_total = 1), m, c("a", "b", "c"), param, PAR_T), "effectif ou indicateur de secret")
+  # écriture (openxlsx) puis relecture : quatre feuilles, mêmes valeurs ; mise en forme présente ; repli writexl : même contenu
+  skip_if_not_installed("openxlsx")
+  fx <- tempfile(fileext = ".xlsx"); expect_identical(ET2$ecrire_classeur_tension(tb, fx), fx); expect_true(file.exists(fx))
+  expect_identical(readxl::excel_sheets(fx), names(tb))
+  xd <- readxl::read_excel(fx, sheet = "Départements"); expect_identical(xd$Code, d$Code); expect_equal(xd$`Exposition (%)`, d$`Exposition (%)`); expect_identical(xd$Texte, d$Texte)
+  xm <- readxl::read_excel(fx, sheet = "Métiers"); expect_identical(xm$`Code PCS`, mt$`Code PCS`); expect_equal(xm$`Départs d’ici 2030`, mt$`Départs d’ici 2030`); expect_equal(xm$`Tension (valeur fine)`, mt$`Tension (valeur fine)`)
+  xl <- readxl::read_excel(fx, sheet = "Lisez-moi", col_names = FALSE); expect_identical(xl[[1]][1], li$texte[1]); expect_true(all(li$texte[li$texte != ""] %in% xl[[1]]))
+  x <- openxlsx::loadWorkbook(fx); expect_identical(names(x), names(tb))
+  dz <- file.path(tempdir(), "xlsx_ctl"); unlink(dz, recursive = TRUE); utils::unzip(fx, exdir = dz)
+  s2 <- paste(readLines(file.path(dz, "xl", "worksheets", "sheet2.xml"), warn = FALSE), collapse = ""); st <- paste(readLines(file.path(dz, "xl", "styles.xml"), warn = FALSE), collapse = "")
+  expect_true(grepl('state="frozen"', s2, fixed = TRUE)); expect_true(grepl("<autoFilter ", s2, fixed = TRUE))
+  for (c in toupper(sub("#", "FF", unname(c(ET2$COULEURS_CLASSES_EXPOSITION[c("Modérée", "Forte")], ET2$COULEURS_SITUATIONS[c("critique", "releve", "difficile")]))))) expect_true(grepl(c, st, fixed = TRUE), label = c)   # fonds des classes et situations présentes
+  expect_true(grepl('formatCode="0.0"', st, fixed = TRUE))
+  fw <- tempfile(fileext = ".xlsx")
+  expect_message(ET2$ecrire_classeur_tension(tb, fw, moteur = "writexl"), "sans mise en forme")
+  expect_identical(readxl::excel_sheets(fw), names(tb)); expect_equal(readxl::read_excel(fw, sheet = "Métiers")$`Départs d’ici 2030`, mt$`Départs d’ici 2030`)
 })

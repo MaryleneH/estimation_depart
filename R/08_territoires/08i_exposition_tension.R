@@ -11,8 +11,9 @@
 #               interne/parametres_exposition_tension.csv      seuils et bornes effectifs
 #               diffusion/exposition_tension_departements.csv  secret appliqué (lu par 08g / 08h)
 #               diffusion/metiers_strategiques_tension.csv     matrice nationale (cellules diffusables)
-#               diffusion/matrice_metiers_tension.png          image de la matrice
-#               diffusion/fiche_exposition_tension.html        une page, sans script
+#               diffusion/matrice_metiers_tension.png          image de la matrice (fichier à part)
+#               diffusion/fiche_exposition_tension.html        une page, sans script (matrice SVG en annexe, libellés au survol)
+#               diffusion/exposition_tension.xlsx              classeur à quatre feuilles (si TENSION_CLASSEUR_EXCEL)
 # RÈGLES    : la tension est une propriété NATIONALE du métier, jamais du
 #             département ; aucun départ recalculé ; classeur absent = message.
 # ==============================================================================
@@ -83,6 +84,12 @@ if (!isTRUE(get0("GENERER_EXPOSITION_TENSION", ifnotfound = FALSE))) {
     source_08i <- if (identical(get0("SOURCE_BTS", ifnotfound = ""), "parquet")) "BTS 2024, DREES, EACR, Insee — calculs propres" else "table test — calculs propres"
     generer_fiche_exposition_tension(msg_08i, fiche_08i, png_08i, construire_libelle_champ(), par_08i, expo_08i$bornes,
                                      sum(dif_08i$tension_classe %in% "Forte"), source_08i, mat = mat_08i)
+    # classeur Excel (SPEC-TYPO-108) : mêmes tables de diffusion ; jamais d'arrêt
+    if (isTRUE(par_08i$classeur_excel)) {
+      xlsx_08i <- tryCatch(ecrire_classeur_tension(tables_classeur_tension(dif_08i, mat_08i, msg_08i, param_08i, par_08i, expo_08i$bornes, sum(dif_08i$tension_classe %in% "Forte"),
+                                                                           construire_libelle_champ(), source_08i), file.path(dir_dif_08i, "exposition_tension.xlsx")),
+                           error = function(e) { message("08i : classeur Excel non produit (", conditionMessage(e), ") — les CSV restent la référence."); NA_character_ })
+    }
   }
   exposition_tension <- list(metiers = met_08i, departements = expo_08i$departements, diffusion = dif_08i, bornes = expo_08i$bornes, france = expo_08i$france)
   cat(sprintf("\n08i OK -> exposition au recrutement difficile : %d PCS stratégiques (%d présentes dans la Base, %d en tension en France, rang >= %d sur %d)\n",
@@ -92,7 +99,8 @@ if (!isTRUE(get0("GENERER_EXPOSITION_TENSION", ifnotfound = FALSE))) {
   cl_08i <- table(factor(expo_08i$departements$classe_exposition, levels = CLASSES_EXPOSITION), useNA = "no")
   cat(sprintf("  Départements : Faible %d | Modérée %d | Forte %d | non interprétés %d ; à confirmer %d\n", cl_08i[[1]], cl_08i[[2]], cl_08i[[3]],
               sum(is.na(expo_08i$departements$classe_exposition)), sum(expo_08i$departements$robustesse %in% "à confirmer")))
-  if (!is.null(dif_08i)) cat(sprintf("  Diffusion : %d département(s) diffusé(s), %d non diffusé(s) (secret) ; fiche : %s\n", sum(dif_08i$tension_diffusee), sum(!dif_08i$tension_diffusee), fiche_08i))
+  if (!is.null(dif_08i)) cat(sprintf("  Diffusion : %d département(s) diffusé(s), %d non diffusé(s) (secret) ; fiche : %s ; classeur : %s\n", sum(dif_08i$tension_diffusee), sum(!dif_08i$tension_diffusee), fiche_08i,
+                                     if (exists("xlsx_08i") && !is.na(xlsx_08i)) xlsx_08i else "non produit"))
   rm(par_08i, src_08i, met_08i, dep_08i, expo_08i, typo_int_08i, mat_int_08i, dir_typo_08i, dir_int_08i, restituer_08i, param_08i, dif_08i, fiche_08i, cl_08i)
-  suppressWarnings(rm(typo_dif_08i, mat_08i, dir_dif_08i, png_08i, typo_pour_msg, msg_08i, source_08i))
+  suppressWarnings(rm(typo_dif_08i, mat_08i, dir_dif_08i, png_08i, typo_pour_msg, msg_08i, source_08i, xlsx_08i))
 }

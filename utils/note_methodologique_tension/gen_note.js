@@ -245,8 +245,9 @@ const annexes = [
     ["interne/parametres_exposition_tension.csv", "Paramètres et bornes effectivement appliqués (dont les bornes des classes et le seuil de confiance)."],
     ["diffusion/exposition_tension_departements.csv", "Même maille, secret appliqué : pourcentages, classes, robustesse, levier, textes ; lu par les cartes."],
     ["diffusion/metiers_strategiques_tension.csv", "Métiers stratégiques au niveau France, cellules diffusables seulement."],
-    ["diffusion/fiche_exposition_tension.html", "Fiche d’une page : trois messages, tableau des métiers par situation, lecture, méthode ; sans script."],
-    ["diffusion/matrice_metiers_tension.png", "Représentation graphique des situations de métier (annexe de la fiche)."]], { size: 17 })];
+    ["diffusion/fiche_exposition_tension.html", "Fiche d’une page : trois messages, tableau des métiers par situation, lecture, méthode ; en annexe repliée, la matrice des métiers (un point par métier diffusable, libellé lu au survol de la souris) ; sans script."],
+    ["diffusion/matrice_metiers_tension.png", "Représentation graphique des situations de métier (image à part)."],
+    ["diffusion/exposition_tension.xlsx", "Classeur à quatre feuilles (Lisez-moi, Départements, Métiers, Paramètres) : le contenu de la fiche, issu des seules tables de diffusion, pour être repris, trié et transmis."]], { size: 17 })];
 
 const doc = new Document({
   creator: "Projet départs Base", title: "Note méthodologique — Exposition des départements au recrutement difficile",
