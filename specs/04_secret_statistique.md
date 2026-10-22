@@ -340,6 +340,15 @@ Fonctionnalité: Appliquer le secret au bon moment
     Et une cellule regroupée par le 01d prend pour nombre d'entreprises le maximum de ses composantes (borne basse du vrai nombre) et pour dominance la plus forte de ses composantes (jamais moins de masquage)
 ```
 
+```gherkin
+  Scénario: [SPEC-SEC-034] Protéger un agrégat construit sur une liste de PCS
+    Étant donné un territoire dont le total des départs est publié et une liste de PCS (métiers stratégiques) qui partage ses départs en trois parts : A (stratégiques en tension), B (stratégiques hors tension), C (le reste)
+    Quand une part de ces départs (exposition, couverture) est diffusée
+    Alors chaque part non vide doit satisfaire la règle primaire (salariés, entreprises, dominance en effectif ou en départs attendus), sinon rien n'est diffusé pour ce territoire
+    Et aucune part ne doit contenir exactement une cellule PCS masquée dans la diffusion du 08c, sinon rien n'est diffusé (la cellule se retrouverait par différence)
+    Et seuls des pourcentages et des classes sont diffusés, jamais les effectifs des parts
+```
+
 ## 7. Exemple d'acceptation complet
 
 ```gherkin

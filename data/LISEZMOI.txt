@@ -22,6 +22,14 @@ Déposez ici les fichiers de données (hors versionnement Git recommandé) :
    tensions DGA / France Travail par FAP x bassin. Couche SÉPARÉE de la
    typologie (specs/10, §5) : jamais attribuée au département, jamais de
    correspondance FAP -> grande CS. Aucune donnée réelle n'est livrée.
+3quinquies. pcs_fap_tension.xlsx — PCS STRATÉGIQUES et TENSION de leur FAP (script 08i,
+   specs/10 §13). Classeur Excel ; la feuille lue est « Sheet1 » (TENSION_FEUILLE) :
+   une ligne par PCS (PCS, Lib PCS, FAP228, LIB_FAP228, poids_pcs, indice_confiance,
+   ind_tension_d et ses sept composantes ind_*_d ; les colonnes d'emploi sont
+   ignorées). Les indicateurs sont des RANGS (quintiles 1-5, ou déciles 1-10 :
+   TENSION_RANG_MAX). La tension est celle du métier en France, jamais celle du
+   département. NON VERSIONNÉ (.gitignore) ; gabarit fictif :
+   templates/pcs_fap_tension_template.xlsx. Absent = étape 08i ignorée (message).
 3bis. pop_active_insee.csv     — DÉNOMINATEUR : population active (occupés +
    chômeurs) par TRANCHE d'âge x sexe. Source : Insee, table PACT00, jeu
    "Activité, emploi et chômage en 2024" (insee.fr/fr/statistiques/8599935).

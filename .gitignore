@@ -10,3 +10,5 @@ utils/fiche_pedagogique_typologie/package-lock.json
 utils/tests_navigateur/node_modules/
 utils/tests_navigateur/package-lock.json
 utils/tests_navigateur/apercu_*.png
+# classeur PCS stratégiques -> FAP et rangs de tension (08i) : hors dépôt (gabarit fictif dans data/templates/)
+data/pcs_fap_tension.xlsx

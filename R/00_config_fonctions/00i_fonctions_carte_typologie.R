@@ -38,11 +38,14 @@ LIBELLES_CARTE_TYPO <- list(
 COLONNES_NUM_TYPO <- c("effectif_base_total", "effectif_champ_total", "effectif_tous_ages_total", "departs_central", "departs_bas", "departs_haut",
                        "part_emploi_base_national_pct", "intensite_renouvellement_pct", "taux_depart_central_pct", "part_a_remplacer_pct",
                        "part_cs_principale_pct", "part_departs_cs_max_pct",
-                       "pyramide_jeunes_pct", "pyramide_milieu_pct", "pyramide_vague_pct", "pyramide_seniors_pct", "ratio_releve", "ratio_vague_seniors")
+                       "pyramide_jeunes_pct", "pyramide_milieu_pct", "pyramide_vague_pct", "pyramide_seniors_pct", "ratio_releve", "ratio_vague_seniors",
+                       "tension_exposition_pct", "tension_exposition_france_pct", "tension_couverture_pct")
 COLONNES_TEXTE_TYPO <- c("profil_typologie", "classe_poids_base", "classe_intensite", "classe_volume_departs", "structure_emploi", "cs_principale",
                          "cs_volume_departs_max", "cs_taux_renouvellement_max", "type_concentration", "motif_expertise", "points_attention",
                          "situation_texte", "justification_profil", "indicateur_intensite", "base_poids",
-                         "pyramide_source", "pyramide_libelles", "classe_releve", "classe_vague_suivante", "pyramide_masquee")
+                         "pyramide_source", "pyramide_libelles", "classe_releve", "classe_vague_suivante", "pyramide_masquee",
+                         "tension_diffusee", "tension_classe", "tension_robustesse", "tension_causes", "tension_levier", "tension_composante", "tension_metiers",
+                         "tension_deux_horloges", "tension_texte")
 
 # --- Lecture de la table de diffusion (write.csv2, avec ou sans BOM) --------------
 lire_typologie_diffusion <- function(fichier) {
@@ -51,6 +54,15 @@ lire_typologie_diffusion <- function(fichier) {
   names(d)[1] <- sub("^﻿", "", names(d)[1])
   for (v in intersect(COLONNES_NUM_TYPO, names(d))) d[[v]] <- as.numeric(sub(",", ".", d[[v]], fixed = TRUE))
   if ("masque" %in% names(d)) d$masque <- toupper(trimws(d$masque)) == "TRUE"
+  # exposition au recrutement difficile (08i, specs/10 §13) : fichier VOISIN de diffusion, facultatif
+  f_expo <- file.path(dirname(fichier), "exposition_tension_departements.csv")
+  if (file.exists(f_expo) && "geo_code" %in% names(d)) {
+    e <- read.csv2(f_expo, fileEncoding = "UTF-8-BOM", stringsAsFactors = FALSE, check.names = FALSE, colClasses = "character", na.strings = c("NA", ""))
+    names(e)[1] <- sub("^\ufeff", "", names(e)[1])
+    e <- e[, intersect(c("geo_code", grep("^tension_", names(e), value = TRUE)), names(e)), drop = FALSE]
+    for (v in intersect(COLONNES_NUM_TYPO, names(e))) e[[v]] <- as.numeric(sub(",", ".", e[[v]], fixed = TRUE))
+    d <- d[, setdiff(names(d), setdiff(names(e), "geo_code")), drop = FALSE] |> left_join(e, by = "geo_code")
+  }
   d
 }
 
@@ -82,7 +94,8 @@ preparer_carte_typologie <- function(d, fond, profils = PROFILS_TYPOLOGIE) {
     left_join(d |> select(code = geo_code, nom_csv = geo_nom, statut, cle, all_of(c(COLONNES_NUM_TYPO, COLONNES_TEXTE_TYPO))), by = "code") |>
     mutate(nom = coalesce(nom_csv, nom), statut = coalesce(statut, "sans")) |> select(-nom_csv)
   comptes <- c(vapply(names(profils), function(k) sum(terr$cle %in% k), 0L),
-               profil_masque = sum(terr$statut == "profil_masque"), masque = sum(terr$statut == "masque"), sans = sum(terr$statut == "sans"))
+               profil_masque = sum(terr$statut == "profil_masque"), masque = sum(terr$statut == "masque"), sans = sum(terr$statut == "sans"),
+               hachures = sum(terr$tension_classe %in% "Forte" & terr$statut %in% c("diffuse", "profil_masque")))
   premier <- function(v) { x <- terr[[v]][!is.na(terr[[v]])]; if (length(x)) x[1] else NA_character_ }
   list(territoires = terr, comptes = comptes, n_non_localises = n_non_loc, n_csv = nrow(d),
        indicateur = premier("indicateur_intensite"), base_poids = premier("base_poids"), profils = profils)
@@ -116,6 +129,7 @@ lignes_detail_typologie <- function(r, indicateur = NULL) {
          if (!is.na(r$cs_volume_departs_max)) sprintf("Départs portés d’abord par les %s (%s %%%s)", libelle_cs_typo(r$cs_volume_departs_max), f1(r$part_departs_cs_max_pct),
                                                      if (identical(r$type_concentration, "Concentré")) ", concentrés sur cette catégorie" else "") else NULL,
          ligne_pyramide_typologie(r),
+         ligne_tension_typologie(r),
          if (!is.na(r$motif_expertise)) paste0("À examiner : ", r$motif_expertise) else NULL,
          if (!is.na(r$points_attention)) paste0("Point(s) d’attention : ", r$points_attention) else NULL)
   if (length(l) == 0) LIBELLES_CARTE_TYPO$profil_non_diffuse else l
@@ -141,6 +155,18 @@ ligne_pyramide_typologie <- function(r) {
     return(sprintf("Au sein du champ : %s salarié(s) de %s pour un de %s (pyramide complète indisponible)", f1(r$ratio_vague_seniors), lib[3], lib[4]))
   NULL
 }
+# Exposition au recrutement difficile (08i, specs/10 §13) : rien si la colonne est absente
+ligne_tension_typologie <- function(r) {
+  dif <- r[["tension_diffusee"]]; if (is.null(dif)) return(NULL)
+  dif <- as.logical(dif); if (is.na(dif)) return(NULL)
+  if (!dif) return("Exposition au recrutement difficile non diffusée (secret statistique)")
+  f0 <- function(x) fmt_fr_carte(x, 0)
+  if (is.na(r$tension_exposition_pct) || is.na(r$tension_classe))
+    return(if (!is.na(r$tension_couverture_pct)) sprintf("Métiers stratégiques : %s %% des départs — exposition au recrutement difficile non interprétée", f0(r$tension_couverture_pct)) else NULL)
+  c(sprintf("Métiers en tension : %s %% des départs des métiers stratégiques (France : %s %%) · exposition %s · %s", f0(r$tension_exposition_pct),
+            f0(r$tension_exposition_france_pct), tolower(r$tension_classe), if (identical(r$tension_robustesse, "robuste")) "robuste" else "à confirmer"),
+    if (!is.na(r$tension_metiers)) paste0("Métiers en tension les plus concernés : ", r$tension_metiers) else NULL)
+}
 titre_profil_typo <- function(r, prep) if (!is.na(r$cle)) prep$profils[[r$cle]] else if (r$statut == "sans") LIBELLES_CARTE_TYPO$absent else LIBELLE_NON_DIFFUSE_TYPO
 couleur_territoire_typo <- function(r) if (!is.na(r$cle)) COULEURS_PROFILS[[r$cle]] else if (r$statut == "sans") COULEURS_CARTE$sans_donnee else COULEURS_CARTE$secret
 
@@ -150,7 +176,8 @@ donnees_json_typologie <- function(prep) {
   terr <- setNames(lapply(seq_len(nrow(t)), function(i) { r <- t[i, ]
     x <- list(nom = r$nom, st = r$statut, lignes = as.list(lignes_detail_typologie(r, prep$indicateur)))
     if (!is.na(r$cle)) x$cle <- r$cle
-    if (!is.na(r$situation_texte)) x$texte <- r$situation_texte
+    txt <- c(r$situation_texte, r$tension_texte); txt <- txt[!is.na(txt)]
+    if (length(txt)) x$texte <- paste(txt, collapse = " ")
     x }), t$code)
   profils <- setNames(lapply(names(prep$profils), function(k) list(titre = prep$profils[[k]], couleur = COULEURS_PROFILS[[k]], n = prep$comptes[[k]],
                                                                    signification = defs$signification[defs$cle == k], consigne = defs$attention[defs$cle == k])), names(prep$profils))
@@ -166,7 +193,7 @@ css_carte_typologie <- function(S = STYLE_CONTOURS_CARTE) paste(
   '.typo-legende .item{cursor:default}.typo-legende button:hover,.typo-legende button:focus-visible{border-color:#AEB7C2;outline:none}.typo-legende button[aria-pressed=true]{background:var(--fond);border-color:var(--bleu)}',
   sprintf('.typo-legende .sw{width:22px;height:16px;border-radius:3px;border:1px solid %s;flex:none;margin-top:3px}.typo-legende .sw.sans{border:1.5px dashed %s}', S$couleur, S$sans_couleur),
   '.typo-legende .lib{font-weight:600;line-height:1.3}.typo-legende .n{color:var(--texte);font-weight:500;margin-left:6px}.typo-legende .sig{display:block;font-size:13px;color:var(--texte);font-weight:400;line-height:1.35;margin-top:1px}',
-  'path.t.dim{opacity:.22}',
+  'path.t.dim,path.h.dim{opacity:.22}.typo-legende .sw.sw-hachures{background:repeating-linear-gradient(45deg,#1F2933 0 2px,#fff 2px 6px)}.legende-hachures{margin-top:6px!important;padding-top:6px!important;border-top:1px solid var(--filet)}',
   # infobulle FIXÉE au viewport : elle ne peut ni agrandir la zone défilable ni déplacer le contenu (stabilité au survol et au défilement)
   '.bulle{position:fixed;left:0;top:0;max-height:calc(100vh - 16px);overflow:hidden}',
   # panneau de détail : hauteur rendue STABLE par le script (hauteur du texte le plus long, bornée) ; défilement interne au-delà, jamais de troncature
@@ -225,7 +252,7 @@ js_carte_typologie <- function() paste(
   'function montrerBulle(code){if(code!==codeBulle){B.innerHTML=bulle(code);codeBulle=code}B.style.display="block"}',
   'function placerBulle(x,y){var vw=window.innerWidth,vh=window.innerHeight,w=B.offsetWidth,h=B.offsetHeight,px=x+16,py=y+16;if(px+w>vw-8)px=x-w-16;if(py+h>vh-8)py=y-h-16;if(px<4)px=4;if(py<4)py=4;B.style.left=px+"px";B.style.top=py+"px"}',
   'function survoler(code){if(code===codeSurvol)return;codeSurvol=code;surligner(code);if(!pin)detail(code)}',
-  'function appliquerFiltre(){document.querySelectorAll("path.t").forEach(function(p){p.classList.toggle("dim",!!filtre&&p.getAttribute("data-cle")!==filtre)});document.querySelectorAll(".typo-legende button").forEach(function(b){b.setAttribute("aria-pressed",b.getAttribute("data-cle")===filtre?"true":"false")})}',
+  'function appliquerFiltre(){document.querySelectorAll("path.t,path.h").forEach(function(p){p.classList.toggle("dim",!!filtre&&p.getAttribute("data-cle")!==filtre)});document.querySelectorAll(".typo-legende button").forEach(function(b){b.setAttribute("aria-pressed",b.getAttribute("data-cle")===filtre?"true":"false")})}',
   'if(C){document.querySelectorAll("path.t").forEach(function(p){var code=p.getAttribute("data-code");',
   ' p.addEventListener("mousemove",function(ev){survoler(code);if(Date.now()-tScroll<150)return;montrerBulle(code);placerBulle(ev.clientX,ev.clientY)});',
   ' p.addEventListener("mouseleave",function(){B.style.display="none";codeSurvol=null;surligner(pin);revenirDetail()});',
@@ -270,8 +297,22 @@ html_legende_typologie <- function(prep, interactive = TRUE) {
     vapply(names(prep$profils), function(k) item(COULEURS_PROFILS[[k]], prep$profils[[k]], prep$comptes[[k]], defs$signification[defs$cle == k], k), ""),
     item(COULEURS_CARTE$secret, LIBELLES_CARTE_TYPO$profil_non_diffuse, prep$comptes[["profil_masque"]] + prep$comptes[["masque"]]),
     # un département réellement absent de la typologie garde sa propre entrée (jamais assimilé au secret) ; aucune entrée à 0
-    if (prep$comptes[["sans"]] > 0) item(COULEURS_CARTE$sans_donnee, LIBELLES_CARTE_TYPO$absent, prep$comptes[["sans"]], sans = TRUE) else "", '</ul>',
+    if (prep$comptes[["sans"]] > 0) item(COULEURS_CARTE$sans_donnee, LIBELLES_CARTE_TYPO$absent, prep$comptes[["sans"]], sans = TRUE) else "", '</ul>', html_legende_hachures(prep),
     if (interactive) '<p class="note">Cliquez un profil pour l’isoler sur la carte et lire sa définition ; cliquez de nouveau pour tout afficher.</p>' else "", '</div>')
+}
+# Hachures (SPEC-TYPO-107) : départements d'exposition Forte, jamais un département masqué ; motif SVG
+# sans script (admis dans la version courriel) ; aucune interaction (pointer-events:none).
+svg_hachures_typo <- function(prep, lay) {
+  t <- prep$territoires; k <- !is.na(t$tension_classe) & t$tension_classe == "Forte" & t$statut %in% c("diffuse", "profil_masque") & t$code %in% names(lay$chemins)
+  if (!any(k)) return("")
+  c('<defs><pattern id="hachures" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(135)"><rect width="2.2" height="7" fill="#1F2933" fill-opacity="0.72"></rect></pattern></defs>',
+    '<g class="hachures" pointer-events="none" aria-hidden="true">',
+    sprintf('<path class="h" data-code="%s"%s fill="url(#hachures)" stroke="none" d="%s"></path>', t$code[k], ifelse(is.na(t$cle[k]), "", sprintf(' data-cle="%s"', t$cle[k])), unlist(lay$chemins[t$code[k]])),
+    '</g>')
+}
+html_legende_hachures <- function(prep) {
+  n <- prep$comptes[["hachures"]]; if (is.null(n) || is.na(n) || n == 0) return("")
+  sprintf('<ul class="typo-legende legende-hachures"><li><span class="item"><span class="sw sw-hachures"></span><span><span class="lib">Départs portés par des métiers en tension (exposition forte)<span class="n">%d</span></span><span class="sig">Hachures : une grande part des départs des métiers stratégiques concerne des métiers difficiles à recruter en France. La tension est celle du métier, pas celle du département.</span></span></span></li></ul>', n)
 }
 html_definitions_profils <- function(prep, ouvert = FALSE) {
   defs <- DEFINITIONS_PROFILS
@@ -332,7 +373,7 @@ generer_carte_typologie <- function(prep, fond, fichier_html, champ = construire
             if (length(lay$encarts) > 0) '<p class="note">Outre-mer en encarts, chacun à sa propre échelle.</p>' else "",
             '</aside><div class="carte" id="carte">',
             sprintf('<svg viewBox="0 0 %d %d" role="img" aria-label="%s">', lay$largeur, lay$hauteur, echap_html_carte(titre_page)),
-            html_encarts_typo(lay), paths, html_limites_regions_typo(fond_regions), '<path id="survol" fill="none" d="" aria-hidden="true"></path>',
+            html_encarts_typo(lay), paths, svg_hachures_typo(prep, lay), html_limites_regions_typo(fond_regions), '<path id="survol" fill="none" d="" aria-hidden="true"></path>',
             '</svg><div class="bulle" id="bulle" role="status"></div></div></div></div>',
             html_definitions_profils(prep), html_tableau_typologie(prep), html_pied_typologie(champ, source_note),
             '<script type="application/json" id="donnees">', donnees_json_typologie(prep), '</script>', '<script>', js_carte_typologie(), '</script>', '</div></body></html>')
@@ -362,7 +403,7 @@ generer_carte_typologie_courriel <- function(prep, fond, fichier_html, champ = c
             if (length(lay$encarts) > 0) '<p class="note">Outre-mer en encarts, chacun à sa propre échelle.</p>' else "",
             '</aside><div class="carte">',
             sprintf('<svg viewBox="0 0 %d %d" role="img" aria-label="%s">', lay$largeur, lay$hauteur, echap_html_carte(titre_page)),
-            html_encarts_typo(lay), uses, html_limites_regions_typo(fond_regions), '</svg></div></div>',
+            html_encarts_typo(lay), uses, svg_hachures_typo(prep, lay), html_limites_regions_typo(fond_regions), '</svg></div></div>',
             html_definitions_profils(prep, ouvert = TRUE), html_tableau_typologie(prep, ouvert = TRUE), html_pied_typologie(champ, source_note), '</div></body></html>')
   if (any(grepl("<script", html, fixed = TRUE)) || any(grepl(" on[a-z]+=", html)) || any(grepl("javascript:", html, fixed = TRUE)))
     stop("generer_carte_typologie_courriel : contenu actif détecté dans la version courriel.")
