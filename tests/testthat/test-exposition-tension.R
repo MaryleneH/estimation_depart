@@ -45,7 +45,13 @@ test_that("SPEC-TYPO-100 — lecture contrôlée : feuille Sheet1, colonnes, dou
   expect_error(ET2$lire_pcs_fap_tension(classeur_t(LISTE_T, "Autre"), PAR_T), "feuille « Sheet1 » absente")
   expect_error(ET2$lire_pcs_fap_tension(classeur_t(LISTE_T[, setdiff(names(LISTE_T), "ind_mismatch_geo_d")]), PAR_T), "ind_mismatch_geo_d")
   expect_error(ET2$lire_pcs_fap_tension(classeur_t(rbind(LISTE_T, ligne_t("1a1a", 3))), PAR_T), "PCS en double")
-  for (v in c(6, 4.5, 0)) expect_error(ET2$lire_pcs_fap_tension(classeur_t(rbind(LISTE_T[1:2, ], ligne_t("7C7C", v))), PAR_T), "rangs entiers de 1 à 5", label = v)
+  for (v in c(6, 4.5, 0, 5.3, 4.1)) expect_error(ET2$lire_pcs_fap_tension(classeur_t(rbind(LISTE_T[1:2, ], ligne_t("7C7C", v))), PAR_T), "hors de l'échelle admise", label = v)
+  # sous-niveaux Dares 2023 : 5.1 / 5.2 admis sur le niveau maximal ; 5,0999 ramené à 5.1 (compté) ; niveau entier = 5 ; refusés si TENSION_SOUS_NIVEAUX = NULL
+  expect_message(d5 <- ET2$lire_pcs_fap_tension(classeur_t(rbind(LISTE_T[1:2, ], ligne_t("7C7C", 5.0999), ligne_t("7D7D", 5.2))), PAR_T), "1 valeur\\(s\\) de rang ramenée\\(s\\) à une décimale")
+  expect_equal(d5$rang_tension_fin[3:4], c(5.1, 5.2)); expect_identical(d5$rang_tension[3:4], c(5L, 5L))
+  expect_error(ET2$lire_pcs_fap_tension(classeur_t(rbind(LISTE_T[1:2, ], ligne_t("7C7C", 5.1))), modifyList(PAR_T, list(sous_niveaux = NULL))), "hors de l'échelle admise")
+  expect_message(d4 <- ET2$lire_pcs_fap_tension(classeur_t(rbind(LISTE_T[1:2, ], ligne_t("7C7C", 4.0000001))), PAR_T), "ramenée")   # imprécision sans sous-niveau : ramenée à 4, comptée
+  expect_identical(d4$rang_tension[3], 4L); expect_equal(d4$rang_tension_fin[3], 4)
   expect_error(ET2$lire_pcs_fap_tension(classeur_t(cbind(LISTE_T, cs1 = "Cadres")), PAR_T), "interdite")
   expect_message(d <- ET2$lire_pcs_fap_tension(classeur_t(rbind(LISTE_T[1:2, ], ligne_t(NA, 3))), PAR_T), "sans code PCS")
   expect_equal(nrow(d), 2L)
@@ -58,6 +64,9 @@ test_that("SPEC-TYPO-100 — composante dominante, levier, ex aequo, faible conf
   expect_identical(m$composante_dominante[m$pcs == "1a1a"], "main_oeuvre"); expect_false(m$composante_ex_aequo[m$pcs == "1a1a"])
   expect_identical(m$levier[m$pcs == "1a1a"], ET2$TENSION_COMPOSANTES$main_oeuvre[["levier"]])
   expect_identical(m$composante_dominante[m$pcs == "4a4a"], "main_oeuvre"); expect_true(m$composante_ex_aequo[m$pcs == "4a4a"])    # ordre de la configuration
+  # ex aequo sur le niveau entier 5 : la valeur fine tranche (5.2 > 5.1), avant l'ordre de la configuration
+  m5 <- ET2$tension_metiers(ET2$lire_pcs_fap_tension(classeur_t(ligne_t("6A6A", 5, comps = list(main_oeuvre = 5.1, condition_travail = 5.2))), PAR_T), PAR_T)
+  expect_identical(m5$composante_dominante, "condition_travail"); expect_false(m5$composante_ex_aequo); expect_true(m5$en_tension)
   expect_true(is.na(m$composante_dominante[m$pcs == "2a2a"]))                                                                 # aucune composante en tension
   expect_identical(m$pcs[m$faible_confiance], "5a5a"); expect_equal(attr(m, "seuil_confiance"), 3)                           # plus bas niveau observé (1)
   m2 <- ET2$tension_metiers(ET2$lire_pcs_fap_tension(classeur_t(LISTE_T), PAR_T), modifyList(PAR_T, list(confiance_min = 4)))
