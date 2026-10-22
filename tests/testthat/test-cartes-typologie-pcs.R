@@ -130,6 +130,7 @@ test_that("SPEC-TYPO-083 — département : profil, chiffres, top en barres, sp�
   fi <- file.path(tempdir(), "typo_pcs_dep.html"); EP$generer_cartes_typologie_pcs(p, FOND_DEP_P, FOND_REG_P, fi); html <- lire_html(fi)
   j <- json_de(html); d <- j$departements[["33"]]
   expect_identical(d$cle, "enjeu"); expect_identical(d$couleur, EP$COULEURS_PROFILS[["enjeu"]]); expect_true(any(grepl("^1 000 départs estimés", nrm(unlist(d$lignes)))))
+  expect_true(all(c("Poids dans l’emploi Base", "Départs attendus d’ici 2030", "Lecture") %in% d$blocs$t)); expect_true(grepl("rendreBlocs(DP,t);barresPyramide(t.pyramide,DP)", html, fixed = TRUE))   # SPEC-TYPO-083 : rubriques et puces
   expect_identical(d$top$top$pcs, c("382a", "473b", "623a", "543a", "624d")); expect_equal(d$top$top$c, c(300, 250, 250, 100, 40)); expect_equal(d$top$top$part, c(30, 25, 25, 10, 4))
   expect_equal(d$top$top$pf[1], round(100 * 920 / 2450, 2)); expect_equal(d$top$n_masquees, 2L)
   expect_identical(j$pcs[["382a"]]$lib, LIB_P[["382a"]]); expect_equal(j$pcs[["382a"]]$v[["33"]], 300); expect_equal(j$pcs[["382a"]]$v[["69"]], 400)

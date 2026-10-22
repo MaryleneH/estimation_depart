@@ -197,8 +197,7 @@ points_attention_typologie <- function(d, params) {
       pts <- c(pts, sprintf("fourchette d’estimation large (de %d à %d départs)", round(r$departs_bas), round(r$departs_haut)))
     # pyramide des âges (axe descriptif, SPEC-TYPO-094) : colonnes absentes ou NA = aucun point
     if (isTRUE(r[["classe_releve"]] %in% CLASSES_PYRAMIDE$releve[1]) && isTRUE(r$classe_intensite %in% CLASSES_TYPOLOGIE$intensite[3]))
-      pts <- c(pts, sprintf("relève fragile : %s salarié(s) de moins de %d ans pour un salarié de %d ans et plus, alors que le renouvellement d’ici 2030 est rapide",
-                            fmt1(r$ratio_releve), params$age_jeunes, params$age_senior))
+      pts <- c(pts, sprintf("relève fragile : %s, alors que le renouvellement d’ici 2030 est rapide", phrase_releve(r$ratio_releve, params$age_jeunes, params$age_senior)))
     if (isTRUE(r[["classe_vague_suivante"]] %in% CLASSES_PYRAMIDE$vague[3]) && isTRUE(r$classe_intensite %in% CLASSES_TYPOLOGIE$intensite[1]))
       pts <- c(pts, sprintf("vague de départs importante après 2030 : %s %% des salariés ont de %d à %d ans, alors que le renouvellement d’ici 2030 est lent",
                             fmt1(r$pyramide_vague_pct), params$age_min, params$age_senior - 1))
@@ -247,6 +246,13 @@ rediger_situation_departement <- function(d, params, comparaisons, avec_cs = rep
     paste0(etat, structure, dyn, conc, phrase_pyramide(r, params), lecture)
   }, "")
 }
+# Rapport de deux populations en français courant (SPEC-TYPO-094), la MÊME phrase partout :
+# « 1,4 salarié de moins de 30 ans pour 1 salarié de 55 ans et plus » (pluriel à partir de 2).
+phrase_rapport_salaries <- function(ratio, lib_num, lib_den) {
+  ifelse(is.na(ratio), NA_character_, sprintf("%s salarié%s %s pour 1 salarié %s", formatC(ratio, format = "f", digits = 1, decimal.mark = ","), ifelse(ratio >= 2, "s", ""), lib_num, lib_den))
+}
+phrase_releve <- function(ratio, age_jeunes = AGE_BORNE_JEUNES, age_senior = AGE_SENIOR)
+  phrase_rapport_salaries(ratio, sprintf("de moins de %d ans", age_jeunes), sprintf("de %d ans et plus", age_senior))
 # Phrase de la pyramide (gabarit fixe, SPEC-TYPO-094) : vide si la pyramide est absente ou masquée.
 phrase_pyramide <- function(r, params) {
   fmt1 <- function(x) formatC(x, format = "f", digits = 1, decimal.mark = ",")
@@ -256,13 +262,13 @@ phrase_pyramide <- function(r, params) {
     v <- c(r[["pyramide_jeunes_pct"]], r[["pyramide_milieu_pct"]], r[["pyramide_vague_pct"]], r[["pyramide_seniors_pct"]], r[["ratio_releve"]])
     if (length(v) != 5 || anyNA(v)) return("")
     lib <- strsplit(r$pyramide_libelles, " | ", fixed = TRUE)[[1]]
-    return(sprintf(" Pyramide des âges : %s %% de %s, %s %% de %s, %s %% de %s et %s %% de %s ; %s salarié(s) de moins de %d ans pour un de %d ans et plus%s.",
-                   fmt1(v[1]), lib[1], fmt1(v[2]), lib[2], fmt1(v[3]), lib[3], fmt1(v[4]), lib[4], fmt1(v[5]), params$age_jeunes, params$age_senior,
+    return(sprintf(" Pyramide des âges : %s %% de %s, %s %% de %s, %s %% de %s et %s %% de %s ; %s%s.",
+                   fmt1(v[1]), lib[1], fmt1(v[2]), lib[2], fmt1(v[3]), lib[3], fmt1(v[4]), lib[4], phrase_releve(v[5], params$age_jeunes, params$age_senior),
                    if (!is.na(r$classe_releve)) paste0(" (", tolower(r$classe_releve), ")") else ""))
   }
   if (is.null(r[["ratio_vague_seniors"]]) || is.na(r$ratio_vague_seniors)) return("")
-  sprintf(" Au sein du champ, %s salarié(s) de %d à %d ans pour un de %d ans et plus (pyramide complète indisponible).",
-          fmt1(r$ratio_vague_seniors), params$age_min, params$age_senior - 1, params$age_senior)
+  sprintf(" Au sein du champ, %s (pyramide complète indisponible).",
+          phrase_rapport_salaries(r$ratio_vague_seniors, sprintf("de %d à %d ans", params$age_min, params$age_senior - 1), sprintf("de %d ans et plus", params$age_senior)))
 }
 # Synthèse rédigée par profil (titre, règle, signification, consigne, chiffres, départements)
 rediger_synthese_profils <- function(synthese, d, comparaisons) {

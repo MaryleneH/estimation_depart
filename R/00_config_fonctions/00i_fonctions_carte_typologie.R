@@ -147,13 +147,74 @@ ligne_pyramide_typologie <- function(r) {
   py <- parts_pyramide_typo(r)
   if (!is.null(py)) {
     rel <- if (!is.null(r[["ratio_releve"]]) && !is.na(r$ratio_releve))
-      sprintf(" · %s%s de %s pour un de %s", if (!is.null(r[["classe_releve"]]) && !is.na(r$classe_releve)) paste0(r$classe_releve, " : ") else "", f1(r$ratio_releve), py$libelles[1], py$libelles[4]) else ""
+      paste0(" · ", phrase_rapport_salaries(r$ratio_releve, paste("de", py$libelles[1]), paste("de", py$libelles[4])),
+             if (!is.null(r[["classe_releve"]]) && !is.na(r$classe_releve)) paste0(" (", tolower(r$classe_releve), ")") else "") else ""
     return(paste0("Pyramide des âges : ", paste(sprintf("%s %% %s", vapply(py$parts, f1, ""), py$libelles), collapse = " · "), rel))
   }
   lib <- libelles_pyramide_typo(r)
   if (!is.null(r[["ratio_vague_seniors"]]) && !is.na(r$ratio_vague_seniors) && length(lib) == 4)
-    return(sprintf("Au sein du champ : %s salarié(s) de %s pour un de %s (pyramide complète indisponible)", f1(r$ratio_vague_seniors), lib[3], lib[4]))
+    return(sprintf("Au sein du champ : %s (pyramide complète indisponible)", phrase_rapport_salaries(r$ratio_vague_seniors, paste("de", lib[3]), paste("de", lib[4]))))
   NULL
+}
+# Puces de la pyramide pour le panneau (rubrique « Pyramide des âges »)
+puces_pyramide_typo <- function(r) {
+  f0 <- function(x) fmt_fr_carte(x, 0)
+  if (isTRUE(as.logical(r[["pyramide_masquee"]]))) return("Non diffusée (secret statistique)")
+  py <- parts_pyramide_typo(r); lib <- libelles_pyramide_typo(r)
+  if (!is.null(py)) {
+    c(paste(sprintf("%s : %s %%", sub("^m", "M", py$libelles), vapply(py$parts, f0, "")), collapse = " · "),
+      if (!is.null(r[["ratio_releve"]]) && !is.na(r$ratio_releve)) paste0("Relève : ", phrase_rapport_salaries(r$ratio_releve, paste("de", py$libelles[1]), paste("de", py$libelles[4])),
+                                                                         if (!is.null(r[["classe_releve"]]) && !is.na(r$classe_releve)) paste0(" (", tolower(r$classe_releve), ")") else ""),
+      if (!is.null(r[["classe_vague_suivante"]]) && !is.na(r$classe_vague_suivante)) sprintf("Vague de départs après 2030 : part des %s %s (%s %%)", py$libelles[3], tolower(r$classe_vague_suivante), f0(py$parts[3])))
+  } else if (!is.null(r[["ratio_vague_seniors"]]) && !is.na(r$ratio_vague_seniors) && length(lib) == 4)
+    sprintf("Au sein du champ : %s (pyramide complète indisponible)", phrase_rapport_salaries(r$ratio_vague_seniors, paste("de", lib[3]), paste("de", lib[4])))
+  else NULL
+}
+# Puces du recrutement pour le panneau (rubrique « Recrutement », 08i)
+puces_tension_typo <- function(r) {
+  dif <- r[["tension_diffusee"]]; if (is.null(dif)) return(NULL)
+  dif <- as.logical(dif); if (is.na(dif)) return(NULL)
+  if (!dif) return("Exposition au recrutement difficile non diffusée (secret statistique)")
+  f0 <- function(x) fmt_fr_carte(x, 0)
+  if (is.na(r$tension_exposition_pct) || is.na(r$tension_classe))
+    return(if (!is.na(r$tension_couverture_pct)) sprintf("Les métiers stratégiques portent %s %% des départs : exposition au recrutement difficile non interprétée", f0(r$tension_couverture_pct)) else NULL)
+  c(sprintf("Sur 100 départs des métiers stratégiques, %s concernent des métiers en tension en France (France : %s)", f0(r$tension_exposition_pct), f0(r$tension_exposition_france_pct)),
+    sprintf("Exposition %s, %s", tolower(r$tension_classe), if (identical(r$tension_robustesse, "robuste")) "résultat robuste" else paste0("résultat à confirmer", if (!is.na(r$tension_causes)) paste0(" (sensible : ", r$tension_causes, ")") else "")),
+    if (!is.na(r$tension_couverture_pct)) sprintf("Les métiers stratégiques portent %s %% des départs du département", f0(r$tension_couverture_pct)),
+    if (!is.na(r$tension_levier)) sprintf("Levier le plus fréquent : %s (%s)", r$tension_levier, r$tension_composante),
+    if (!is.na(r$tension_metiers)) paste0("Métiers en tension les plus concernés : ", r$tension_metiers))
+}
+# --- Rubriques du panneau (SPEC-TYPO-062) : construites par règles à partir des seules colonnes de DIFFUSION ---
+# Retourne une liste de rubriques list(t = titre, p = puces, b = dans l'infobulle) ; vide pour un territoire masqué ou absent.
+blocs_detail_typologie <- function(r, indicateur = NULL) {
+  if (r$statut %in% c("sans", "masque")) return(list())
+  f0 <- function(x) fmt_fr_carte(x, 0); f1 <- function(x) fmt_fr_carte(x, 1)
+  ind <- if (!is.null(indicateur)) indicateur else r$indicateur_intensite
+  # b = la rubrique figure dans l'infobulle ; n_bulle = nombre de puces qu'elle y montre (le panneau les montre toutes)
+  bloc <- function(titre, puces, bulle = TRUE, n_bulle = NULL) { puces <- puces[!is.na(puces) & nzchar(puces)]; if (!length(puces)) return(NULL)
+    x <- list(t = titre, p = as.list(unname(puces)), b = bulle); if (!is.null(n_bulle) && length(puces) > n_bulle) x$pb <- as.list(unname(puces[seq_len(n_bulle)])); x }
+  defs <- DEFINITIONS_PROFILS; cle <- r[["cle"]]
+  poids <- bloc("Poids dans l’emploi Base", c(
+    if (!is.na(r$part_emploi_base_national_pct)) sprintf("%s %% de l’emploi Base national, soit %s salariés", f1(r$part_emploi_base_national_pct), f0(r$effectif_base_total)),
+    if (!is.na(r$classe_poids_base)) sprintf("Poids %s", tolower(r$classe_poids_base))))
+  departs <- bloc("Départs attendus d’ici 2030", c(
+    if (!is.na(r$departs_central)) sprintf("%s départs estimés (entre %s et %s selon l’hypothèse de départ en retraite)", f0(r$departs_central), f0(r$departs_bas), f0(r$departs_haut)),
+    if (!is.na(r$intensite_renouvellement_pct)) sprintf("%s %% %s", f1(r$intensite_renouvellement_pct), libelle_intensite_typo(ind)),
+    if (!is.na(r$classe_volume_departs) && !is.na(r$classe_intensite)) sprintf("Volume de départs %s, intensité de renouvellement %s", tolower(r$classe_volume_departs), tolower(r$classe_intensite))))
+  categories <- bloc("Emploi par grande catégorie", c(
+    if (!is.na(r$structure_emploi)) { if (r$structure_emploi == "Mixte") sprintf("Emploi réparti sans dominante ; première catégorie : %s (%s %%)", libelle_cs_typo(r$cs_principale), f1(r$part_cs_principale_pct))
+                                      else sprintf("Emploi dominé par les %s (%s %%)", libelle_cs_typo(r$cs_principale), f1(r$part_cs_principale_pct)) },
+    if (!is.na(r$cs_volume_departs_max)) sprintf("Les %s portent %s %% des départs%s", libelle_cs_typo(r$cs_volume_departs_max), f1(r$part_departs_cs_max_pct),
+                                                 if (identical(r$type_concentration, "Concentré")) " : renouvellement concentré sur cette catégorie" else if (identical(r$type_concentration, "Diffus")) ", sans concentration marquée" else ""),
+    if (!is.na(r$cs_taux_renouvellement_max) && !identical(r$cs_taux_renouvellement_max, r$cs_volume_departs_max)) sprintf("Part à remplacer la plus élevée chez les %s", libelle_cs_typo(r$cs_taux_renouvellement_max))), bulle = FALSE)
+  pyramide <- bloc("Pyramide des âges", puces_pyramide_typo(r), n_bulle = 2)
+  recrutement <- bloc("Recrutement", puces_tension_typo(r), n_bulle = 2)
+  lecture <- bloc("Lecture", c(
+    if (r$statut == "profil_masque") LIBELLES_CARTE_TYPO$profil_non_diffuse else if (!is.na(cle)) sprintf("Profil « %s » : %s", PROFILS_TYPOLOGIE[[cle]], defs$signification[defs$cle == cle]),
+    if (!is.na(r$motif_expertise)) paste0("À examiner : ", r$motif_expertise),
+    if (!is.na(r$points_attention)) paste0("Point d’attention : ", strsplit(r$points_attention, " ; ", fixed = TRUE)[[1]]),
+    if (!is.na(cle)) paste0("Consigne de lecture : ", defs$attention[defs$cle == cle])), bulle = FALSE)
+  Filter(Negate(is.null), list(poids, departs, categories, pyramide, recrutement, lecture))
 }
 # Exposition au recrutement difficile (08i, specs/10 §13) : rien si la colonne est absente
 ligne_tension_typologie <- function(r) {
@@ -174,7 +235,7 @@ couleur_territoire_typo <- function(r) if (!is.na(r$cle)) COULEURS_PROFILS[[r$cl
 donnees_json_typologie <- function(prep) {
   t <- prep$territoires; defs <- DEFINITIONS_PROFILS
   terr <- setNames(lapply(seq_len(nrow(t)), function(i) { r <- t[i, ]
-    x <- list(nom = r$nom, st = r$statut, lignes = as.list(lignes_detail_typologie(r, prep$indicateur)))
+    x <- list(nom = r$nom, st = r$statut, lignes = as.list(lignes_detail_typologie(r, prep$indicateur)), blocs = blocs_detail_typologie(r, prep$indicateur))
     if (!is.na(r$cle)) x$cle <- r$cle
     txt <- c(r$situation_texte, r$tension_texte); txt <- txt[!is.na(txt)]
     if (length(txt)) x$texte <- paste(txt, collapse = " ")
@@ -202,6 +263,9 @@ css_carte_typologie <- function(S = STYLE_CONTOURS_CARTE) paste(
   '.detail.defilable{-webkit-mask-image:linear-gradient(#000 calc(100% - 34px),transparent);mask-image:linear-gradient(#000 calc(100% - 34px),transparent)}.detail.defilable.bas{-webkit-mask-image:none;mask-image:none}',
   '.detail-titre{font-size:16px;font-weight:700;margin:0 0 6px}.detail-titre .pf{display:inline-block;margin-left:6px;padding:1px 8px;border-radius:999px;font-size:13px;font-weight:600;color:#fff;background:#6b7280}',
   '.detail-texte{font-size:15px;line-height:1.5;margin:0}.detail-aide{font-size:13.5px;color:var(--texte);margin:8px 0 0}',
+  # rubriques et puces du panneau (SPEC-TYPO-062) ; rubriques de l'infobulle
+  '.detail h3.rub{font-size:12px;letter-spacing:.05em;text-transform:uppercase;color:var(--bleu);margin:12px 0 3px;font-weight:700}.detail h3.rub:first-child{margin-top:0}.detail ul.puces{margin:0;padding-left:18px;font-size:14.5px;line-height:1.45}.detail ul.puces li{margin:3px 0}',
+  '.tooltip-rub{font-weight:700;font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;margin:8px 0 2px;opacity:.85}.tooltip-rub:first-child{margin-top:0}',
   '.tooltip-profil{font-weight:700;margin:0 0 8px;padding-left:9px;border-left:4px solid #6b7280;color:#fff}',
   'details.bloc-typo{margin-top:20px;border:1px solid var(--filet);border-radius:12px;padding:0 18px 4px}details.bloc-typo summary{cursor:pointer;font-size:17px;font-weight:700;padding:14px 0;list-style:none}details.bloc-typo summary::-webkit-details-marker{display:none}details.bloc-typo summary::before{content:"▸ ";color:var(--bleu)}details.bloc-typo[open] summary::before{content:"▾ "}',
   '.tab-typo{width:100%;border-collapse:collapse;font-size:14px;margin:0 0 14px}.tab-typo th,.tab-typo td{text-align:left;vertical-align:top;padding:8px 8px;border-top:1px solid var(--filet);line-height:1.45}.tab-typo th{font-size:13px;color:var(--texte);letter-spacing:.03em;text-transform:uppercase;border-top:0}.tab-typo td.num{white-space:nowrap;text-align:right}.tab-typo .sw{display:inline-block;width:12px;height:12px;border-radius:2px;vertical-align:-1px;margin-right:6px;border:1px solid #5B6470}.tab-typo td.sit{min-width:280px}',
@@ -232,17 +296,20 @@ js_carte_typologie <- function() paste(
   # écran large : la hauteur du panneau est donnée par la mise en page (premier écran) ; écran étroit : stabilisée par mesure
   'function large(){return window.matchMedia("(min-width:901px)").matches}',
   'function ligne(el,txt,cls){var d=document.createElement("div");if(cls)d.className=cls;d.textContent=txt;el.appendChild(d);return d}',
+  # rubriques titrées + puces (SPEC-TYPO-062) ; repli sur les lignes si un territoire n'a aucune rubrique (masqué, absent)
+  'function rendreBlocs(cont,t){cont.innerHTML="";if(t.blocs&&t.blocs.length){t.blocs.forEach(function(b){var h=document.createElement("h3");h.className="rub";h.textContent=b.t;cont.appendChild(h);var ul=document.createElement("ul");ul.className="puces";b.p.forEach(function(x){var li=document.createElement("li");li.textContent=x;ul.appendChild(li)});cont.appendChild(ul)})}else{cont.textContent=t.st==="sans"?L.absent:(t.st==="masque"?L.detail_non_diffuse:(t.lignes||[]).join(" · "))}}',
   'function surligner(code){if(!U)return;var p=code&&$("t-"+code);if(p){U.setAttribute("d",p.getAttribute("d"));U.classList.add("on")}else{U.classList.remove("on");U.setAttribute("d","")}}',
   'function bulle(code){var t=D.territoires[code],el=document.createElement("div");ligne(el,t.nom+" · "+code,"tooltip-title");',
   ' var p=t.cle?D.profils[t.cle]:null;var c=ligne(el,p?p.titre:(t.st==="sans"?L.absent:"Non diffusé (secret statistique)"),"tooltip-profil");c.style.borderLeftColor=p?p.couleur:(t.st==="sans"?D.couleurs.sans_donnee:D.couleurs.secret);',
-  ' var b=document.createElement("div");b.className="tooltip-rows";t.lignes.forEach(function(l,i){ligne(b,l,i<3?"tooltip-value":"tooltip-small")});el.appendChild(b);return el.innerHTML}',
+  ' var b=document.createElement("div");b.className="tooltip-rows";var bl=(t.blocs||[]).filter(function(x){return x.b});',
+  ' if(bl.length){bl.forEach(function(x){ligne(b,x.t,"tooltip-rub");(x.pb||x.p).forEach(function(l){ligne(b,l,"tooltip-small")})})}else{t.lignes.forEach(function(l,i){ligne(b,l,i<3?"tooltip-value":"tooltip-small")})}el.appendChild(b);return el.innerHTML}',
   'function detail(code,force){if(!DET)return;if(!force&&code===codeDetail)return;codeDetail=code;if(!code){DT.textContent="";DET.textContent=L.detail_initial;DA.textContent="";return}var t=D.territoires[code],p=t.cle?D.profils[t.cle]:null;',
   ' DT.innerHTML="";DT.appendChild(document.createTextNode(t.nom+" · "+code));if(p){var s=document.createElement("span");s.className="pf";s.textContent=p.titre;s.style.background=p.couleur;s.style.color=(t.cle==="diffus"||t.cle==="expertiser"||t.cle==="stable")?"#1F2933":"#fff";DT.appendChild(s)}',
-  ' DET.textContent=t.texte?t.texte:(t.st==="sans"?L.absent:(t.st==="masque"?L.detail_non_diffuse:t.lignes.join(" · ")));DA.textContent=pin===code?"Épinglé : cliquez de nouveau pour libérer.":(p?"Consigne de lecture : "+p.consigne+".":"");DP.scrollTop=0;DP.classList.toggle("defilable",DP.scrollHeight>DP.clientHeight+1);DP.classList.remove("bas")}',
+  ' rendreBlocs(DET,t);DA.textContent=pin===code?"Épinglé : cliquez de nouveau pour libérer.":"";DP.scrollTop=0;DP.classList.toggle("defilable",DP.scrollHeight>DP.clientHeight+1);DP.classList.remove("bas")}',
   # hauteur stable du panneau : mesure (hors écran, même largeur) du contenu le plus long ; bornée à 70 % de la fenêtre (60 % sur écran étroit, où le panneau est AU-DESSUS de la carte) avec défilement interne au-delà, jamais de troncature
   'function stabiliserDetail(){if(!DP)return;if(large()){DP.style.height="";return}var m=DP.cloneNode(true);m.id="";m.style.cssText="position:absolute;visibility:hidden;height:auto;min-height:0;max-height:none;overflow:visible;width:"+DP.getBoundingClientRect().width+"px;left:-9999px;top:0";DP.parentNode.appendChild(m);',
   ' var mt=m.querySelector(".detail-titre"),mx=m.querySelector(".detail-texte"),ma=m.querySelector(".detail-aide"),h=0;',
-  ' Object.keys(D.territoires).forEach(function(code){var t=D.territoires[code],p=t.cle?D.profils[t.cle]:null;mt.textContent=t.nom+" · "+code+(p?" "+p.titre:"");mx.textContent=t.texte?t.texte:(t.lignes||[]).join(" · ");ma.textContent=p?"Consigne de lecture : "+p.consigne+".":"Épinglé : cliquez de nouveau pour libérer.";h=Math.max(h,m.offsetHeight)});',
+  ' Object.keys(D.territoires).forEach(function(code){var t=D.territoires[code],p=t.cle?D.profils[t.cle]:null;mt.textContent=t.nom+" · "+code+(p?" "+p.titre:"");rendreBlocs(mx,t);ma.textContent="Épinglé : cliquez de nouveau pour libérer.";h=Math.max(h,m.offsetHeight)});',
   ' DP.parentNode.removeChild(m);var cap=Math.round(window.innerHeight*0.6);DP.style.height=Math.min(Math.ceil(h)+2,cap)+"px"}',
   # profil isolé par la légende : titre, signification et consigne dans le panneau ; retour au bon contenu quand la souris quitte la carte
   'function detailProfil(k){var p=D.profils[k];if(!DET||!p)return;codeDetail="#"+k;DT.innerHTML="";DT.appendChild(document.createTextNode("Profil isolé"));var s=document.createElement("span");s.className="pf";s.textContent=p.titre;s.style.background=p.couleur;s.style.color=(k==="diffus"||k==="expertiser"||k==="stable")?"#1F2933":"#fff";DT.appendChild(s);',
@@ -367,7 +434,7 @@ generer_carte_typologie <- function(prep, fond, fichier_html, champ = construire
             '<meta name="viewport" content="width=device-width, initial-scale=1">', '<style>', css_cartes(), css_carte_typologie(), '</style></head><body><div class="page page-ecran">',
             '<div class="ecran">', html_entete_typologie(prep, champ, bandeau = TRUE, compact = TRUE),
             '<div class="grille scene"><aside class="panneau">',
-            sprintf('<div class="detail" id="detail" role="status"><p class="detail-titre" id="detail-titre"></p><p class="detail-texte" id="detail-texte">%s</p><p class="detail-aide" id="detail-aide"></p></div>', echap_html_carte(LIBELLES_CARTE_TYPO$detail_initial)),
+            sprintf('<div class="detail" id="detail" role="status"><p class="detail-titre" id="detail-titre"></p><div class="detail-texte" id="detail-texte">%s</div><p class="detail-aide" id="detail-aide"></p></div>', echap_html_carte(LIBELLES_CARTE_TYPO$detail_initial)),
             sprintf('<a class="retour-carte" href="#carte">%s</a>', LIBELLES_CARTE_TYPO$retour_carte),
             html_legende_typologie(prep, interactive = TRUE),
             if (length(lay$encarts) > 0) '<p class="note">Outre-mer en encarts, chacun à sa propre échelle.</p>' else "",
