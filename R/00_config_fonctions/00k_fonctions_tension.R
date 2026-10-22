@@ -1,9 +1,9 @@
 # ==============================================================================
-# 00k_fonctions_tension.R — Exposition au recrutement difficile : les « deux horloges »
+# 00k_fonctions_tension.R — Exposition au recrutement difficile
 #                           (fonctions pures, maille DÉPARTEMENT ; specs/10 §13)
 # ------------------------------------------------------------------------------
-# IDÉE     : la typologie lit l'horloge démographique (combien partent) ; on ajoute
-#            l'horloge du recrutement : les départs portent-ils sur des métiers
+# IDÉE     : la typologie dit combien de salariés partent et à quel rythme ; on
+#            ajoute une question : ces départs portent-ils sur des métiers
 #            difficiles à recruter ? Indice d'EXPOSITION PAR COMPOSITION :
 #              exposition = départs des PCS stratégiques en tension
 #                           / départs des PCS stratégiques de tension connue.
@@ -163,8 +163,8 @@ exposition_departements <- function(dep_pcs, metiers, params = parametres_tensio
        variantes = names(variantes), seuil_confiance = attr(metiers, "seuil_confiance"))
 }
 
-# « Deux horloges » : renouvellement rapide (profils à intensité élevée) ET exposition Forte
-deux_horloges <- function(profil, classe_exposition) {
+# Cumul : renouvellement rapide (profils à intensité élevée) ET exposition Forte
+cumul_renouvellement_tension <- function(profil, classe_exposition) {
   profil %in% PROFILS_TYPOLOGIE[c("enjeu", "emergent")] & classe_exposition %in% CLASSES_EXPOSITION[3]
 }
 
@@ -224,7 +224,7 @@ appliquer_secret_exposition <- function(expo, metiers, base, dif_pcs_dep, typo_d
                 tension_exposition_pct = d$exposition_pct, tension_exposition_france_pct = d$exposition_france_pct, tension_couverture_pct = d$couverture_pct,
                 tension_classe = d$classe_exposition, tension_robustesse = d$robustesse, tension_causes = d$causes_fragilite,
                 tension_levier = d$levier, tension_composante = d$composante_levier, tension_metiers = top$m[match(d$geo_code, top$geo_code)],
-                tension_deux_horloges = deux_horloges(profil, d$classe_exposition), tension_texte = d$texte)
+                tension_cumul = cumul_renouvellement_tension(profil, d$classe_exposition), tension_texte = d$texte)
   for (v in setdiff(names(out), c("geo_code", "geo_nom", "tension_diffusee"))) out[[v]][!out$tension_diffusee] <- NA
   out
 }
@@ -250,11 +250,11 @@ matrice_metiers_tension <- function(metiers, fr_analytique, fr_diffusion = NULL,
 messages_fiche_tension <- function(dif, typo_dif, mat) {
   f0 <- function(x) formatC(round(x), format = "d"); pl <- function(n, s = "s") if (n > 1) s else ""
   noms <- function(v) if (length(v) > 6) paste0(paste(head(v, 6), collapse = ", "), "…") else paste(v, collapse = ", ")
-  dh <- dif |> filter(tension_deux_horloges %in% TRUE)
+  dh <- dif |> filter(tension_cumul %in% TRUE)
   ok <- typo_dif[!(typo_dif$masque %in% TRUE) & !is.na(typo_dif$departs_central), ]
   m1 <- if (nrow(dh) == 0) "Aucun département ne cumule un renouvellement rapide d’ici 2030 et des départs portés surtout par des métiers difficiles à recruter." else
-    sprintf("Les deux horloges sonnent ensemble dans %d département%s (%s) : un renouvellement rapide d’ici 2030 et des départs portés surtout par des métiers difficiles à recruter en France. %s %s %s %% des départs attendus.",
-            nrow(dh), pl(nrow(dh)), noms(paste0(dh$geo_nom, " (", dh$geo_code, ")")), if (nrow(dh) > 1) "Ils" else "Il", if (nrow(dh) > 1) "concentrent" else "concentre",
+    sprintf("%d département%s cumule%s un renouvellement rapide d’ici 2030 et des départs portés surtout par des métiers en tension en France : %s. %s %s %s %% des départs attendus.",
+            nrow(dh), pl(nrow(dh)), if (nrow(dh) > 1) "nt" else "", noms(paste0(dh$geo_nom, " (", dh$geo_code, ")")), if (nrow(dh) > 1) "Ils" else "Il", if (nrow(dh) > 1) "concentrent" else "concentre",
             f0(100 * sum(ok$departs_central[ok$geo_code %in% dh$geo_code]) / sum(ok$departs_central)))
   mm <- mat$metiers |> filter(statut == "diffusé"); cr <- mm |> filter(quadrant == QUADRANTS_TENSION[["critique"]]) |> arrange(desc(departs_central))
   m2 <- if (nrow(cr) == 0) "Aucun métier stratégique ne cumule des départs plus rapides que la moyenne et une tension forte en France." else
@@ -356,19 +356,19 @@ generer_fiche_exposition_tension <- function(messages, fichier, png = NULL, cham
                '.reg{display:inline-flex;gap:2px;vertical-align:middle;margin-right:6px}.reg i{display:inline-block;width:10px;height:14px;border:1px solid #9aa5b1;border-radius:2px;background:#fff}.reg i.on{background:#1D4E89;border-color:#1D4E89}.regv{font-weight:700}.conf{color:#8a5a00;background:#fff3d6;padding:1px 6px;border-radius:999px;font-size:12.5px}',
                'details.annexe{margin-top:18px;border:1px solid #DDE3EA;border-radius:8px;padding:0 14px 6px}details.annexe summary{cursor:pointer;font-weight:600;color:#1D4E89;padding:10px 0}details.annexe img{margin-top:6px}',
                '@media(max-width:700px){.tab-met th:nth-child(2),.tab-met td:nth-child(2),.tab-met th:nth-child(7),.tab-met td:nth-child(7),.tab-met th:nth-child(8),.tab-met td:nth-child(8){display:none}.tab-met tr.sit th{display:table-cell}.page{padding:18px 14px 30px}}', sep = "\n")
-  titres <- c("Les deux horloges", "Départs rapides et tension", "Le levier")
+  titres <- c("Renouvellement rapide et métiers en tension", "Métiers à départs rapides et en tension", "Le levier")
   html <- c('<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">',
-            '<title>Départs et recrutement</title><style>', css, '</style></head><body><div class="page">',
-            '<h1>Départs et recrutement : les deux horloges</h1>',
+            '<title>Départs attendus et difficultés de recrutement</title><style>', css, '</style></head><body><div class="page">',
+            '<h1>Départs attendus et difficultés de recrutement</h1>',
             sprintf('<p class="sous">%s · entreprises du périmètre Base · départs attendus d’ici 2030 · métiers stratégiques</p>', e(construire_libelles_public(champ)$salaries_age)),
             '<div class="msgs">', sprintf('<div class="msg"><b>%s</b>%s</div>', titres, e(messages)), '</div>',
             '<h2>Les métiers stratégiques, situation par situation</h2>',
             sprintf('<p class="note">Un métier est « à départs rapides » quand la part de ses salariés susceptibles de partir d’ici 2030 atteint celle de l’ensemble des salariés concernés en France (%s %%) ; il est « en tension » quand sa famille professionnelle atteint le rang %d sur %d en France.</p>', f1(if (is.null(mat)) NA else mat$ref_x), params$seuil_rang, params$rang_max),
             tableau,
             '<h2>Comment lire</h2><ul>',
-            '<li><b>L’horloge démographique</b> : la couleur de la carte des profils dit combien de salariés vont partir, et à quel rythme.</li>',
-            sprintf('<li><b>L’horloge du recrutement</b> : un département hachuré a une exposition forte : une grande part des départs de ses métiers stratégiques concerne des métiers en tension en France (rang %d ou plus sur %d).</li>', params$seuil_rang, params$rang_max),
-            '<li><b>Les deux ensemble</b> : un département à renouvellement rapide <i>et</i> hachuré mérite d’être regardé en premier ; le tableau dit quels métiers, et le levier dit quelle réponse.</li>',
+            '<li><b>Ce que dit la carte des profils</b> : sa couleur indique combien de salariés vont partir d’ici 2030, et à quel rythme.</li>',
+            sprintf('<li><b>Ce qu’ajoute l’exposition</b> : un département hachuré a une exposition forte : une grande part des départs de ses métiers stratégiques concerne des métiers en tension en France (rang %d ou plus sur %d).</li>', params$seuil_rang, params$rang_max),
+            '<li><b>Le croisement des deux</b> : un département à renouvellement rapide <i>et</i> hachuré cumule les deux difficultés ; le tableau dit quels métiers sont concernés, et le levier indique la nature de la tension.</li>',
             '<li><b>Le tableau</b> : chaque métier est classé selon ses départs (rapides ou modérés) et la tension de sa famille professionnelle en France ; la réglette donne le rang de tension, « à confirmer » signale un rattachement PCS → famille professionnelle de faible confiance.</li></ul>',
             '<div class="cadre"><b>Ce que cette page ne dit pas.</b> Ce n’est pas une prédiction de pénurie. La tension est mesurée pour le métier en France entière, pas dans le département : « exposé » veut dire que les départs du département portent sur des métiers difficiles à recruter, pas que le département manque de candidats.</div>',
             '<h2>Méthode en bref</h2><ul>',

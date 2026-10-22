@@ -704,12 +704,13 @@ Fonctionnalité: Décrire la pyramide des âges de chaque département sans chan
     Et un département entièrement masqué n'a aucune valeur de pyramide
 ```
 
-## 13. Exposition au recrutement difficile : les « deux horloges » (08i)
+## 13. Exposition au recrutement difficile (08i)
 
-La typologie lit l'**horloge démographique** : combien de salariés partent, et à
-quel rythme. Cette section ajoute l'**horloge du recrutement** : les départs d'un
-département portent-ils sur des métiers difficiles à recruter ? Un département
-n'est vraiment exposé que si les deux horloges sonnent ensemble.
+La typologie dit combien de salariés partent, et à quel rythme. Cette section
+ajoute une question : les départs d'un département portent-ils sur des métiers
+difficiles à recruter ? Un département qui cumule un renouvellement rapide et une
+exposition forte est signalé comme tel (`tension_cumul`). Le ton des restitutions
+est factuel : aucune métaphore, aucun jugement.
 
 **Principe.** La tension est une **propriété nationale du métier** : elle est
 mesurée par FAP en France entière, sans aucune maille territoriale. Elle n'est
@@ -760,7 +761,7 @@ sous-classes, **5.1 et 5.2** (5.2 la plus forte). Règle de lecture :
 | `classe_exposition` | Faible / Modérée / Forte : bornes `TENSION_METHODE_CLASSES` (terciles provisoires sur les départements retenus, ou seuils fixes `TENSION_SEUIL_EXPO_FAIBLE` / `_FORTE`) ; borne incluse en haut ; NA si couverture < `TENSION_COUVERTURE_MIN_PCT` |
 | `robustesse` | `robuste` si la classe reste la même pour les cinq variantes ; sinon `à confirmer`, avec les causes |
 | levier du département | composante dominante la plus fréquente dans A, pondérée par les départs |
-| `deux_horloges` | profil « Pôle majeur à renouveler rapidement » ou « Renouvellement rapide à surveiller » ET exposition Forte |
+| `tension_cumul` | profil « Pôle majeur à renouveler rapidement » ou « Renouvellement rapide à surveiller » ET exposition Forte |
 
 Les cinq variantes de robustesse appliquent les **mêmes bornes** que le calcul
 central :
@@ -825,7 +826,7 @@ Fonctionnalité: Lire, avec la typologie, si les départs portent sur des métie
   Scénario: [SPEC-TYPO-105] Rédiger les phrases et les leviers par gabarits fixes
     Quand les textes sont produits
     Alors chaque département diffusé reçoit une phrase : exposition, repère France, classe, robustesse, couverture, levier le plus fréquent
-    Et la fiche porte trois messages (deux horloges ; métiers à départs rapides et en tension ; levier dominant), puis un TABLEAU des métiers stratégiques diffusables groupés par situation (métier et code, famille professionnelle, départs et fourchette, part susceptible de partir face au repère France, tension en France avec sa réglette et sa valeur fine, composante qui pèse le plus, levier, confiance du rattachement), les métiers non diffusés, de tension inconnue ou absents n'étant que des comptes ; puis « Comment lire » et « Ce que cette page ne dit pas » (ni une prédiction de pénurie, ni une tension mesurée dans le département)
+    Et la fiche porte trois messages (départements cumulant renouvellement rapide et exposition forte ; métiers à départs rapides et en tension ; levier dominant), puis un TABLEAU des métiers stratégiques diffusables groupés par situation (métier et code, famille professionnelle, départs et fourchette, part susceptible de partir face au repère France, tension en France avec sa réglette et sa valeur fine, composante qui pèse le plus, levier, confiance du rattachement), les métiers non diffusés, de tension inconnue ou absents n'étant que des comptes ; puis « Comment lire » et « Ce que cette page ne dit pas » (ni une prédiction de pénurie, ni une tension mesurée dans le département)
     Et aucun texte n'est généré : uniquement des gabarits et des règles
 
   Scénario: [SPEC-TYPO-106] Protéger l'exposition par le secret statistique

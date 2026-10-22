@@ -1,5 +1,5 @@
 # ==============================================================================
-# 08i_exposition_tension.R — Exposition au recrutement difficile : les « deux horloges »
+# 08i_exposition_tension.R — Exposition au recrutement difficile
 # ------------------------------------------------------------------------------
 # PRÉREQUIS : `departs_pcs` (08c : tables département et France, exactes et de
 #             diffusion), `bts_projete` (secret), `typologie_departements` (08f :
@@ -40,7 +40,7 @@ if (!isTRUE(get0("GENERER_EXPOSITION_TENSION", ifnotfound = FALSE))) {
   expo_08i <- exposition_departements(dep_08i, met_08i, par_08i)
   typo_int_08i <- if (exists("typologie_departements")) typologie_departements$departements else NULL
   if (!is.null(typo_int_08i))
-    expo_08i$departements$deux_horloges <- deux_horloges(typo_int_08i$profil_typologie[match(expo_08i$departements$geo_code, typo_int_08i$geo_code)],
+    expo_08i$departements$cumul_renouvellement_tension <- cumul_renouvellement_tension(typo_int_08i$profil_typologie[match(expo_08i$departements$geo_code, typo_int_08i$geo_code)],
                                                          expo_08i$departements$classe_exposition)
   expo_08i$departements$texte <- rediger_exposition_departement(expo_08i$departements, par_08i)
   mat_int_08i <- matrice_metiers_tension(met_08i, departs_pcs$analytique$france, NULL, par_08i)

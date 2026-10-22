@@ -288,7 +288,7 @@ GENERER_CARTES_TYPOLOGIE_PCS <- TRUE  # FALSE = étape ignorée. Lit UNIQUEMENT 
                                   # à la France, coloration de la carte par PCS) et carte_typologie_pcs_courriel.html
                                   # (si CARTES_COURRIEL : AUCUN script). Relançable seul : source("R/08_territoires/08h_cartes_typologie_pcs.R").
 TYPO_PCS_TOP_N <- 5               # nombre maximal de PCS classées par territoire (seules les cellules diffusables ; jamais le complément)
-# --- Exposition au recrutement difficile : les « deux horloges » (script 08i, specs/10 §13) ---------
+# --- Exposition au recrutement difficile (script 08i, specs/10 §13) ------------------------------
 # La tension est une propriété NATIONALE du métier (FAP), jamais du département. Le pont est la PCS :
 # un classeur Excel (hors dépôt) donne, par PCS stratégique, sa FAP et les RANGS de tension de cette FAP.
 GENERER_EXPOSITION_TENSION <- TRUE   # FALSE = étape ignorée ; classeur absent = message, jamais d'arrêt
