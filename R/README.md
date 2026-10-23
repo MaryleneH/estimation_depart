@@ -31,6 +31,10 @@ Couche d’analyse **en aval** du 08d : lit la table département × grande CS e
 
 Sorties : `interne/` (complet, jamais versionné) et `diffusion/` (secret du département, masque des cellules, variables dérivées masquées dès qu’une cellule CS l’est). Les tensions DGA / France Travail (FAP × bassin) sont une couche séparée : jamais attribuées au département, jamais alimentées par les départs départementaux, aucune correspondance FAP → grande CS (gabarit `data/templates/tensions_fap_territoires_template.csv`, lignes fictives).
 
+## Outils hors chaîne (`utils/`)
+
+Scripts lancés à la main, jamais par `main.R` : comparaison de sorties, instantanés, fond de carte, générateurs des notes Word, et `utils_renommer_base_bitd.R` qui remplace « Base nationale » et « Base » par « BITD » dans un dépôt de travail (inventaire classé par contexte, décisions dans un CSV, application à la position exacte, jamais les identifiants ni les données ; mode d’emploi : `utils/README_renommage_bitd.md`).
+
 ## Arrondi des restitutions
 
 Les calculs sont conservés à leur précision complète. Les nombres attendus de personnes sont arrondis à l’entier uniquement lors de la restitution ; les taux sont calculés sur les valeurs exactes. Convention unique dans `00g_format_restitution.R` : personnes → entier (demi vers le haut : 0,5 → 1, 2,5 → 3, 27,5 → 28, comme Excel ; `round()` de R arrondit au pair et n’est pas utilisé pour les personnes), taux → une décimale, codes et effectifs observés intacts, NA conservé (secret : jamais 0). Quand un total et ses composantes sont affichés ensemble (départs = retraite + invalidité + décès ; « Ensemble » = Σ catégories d’une fiche), les composantes sont arrondies par la méthode des plus forts restes pour sommer exactement au total affiché (restes égaux : la plus grande composante d’abord). Les territoires sont arrondis indépendamment : Σ départements affichés peut différer de la région affichée, jamais d’ajustement artificiel. Ordre : calcul exact → contrôles exacts → secret statistique → arrondi de restitution → CSV, HTML, fiches, cartes.
