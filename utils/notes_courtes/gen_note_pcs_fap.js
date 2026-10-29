@@ -10,8 +10,9 @@ const FONT = "Calibri";
 const NONE = { style: BorderStyle.NONE, size: 0, color: BLANC }, SANS = { top: NONE, bottom: NONE, left: NONE, right: NONE };
 const LARGEUR = 8788;
 const PAGE = { size: { width: 11906, height: 16838 }, margin: { top: 1560, bottom: 1400, left: 1559, right: 1559, header: 700, footer: 700 } };
-const PERIMETRE = process.env.PERIMETRE || "Base";   // nom du périmètre dans le texte (en interne : PERIMETRE=BITD node …)
-const run = (t, o = {}) => new TextRun({ text: t.replace(/\bBase\b(?! Tous)/g, PERIMETRE), font: FONT, size: o.size || 21, color: o.color || ENCRE, bold: o.bold, italics: o.italics, characterSpacing: o.spacing });
+const PERIMETRE = process.env.PERIMETRE || "Base";
+const LISTE = process.env.LISTE_METIERS || "métiers de la première sous-liste";   // libellé public de la liste de métiers (00_config TENSION_LIBELLE_LISTE)   // nom du périmètre dans le texte (en interne : PERIMETRE=BITD node …)
+const run = (t, o = {}) => new TextRun({ text: t.replace(/\bBase\b(?! Tous)/g, PERIMETRE).replace(/métiers stratégiques( suivis| de la liste)?/g, LISTE).replace(/métier stratégique/g, LISTE.replace(/^métiers /, "métier ")).replace(/PCS stratégiques?/g, LISTE.replace(/^métiers? /, "PCS ")), font: FONT, size: o.size || 21, color: o.color || ENCRE, bold: o.bold, italics: o.italics, characterSpacing: o.spacing });
 const rich = (t, o = {}) => t.split(/(\*\*[^*]+\*\*)/).filter(Boolean).map(s => s.startsWith("**") ? run(s.slice(2, -2), { ...o, bold: true }) : run(s, o));
 const par = (runs, o = {}) => new Paragraph({ spacing: { before: o.before || 0, after: o.after === undefined ? 160 : o.after, line: o.line || 300 }, alignment: o.align, keepNext: o.keepNext, keepLines: o.keepLines, children: Array.isArray(runs) ? runs : [runs] });
 const texte = (t, o = {}) => par(rich(t, o), o);

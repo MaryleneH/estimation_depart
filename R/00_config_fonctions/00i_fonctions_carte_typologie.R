@@ -115,7 +115,10 @@ controler_carte_typologie <- function(prep, prefixe = "08g") {
 
 # --- Détail d'un département : des phrases courtes (infobulle, <title>, tableau) -----
 libelle_intensite_typo <- function(indicateur) if (identical(indicateur, "taux_depart_central_pct")) "des salariés concernés susceptibles de partir d’ici 2030" else "de l’emploi actuel à remplacer d’ici 2030"
-lignes_detail_typologie <- function(r, indicateur = NULL) {
+# libellé public de la liste de métiers (00k texte_liste, TENSION_LIBELLE_LISTE) ; identité si 00k n'est pas chargé
+.tl <- function(x) if (is.list(x)) lapply(x, .tl) else if (is.character(x) && exists("texte_liste")) texte_liste(x) else x
+lignes_detail_typologie <- function(r, indicateur = NULL) .tl(lignes_detail_typologie_brut(r, indicateur))
+lignes_detail_typologie_brut <- function(r, indicateur = NULL) {
   if (r$statut == "masque") return(LIBELLES_UI$secret)
   f0 <- function(x) fmt_fr_carte(x, 0); f1 <- function(x) fmt_fr_carte(x, 1)
   ind <- if (!is.null(indicateur)) indicateur else r$indicateur_intensite
@@ -187,7 +190,8 @@ puces_tension_typo <- function(r) {
 }
 # --- Rubriques du panneau (SPEC-TYPO-062) : construites par règles à partir des seules colonnes de DIFFUSION ---
 # Retourne une liste de rubriques list(t = titre, p = puces, b = dans l'infobulle) ; vide pour un territoire masqué ou absent.
-blocs_detail_typologie <- function(r, indicateur = NULL) {
+blocs_detail_typologie <- function(r, indicateur = NULL) .tl(blocs_detail_typologie_brut(r, indicateur))
+blocs_detail_typologie_brut <- function(r, indicateur = NULL) {
   if (r$statut == "masque") return(list())
   f0 <- function(x) fmt_fr_carte(x, 0); f1 <- function(x) fmt_fr_carte(x, 1)
   ind <- if (!is.null(indicateur)) indicateur else r$indicateur_intensite
@@ -386,7 +390,8 @@ svg_hachures_typo <- function(prep, lay) {
     sprintf('<path class="h" data-code="%s"%s fill="url(#hachures)" stroke="none" d="%s"></path>', t$code[k], ifelse(is.na(t$cle[k]), "", sprintf(' data-cle="%s"', t$cle[k])), unlist(lay$chemins[t$code[k]])),
     '</g>')
 }
-html_legende_hachures <- function(prep) {
+html_legende_hachures <- function(prep) .tl(html_legende_hachures_brut(prep))
+html_legende_hachures_brut <- function(prep) {
   n <- prep$comptes[["hachures"]]; if (is.null(n) || is.na(n) || n == 0) return("")
   sprintf('<ul class="typo-legende legende-hachures"><li><span class="item"><span class="sw sw-hachures"></span><span><span class="lib">Forte part de remplacements difficiles parmi les métiers stratégiques suivis<span class="n">%d</span></span><span class="sig">Hachures : une grande part des départs des métiers stratégiques concerne des métiers difficiles à recruter en France. La tension est celle du métier, pas celle du département.</span></span></span></li></ul>', n)
 }

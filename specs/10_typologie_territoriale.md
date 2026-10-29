@@ -778,7 +778,9 @@ sous-classes, **5.1 et 5.2** (5.2 la plus forte). Règle de lecture :
 | `tension_cumul` | profil « Pôle majeur à renouveler rapidement » ou « Renouvellement rapide à surveiller » ET exposition Forte |
 | `departs_tension_min` (+ `_bas`, `_haut`) | départs attendus (08c, exacts) des métiers stratégiques suivis **en tension** = A, hypothèses centrale, basse, haute : **plancher** du nombre de départs dans des métiers en tension (les métiers non suivis ne sont pas comptés) |
 | `part_departs_tension_min_pct` | 100 × A / (A + B + C) : sur 100 départs du territoire, au moins combien concernent des métiers stratégiques suivis en tension ; **plancher**, sans condition de couverture ; fiche des territoires et panneau de la carte |
-| niveau région | mêmes indicateurs et même secret sur la table région × PCS du 08c (`exposition_tension_regions.csv`) ; textes « de la région » ; fiche des territoires |
+| niveau région | mêmes indicateurs et même secret sur la table région × PCS du 08c (`exposition_tension_regions.csv`) ; textes « de la région » |
+| libellé de la liste | `TENSION_LIBELLE_LISTE` (« métiers de la première sous-liste ») remplace « métiers stratégiques » dans toute restitution (`texte_liste()`) ; `TENSION_N_METIERS_SUIVIS` reste le N nommé |
+| métier × territoire (08j) | part susceptible de partir du métier dans le territoire face à la France, écart en points, lecture au seuil `TENSION_ECART_POINTS` ; tables de diffusion du 08c, rien de recalculé |
 
 Les cinq variantes de robustesse appliquent les **mêmes bornes** que le calcul
 central :
@@ -889,15 +891,15 @@ Fonctionnalité: Lire, avec la typologie, si les départs portent sur des métie
     Et sans openxlsx, writexl écrit le même contenu sans mise en forme, avec un message ; sans les deux, message et pas de classeur
     Et un échec d'écriture du classeur est un message, jamais un arrêt ; TENSION_CLASSEUR_EXCEL = FALSE ne produit pas de classeur
 
-  Scénario: [SPEC-TYPO-109] Classer les territoires selon les métiers suivis en tension, en rappelant leur profil (fiche des territoires)
-    Étant donné diffusion/exposition_tension_departements.csv, diffusion/exposition_tension_regions.csv (si le 08c produit le niveau région) et la typologie de diffusion
-    Quand le 08i écrit diffusion/fiche_territoires_tension.html
-    Alors la fiche, sans script, porte deux tableaux, régions puis départements, triés par départs attendus dans les métiers suivis en tension décroissants (plancher tension_departs_min, avec sa fourchette), puis par code
-    Et chaque département rappelle son PROFIL de renouvellement (couleur et libellé de la typologie, « non diffusé » s'il est masqué) ; chaque région, le nombre de ses départements diffusés à renouvellement rapide (profils « Pôle majeur à renouveler rapidement » et « Renouvellement rapide à surveiller ») sur ses départements diffusés
-    Et chaque ligne donne la part de ces départs dans tous les départs du territoire (plancher), la part des remplacements difficiles parmi les métiers suivis avec sa classe, sa robustesse et sa couverture (ou « non interprétée »), les métiers en tension les plus concernés et le levier
-    Et les territoires non diffusés figurent en fin de tableau avec la seule mention du secret ; aucune valeur masquée n'est embarquée
-    Et l'en-tête nomme les N métiers suivis et dit que chaque chiffre est un minimum ; la fiche renvoie à la carte des profils (hachures) et à la fiche d'exposition
-    Et un script de contrôle (99d) vérifie, à partir des seuls fichiers de diffusion et des pages, que les départements hachurés sont exactement les diffusés de classe Forte, que tension_cumul est l'intersection avec les profils à renouvellement rapide, que le premier message de la fiche compte le même nombre, et que les fichiers ne sont pas plus anciens que leurs sources
+  Scénario: [SPEC-TYPO-109] Lire chaque métier de la liste territoire par territoire (fiche et classeur des métiers, 08j)
+    Étant donné la liste de métiers du 08i (classeur PCS -> FAP : libellé, famille, tension, levier) et les tables de DIFFUSION du 08c (département x PCS, région x PCS, France x PCS)
+    Quand le 08j est exécuté
+    Alors il écrit diffusion/metiers_liste_territoires.csv : une ligne par métier de la liste et par territoire (régions puis départements) avec salariés du métier, départs attendus d'ici 2030 (centrale, basse, haute), part susceptible de partir, repère France, écart en points et lecture, rien n'étant recalculé
+    Et la lecture vaut « plus forte qu'en France » à partir de TENSION_ECART_POINTS points d'écart, « plus faible qu'en France » en deçà de son opposé, « proche de la France » entre les deux ; « non diffusé (secret statistique) » pour une cellule masquée (aucune valeur), « repère France non diffusé » quand la cellule France est masquée
+    Et il écrit diffusion/fiche_metiers_liste.html, sans script : sommaire, puis un bloc par métier dans l'ordre de la liste (famille, tension, levier, repère France, tableau régions puis départements triés par part décroissante, non diffusés nommés sur une ligne sans valeur), puis une vue par territoire (un bloc dépliable par région et par département : métiers classés par écart décroissant)
+    Et il écrit diffusion/metiers_liste_territoires.xlsx (si TENSION_CLASSEUR_EXCEL) : Lisez-moi, Métiers x territoires (table longue triée par métier), Par territoire (mêmes lignes triées par territoire puis écart), Paramètres ; même moteur et mêmes garanties que SPEC-TYPO-108
+    Et chaque cellule visible existe telle quelle dans la diffusion du 08c (contrôle bloquant) ; liste ou tables de diffusion absentes = message, jamais un arrêt
+    Et le libellé public de la liste est TENSION_LIBELLE_LISTE (00_config, « métiers de la première sous-liste » par défaut) : texte_liste() le substitue à « métiers stratégiques » (pluriel, singulier, « PCS … ») dans toutes les restitutions de la tension (fiches, classeurs, cartes, console), et un script de contrôle (99d) vérifie hachures, cumul, premier message de la fiche et horodatages
 ```
 
 Sorties (08i) :
@@ -912,8 +914,8 @@ Sorties (08i) :
 - `diffusion/exposition_tension_regions.csv` (et `interne/`) : mêmes indicateurs au niveau région, si
   le 08c produit ce niveau.
 
-- `diffusion/fiche_territoires_tension.html` : classement des régions et des départements selon les
-  métiers suivis en tension, profil de la typologie rappelé (SPEC-TYPO-109) ; sans script.
+Sorties (08j, SPEC-TYPO-109) : `diffusion/metiers_liste_territoires.csv`, `diffusion/fiche_metiers_liste.html`
+(sans script), `diffusion/metiers_liste_territoires.xlsx` (si `TENSION_CLASSEUR_EXCEL`).
 
 Contrôle : `R/99_controles/99d_controler_tension_cartes.R` (cohérence hachures / cumul / fiche /
 horodatages, à lancer seul après la chaîne).
@@ -965,8 +967,9 @@ Code :
   `html_tableau_metiers_tension()`, `generer_fiche_exposition_tension()`,
   `tables_classeur_tension()`, `ecrire_classeur_tension()`
   (SPEC-TYPO-100 à 108) ; `R/08_territoires/08i_exposition_tension.R`
-- `R/00_config_fonctions/00k_fonctions_tension.R` — `html_tableau_territoires_tension()`,
-  `generer_fiche_territoires_tension()` (SPEC-TYPO-109) ; `R/99_controles/99d_controler_tension_cartes.R`
+- `R/00_config_fonctions/00l_fonctions_metiers_liste.R` — `table_metiers_territoires()`, `lecture_ecart_liste()`,
+  `generer_fiche_metiers_liste()`, `tables_classeur_metiers_liste()` ; `R/08_territoires/08j_metiers_liste_territoires.R`
+  (SPEC-TYPO-109) ; `lib_liste()`, `texte_liste()` (00k) ; `R/99_controles/99d_controler_tension_cartes.R`
 - `R/00_config_fonctions/00_config.R` — section typologie, `GENERER_CARTE_TYPOLOGIE`
 - `data/templates/tensions_fap_territoires_template.csv`
 
