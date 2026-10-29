@@ -40,7 +40,7 @@ if (!isTRUE(get0("GENERER_CARTES_DEPARTS", ifnotfound = FALSE))) {
     if (!file.exists(src)) {
       message("08e : table de diffusion absente, carte non produite — attendu : ", src)
       return(tibble(dimension = dm, niveau = nv, source = src, carte = NA_character_, statut = "source absente",
-                    territoires_csv = NA_integer_, joints = NA_integer_, masques = NA_integer_, diffusables = NA_integer_, sans_donnee = NA_integer_))
+                    territoires_csv = NA_integer_, joints = NA_integer_, masques = NA_integer_, diffusables = NA_integer_, absents_csv = NA_integer_))
     }
     # France entière : tableau de bord national (aucune carte, aucun fond, pas de PNG)
     fond <- NULL; fond_regions <- NULL
@@ -63,7 +63,7 @@ if (!isTRUE(get0("GENERER_CARTES_DEPARTS", ifnotfound = FALSE))) {
       generer_carte_courriel(prep, fond, sub("\\.html$", "_courriel.html", sortie), champ = champ_08e, fond_regions = fond_regions,
                              source_note = if (identical(get0("SOURCE_BTS", ifnotfound = ""), "parquet")) "BTS 2024, DREES, EACR, Insee — calculs propres" else "table test — calculs propres")
     tibble(dimension = dm, niveau = nv, source = src, carte = sortie, statut = "ok",
-           territoires_csv = n[["csv"]], joints = n[["joints"]], masques = n[["masques"]], diffusables = n[["diffusables"]], sans_donnee = n[["sans"]])
+           territoires_csv = n[["csv"]], joints = n[["joints"]], masques = n[["masques"]], diffusables = n[["diffusables"]], absents_csv = n[["absents"]])
   }) |> bind_rows()
   if (!any(bilan_08e$statut == "ok"))
     stop("08e : aucune table de diffusion trouvée sous ", DIR_SORTIES, " (departs_pcs/diffusion, departs_cs1/diffusion) — exécutez 08c / 08d.")

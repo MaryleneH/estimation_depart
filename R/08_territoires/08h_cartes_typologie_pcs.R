@@ -23,6 +23,7 @@ if (!exists("GENERER_TYPOLOGIE") || !exists("generer_cartes_typologie_pcs")) {  
     if (!is.null(dir_prealable_08h)) DIR_SORTIES <- dir_prealable_08h; rm(dir_prealable_08h) }
   if (!exists("arrondir_nombre_personnes")) source(file.path("R", "00_config_fonctions", "00g_format_restitution.R"))
   if (!exists("charger_fond_carte")) source(file.path("R", "00_config_fonctions", "00f_fonctions_cartes.R"))
+  if (!exists("lire_passage_geo")) source(file.path("R", "00_config_fonctions", "00c_fonctions_geo.R"))   # table de passage departement->region (SPEC-PUB-007)
   if (!exists("PROFILS_TYPOLOGIE")) source(file.path("R", "00_config_fonctions", "00h_fonctions_typologie.R"))
   if (!exists("preparer_carte_typologie")) source(file.path("R", "00_config_fonctions", "00i_fonctions_carte_typologie.R"))
   if (!exists("generer_cartes_typologie_pcs")) source(file.path("R", "00_config_fonctions", "00j_fonctions_cartes_typologie_pcs.R"))
@@ -47,9 +48,13 @@ if (!isTRUE(get0("GENERER_CARTES_TYPOLOGIE_PCS", ifnotfound = TRUE))) {
     fond_dep_08h <- charger_fond_carte("departement"); fond_reg_08h <- charger_fond_carte("region"); libelles_08h <- charger_libelles_pcs()
     typo_csv_08h <- lire_typologie_diffusion(sources_08h[["typologie"]]); typo_prep_08h <- preparer_carte_typologie(typo_csv_08h, fond_dep_08h)
     f_cs1_08h <- file.path(DIR_SORTIES, "departs_cs1", "diffusion", "departs_cs1_france.csv")
+    # table de passage departement->region : rattache à leur région les départements absents de la typologie (masqués, SPEC-PUB-007)
+    passage_08h <- if (exists("lire_passage_geo") && exists("GEO_PASSAGES") && !is.null(GEO_PASSAGES[["departement->region"]]) && file.exists(GEO_PASSAGES[["departement->region"]])) lire_passage_geo(GEO_PASSAGES[["departement->region"]], "departement->region") else NULL
+    if (is.null(passage_08h)) message("08h : table de passage departement->region non lue : les départements absents de la typologie ne sont pas rattachés à leur région.")
     prep_08h <- preparer_cartes_typologie_pcs(typo_prep_08h, typo_csv_08h, lire_csv_diffusion(sources_08h[["departement"]]), lire_csv_diffusion(sources_08h[["region"]]),
                                               lire_csv_diffusion(sources_08h[["france"]]), fond_dep_08h, fond_reg_08h, libelles = libelles_08h,
-                                              cs1_fr = if (file.exists(f_cs1_08h)) lire_csv_diffusion(f_cs1_08h) else NULL, top_n = get0("TYPO_PCS_TOP_N", ifnotfound = 5))
+                                              cs1_fr = if (file.exists(f_cs1_08h)) lire_csv_diffusion(f_cs1_08h) else NULL, top_n = get0("TYPO_PCS_TOP_N", ifnotfound = 5),
+                                              passage_regions = passage_08h)
     controler_cartes_typologie_pcs(prep_08h)
     html_08h <- file.path(dir_08h, "carte_typologie_pcs.html")
     generer_cartes_typologie_pcs(prep_08h, fond_dep_08h, fond_reg_08h, html_08h, champ = champ_08h, source_note = source_note_08h)
@@ -58,7 +63,7 @@ if (!isTRUE(get0("GENERER_CARTES_TYPOLOGIE_PCS", ifnotfound = TRUE))) {
       generer_cartes_typologie_pcs_courriel(prep_08h, fond_dep_08h, fond_reg_08h, courriel_08h, champ = champ_08h, source_note = source_note_08h) }
     cartes_typologie_pcs <- tibble(statut = "ok", carte = html_08h, courriel = courriel_08h, absentes = NA_character_)
     message("08h OK -> ", dir_08h, " : carte_typologie_pcs.html", if (!is.na(courriel_08h)) " + carte_typologie_pcs_courriel.html (sans script)" else "")
-    rm(dir_08h, champ_08h, source_note_08h, fond_dep_08h, fond_reg_08h, libelles_08h, typo_csv_08h, typo_prep_08h, f_cs1_08h, prep_08h, html_08h, courriel_08h)
+    rm(dir_08h, champ_08h, source_note_08h, fond_dep_08h, fond_reg_08h, libelles_08h, typo_csv_08h, typo_prep_08h, f_cs1_08h, passage_08h, prep_08h, html_08h, courriel_08h)
   }
   rm(sources_08h, absentes_08h)
 }

@@ -460,9 +460,11 @@ sans modifier aucun autre script.
 
 Statuts d'un département : `diffuse` (profil + chiffres), `profil_masque`
 (chiffres diffusés mais profil « Non diffusé » : cellule CS masquée),
-`masque` (département entier : seuls code et nom), `sans` (absent de la
-table : blanc, contour pointillé). Couleurs des profils : `COULEURS_PROFILS`
-(une par clé) ; gris `COULEURS_CARTE$secret` pour les deux statuts masqués.
+`masque` (département entier : seuls code et nom ; **aussi** tout département
+du fond absent de la table, c'est-à-dire sans salarié observé : un zéro est une
+valeur couverte par le secret, SPEC-PUB-007). Couleurs des profils :
+`COULEURS_PROFILS` (une par clé) ; gris `COULEURS_CARTE$secret` pour les deux
+statuts masqués ; aucune couleur ni contour propres à l'absence.
 
 ```gherkin
 Fonctionnalité: Cartographier les profils sans révéler une valeur protégée
@@ -477,7 +479,7 @@ Fonctionnalité: Cartographier les profils sans révéler une valeur protégée
 
   Scénario: [SPEC-TYPO-061] Colorer chaque département par son profil
     Quand la page interactive est produite
-    Alors chaque département porte la couleur de son profil (COULEURS_PROFILS), gris s'il est masqué ou si son profil n'est pas diffusé, blanc pointillé s'il est absent
+    Alors chaque département porte la couleur de son profil (COULEURS_PROFILS), gris s'il est masqué, si son profil n'est pas diffusé ou s'il est absent de la table (aucun salarié observé : même statut masque, même libellé, SPEC-PUB-007)
     Et la légende donne, par profil, le titre, le nombre de départements et la signification ; dans la page interactive elle est compacte (titre et nombre sur une ligne), la signification restant dans le HTML (infobulle native du bouton, panneau au clic, section des définitions)
     Et les couleurs, la légende et le détail sont écrits dans le HTML (lisibles sans script)
 
@@ -516,7 +518,7 @@ Fonctionnalité: Cartographier les profils sans révéler une valeur protégée
     Et le panneau « situation » n'est mis à jour que si le département change, et sa hauteur ne varie jamais : la carte ne se déplace jamais sous le curseur
     Et l'infobulle est masquée pendant le défilement et réapparaît au mouvement suivant
     Et l'épinglage, le filtrage par la légende, le contour du département survolé et le secret sont inchangés
-    Et la légende ne contient pas l'entrée « Département absent de la typologie » lorsque son compte est nul ; les sept profils et l'entrée du secret sont toujours présents ; un département réellement absent garde sa propre entrée, distincte du secret (HTML interactif, courriel et PNG)
+    Et la légende ne contient aucune entrée « absent » : les sept profils et l'entrée du secret sont toujours présents, et un département absent de la table est compté avec les non diffusés (HTML interactif, courriel et PNG)
 ```
 
 ## 10. Consulter les bornes effectives (99c, hors chaîne)
@@ -582,13 +584,14 @@ Fonctionnalité: Explorer les métiers concernés par les départs, de la régio
   Scénario: [SPEC-TYPO-082] Lire une région sans lui inventer un profil
     Quand la carte régionale est produite
     Alors chaque région est colorée par le profil le plus fréquent de ses départements, ou « Profils à égalité »
-    Et l'infobulle et le panneau donnent le compte des départements par profil et le compte des non diffusés
+    Et l'infobulle et le panneau donnent le compte des départements par profil et le compte des non diffusés ; un département du fond absent de la table (aucun salarié observé) est rattaché à sa région par la table de passage departement->region et compté parmi ses non diffusés (SPEC-PUB-007) ; une région sans aucun département diffusable est « Non diffusé (secret statistique) », gris
+    Et le total régional (dénominateur des parts du top) est la somme des départements s'ils sont tous diffusés, sinon la somme des cellules région x PCS de la table de diffusion régionale si aucune n'est masquée, sinon non disponible
     Et un clic sur la région passe au niveau départemental, ses départements mis en évidence, avec son top de PCS
 
   Scénario: [SPEC-TYPO-083] Lire un département et colorer la carte par une PCS
     Quand un département est cliqué
     Alors le panneau donne son profil, ses chiffres dans les mêmes rubriques et puces que la carte des profils (SPEC-TYPO-062), son top de PCS en barres et la spécificité de chaque PCS face à la France
-    Et cliquer une PCS du top recolore tous les départements selon les départs de cette PCS (classes à bornes rondes, gris = non diffusé, blanc = aucun salarié observé)
+    Et cliquer une PCS du top recolore tous les départements selon les départs de cette PCS (classes à bornes rondes, gris = non diffusé, y compris un département sans salarié observé pour cette PCS)
     Et un bouton ramène aux profils
     Et la page suit la disposition de SPEC-TYPO-065 : sur écran large, carte, panneau et légende tiennent dans la fenêtre, seul le panneau défile en interne ; sur écran étroit, carte au-dessus, défilement vers le panneau au clic
 

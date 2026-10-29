@@ -39,8 +39,9 @@ test_that("SPEC-TYPO-060 — source : seule la diffusion est admise (masque requ
   expect_error(EK$preparer_carte_typologie(TABLE_TYPO |> dplyr::mutate(profil_typologie = c("Profil inventé", profil_typologie[-1])), FOND_DEP_K), "Profil inventé")
   p <- EK$preparer_carte_typologie(dplyr::bind_rows(TABLE_TYPO, TABLE_TYPO[1, ] |> dplyr::mutate(geo_code = "inconnu", geo_nom = "Territoire inconnu")), FOND_DEP_K)
   expect_equal(p$n_non_localises, 1L); expect_equal(p$n_csv, 4L); expect_equal(nrow(p$territoires), 101L)
-  expect_identical(p$territoires$statut[match(c("33", "64", "01", "2A", "75"), p$territoires$code)], c("diffuse", "masque", "profil_masque", "diffuse", "sans"))
-  expect_equal(unname(p$comptes[c("enjeu", "expertiser", "profil_masque", "masque", "sans")]), c(1, 1, 1, 1, 97))
+  expect_identical(p$territoires$statut[match(c("33", "64", "01", "2A", "75"), p$territoires$code)], c("diffuse", "masque", "profil_masque", "diffuse", "masque"))   # 75 absent = masqué (SPEC-PUB-007)
+  expect_false(p$territoires$dans_csv[p$territoires$code == "75"]); expect_equal(p$n_absents_csv, 97L); expect_false("sans" %in% names(p$comptes))
+  expect_equal(unname(p$comptes[c("enjeu", "expertiser", "profil_masque", "masque")]), c(1, 1, 1, 98))
   # CSV write.csv2 (virgule décimale, BOM facultatif) relu tel quel
   f <- file.path(tempdir(), "typo_diff.csv"); write.csv2(EK$formater_restitution(TABLE_TYPO), f, row.names = FALSE)
   d <- EK$lire_typologie_diffusion(f)
@@ -57,15 +58,15 @@ test_that("SPEC-TYPO-061/062 — page interactive : couleur par profil écrite d
   attr_ <- function(code, a) sub(sprintf('.* %s="([^"]*)".*', a), "\\1", paths[grepl(sprintf('data-code="%s"', code), paths)])
   expect_identical(attr_("33", "fill"), EK$COULEURS_PROFILS[["enjeu"]]); expect_identical(attr_("2A", "fill"), EK$COULEURS_PROFILS[["expertiser"]])
   expect_identical(attr_("64", "fill"), EK$COULEURS_CARTE$secret); expect_identical(attr_("01", "fill"), EK$COULEURS_CARTE$secret)
-  expect_identical(attr_("75", "fill"), EK$COULEURS_CARTE$sans_donnee); expect_true(grepl('class="t sans"[^>]*data-code="75"[^>]*stroke-dasharray', sans))
+  expect_identical(attr_("75", "fill"), EK$COULEURS_CARTE$secret); expect_identical(attr_("75", "data-st"), "masque"); expect_false(grepl('class="t sans"|stroke-dasharray', sans))   # absent = secret (SPEC-PUB-007)
   expect_identical(attr_("33", "data-cle"), "enjeu"); expect_identical(attr_("64", "data-st"), "masque"); expect_identical(attr_("01", "data-st"), "profil_masque")
   expect_true(grepl('<g class="limites-reg"', sans, fixed = TRUE)); expect_true(grepl('<path id="survol"', sans, fixed = TRUE))
   # légende statique : 7 profils cliquables + non diffusé + absent, comptes et significations
   leg <- regmatches(sans, regexpr('(?s)<ul class="typo-legende" id="legende">.*?</ul>', sans, perl = TRUE))
   expect_equal(lengths(regmatches(leg, gregexpr('<button type="button" data-cle="', leg))), 7L)
   expect_true(grepl(sprintf('<span class="lib">%s<span class="n">1</span></span>', EK$PROFILS_TYPOLOGIE[["enjeu"]]), leg, fixed = TRUE))
-  expect_true(grepl('Profil non diffusé (secret statistique)<span class="n">2</span>', leg, fixed = TRUE))
-  expect_true(grepl('Département absent de la typologie<span class="n">97</span>', leg, fixed = TRUE))
+  expect_true(grepl('Profil non diffusé (secret statistique)<span class="n">99</span>', leg, fixed = TRUE))   # 1 profil masqué + 1 masqué + 97 absents
+  expect_false(grepl("absent|Aucun salarié", leg))
   expect_true(grepl(EK$DEFINITIONS_PROFILS$signification[EK$DEFINITIONS_PROFILS$cle == "stable"], leg, fixed = TRUE))
   # JSON de détail : lignes de l'infobulle, texte de situation, profils avec consigne ; survol / clic / légende câblés
   j <- jsonlite::fromJSON(regmatches(html, regexpr('(?s)(?<=<script type="application/json" id="donnees">).*?(?=</script>)', html, perl = TRUE)))
@@ -110,7 +111,7 @@ test_that("SPEC-TYPO-063/064 — version courriel : aucun contenu actif, <title>
   expect_equal(lengths(regmatches(html, gregexpr("<title>", html))), 102L)                       # page + un par département
   expect_true(grepl('<title>Gironde · 33\nPôle majeur à renouveler rapidement\n10,7 % de l’emploi Base national · 12 345 salariés\n', html, fixed = TRUE))
   expect_true(grepl('<title>Pyrénées-Atlantiques · 64\nNon diffusé (secret statistique)\nRésultat non diffusé — secret statistique</title>', html, fixed = TRUE))
-  expect_true(grepl('<title>Paris · 75\nDépartement absent de la typologie\nDépartement absent de la typologie</title>', html, fixed = TRUE))
+  expect_true(grepl('<title>Paris · 75\nNon diffusé (secret statistique)\nRésultat non diffusé — secret statistique</title>', html, fixed = TRUE))   # absent = secret (SPEC-PUB-007)
   expect_true(grepl('<title>Ain · 01\nNon diffusé (secret statistique)\nProfil non diffusé (secret statistique)\n3,8 % de l’emploi Base national · 4 321 salariés\n', html, fixed = TRUE))
   expect_true(grepl('<details class="bloc-typo" open><summary>Le détail par département</summary>', html, fixed = TRUE))
   expect_true(grepl('<details class="bloc-typo" open><summary>Que signifient les profils ?</summary>', html, fixed = TRUE))
@@ -181,26 +182,26 @@ test_that("SPEC-TYPO-065 — stabilité du survol et légende : infobulle fixée
                          part_cs_principale_pct = 30, cs_volume_departs_max = "Cadres", part_departs_cs_max_pct = 30, cs_taux_renouvellement_max = "Cadres", type_concentration = "Diffus",
                          profil_typologie = P_K[["stable"]], motif_expertise = NA_character_, points_attention = NA_character_, situation_texte = "Texte.", masque = FALSE, motif_masque = NA_character_)
   tout$profil_typologie[1] <- P_K[["enjeu"]]; tout$masque[2] <- TRUE
-  p <- EK$preparer_carte_typologie(tout, FOND_DEP_K); expect_equal(unname(p$comptes[["sans"]]), 0)
+  p <- EK$preparer_carte_typologie(tout, FOND_DEP_K); expect_equal(p$n_absents_csv, 0L)
   for (inter in c(TRUE, FALSE)) {
     leg <- paste(EK$html_legende_typologie(p, interactive = inter), collapse = "\n")
-    expect_false(grepl(EK$LIBELLES_CARTE_TYPO$absent, leg, fixed = TRUE), label = paste("absent masqué, interactive =", inter))
+    expect_false(grepl("absent|Aucun salarié", leg), label = paste("aucune entrée absent, interactive =", inter))
     for (k in names(P_K)) expect_true(grepl(sprintf('%s<span class="n">%d</span>', P_K[[k]], unname(p$comptes[[k]])), leg, fixed = TRUE), label = k)   # sept profils + comptes
     expect_true(grepl(sprintf('%s<span class="n">%d</span>', EK$LIBELLES_CARTE_TYPO$profil_non_diffuse, 1L), leg, fixed = TRUE))                     # secret conservé
   }
   expect_equal(lengths(regmatches(paste(EK$html_legende_typologie(p, TRUE), collapse = ""), gregexpr('<button type="button" data-cle="', paste(EK$html_legende_typologie(p, TRUE), collapse = "")))), 7L)
-  # département réellement absent : entrée explicite, distincte du secret, jamais assimilée au masqué
-  p2 <- EK$preparer_carte_typologie(tout[-c(5, 6), ], FOND_DEP_K); expect_equal(unname(p2$comptes[["sans"]]), 2)
+  # département absent de la table : compté avec les non diffusés, jamais d'entrée propre (SPEC-PUB-007)
+  p2 <- EK$preparer_carte_typologie(tout[-c(5, 6), ], FOND_DEP_K); expect_equal(p2$n_absents_csv, 2L)
   leg2 <- paste(EK$html_legende_typologie(p2, TRUE), collapse = "\n")
-  expect_true(grepl(sprintf('<span class="sw sans" style="background:%s"></span><span><span class="lib">%s<span class="n">2</span>', EK$COULEURS_CARTE$sans_donnee, EK$LIBELLES_CARTE_TYPO$absent), leg2, fixed = TRUE))
-  expect_true(grepl(sprintf('%s<span class="n">1</span>', EK$LIBELLES_CARTE_TYPO$profil_non_diffuse), leg2, fixed = TRUE))
-  expect_identical(p2$territoires$statut[p2$territoires$code %in% names(FOND_DEP_K)[5:6]], c("sans", "sans"))
+  expect_false(grepl("sw sans|absent", leg2))
+  expect_true(grepl(sprintf('%s<span class="n">3</span>', EK$LIBELLES_CARTE_TYPO$profil_non_diffuse), leg2, fixed = TRUE))   # 1 masqué + 2 absents
+  expect_identical(p2$territoires$statut[p2$territoires$code %in% names(FOND_DEP_K)[5:6]], c("masque", "masque"))
   # (b) page interactive : les deux versions sont écrites et la légende y suit la même règle
   f <- file.path(tempdir(), "carte_typo_stable.html"); EK$generer_carte_typologie(p, FOND_DEP_K, f, fond_regions = FOND_REG_K)
   html <- lire_html(f); sans_js <- gsub("<script\\b.*?</script>", "", html, perl = TRUE)
-  expect_false(grepl(EK$LIBELLES_CARTE_TYPO$absent, regmatches(sans_js, regexpr('(?s)<ul class="typo-legende" id="legende">.*?</ul>', sans_js, perl = TRUE)), fixed = TRUE))
+  expect_false(grepl("absent de la typologie", regmatches(sans_js, regexpr('(?s)<ul class="typo-legende" id="legende">.*?</ul>', sans_js, perl = TRUE)), fixed = TRUE))
   fc <- file.path(tempdir(), "carte_typo_stable_courriel.html"); EK$generer_carte_typologie_courriel(p, FOND_DEP_K, fc, fond_regions = FOND_REG_K)
-  hc <- lire_html(fc); expect_false(grepl("<script", hc, fixed = TRUE)); expect_false(grepl(EK$LIBELLES_CARTE_TYPO$absent, regmatches(hc, regexpr('(?s)<ul class="typo-legende" id="legende">.*?</ul>', hc, perl = TRUE)), fixed = TRUE))
+  hc <- lire_html(fc); expect_false(grepl("<script", hc, fixed = TRUE)); expect_false(grepl("absent de la typologie", regmatches(hc, regexpr('(?s)<ul class="typo-legende" id="legende">.*?</ul>', hc, perl = TRUE)), fixed = TRUE))
   # (c) stabilité : infobulle fixée au viewport et bornée à l'écran ; contenu reconstruit seulement si le département change ;
   #     panneau de détail inchangé si même département, hauteur stabilisée (mesure hors écran) ; infobulle masquée pendant le défilement
   css <- regmatches(html, regexpr("(?s)<style>.*?</style>", html, perl = TRUE))

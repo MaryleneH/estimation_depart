@@ -25,7 +25,7 @@ LIBELLES_TYPO_PCS <- list(
   kicker = texte_perimetre("Typologie des territoires Base · métiers concernés par les départs"),
   titre = "Profils et métiers : de la région au département",
   sous_titre = "Chaque région est colorée par le profil le plus fréquent de ses départements ; cliquez-la pour voir ses départements, puis un département pour lire son profil et les métiers (PCS) les plus concernés par les départs d’ici 2030.",
-  egalite = "Profils à égalité", non_diffuse = "Non diffusé (secret statistique)", absent = "Aucun département renseigné",
+  egalite = "Profils à égalité", non_diffuse = "Non diffusé (secret statistique)",
   top_titre = "Métiers les plus concernés par les départs", top_retenu = "Top non diffusé : une seule cellule PCS protégée (secret statistique)",
   top_vide = "Aucune PCS diffusable", pcs_non_diffusees = "PCS non diffusées (secret statistique)",
   specificite = "Part dans les départs du territoire, face à la France", colorer = "Colorer la carte par cette PCS", retour_profils = "Revenir aux profils",
@@ -52,10 +52,16 @@ preparer_top_pcs <- function(cellules, total = NA_real_, libelles = NULL, top_n 
 libelle_pcs_court <- function(pcs, libelle, cs1) ifelse(is.na(libelle), paste0("PCS ", pcs, " · ", ifelse(is.na(cs1), "", libelle_cs_typo(cs1))), libelle)
 
 # --- Régions : profil le plus fréquent des départements (SPEC-TYPO-082) -------------------
-preparer_regions_typologie <- function(terr, typo_csv, fond_regions, profils = PROFILS_TYPOLOGIE) {
+preparer_regions_typologie <- function(terr, typo_csv, fond_regions, profils = PROFILS_TYPOLOGIE, passage = NULL) {
   # terr : prep$territoires de 00i (code, nom, statut, cle) ; typo_csv : table de diffusion (geo_code, region_code, region_nom)
   reg_de <- setNames(as.character(typo_csv$region_code), as.character(typo_csv$geo_code))
-  d <- terr[terr$statut != "sans", ]; d$region <- unname(reg_de[d$code])
+  # départements absents de la table (aucun salarié observé = masqués, SPEC-PUB-007) : région lue dans la table de passage
+  # departement->region si elle est fournie, pour qu'ils soient comptés parmi les non diffusés de leur région
+  if (!is.null(passage) && all(c("code_source", "code_cible") %in% names(passage))) {
+    p <- setNames(as.character(passage$code_cible), as.character(passage$code_source)); manq <- setdiff(terr$code, names(reg_de))
+    reg_de <- c(reg_de, p[intersect(manq, names(p))])
+  }
+  d <- terr; d$region <- unname(reg_de[d$code])
   regions <- lapply(names(fond_regions), function(rc) {
     dd <- d[!is.na(d$region) & d$region == rc, ]
     comptes <- vapply(names(profils), function(k) sum(dd$cle %in% k), 0L); n_nd <- sum(is.na(dd$cle))
@@ -68,13 +74,13 @@ preparer_regions_typologie <- function(terr, typo_csv, fond_regions, profils = P
   names(regions) <- names(fond_regions)
   list(regions = regions, n_sans_region = sum(is.na(d$region)))
 }
-couleur_region_typo <- function(r) if (!is.na(r$cle)) COULEURS_PROFILS[[r$cle]] else if (isTRUE(r$egalite)) COULEUR_EGALITE else COULEURS_CARTE$sans_donnee
-titre_region_typo <- function(r, profils = PROFILS_TYPOLOGIE) if (!is.na(r$cle)) profils[[r$cle]] else if (isTRUE(r$egalite)) LIBELLES_TYPO_PCS$egalite else LIBELLES_TYPO_PCS$absent
+couleur_region_typo <- function(r) if (!is.na(r$cle)) COULEURS_PROFILS[[r$cle]] else if (isTRUE(r$egalite)) COULEUR_EGALITE else COULEURS_CARTE$secret   # aucun département diffusable = non diffusé (SPEC-PUB-007)
+titre_region_typo <- function(r, profils = PROFILS_TYPOLOGIE) if (!is.na(r$cle)) profils[[r$cle]] else if (isTRUE(r$egalite)) LIBELLES_TYPO_PCS$egalite else LIBELLES_TYPO_PCS$non_diffuse
 
 # --- Préparation complète -----------------------------------------------------------------------
 # typo_prep : preparer_carte_typologie() (00i) ; typo_csv : lire_typologie_diffusion() ;
 # pcs_dep / pcs_reg / pcs_fr : lire_csv_diffusion() des trois tables 08c ; cs1_fr : table cs1 France (ou NULL).
-preparer_cartes_typologie_pcs <- function(typo_prep, typo_csv, pcs_dep, pcs_reg, pcs_fr, fond_dep, fond_reg, libelles = NULL, cs1_fr = NULL, top_n = 5) {
+preparer_cartes_typologie_pcs <- function(typo_prep, typo_csv, pcs_dep, pcs_reg, pcs_fr, fond_dep, fond_reg, libelles = NULL, cs1_fr = NULL, top_n = 5, passage_regions = NULL) {
   for (nom in c("pcs_dep", "pcs_reg", "pcs_fr")) { x <- get(nom); if (!"masque" %in% names(x)) stop("preparer_cartes_typologie_pcs : table '", nom, "' sans colonne masque — seule une table de DIFFUSION est admise.") }
   if (!is.numeric(top_n) || top_n < 1) stop("preparer_cartes_typologie_pcs : top_n doit être >= 1.")
   pcs_dep$geo_code <- as.character(pcs_dep$geo_code); pcs_reg$region_code <- as.character(pcs_reg$region_code)
@@ -90,13 +96,16 @@ preparer_cartes_typologie_pcs <- function(typo_prep, typo_csv, pcs_dep, pcs_reg,
   # Départements : top + spécificité
   deps <- lapply(seq_len(nrow(terr)), function(i) {
     r <- terr[i, ]; cel <- pcs_dep[pcs_dep$geo_code == r$code, ]
-    if (r$statut == "masque" || r$statut == "sans" || nrow(cel) == 0) { t <- list(top = NULL, n_masquees = sum(cel$masque %in% TRUE), n_pcs = nrow(cel), statut = if (r$statut == "masque") "territoire_masque" else "vide", total = NA_real_) }
+    if (r$statut == "masque" || nrow(cel) == 0) { t <- list(top = NULL, n_masquees = sum(cel$masque %in% TRUE), n_pcs = nrow(cel), statut = if (r$statut == "masque") "territoire_masque" else "vide", total = NA_real_) }
     else { t <- preparer_top_pcs(cel, r$departs_central, libelles, top_n); if (!is.null(t$top)) t$top$part_france_pct <- unname(part_fr[t$top$pcs]) }
     t })
   names(deps) <- terr$code
   # Régions : profil le plus fréquent + top régional
-  reg <- preparer_regions_typologie(terr, typo_csv, fond_reg)
+  reg <- preparer_regions_typologie(terr, typo_csv, fond_reg, passage = passage_regions)
   for (rc in names(reg$regions)) { cel <- pcs_reg[pcs_reg$region_code == rc, ]
+    # total régional : somme des départements s'ils sont tous diffusés ; sinon somme des cellules région x PCS de la table de
+    # DIFFUSION régionale si aucune n'est masquée (chaque cellule est publiée) ; sinon n.d. (un département absent = masqué, SPEC-PUB-007)
+    if (is.na(reg$regions[[rc]]$total) && nrow(cel) > 0 && !any(cel$masque %in% TRUE) && !anyNA(cel$departs_central)) reg$regions[[rc]]$total <- sum(cel$departs_central)
     reg$regions[[rc]]$top_pcs <- if (nrow(cel)) preparer_top_pcs(cel, reg$regions[[rc]]$total, libelles, top_n) else list(top = NULL, n_masquees = 0L, n_pcs = 0L, statut = "vide", total = NA_real_) }
   # PCS à colorer : union des tops départementaux ; valeur par département (diffusée), "m" (masquée) ou absente
   pcs_top <- unique(unlist(lapply(deps, function(t) if (!is.null(t$top)) t$top$pcs else character(0))))
@@ -113,7 +122,8 @@ controler_cartes_typologie_pcs <- function(prep, prefixe = "08h") {
   # aucune valeur masquée embarquée : les cellules "m" ne portent pas de nombre ; les tops ne contiennent que des cellules diffusées
   for (p in prep$par_pcs) for (v in p$valeurs) if (!identical(v, "m") && !is.numeric(v)) stop(prefixe, " : valeur de PCS inattendue.")
   cat(sprintf("  typologie x PCS : %d départements | %d régions | %d PCS colorables | tops retenus (différenciation) %d | total France %s\n",
-              sum(prep$territoires$statut != "sans"), length(prep$regions), length(prep$par_pcs), prep$n_retenus, if (is.na(prep$total_france)) "n.d." else fmt_fr_carte(prep$total_france)))
+              nrow(prep$territoires), length(prep$regions), length(prep$par_pcs), prep$n_retenus, if (is.na(prep$total_france)) "n.d." else fmt_fr_carte(prep$total_france)))
+  if (isTRUE(prep$n_sans_region > 0)) cat(sprintf("    %d département(s) sans région connue (absents de la table et sans table de passage) : non comptés dans les régions\n", prep$n_sans_region))
   invisible(TRUE)
 }
 
@@ -149,7 +159,7 @@ html_barres_pyramide <- function(r) {   # pyramide en barres statiques (courriel
 }
 html_comptes_region <- function(r, profils = PROFILS_TYPOLOGIE) {
   parts <- c(unlist(r$comptes), non_diffuses = r$n_non_diffuses); tot <- sum(parts)
-  if (tot == 0) return(sprintf('<p class="note">%s</p>', LIBELLES_TYPO_PCS$absent))
+  if (tot == 0) return(sprintf('<p class="note">%s</p>', LIBELLES_TYPO_PCS$non_diffuse))
   barre <- paste(vapply(names(parts)[parts > 0], function(k) sprintf('<span style="width:%s%%;background:%s" title="%s : %d"></span>', formatC(100 * parts[[k]] / tot, format = "f", digits = 2, decimal.mark = "."),
                                                                    if (k == "non_diffuses") COULEURS_CARTE$secret else COULEURS_PROFILS[[k]], if (k == "non_diffuses") LIBELLES_TYPO_PCS$non_diffuse else profils[[k]], parts[[k]]), ""), collapse = "")
   lis <- paste(vapply(names(parts)[parts > 0], function(k) sprintf('<li><span class="sw" style="background:%s"></span>%s <b>%d</b></li>', if (k == "non_diffuses") COULEURS_CARTE$secret else COULEURS_PROFILS[[k]],
@@ -189,14 +199,14 @@ js_cartes_typologie_pcs <- function() paste(
   'function li(col,txt,sans,n){var e=el("li");var it=el("span","item");var sw=el("span","sw"+(sans?" sans":""));sw.style.background=col;it.appendChild(sw);var t=el("span",null,txt);if(n!=null){var s=el("span","n",String(n));t.appendChild(s)}it.appendChild(t);e.appendChild(it);LEG.appendChild(e)}',
   # --- rendu de la carte selon le niveau et le mode (profils / PCS)
   'function rendre(){document.body.className="niveau-"+etat.niveau;LEG.innerHTML="";document.querySelectorAll(".niveaux button").forEach(function(x){x.setAttribute("aria-pressed",x.getAttribute("data-niveau")===etat.niveau?"true":"false")});',
-  ' if(etat.niveau==="region"){LEGT.textContent="Profil le plus fréquent parmi les départements de la région";Object.keys(D.profils).forEach(function(k){li(D.profils[k].couleur,D.profils[k].titre,false,D.profils[k].n_regions)});li(D.couleurs.egalite,L.egalite,false,D.comptes.regions_egalite);li(D.couleurs.sans_donnee,L.absent,true,D.comptes.regions_sans);return}',
+  ' if(etat.niveau==="region"){LEGT.textContent="Profil le plus fréquent parmi les départements de la région";Object.keys(D.profils).forEach(function(k){li(D.profils[k].couleur,D.profils[k].titre,false,D.profils[k].n_regions)});li(D.couleurs.egalite,L.egalite,false,D.comptes.regions_egalite);li(D.couleurs.secret,L.non_diffuse,false,D.comptes.regions_non_diffusees);return}',
   ' var paths=document.querySelectorAll("path.t");',
   ' if(etat.pcs){var p=D.pcs[etat.pcs],vals=[];Object.keys(p.v).forEach(function(c){if(p.v[c]!=="m")vals.push(p.v[c])});var cl=classesRondes(vals);',
-  '  paths.forEach(function(q){var c=q.getAttribute("data-code"),v=p.v[c];q.classList.remove("sans");if(v==null){q.setAttribute("fill",D.couleurs.sans_donnee);q.classList.add("sans")}else if(v==="m")q.setAttribute("fill",D.couleurs.secret);else q.setAttribute("fill",cl?couleur(classeDe(v,cl),cl.unique?cl.vals.length:cl.n):D.couleurs.classes[2])});',
+  '  paths.forEach(function(q){var c=q.getAttribute("data-code"),v=p.v[c];if(v==null||v==="m")q.setAttribute("fill",D.couleurs.secret);else q.setAttribute("fill",cl?couleur(classeDe(v,cl),cl.unique?cl.vals.length:cl.n):D.couleurs.classes[2])});',
   '  LEGT.textContent="Départs estimés d’ici 2030 · "+libPcs(etat.pcs);if(!cl)li(D.couleurs.classes[2],"Aucun résultat affichable");else if(cl.unique)cl.vals.forEach(function(v,i){li(couleur(i,cl.vals.length),fmt(v,0))});else for(var k=0;k<cl.n;k++)li(couleur(k,cl.n),k===0?"Moins de "+fmt(cl.bornes[0],0):(k===cl.n-1?fmt(cl.bornes[k-1],0)+" et plus":fmt(cl.bornes[k-1],0)+" à "+fmt(cl.bornes[k],0)));',
-  '  li(D.couleurs.secret,"Résultat non diffusé — secret statistique");li(D.couleurs.sans_donnee,"Aucun salarié observé",true)}',
-  ' else{paths.forEach(function(q){var c=q.getAttribute("data-code"),t=D.departements[c];q.classList.toggle("sans",t.st==="sans");q.setAttribute("fill",t.couleur)});',
-  '  LEGT.textContent="Profil du département";Object.keys(D.profils).forEach(function(k){li(D.profils[k].couleur,D.profils[k].titre,false,D.profils[k].n)});li(D.couleurs.secret,"Profil ou département non diffusé (secret statistique)",false,D.comptes.non_diffuses);if(D.comptes.sans>0)li(D.couleurs.sans_donnee,"Département absent de la typologie",true,D.comptes.sans)}',
+  '  li(D.couleurs.secret,"Résultat non diffusé — secret statistique")}',
+  ' else{paths.forEach(function(q){var c=q.getAttribute("data-code"),t=D.departements[c];q.setAttribute("fill",t.couleur)});',
+  '  LEGT.textContent="Profil du département";Object.keys(D.profils).forEach(function(k){li(D.profils[k].couleur,D.profils[k].titre,false,D.profils[k].n)});li(D.couleurs.secret,"Profil ou département non diffusé (secret statistique)",false,D.comptes.non_diffuses)}',
   ' paths.forEach(function(q){var c=q.getAttribute("data-code");q.classList.toggle("hors",!!etat.region&&D.departements[c].region!==etat.region)})}',
   # --- panneau
   'function titre(t,pf,col,clair){var h=el("p","detail-titre",t);if(pf){var s=el("span","pf",pf);s.style.background=col;s.style.color=clair?"#1F2933":"#fff";h.appendChild(s)}return h}',
@@ -215,7 +225,7 @@ js_cartes_typologie_pcs <- function() paste(
   # rubriques titrées + puces du département (mêmes que la carte des profils, SPEC-TYPO-083) ; repli sur les lignes
   'function rendreBlocs(cont,t){if(t.blocs&&t.blocs.length){t.blocs.forEach(function(b){cont.appendChild(el("h3","rub",b.t));var ul=el("ul","puces");b.p.forEach(function(x){ul.appendChild(el("li",null,x))});cont.appendChild(ul)})}else{var ul=el("ul","lignes");(t.lignes||[]).forEach(function(l){ul.appendChild(el("li",null,l))});cont.appendChild(ul)}}',
   'function panneau(){DP.innerHTML="";DP.scrollTop=0;',
-  ' if(etat.dep){var t=D.departements[etat.dep],p=t.cle?D.profils[t.cle]:null;DP.appendChild(titre(t.nom+" · "+etat.dep,p?p.titre:(t.st==="sans"?L.absent:L.non_diffuse),p?p.couleur:D.couleurs.secret,p?p.clair:false));',
+  ' if(etat.dep){var t=D.departements[etat.dep],p=t.cle?D.profils[t.cle]:null;DP.appendChild(titre(t.nom+" · "+etat.dep,p?p.titre:L.non_diffuse,p?p.couleur:D.couleurs.secret,p?p.clair:false));',
   '  if(t.region&&D.regions[t.region]){var rl=el("button","lien","← "+D.regions[t.region].nom);rl.type="button";rl.addEventListener("click",function(){etat.dep=null;etat.region=t.region;rendre();panneau()});DP.appendChild(rl)}',
   '  rendreBlocs(DP,t);barresPyramide(t.pyramide,DP);DP.appendChild(el("h3",null,L.top_titre));barresTop(t.top,DP,true);specificite(t.top,DP);return}',
   ' if(etat.region){var r=D.regions[etat.region];DP.appendChild(titre(r.nom,r.titre,r.couleur,r.clair));var rb=el("button","lien","← "+L.retour_regions);rb.type="button";rb.addEventListener("click",function(){etat.region=null;etat.dep=null;etat.niveau="region";etat.pcs=null;rendre();panneau()});DP.appendChild(rb);',
@@ -223,9 +233,9 @@ js_cartes_typologie_pcs <- function() paste(
   '  DP.appendChild(el("h3",null,L.top_titre+" (région)"));barresTop(r.top,DP,false);return}',
   ' DP.appendChild(el("p","detail-titre",etat.niveau==="region"?L.aide_regions:L.aide_departements))}',
   # --- infobulle (fixe, contenu reconstruit seulement au changement)
-  'function bulle(code,niveau){var e=el("div");if(niveau==="region"){var r=D.regions[code];e.appendChild(el("div","tooltip-title",r.nom));var c=el("div","tooltip-profil",r.titre);c.style.borderLeftColor=r.couleur;e.appendChild(c);var b=el("div","tooltip-rows");b.appendChild(el("div","tooltip-small",r.n_departements>0?r.n_departements+" département(s) : "+r.resume:L.absent));if(r.n_departements>0){r.lignes_top.forEach(function(l){b.appendChild(el("div","tooltip-small",l))});b.appendChild(el("div","tooltip-small","Cliquez pour voir les départements"))}e.appendChild(b)}',
-  ' else{var t=D.departements[code],p=t.cle?D.profils[t.cle]:null;e.appendChild(el("div","tooltip-title",t.nom+" · "+code));var c2=el("div","tooltip-profil",etat.pcs?libPcs(etat.pcs):(p?p.titre:(t.st==="sans"?L.absent:L.non_diffuse)));c2.style.borderLeftColor=etat.pcs?"#fff":(p?p.couleur:D.couleurs.secret);e.appendChild(c2);var b2=el("div","tooltip-rows");',
-  '  if(etat.pcs){var v=D.pcs[etat.pcs].v[code];b2.appendChild(el("div","tooltip-value",v==null?"Aucun salarié observé":(v==="m"?"Résultat non diffusé — secret statistique":fmt(v,0)+" départs estimés d’ici 2030")))}else{t.lignes.slice(0,3).forEach(function(l){b2.appendChild(el("div","tooltip-value",l))});t.lignes_top.slice(0,3).forEach(function(l){b2.appendChild(el("div","tooltip-small",l))})}e.appendChild(b2)}return e.innerHTML}',
+  'function bulle(code,niveau){var e=el("div");if(niveau==="region"){var r=D.regions[code];e.appendChild(el("div","tooltip-title",r.nom));var c=el("div","tooltip-profil",r.titre);c.style.borderLeftColor=r.couleur;e.appendChild(c);var b=el("div","tooltip-rows");b.appendChild(el("div","tooltip-small",r.n_departements>0?r.n_departements+" département(s) : "+r.resume:L.non_diffuse));if(r.n_departements>0){r.lignes_top.forEach(function(l){b.appendChild(el("div","tooltip-small",l))});b.appendChild(el("div","tooltip-small","Cliquez pour voir les départements"))}e.appendChild(b)}',
+  ' else{var t=D.departements[code],p=t.cle?D.profils[t.cle]:null;e.appendChild(el("div","tooltip-title",t.nom+" · "+code));var c2=el("div","tooltip-profil",etat.pcs?libPcs(etat.pcs):(p?p.titre:L.non_diffuse));c2.style.borderLeftColor=etat.pcs?"#fff":(p?p.couleur:D.couleurs.secret);e.appendChild(c2);var b2=el("div","tooltip-rows");',
+  '  if(etat.pcs){var v=D.pcs[etat.pcs].v[code];b2.appendChild(el("div","tooltip-value",(v==null||v==="m")?"Résultat non diffusé — secret statistique":fmt(v,0)+" départs estimés d’ici 2030"))}else{t.lignes.slice(0,3).forEach(function(l){b2.appendChild(el("div","tooltip-value",l))});t.lignes_top.slice(0,3).forEach(function(l){b2.appendChild(el("div","tooltip-small",l))})}e.appendChild(b2)}return e.innerHTML}',
   'function placer(x,y){var vw=window.innerWidth,vh=window.innerHeight,w=B.offsetWidth,h=B.offsetHeight,px=x+16,py=y+16;if(px+w>vw-8)px=x-w-16;if(py+h>vh-8)py=y-h-16;B.style.left=Math.max(4,px)+"px";B.style.top=Math.max(4,py)+"px"}',
   'function surligner(p){if(!U)return;if(p){U.setAttribute("d",p.getAttribute("d"));U.classList.add("on")}else{U.classList.remove("on");U.setAttribute("d","")}}',
   'function brancher(sel,niveau){document.querySelectorAll(sel).forEach(function(p){var code=p.getAttribute("data-code");',
@@ -261,9 +271,9 @@ donnees_json_typo_pcs <- function(prep, champ = construire_libelle_champ()) {
                                                       signification = defs$signification[defs$cle == k])), names(P))
   pcs <- lapply(prep$par_pcs, function(p) list(lib = if (is.na(p$libelle)) NULL else p$libelle, cs1 = libelle_cs_typo(p$cs1), v = p$valeurs))
   j <- jsonlite::toJSON(list(departements = deps, regions = regs, profils = profils, pcs = pcs,
-                             comptes = list(non_diffuses = prep$comptes[["profil_masque"]] + prep$comptes[["masque"]], sans = prep$comptes[["sans"]],
-                                            regions_egalite = sum(vapply(prep$regions, function(r) isTRUE(r$egalite), TRUE)), regions_sans = sum(vapply(prep$regions, function(r) is.na(r$cle) && !isTRUE(r$egalite), TRUE))),
-                             couleurs = c(COULEURS_CARTE[c("classes", "secret", "sans_donnee")], list(egalite = COULEUR_EGALITE)),
+                             comptes = list(non_diffuses = prep$comptes[["profil_masque"]] + prep$comptes[["masque"]],
+                                            regions_egalite = sum(vapply(prep$regions, function(r) isTRUE(r$egalite), TRUE)), regions_non_diffusees = sum(vapply(prep$regions, function(r) is.na(r$cle) && !isTRUE(r$egalite), TRUE))),
+                             couleurs = c(COULEURS_CARTE[c("classes", "secret")], list(egalite = COULEUR_EGALITE)),
                              libelles = c(LIBELLES_TYPO_PCS, list(aide_regions = "Cliquez une région pour voir ses départements et les métiers les plus concernés.",
                                                                   aide_departements = "Cliquez un département pour lire son profil, ses métiers les plus concernés et sa spécificité face à la France."))),
                        auto_unbox = TRUE, digits = NA, na = "null", null = "null")
@@ -272,20 +282,20 @@ donnees_json_typo_pcs <- function(prep, champ = construire_libelle_champ()) {
 
 # --- Pages ---------------------------------------------------------------------------------------
 svg_regions_typo <- function(prep, fond_reg, lay_reg, interactive = TRUE, S = STYLE_CONTOURS_CARTE) {
-  vapply(names(fond_reg), function(rc) { r <- prep$regions[[rc]]; col <- couleur_region_typo(r); sans <- is.na(r$cle) && !isTRUE(r$egalite)
+  vapply(names(fond_reg), function(rc) { r <- prep$regions[[rc]]; col <- couleur_region_typo(r)
     titre <- paste(c(r$nom, titre_region_typo(r, prep$profils), sprintf("%d département(s)", r$n_departements), lignes_top_pcs(r$top_pcs)), collapse = "\n")
-    sprintf('<path class="r%s"%s data-code="%s" fill="%s" stroke="%s" stroke-width="%s"%s d="%s"%s>%s</path>', if (sans) " sans" else "", if (interactive) sprintf(' id="r-%s"', rc) else "", rc, col,
-            if (sans) S$sans_couleur else S$couleur, if (sans) S$sans_largeur else S$largeur, if (sans) ' stroke-dasharray="3 2"' else "", lay_reg$chemins[[rc]],
+    sprintf('<path class="r"%s data-code="%s" fill="%s" stroke="%s" stroke-width="%s" d="%s"%s>%s</path>', if (interactive) sprintf(' id="r-%s"', rc) else "", rc, col,
+            S$couleur, S$largeur, lay_reg$chemins[[rc]],
             if (interactive) sprintf(' tabindex="0" aria-label="%s"', echap_html_carte(paste(r$nom, titre_region_typo(r, prep$profils), sep = " — "))) else "",
             if (interactive) "" else paste0("<title>", echap_html_carte(titre), "</title>")) }, "")
 }
 svg_departements_typo <- function(prep, fond_dep, lay_dep, interactive = TRUE, S = STYLE_CONTOURS_CARTE) {
   t <- prep$territoires
-  vapply(names(fond_dep), function(code) { r <- t[t$code == code, ]; sans <- r$statut == "sans"; tp <- prep$departements[[code]]
+  vapply(names(fond_dep), function(code) { r <- t[t$code == code, ]; tp <- prep$departements[[code]]
     titre <- paste(c(paste0(r$nom, " · ", code), titre_profil_typo(r, prep), lignes_detail_typologie(r, prep$indicateur)[1:min(3, length(lignes_detail_typologie(r, prep$indicateur)))], lignes_top_pcs(tp)), collapse = "\n")
-    sprintf('<path class="t%s"%s data-code="%s" data-st="%s"%s fill="%s" stroke="%s" stroke-width="%s"%s d="%s"%s>%s</path>', if (sans) " sans" else "", if (interactive) sprintf(' id="t-%s"', code) else "", code, r$statut,
-            if (!is.na(r$cle)) sprintf(' data-cle="%s"', r$cle) else "", couleur_territoire_typo(r), if (sans) S$sans_couleur else S$couleur, if (sans) S$sans_largeur else S$largeur,
-            if (sans) ' stroke-dasharray="3 2"' else "", lay_dep$chemins[[code]], if (interactive) sprintf(' tabindex="0" aria-label="%s"', echap_html_carte(paste0(r$nom, " — ", titre_profil_typo(r, prep)))) else "",
+    sprintf('<path class="t"%s data-code="%s" data-st="%s"%s fill="%s" stroke="%s" stroke-width="%s" d="%s"%s>%s</path>', if (interactive) sprintf(' id="t-%s"', code) else "", code, r$statut,
+            if (!is.na(r$cle)) sprintf(' data-cle="%s"', r$cle) else "", couleur_territoire_typo(r), S$couleur, S$largeur,
+            lay_dep$chemins[[code]], if (interactive) sprintf(' tabindex="0" aria-label="%s"', echap_html_carte(paste0(r$nom, " — ", titre_profil_typo(r, prep)))) else "",
             if (interactive) "" else paste0("<title>", echap_html_carte(titre), "</title>")) }, "")
 }
 html_entete_typo_pcs <- function(champ, bandeau, sous_titre, compact = FALSE) {
@@ -301,12 +311,11 @@ html_entete_typo_pcs <- function(champ, bandeau, sous_titre, compact = FALSE) {
 }
 html_legende_statique_typo_pcs <- function(prep, niveau) {
   P <- prep$profils; S <- STYLE_CONTOURS_CARTE
-  item <- function(col, lib, n, sans = FALSE) sprintf('<li><span class="item"><span class="sw%s" style="background:%s"></span><span>%s<span class="n">%d</span></span></span></li>', if (sans) " sans" else "", col, echap_html_carte(lib), n)
+  item <- function(col, lib, n) sprintf('<li><span class="item"><span class="sw" style="background:%s"></span><span>%s<span class="n">%d</span></span></span></li>', col, echap_html_carte(lib), n)
   if (niveau == "region") { n_reg <- vapply(names(P), function(k) sum(vapply(prep$regions, function(r) identical(r$cle, k), TRUE)), 0L)
     c(vapply(names(P), function(k) item(COULEURS_PROFILS[[k]], P[[k]], n_reg[[k]]), ""), item(COULEUR_EGALITE, LIBELLES_TYPO_PCS$egalite, sum(vapply(prep$regions, function(r) isTRUE(r$egalite), TRUE))),
-      item(COULEURS_CARTE$sans_donnee, LIBELLES_TYPO_PCS$absent, sum(vapply(prep$regions, function(r) is.na(r$cle) && !isTRUE(r$egalite), TRUE)), sans = TRUE)) }
-  else c(vapply(names(P), function(k) item(COULEURS_PROFILS[[k]], P[[k]], prep$comptes[[k]]), ""), item(COULEURS_CARTE$secret, "Profil ou département non diffusé (secret statistique)", prep$comptes[["profil_masque"]] + prep$comptes[["masque"]]),
-         if (prep$comptes[["sans"]] > 0) item(COULEURS_CARTE$sans_donnee, "Département absent de la typologie", prep$comptes[["sans"]], sans = TRUE) else "")
+      item(COULEURS_CARTE$secret, LIBELLES_TYPO_PCS$non_diffuse, sum(vapply(prep$regions, function(r) is.na(r$cle) && !isTRUE(r$egalite), TRUE)))) }
+  else c(vapply(names(P), function(k) item(COULEURS_PROFILS[[k]], P[[k]], prep$comptes[[k]]), ""), item(COULEURS_CARTE$secret, "Profil ou département non diffusé (secret statistique)", prep$comptes[["profil_masque"]] + prep$comptes[["masque"]]))   # aucune entrée « absent » (SPEC-PUB-007)
 }
 html_blocs_territoires <- function(prep) {   # version courriel : un bloc dépliable par région (comptes + top) et par département (profil + top + spécificité)
   P <- prep$profils; t <- prep$territoires
@@ -314,7 +323,7 @@ html_blocs_territoires <- function(prep) {   # version courriel : un bloc dépli
     c(sprintf('<details class="terr"><summary><span class="sw" style="background:%s"></span>%s — %s · %d département(s)</summary>', couleur_region_typo(r), echap_html_carte(r$nom), echap_html_carte(titre_region_typo(r, P)), r$n_departements),
       html_comptes_region(r, P), sprintf('<p class="note">%s</p>', echap_html_carte(paste(vapply(r$departements, function(c) paste0(t$nom[t$code == c], " (", c, ")"), ""), collapse = ", "))),
       sprintf('<h3>%s (région)</h3>', LIBELLES_TYPO_PCS$top_titre), html_table_top(r$top_pcs), '</details>') }))
-  tt <- t[t$statut != "sans", ]; tt <- tt[order(tt$nom), ]
+  tt <- t[order(t$nom), ]   # tous les départements du fond (SPEC-PUB-007)
   deps <- unlist(lapply(seq_len(nrow(tt)), function(i) { r <- tt[i, ]; tp <- prep$departements[[r$code]]
     c(sprintf('<details class="terr"><summary><span class="sw" style="background:%s"></span>%s · %s — %s</summary>', couleur_territoire_typo(r), echap_html_carte(r$nom), r$code, echap_html_carte(titre_profil_typo(r, prep))),
       sprintf('<ul class="lignes">%s</ul>', paste(sprintf("<li>%s</li>", echap_html_carte(lignes_detail_typologie(r, prep$indicateur))), collapse = "")),

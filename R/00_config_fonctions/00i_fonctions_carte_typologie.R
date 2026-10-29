@@ -29,7 +29,6 @@ LIBELLES_CARTE_TYPO <- list(
   titre = "Profils de renouvellement par département",
   sous_titre = texte_perimetre("Chaque département est classé par des règles simples (poids dans l’emploi Base, volume et intensité des départs attendus d’ici 2030, concentration sur une catégorie)."),
   profil_non_diffuse = "Profil non diffusé (secret statistique)",
-  absent = "Département absent de la typologie",
   detail_initial = "Survolez un département pour lire sa situation ; cliquez pour la garder affichée.",
   detail_non_diffuse = "Le détail de ce département n’est pas diffusé (secret statistique).",
   tableau_titre = "Le détail par département",
@@ -69,7 +68,8 @@ lire_typologie_diffusion <- function(fichier) {
 
 # --- Préparation : table de diffusion -> structure de carte (sans aucune fuite) -----
 # Statuts : diffuse (profil + chiffres), profil_masque (chiffres diffusés mais profil
-# « Non diffusé » : cellule CS masquée), masque (département entier), sans (absent).
+# « Non diffusé » : cellule CS masquée), masque (département entier ; AUSSI tout département
+# du fond absent de la table : aucun salarié observé = valeur protégée, SPEC-PUB-007).
 preparer_carte_typologie <- function(d, fond, profils = PROFILS_TYPOLOGIE) {
   if (!"masque" %in% names(d)) stop("preparer_carte_typologie : colonne 'masque' absente — seule la table de DIFFUSION est admise (jamais interne/).")
   requis <- c("geo_code", "geo_nom", "profil_typologie", "effectif_base_total", "departs_central", "departs_bas", "departs_haut",
@@ -93,22 +93,22 @@ preparer_carte_typologie <- function(d, fond, profils = PROFILS_TYPOLOGIE) {
   d$statut <- ifelse(d$masque, "masque", ifelse(is.na(d$cle), "profil_masque", "diffuse"))
   terr <- tibble(code = names(fond), nom = unname(vapply(fond, `[[`, "", "nom"))) |>
     left_join(d |> select(code = geo_code, nom_csv = geo_nom, statut, cle, all_of(c(COLONNES_NUM_TYPO, COLONNES_TEXTE_TYPO))), by = "code") |>
-    mutate(nom = coalesce(nom_csv, nom), statut = coalesce(statut, "sans")) |> select(-nom_csv)
+    mutate(nom = coalesce(nom_csv, nom), dans_csv = !is.na(statut), statut = coalesce(statut, "masque")) |> select(-nom_csv)   # absent de la table = masqué (SPEC-PUB-007)
   comptes <- c(vapply(names(profils), function(k) sum(terr$cle %in% k), 0L),
-               profil_masque = sum(terr$statut == "profil_masque"), masque = sum(terr$statut == "masque"), sans = sum(terr$statut == "sans"),
+               profil_masque = sum(terr$statut == "profil_masque"), masque = sum(terr$statut == "masque"),
                hachures = sum(terr$tension_classe %in% "Forte" & terr$statut %in% c("diffuse", "profil_masque")))
   premier <- function(v) { x <- terr[[v]][!is.na(terr[[v]])]; if (length(x)) x[1] else NA_character_ }
-  list(territoires = terr, comptes = comptes, n_non_localises = n_non_loc, n_csv = nrow(d),
+  list(territoires = terr, comptes = comptes, n_non_localises = n_non_loc, n_csv = nrow(d), n_absents_csv = sum(!terr$dans_csv),   # n_absents_csv : contrôle console seulement, jamais dans la page
        indicateur = premier("indicateur_intensite"), base_poids = premier("base_poids"), profils = profils)
 }
 controler_carte_typologie <- function(prep, prefixe = "08g") {
   t <- prep$territoires
-  if (sum(t$statut != "sans") != prep$n_csv) stop(prefixe, " : départements du CSV non joints au fond.")
+  if (sum(t$dans_csv) != prep$n_csv) stop(prefixe, " : départements du CSV non joints au fond.")
   m <- t$statut == "masque"
   if (any(m) && any(!is.na(as.matrix(t[m, c(COLONNES_NUM_TYPO, setdiff(COLONNES_TEXTE_TYPO, "profil_typologie"))]))))
     stop(prefixe, " : une valeur masquée subsiste dans la structure de carte.")
-  cat(sprintf("  typologie x departement : départements CSV %3d | joints %3d | profil non diffusé %3d | masqués %3d | sans donnée %3d%s\n",
-              prep$n_csv, sum(t$statut != "sans"), prep$comptes[["profil_masque"]], prep$comptes[["masque"]], prep$comptes[["sans"]],
+  cat(sprintf("  typologie x departement : départements CSV %3d | joints %3d | profil non diffusé %3d | masqués %3d (dont absents du CSV %d)%s\n",
+              prep$n_csv, sum(t$dans_csv), prep$comptes[["profil_masque"]], prep$comptes[["masque"]], prep$n_absents_csv,
               if (prep$n_non_localises > 0) sprintf(" | non localisables %d", prep$n_non_localises) else ""))
   invisible(prep$comptes)
 }
@@ -116,7 +116,6 @@ controler_carte_typologie <- function(prep, prefixe = "08g") {
 # --- Détail d'un département : des phrases courtes (infobulle, <title>, tableau) -----
 libelle_intensite_typo <- function(indicateur) if (identical(indicateur, "taux_depart_central_pct")) "des salariés concernés susceptibles de partir d’ici 2030" else "de l’emploi actuel à remplacer d’ici 2030"
 lignes_detail_typologie <- function(r, indicateur = NULL) {
-  if (r$statut == "sans") return(LIBELLES_CARTE_TYPO$absent)
   if (r$statut == "masque") return(LIBELLES_UI$secret)
   f0 <- function(x) fmt_fr_carte(x, 0); f1 <- function(x) fmt_fr_carte(x, 1)
   ind <- if (!is.null(indicateur)) indicateur else r$indicateur_intensite
@@ -189,7 +188,7 @@ puces_tension_typo <- function(r) {
 # --- Rubriques du panneau (SPEC-TYPO-062) : construites par règles à partir des seules colonnes de DIFFUSION ---
 # Retourne une liste de rubriques list(t = titre, p = puces, b = dans l'infobulle) ; vide pour un territoire masqué ou absent.
 blocs_detail_typologie <- function(r, indicateur = NULL) {
-  if (r$statut %in% c("sans", "masque")) return(list())
+  if (r$statut == "masque") return(list())
   f0 <- function(x) fmt_fr_carte(x, 0); f1 <- function(x) fmt_fr_carte(x, 1)
   ind <- if (!is.null(indicateur)) indicateur else r$indicateur_intensite
   # b = la rubrique figure dans l'infobulle ; n_bulle = nombre de puces qu'elle y montre (le panneau les montre toutes)
@@ -238,8 +237,8 @@ ligne_plancher_tension_typo <- function(r, de = "des départs du département") 
   f0 <- function(x) fmt_fr_carte(x, 0); f1 <- function(x) fmt_fr_carte(x, 1)
   sprintf("Au moins %s départs attendus dans des métiers suivis en tension (de %s à %s), soit au moins %s %% %s", f0(v), f0(r[["tension_departs_min_bas"]]), f0(r[["tension_departs_min_haut"]]), f1(r[["tension_part_departs_min_pct"]]), de)
 }
-titre_profil_typo <- function(r, prep) if (!is.na(r$cle)) prep$profils[[r$cle]] else if (r$statut == "sans") LIBELLES_CARTE_TYPO$absent else LIBELLE_NON_DIFFUSE_TYPO
-couleur_territoire_typo <- function(r) if (!is.na(r$cle)) COULEURS_PROFILS[[r$cle]] else if (r$statut == "sans") COULEURS_CARTE$sans_donnee else COULEURS_CARTE$secret
+titre_profil_typo <- function(r, prep) if (!is.na(r$cle)) prep$profils[[r$cle]] else LIBELLE_NON_DIFFUSE_TYPO
+couleur_territoire_typo <- function(r) if (!is.na(r$cle)) COULEURS_PROFILS[[r$cle]] else COULEURS_CARTE$secret
 
 # --- Sérialisation JSON (page interactive) : aucun chiffre d'un département masqué ---
 donnees_json_typologie <- function(prep) {
@@ -253,7 +252,7 @@ donnees_json_typologie <- function(prep) {
   profils <- setNames(lapply(names(prep$profils), function(k) list(titre = prep$profils[[k]], couleur = COULEURS_PROFILS[[k]], n = prep$comptes[[k]],
                                                                    signification = defs$signification[defs$cle == k], consigne = defs$attention[defs$cle == k])), names(prep$profils))
   j <- jsonlite::toJSON(list(territoires = terr, profils = profils, comptes = as.list(prep$comptes), libelles = LIBELLES_CARTE_TYPO,
-                             couleurs = COULEURS_CARTE[c("secret", "sans_donnee")]), auto_unbox = TRUE, digits = NA, na = "null", null = "null")
+                             couleurs = COULEURS_CARTE["secret"]), auto_unbox = TRUE, digits = NA, na = "null", null = "null")
   gsub("</", "<\\/", j, fixed = TRUE)
 }
 
@@ -262,7 +261,7 @@ css_carte_typologie <- function(S = STYLE_CONTOURS_CARTE) paste(
   '.typo-legende{list-style:none;margin:0;padding:0}.typo-legende li{margin:4px 0}',
   '.typo-legende button,.typo-legende .item{display:flex;align-items:flex-start;gap:10px;width:100%;text-align:left;font:inherit;font-size:15px;color:var(--encre);background:#fff;border:1px solid transparent;border-radius:8px;padding:6px 8px;cursor:pointer}',
   '.typo-legende .item{cursor:default}.typo-legende button:hover,.typo-legende button:focus-visible{border-color:#AEB7C2;outline:none}.typo-legende button[aria-pressed=true]{background:var(--fond);border-color:var(--bleu)}',
-  sprintf('.typo-legende .sw{width:22px;height:16px;border-radius:3px;border:1px solid %s;flex:none;margin-top:3px}.typo-legende .sw.sans{border:1.5px dashed %s}', S$couleur, S$sans_couleur),
+  sprintf('.typo-legende .sw{width:22px;height:16px;border-radius:3px;border:1px solid %s;flex:none;margin-top:3px}', S$couleur),
   '.typo-legende .lib{font-weight:600;line-height:1.3}.typo-legende .n{color:var(--texte);font-weight:500;margin-left:6px}.typo-legende .sig{display:block;font-size:13px;color:var(--texte);font-weight:400;line-height:1.35;margin-top:1px}',
   'path.t.dim,path.h.dim{opacity:.22}.typo-legende .sw.sw-hachures{background:repeating-linear-gradient(45deg,#1F2933 0 2px,#fff 2px 6px)}.legende-hachures{margin-top:6px!important;padding-top:6px!important;border-top:1px solid var(--filet)}',
   # infobulle FIXÉE au viewport : elle ne peut ni agrandir la zone défilable ni déplacer le contenu (stabilité au survol et au défilement)
@@ -307,10 +306,10 @@ js_carte_typologie <- function() paste(
   'function large(){return window.matchMedia("(min-width:901px)").matches}',
   'function ligne(el,txt,cls){var d=document.createElement("div");if(cls)d.className=cls;d.textContent=txt;el.appendChild(d);return d}',
   # rubriques titrées + puces (SPEC-TYPO-062) ; repli sur les lignes si un territoire n'a aucune rubrique (masqué, absent)
-  'function rendreBlocs(cont,t){cont.innerHTML="";if(t.blocs&&t.blocs.length){t.blocs.forEach(function(b){var h=document.createElement("h3");h.className="rub";h.textContent=b.t;cont.appendChild(h);var ul=document.createElement("ul");ul.className="puces";b.p.forEach(function(x){var li=document.createElement("li");li.textContent=x;ul.appendChild(li)});cont.appendChild(ul)})}else{cont.textContent=t.st==="sans"?L.absent:(t.st==="masque"?L.detail_non_diffuse:(t.lignes||[]).join(" · "))}}',
+  'function rendreBlocs(cont,t){cont.innerHTML="";if(t.blocs&&t.blocs.length){t.blocs.forEach(function(b){var h=document.createElement("h3");h.className="rub";h.textContent=b.t;cont.appendChild(h);var ul=document.createElement("ul");ul.className="puces";b.p.forEach(function(x){var li=document.createElement("li");li.textContent=x;ul.appendChild(li)});cont.appendChild(ul)})}else{cont.textContent=t.st==="masque"?L.detail_non_diffuse:(t.lignes||[]).join(" · ")}}',
   'function surligner(code){if(!U)return;var p=code&&$("t-"+code);if(p){U.setAttribute("d",p.getAttribute("d"));U.classList.add("on")}else{U.classList.remove("on");U.setAttribute("d","")}}',
   'function bulle(code){var t=D.territoires[code],el=document.createElement("div");ligne(el,t.nom+" · "+code,"tooltip-title");',
-  ' var p=t.cle?D.profils[t.cle]:null;var c=ligne(el,p?p.titre:(t.st==="sans"?L.absent:"Non diffusé (secret statistique)"),"tooltip-profil");c.style.borderLeftColor=p?p.couleur:(t.st==="sans"?D.couleurs.sans_donnee:D.couleurs.secret);',
+  ' var p=t.cle?D.profils[t.cle]:null;var c=ligne(el,p?p.titre:"Non diffusé (secret statistique)","tooltip-profil");c.style.borderLeftColor=p?p.couleur:D.couleurs.secret;',
   ' var b=document.createElement("div");b.className="tooltip-rows";var bl=(t.blocs||[]).filter(function(x){return x.b});',
   ' if(bl.length){bl.forEach(function(x){ligne(b,x.t,"tooltip-rub");(x.pb||x.p).forEach(function(l){ligne(b,l,"tooltip-small")})})}else{t.lignes.forEach(function(l,i){ligne(b,l,i<3?"tooltip-value":"tooltip-small")})}el.appendChild(b);return el.innerHTML}',
   'function detail(code,force){if(!DET)return;if(!force&&code===codeDetail)return;codeDetail=code;if(!code){DT.textContent="";DET.textContent=L.detail_initial;DA.textContent="";return}var t=D.territoires[code],p=t.cle?D.profils[t.cle]:null;',
@@ -364,17 +363,17 @@ html_entete_typologie <- function(prep, champ, bandeau = TRUE, sous_qui = NULL, 
 }
 html_legende_typologie <- function(prep, interactive = TRUE) {
   defs <- DEFINITIONS_PROFILS; S <- STYLE_CONTOURS_CARTE
-  item <- function(col, lib, n, sig = NULL, cle = NULL, sans = FALSE) {
-    inner <- sprintf('<span class="sw%s" style="background:%s"></span><span><span class="lib">%s<span class="n">%d</span></span>%s</span>',
-                     if (sans) " sans" else "", col, echap_html_carte(lib), n, if (!is.null(sig)) sprintf('<span class="sig">%s</span>', echap_html_carte(sig)) else "")
+  item <- function(col, lib, n, sig = NULL, cle = NULL) {
+    inner <- sprintf('<span class="sw" style="background:%s"></span><span><span class="lib">%s<span class="n">%d</span></span>%s</span>',
+                     col, echap_html_carte(lib), n, if (!is.null(sig)) sprintf('<span class="sig">%s</span>', echap_html_carte(sig)) else "")
     if (interactive && !is.null(cle)) sprintf('<li><button type="button" data-cle="%s" aria-pressed="false"%s>%s</button></li>', cle,
                                               if (!is.null(sig)) sprintf(' title="%s"', echap_html_carte(sig)) else "", inner) else sprintf('<li><span class="item">%s</span></li>', inner)
   }
   c('<div class="legende-bloc"><div class="legend-title">Profils (nombre de départements)</div><ul class="typo-legende" id="legende">',
     vapply(names(prep$profils), function(k) item(COULEURS_PROFILS[[k]], prep$profils[[k]], prep$comptes[[k]], defs$signification[defs$cle == k], k), ""),
     item(COULEURS_CARTE$secret, LIBELLES_CARTE_TYPO$profil_non_diffuse, prep$comptes[["profil_masque"]] + prep$comptes[["masque"]]),
-    # un département réellement absent de la typologie garde sa propre entrée (jamais assimilé au secret) ; aucune entrée à 0
-    if (prep$comptes[["sans"]] > 0) item(COULEURS_CARTE$sans_donnee, LIBELLES_CARTE_TYPO$absent, prep$comptes[["sans"]], sans = TRUE) else "", '</ul>', html_legende_hachures(prep),
+    # aucune entrée « absent » : un département absent de la table est compté avec les non diffusés (SPEC-PUB-007)
+    '</ul>', html_legende_hachures(prep),
     if (interactive) '<p class="note">Cliquez un profil pour l’isoler sur la carte et lire sa définition ; cliquez de nouveau pour tout afficher.</p>' else "", '</div>')
 }
 # Hachures (SPEC-TYPO-107) : départements d'exposition Forte, jamais un département masqué ; motif SVG
@@ -400,7 +399,7 @@ html_definitions_profils <- function(prep, ouvert = FALSE) {
     '<table class="tab-typo tab-defs"><thead><tr><th>Profil</th><th>Règle</th><th>Ce que cela signifie</th><th>Consigne de lecture</th></tr></thead><tbody>', lignes, '</tbody></table></details>')
 }
 html_tableau_typologie <- function(prep, ouvert = FALSE) {
-  t <- prep$territoires; t <- t[t$statut != "sans", ]
+  t <- prep$territoires   # tous les départements du fond : un absent de la table est une ligne « non diffusé » (SPEC-PUB-007)
   ordre <- match(t$cle, names(prep$profils)); ordre[is.na(ordre)] <- length(prep$profils) + 1
   t <- t[order(ordre, -ifelse(is.na(t$departs_central), -1, t$departs_central), t$code), ]
   f0 <- function(x) fmt_fr_carte(x, 0); f1 <- function(x) fmt_fr_carte(x, 1)
@@ -435,10 +434,9 @@ generer_carte_typologie <- function(prep, fond, fichier_html, champ = construire
                                     source_note = "calculs propres", fichier_png = NULL) {
   lay <- projeter_fond(fond); t <- prep$territoires; S <- STYLE_CONTOURS_CARTE
   titre_page <- paste0(LIBELLES_CARTE_TYPO$titre, " — départs attendus d’ici 2030")
-  paths <- vapply(names(fond), function(code) { r <- t[t$code == code, ]; sans <- r$statut == "sans"
-    sprintf('<path class="t%s" id="t-%s" data-code="%s" data-st="%s"%s fill="%s" stroke="%s" stroke-width="%s"%s d="%s" tabindex="0" aria-label="%s"></path>',
-            if (sans) " sans" else "", code, code, r$statut, if (!is.na(r$cle)) sprintf(' data-cle="%s"', r$cle) else "", couleur_territoire_typo(r),
-            if (sans) S$sans_couleur else S$couleur, if (sans) S$sans_largeur else S$largeur, if (sans) ' stroke-dasharray="3 2"' else "",
+  paths <- vapply(names(fond), function(code) { r <- t[t$code == code, ]
+    sprintf('<path class="t" id="t-%s" data-code="%s" data-st="%s"%s fill="%s" stroke="%s" stroke-width="%s" d="%s" tabindex="0" aria-label="%s"></path>',
+            code, code, r$statut, if (!is.na(r$cle)) sprintf(' data-cle="%s"', r$cle) else "", couleur_territoire_typo(r), S$couleur, S$largeur,
             lay$chemins[[code]], echap_html_carte(paste0(r$nom, " — ", titre_profil_typo(r, prep)))) }, "")
   html <- c('<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8">', sprintf('<title>%s</title>', echap_html_carte(titre_page)),
             '<meta name="viewport" content="width=device-width, initial-scale=1">', '<style>', css_cartes(), css_carte_typologie(), '</style></head><body><div class="page page-ecran">',
@@ -469,9 +467,8 @@ generer_carte_typologie <- function(prep, fond, fichier_html, champ = construire
 generer_carte_typologie_courriel <- function(prep, fond, fichier_html, champ = construire_libelle_champ(), fond_regions = NULL, source_note = "calculs propres") {
   lay <- projeter_fond(fond); t <- prep$territoires; S <- STYLE_CONTOURS_CARTE
   titre_page <- paste0(LIBELLES_CARTE_TYPO$titre, " — départs attendus d’ici 2030")
-  uses <- vapply(names(fond), function(code) { r <- t[t$code == code, ]; sans <- r$statut == "sans"
-    sprintf('<path fill="%s" stroke="%s" stroke-width="%s"%s d="%s"><title>%s</title></path>', couleur_territoire_typo(r),
-            if (sans) S$sans_couleur else S$couleur, if (sans) S$sans_largeur else S$largeur, if (sans) ' stroke-dasharray="3 2"' else "", lay$chemins[[code]],
+  uses <- vapply(names(fond), function(code) { r <- t[t$code == code, ]
+    sprintf('<path fill="%s" stroke="%s" stroke-width="%s" d="%s"><title>%s</title></path>', couleur_territoire_typo(r), S$couleur, S$largeur, lay$chemins[[code]],
             echap_html_carte(paste(c(paste0(r$nom, " · ", code), titre_profil_typo(r, prep), lignes_detail_typologie(r, prep$indicateur)), collapse = "\n"))) }, "")
   html <- c('<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8">', sprintf('<title>%s</title>', echap_html_carte(titre_page)),
             '<meta name="viewport" content="width=device-width, initial-scale=1">', '<style>', css_cartes(), css_carte_typologie(), '</style></head><body><div class="page courriel-typo">',
@@ -493,19 +490,18 @@ generer_carte_typologie_courriel <- function(prep, fond, fichier_html, champ = c
 png_carte_typologie <- function(prep, lay, fichier_png, champ = construire_libelle_champ(), lay_regions = NULL) {
   if (!requireNamespace("ggplot2", quietly = TRUE)) stop("ggplot2 absent")
   S <- STYLE_CONTOURS_CARTE; t <- prep$territoires
-  niveaux <- c(unname(prep$profils), LIBELLES_CARTE_TYPO$profil_non_diffuse, LIBELLES_CARTE_TYPO$absent)
-  cols <- setNames(c(unname(COULEURS_PROFILS[names(prep$profils)]), COULEURS_CARTE$secret, COULEURS_CARTE$sans_donnee), niveaux)
-  lib <- vapply(seq_len(nrow(t)), function(i) { r <- t[i, ]; if (!is.na(r$cle)) prep$profils[[r$cle]] else if (r$statut == "sans") LIBELLES_CARTE_TYPO$absent else LIBELLES_CARTE_TYPO$profil_non_diffuse }, "")
+  niveaux <- c(unname(prep$profils), LIBELLES_CARTE_TYPO$profil_non_diffuse)
+  cols <- setNames(c(unname(COULEURS_PROFILS[names(prep$profils)]), COULEURS_CARTE$secret), niveaux)
+  lib <- vapply(seq_len(nrow(t)), function(i) { r <- t[i, ]; if (!is.na(r$cle)) prep$profils[[r$cle]] else LIBELLES_CARTE_TYPO$profil_non_diffuse }, "")
   long <- lay$long; long$classe <- factor(lib[match(long$code, t$code)], levels = niveaux)
   enc <- if (length(lay$encarts)) bind_rows(lapply(lay$encarts, function(e) tibble(x1 = e$cadre[1], x2 = e$cadre[3], y1 = -e$cadre[2], y2 = -e$cadre[4], lib = e$nom, xl = e$x_lib, yl = -e$y_lib))) else NULL
   g <- ggplot2::ggplot() +
     ggplot2::geom_polygon(data = long, ggplot2::aes(x = x, y = y, group = groupe, fill = classe), colour = S$png_couleur, linewidth = S$png_largeur) +
-    ggplot2::scale_fill_manual(values = cols, drop = FALSE, name = NULL,
-                               breaks = niveaux[seq_len(length(niveaux) - if (prep$comptes[["sans"]] > 0) 0 else 1)]) +
+    ggplot2::scale_fill_manual(values = cols, drop = FALSE, name = NULL, breaks = niveaux) +
     ggplot2::guides(fill = ggplot2::guide_legend(override.aes = list(colour = S$png_couleur), ncol = 2)) +
     ggplot2::coord_equal(expand = FALSE) + ggplot2::theme_void(base_size = 12) +
     ggplot2::labs(title = LIBELLES_CARTE_TYPO$titre, subtitle = paste0("Départs attendus d’ici 2030 · ", toupper(substr(champ$court, 1, 1)), substr(champ$court, 2, nchar(champ$court))),
-                  caption = "Gris : profil ou département non diffusé (secret statistique) · blanc : absent de la typologie.\nFond IGN Admin Express via france-geojson.") +
+                  caption = "Gris : profil ou département non diffusé (secret statistique), y compris sans salarié observé.\nFond IGN Admin Express via france-geojson.") +
     ggplot2::theme(legend.position = "bottom", legend.text = ggplot2::element_text(size = 10),
                    plot.title = ggplot2::element_text(face = "bold", size = 15, colour = COULEURS_CARTE$encre),
                    plot.subtitle = ggplot2::element_text(colour = COULEURS_CARTE$texte, size = 11),
