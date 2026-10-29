@@ -60,6 +60,10 @@ source("R/08_territoires/08i_exposition_tension.R")      # -> sorties/typologie_
 source("R/08_territoires/08j_metiers_liste_territoires.R") # -> sorties/typologie_territoriale/diffusion/ : fiche_metiers_liste.html,
                                           #    metiers_liste_territoires.{csv,xlsx} : pour chaque métier de la liste, part des
                                           #    salariés susceptibles de partir par région et département, face à la France (08j)
+source("R/09_analyse/09a_fonctions_analyse_hypotheses.R")  # fonctions pures de l'analyse (specs/11)
+source("R/09_analyse/09b_analyse_hypotheses_depart.R")     # -> sorties/analyse_hypotheses_depart/<zonage>/ : classeur Excel prêt à
+                                          #    coller dans Word (hypothèses, volume, métiers, territoires, priorités) + CSV ;
+                                          #    seules tables de diffusion ; si GENERER_ANALYSE ; prérequis absents = message
 source("R/08_territoires/08e_cartes_departs.R")          # -> sorties/cartes_departs/{pcs,cs1}/carte_<dim>_<niveau>.html (+ .png)
                                           #    (cartes des tables diffusion/ seules ; si GENERER_CARTES_DEPARTS)
 source("R/08_territoires/08g_carte_typologie.R")         # -> sorties/typologie_territoriale/cartes/carte_typologie{,_courriel}.html (+ .png)
