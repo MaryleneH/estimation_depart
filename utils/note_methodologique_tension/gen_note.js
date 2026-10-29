@@ -183,7 +183,8 @@ const p8 = [
   h1("9. Le croisement avec la typologie"),
   texte("La typologie attribue à chaque département un profil, d’après son poids dans l’emploi, le volume et l’intensité de ses départs. L’exposition ne modifie **ni les profils, ni les règles, ni les couleurs** de la carte : elle s’y superpose."),
   ...puces(["Sur la carte des profils, les départements d’exposition **forte** sont **hachurés** ; la couleur reste celle du profil. Un département masqué par le secret n’est jamais hachuré.",
-    "Le panneau de détail d’un département ajoute une rubrique « Recrutement » : exposition et repère France, classe et robustesse, couverture, levier, métiers en tension les plus concernés.",
+    "Le panneau de détail d’un département ajoute une rubrique « Recrutement » : exposition et repère France, classe et robustesse, couverture, levier, métiers en tension les plus concernés, et le nombre de départs attendus dans les métiers suivis en tension (un minimum, avec sa part dans tous les départs du département).",
+    "Une **fiche des territoires** (`fiche_territoires_tension.html`) classe les régions puis les départements par ce nombre de départs (plancher, fourchette basse – haute), en rappelant le profil de la typologie de chaque département et, pour une région, le nombre de ses départements à renouvellement rapide ; les territoires non diffusés figurent en fin de tableau sans valeur.",
     "Un département qui cumule un **renouvellement rapide** (profils « Pôle majeur à renouveler rapidement » et « Renouvellement rapide à surveiller ») et une **exposition forte** est signalé comme tel (`tension_cumul`). Le premier message de la fiche compte ces départements et la part des départs qu’ils concentrent."]),
   ...retenir("Lire dans cet ordre : la couleur (combien partent, à quel rythme), puis les hachures (sur quels métiers), puis le tableau des métiers et le levier (quelle nature de difficulté). Un département à renouvellement rapide et hachuré cumule les deux difficultés ; il mérite d’être regardé en premier, sans que cela constitue un classement.")];
 
@@ -248,6 +249,8 @@ const annexes = [
     ["diffusion/metiers_strategiques_tension.csv", "Métiers stratégiques au niveau France, cellules diffusables seulement."],
     ["diffusion/fiche_exposition_tension.html", "Fiche d’une page : trois messages, tableau des métiers par situation, lecture, méthode ; en annexe repliée, la matrice des métiers (un point par métier diffusable, libellé lu au survol de la souris) ; sans script."],
     ["diffusion/matrice_metiers_tension.png", "Représentation graphique des situations de métier (image à part)."],
+    ["diffusion/exposition_tension_regions.csv", "Mêmes indicateurs au niveau région (table région × PCS du 08c), même secret."],
+    ["diffusion/fiche_territoires_tension.html", "Classement des régions puis des départements par départs attendus dans les métiers suivis en tension (minimums), profil de la typologie rappelé ; sans script. Un script de contrôle (99d) vérifie la cohérence hachures / cumul / fiche après la chaîne."],
     ["diffusion/exposition_tension.xlsx", "Classeur à quatre feuilles (Lisez-moi, Départements, Métiers, Paramètres) : le contenu de la fiche, issu des seules tables de diffusion, pour être repris, trié et transmis."]], { size: 17 })];
 
 const doc = new Document({
