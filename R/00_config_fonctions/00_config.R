@@ -326,6 +326,9 @@ TENSION_METHODE_CLASSES   <- "terciles"  # classes d'exposition : "terciles" (pr
 TENSION_SEUIL_EXPO_FAIBLE <- 25
 TENSION_SEUIL_EXPO_FORTE  <- 50
 TENSION_COUVERTURE_MIN_PCT <- 30     # % des départs du département portés par les métiers stratégiques : en dessous, non interprété
+TENSION_N_METIERS_SUIVIS <- 80       # N, saisi à la main : nombre de métiers stratégiques SUIVIS, nommé dans tout texte sur la
+                                     # tension (« parmi les N métiers stratégiques suivis ») ; information partielle, les autres
+                                     # métiers ne sont pas observés. Le 08i signale en console s'il diffère des PCS du classeur.
 TENSION_CLASSEUR_EXCEL <- TRUE       # TRUE = diffusion/exposition_tension.xlsx (Lisez-moi, Départements, Métiers, Paramètres), même contenu
                                      # que la fiche HTML, issu des seules tables de diffusion ; openxlsx (mise en forme) ou writexl ;
                                      # échec ou paquet absent = message, jamais d'arrêt. FALSE = pas de classeur.
@@ -460,6 +463,9 @@ if (!is.numeric(TENSION_RANG_MAX) || length(TENSION_RANG_MAX) != 1 || TENSION_RA
     TENSION_SEUIL_RANG < 2 || TENSION_SEUIL_RANG > TENSION_RANG_MAX)
   stop(sprintf("TENSION_RANG_MAX (entier >= 2) et TENSION_SEUIL_RANG (entier de 2 à TENSION_RANG_MAX) incohérents : %s / %s.",
                paste(deparse(TENSION_RANG_MAX), collapse = ""), paste(deparse(TENSION_SEUIL_RANG), collapse = "")))
+if (!is.numeric(TENSION_N_METIERS_SUIVIS) || length(TENSION_N_METIERS_SUIVIS) != 1 || is.na(TENSION_N_METIERS_SUIVIS) ||
+    TENSION_N_METIERS_SUIVIS != round(TENSION_N_METIERS_SUIVIS) || TENSION_N_METIERS_SUIVIS < 1)
+  stop("TENSION_N_METIERS_SUIVIS doit être un entier >= 1 (nombre de métiers stratégiques suivis) ; reçu : ", paste(deparse(TENSION_N_METIERS_SUIVIS), collapse = ""))
 if (!is.null(TENSION_SOUS_NIVEAUX) && (!is.numeric(TENSION_SOUS_NIVEAUX) || anyNA(TENSION_SOUS_NIVEAUX) || any(TENSION_SOUS_NIVEAUX != round(TENSION_SOUS_NIVEAUX)) ||
     any(TENSION_SOUS_NIVEAUX < 1 | TENSION_SOUS_NIVEAUX > 9) || is.unsorted(TENSION_SOUS_NIVEAUX, strictly = TRUE)))
   stop("TENSION_SOUS_NIVEAUX doit être NULL ou des chiffres de 1 à 9 strictement croissants (décimales du niveau maximal, ex. c(1, 2) = 5.1, 5.2) ; reçu : ",
