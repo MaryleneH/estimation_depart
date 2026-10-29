@@ -6,7 +6,7 @@ annexes de référence.
 
 | Livrable | Générateur | Contenu |
 |---|---|---|
-| `docs/note_courte_exposition_tension.docx` | `gen_note_exposition.js` | ce qu'est l'estimation des départs (un plancher du besoin de remplacement, pas des départs en retraite ; règles générales, aucune trajectoire individuelle), puis l'exposition au recrutement difficile : mesure, levier, lecture, limites, exemple fictif |
+| `docs/note_courte_exposition_tension.docx` | `gen_note_exposition.js` | ce qu'est l'estimation des départs (un plancher du besoin de remplacement, pas des départs en retraite ; règles générales, aucune trajectoire individuelle), puis la part des remplacements difficiles (l'« exposition » du code) : mesure, levier, lecture, limites, exemple fictif |
 | `docs/note_courte_pcs_fap.docx` | `gen_note_pcs_fap.js` | PCS et FAP : deux questions, deux grilles ; comment le projet s'en sert ; cinq repères avant de lire un chiffre ; quatre phrases à éviter |
 
 Tous les chiffres sont fictifs ; aucune donnée du projet n'y figure.
@@ -17,6 +17,8 @@ Tous les chiffres sont fictifs ; aucune donnée du projet n'y figure.
 node utils/notes_courtes/gen_note_exposition.js      # -> docs/note_courte_exposition_tension.docx
 node utils/notes_courtes/gen_note_pcs_fap.js         # -> docs/note_courte_pcs_fap.docx
 ```
+
+En interne, pour que le texte dise « BITD » au lieu de « Base » : `PERIMETRE=BITD node …` (variable d'environnement lue par les générateurs ; « Base Tous salariés » n'est jamais touché).
 
 Prérequis : module `docx` (même installation que `utils/note_pedagogique/README.md`).
 Contrôle visuel : conversion PDF avec LibreOffice, non versionnée.
