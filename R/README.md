@@ -33,7 +33,7 @@ Sorties : `interne/` (complet, jamais versionné) et `diffusion/` (secret du dé
 
 ## Outils hors chaîne (`utils/`)
 
-Scripts lancés à la main, jamais par `main.R` : comparaison de sorties, instantanés, fond de carte, générateurs des notes Word, et `utils_renommer_base_bitd.R` qui remplace « Base nationale » et « Base » par « BITD » dans un dépôt de travail (inventaire classé par contexte, décisions dans un CSV, application à la position exacte, jamais les identifiants ni les données ; mode d’emploi : `utils/README_renommage_bitd.md`).
+Scripts lancés à la main, jamais par `main.R` : comparaison de sorties, instantanés, fond de carte, générateurs des notes Word (notes longues de référence, et deux notes courtes pour la décideuse dans `utils/notes_courtes/` : l’estimation des départs et l’exposition au recrutement difficile ; PCS et FAP), et `utils_renommer_base_bitd.R` qui remplace « Base nationale » et « Base » par « BITD » dans un dépôt de travail (inventaire classé par contexte, décisions dans un CSV, application à la position exacte, jamais les identifiants ni les données ; mode d’emploi : `utils/README_renommage_bitd.md`).
 
 ## Arrondi des restitutions
 
