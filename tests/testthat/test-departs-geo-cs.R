@@ -188,3 +188,28 @@ test_that("8. sourcer 08b ne modifie, ne supprime ni ne regroupe aucun objet exi
   expect_identical(dplyr::group_vars(env$bts_projete), character(0))
   expect_true(file.exists(file.path(env$DIR_SORTIES, "departs_par_departement_cs.csv")))
 })
+
+test_that("SPEC-GEO-012 — synthèse 08 diffusable : territoire = cellule, bloc des seniors à part, univers à zéro, objet exact inchangé ; CSV, tableau et HTML sans valeur masquée", {
+  sg <- ENV$synthese_geo; sd <- ENV$synthese_geo_diffusable; r <- ENV$regles_secret()
+  U <- { old <- setwd(RACINE); on.exit(setwd(old), add = TRUE); ENV$univers_territoires("departement") }
+  expect_setequal(sd$geo_code, union(sg$geo_code, U$geo_code)); expect_equal(anyDuplicated(sd$geo_code), 0)
+  expect_false(any(c("masque", "masque_55plus") %in% names(sg)))                                  # l'objet exact n'est pas touché
+  zeros <- setdiff(sd$geo_code, sg$geo_code); expect_gt(length(zeros), 0); expect_true(all(sd$masque[sd$geo_code %in% zeros]))
+  expect_true(all(sd$masque_55plus[sd$masque]))
+  expect_true(all(is.na(sd$effectif_champ[sd$masque])) && all(is.na(sd$departs_55plus[sd$masque_55plus])) && all(is.na(sd$taux_depart_55plus_pct[sd$masque_55plus])))
+  j <- dplyr::inner_join(sg, sd |> dplyr::select(geo_code, masque, masque_55plus, e55_d = effectif_55plus, d55_d = departs_55plus, ec_d = effectif_champ), by = "geo_code")
+  expect_false(any(!j$masque & j$effectif_champ < r$min_salaries)); expect_false(any(!j$masque_55plus & j$effectif_55plus < r$min_salaries))   # règle primaire (zéro compris)
+  expect_true(all(j$masque_55plus[j$effectif_55plus == 0]))
+  expect_equal(j$e55_d[!j$masque_55plus], j$effectif_55plus[!j$masque_55plus]); expect_equal(j$ec_d[!j$masque], j$effectif_champ[!j$masque])   # visibles : valeurs exactes
+  # blocs (marges publiées : total du périmètre, total des seniors) : jamais une seule cellule masquée, jamais des masquées toutes à zéro
+  for (m in list(sd$masque, sd$masque_55plus)) { z <- sd$geo_code %in% zeros; expect_false((sum(m) == 1 || (sum(m) >= 1 && all(z[m]))) && sum(!m) > 1) }
+  csv <- read.csv2(ENV$sortie("analyse_55plus_par_%s.csv"), colClasses = c(geo_code = "character"), fileEncoding = "UTF-8-BOM")
+  expect_setequal(csv$geo_code, sd$geo_code); expect_true(all(is.na(csv$effectif_champ[csv$masque]))); expect_true(all(is.na(csv$departs_55plus[csv$masque_55plus])))
+  t08 <- read.csv2(ENV$sortie("tableau_departs_55plus_%s.csv"), colClasses = c(code = "character"), fileEncoding = "UTF-8-BOM")
+  expect_true(all(is.na(t08$effectif[t08$code %in% sd$geo_code[sd$masque_55plus]]))); expect_equal(t08$effectif[t08$code == ""], sum(sg$effectif_55plus))   # ligne « Ensemble » = marge exacte
+  h <- paste(readLines(ENV$sortie("tableau_departs_55plus_%s.html"), encoding = "UTF-8", warn = FALSE), collapse = "\n")
+  expect_false(grepl("sans aucun|aucun senior", h))
+  for (code in sd$geo_code[sd$masque_55plus & sd$geo_code %in% sg$geo_code]) { lg <- regmatches(h, regexpr(sprintf("<tr><td>%s</td>.*?</tr>", sg$geo_nom[sg$geo_code == code]), h, perl = TRUE))
+    expect_true(length(lg) == 1 && grepl("<td class=\"num\">–</td><td class=\"num\">–</td>", lg, fixed = TRUE), label = code) }
+  expect_true(file.exists(ENV$sortie("quadrant_55plus_%s.png")))
+})

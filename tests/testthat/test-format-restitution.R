@@ -107,11 +107,11 @@ test_that("NON-RÉGRESSION numérique : la chaîne produit des objets analytique
   e05 <- read.csv2(file.path(env$DIR_SORTIES, "departs_2030_par_entreprise.csv"), stringsAsFactors = FALSE, fileEncoding = "UTF-8-BOM")
   expect_true(all(e05$departs_2030 == round(e05$departs_2030))); expect_true(any(e05$part_departs_pct != round(e05$part_departs_pct)))
   s08 <- read.csv2(file.path(env$DIR_SORTIES, "analyse_55plus_par_departement.csv"), stringsAsFactors = FALSE, fileEncoding = "UTF-8-BOM")
-  expect_true(all(s08$departs_55plus == round(s08$departs_55plus)))
+  expect_true(all(s08$departs_55plus == round(s08$departs_55plus), na.rm = TRUE)); expect_true(all(c("masque", "masque_55plus") %in% names(s08)))   # NA = secret (SPEC-GEO-012)
   expect_equal(s08$dep_55_retraite + s08$dep_55_invalidite + s08$dep_55_deces, s08$departs_55plus)
   expect_true(any(s08$taux_depart_55plus_pct != round(s08$taux_depart_55plus_pct), na.rm = TRUE))
   t08 <- read.csv2(file.path(env$DIR_SORTIES, "tableau_departs_55plus_departement.csv"), stringsAsFactors = FALSE, fileEncoding = "UTF-8-BOM")
-  expect_equal(t08$dont_retraite + t08$dont_invalidite + t08$dont_deces, t08$departs); expect_true(all(t08$bas == round(t08$bas)))
+  expect_equal(t08$dont_retraite + t08$dont_invalidite + t08$dont_deces, t08$departs); expect_true(all(t08$bas == round(t08$bas), na.rm = TRUE))
   b08 <- read.csv2(file.path(env$DIR_SORTIES, "departs_par_departement_cs.csv"), stringsAsFactors = FALSE, fileEncoding = "UTF-8-BOM")
   expect_true(all(b08$departs_2030[!b08$masque] == round(b08$departs_2030[!b08$masque])))
   c08 <- read.csv2(file.path(env$DIR_SORTIES, "departs_cs1", "diffusion", "departs_cs1_region.csv"), stringsAsFactors = FALSE, fileEncoding = "UTF-8-BOM")
@@ -121,6 +121,7 @@ test_that("NON-RÉGRESSION numérique : la chaîne produit des objets analytique
   lignes <- grep("<tr", h, value = TRUE); lignes <- lignes[grepl("<td", lignes)]
   for (l in lignes) {
     v <- regmatches(l, gregexpr("<td class=\"num\">[^<]*</td>", l))[[1]]; v <- gsub("<[^>]+>| | ", "", v)
+    if (v[2] == "–") next                                                                               # territoire non diffusé (SPEC-GEO-012)
     expect_equal(as.numeric(v[3]) + as.numeric(v[4]) + as.numeric(v[5]), as.numeric(v[2]), label = l)
     expect_false(grepl(",", v[2], fixed = TRUE), label = l); expect_true(grepl(",", v[6], fixed = TRUE) || v[6] == "–", label = l)
   }

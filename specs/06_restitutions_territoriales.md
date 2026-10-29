@@ -102,6 +102,15 @@ Fonctionnalité: Produire des estimations territoriales cohérentes
     Quand le 08b est sourcé
     Alors aucun objet existant ne doit être modifié, supprimé ni regroupé
     Et les indicateurs calculés doivent être identiques à ceux du 04 et du 08
+
+  Scénario: [SPEC-GEO-012] Appliquer le secret à la synthèse par territoire, au tableau des seniors et au quadrant
+    Étant donné synthese_geo, objet exact conservé pour les contrôles, les fiches et l'instantané
+    Quand analyse_55plus_par_<zonage>.csv, tableau_departs_55plus_<zonage>.csv / .html et quadrant_55plus_<zonage>.png sont produits
+    Alors ils sont construits sur une version diffusable (synthese_geo_diffusable) : le territoire est une cellule soumise à la règle primaire (salariés, entreprises, dominance) puis au secret secondaire, bloc = tous les territoires de l'univers (marge : total du périmètre, publié), même décision que la typologie
+    Et le bloc des AGE_SENIOR ans et + de chaque territoire suit sa propre règle (cellule des seniors, zéro compris ; marge : total des seniors publié par la ligne « Ensemble »), colonne masque_55plus
+    Et un territoire masqué n'a aucune valeur (masque = TRUE) ; un bloc des seniors masqué n'a aucune valeur senior ; les territoires du référentiel sans salarié observé entrent à zéro (SPEC-SEC-035) et figurent masqués
+    Et le quadrant ne trace que les territoires dont le bloc des seniors est diffusé, et compte les autres comme « non diffusés », jamais « sans senior »
+    Et la ligne « Ensemble du périmètre » du tableau reste le total exact (marge publiée) ; le script s'arrête si une cellule sous le seuil restait visible
 ```
 
 ## Traçabilité
