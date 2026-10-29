@@ -106,3 +106,43 @@ formater_restitution <- function(df, personnes = COLONNES_PERSONNES, taux = NULL
 # --- Formats texte (français) partagés par les restitutions HTML ----------------
 fmt_personnes <- function(x, na = "n.d.") ifelse(is.finite(as.numeric(x)),
                                                  formatC(arrondir_nombre_personnes(x), format = "d", big.mark = " "), na)
+
+# --- Complétion d'une table de DIFFUSION sur l'univers des territoires (SPEC-SEC-035) --
+# Ajoute, pour chaque territoire de `univers` (geo_code, geo_nom[, region_code,
+# region_nom]) et chaque catégorie de `categories` (data.frame des clés de
+# catégorie, ex. pcs + cs1, ou cs1 ; NULL = une ligne par territoire) absent de la
+# table, une ligne MASQUÉE : toutes les mesures NA (jamais 0), colonne de masque
+# à `valeur_masque`, motif `motif` si la table en porte un, colonnes constantes
+# recopiées de la première ligne. Rien n'est recalculé ; les lignes existantes
+# sont intactes. Les lignes ajoutées sont indiscernables d'une cellule masquée
+# pour un autre motif. attr(, "n_completees") donne leur nombre (contrôle console).
+if (!exists("%||%")) `%||%` <- function(a, b) if (is.null(a)) b else a   # R < 4.4
+# valeurs : colonnes des lignes ajoutées à remplir autrement que par NA (ex. effectif_champ = 0L, n_entreprises = 0L,
+# part_dominante_pct = 100 AVANT le secret : la cellule à zéro est alors masquée par la règle primaire et compte
+# dans les blocs du secret secondaire) ; col_masque = NULL : la colonne de masque n'est pas touchée.
+completer_univers_diffusion <- function(table, univers, categories = NULL, motif = "primaire", col_masque = "masque",
+                                        valeur_masque = TRUE, colonnes_constantes = character(0), cle_geo = "geo_code", valeurs = list()) {
+  attr(table, "n_completees") <- 0L
+  if (is.null(univers) || nrow(univers) == 0 || nrow(table) == 0) return(table)
+  if (!cle_geo %in% names(table) || !cle_geo %in% names(univers)) stop("completer_univers_diffusion : clé « ", cle_geo, " » absente de la table ou de l'univers.")
+  cles_u <- intersect(c("geo_code", "geo_nom", "region_code", "region_nom"), intersect(names(univers), names(table)))
+  grille <- as.data.frame(univers)[, cles_u, drop = FALSE]
+  cles_c <- character(0)
+  if (!is.null(categories) && nrow(categories) > 0) {
+    categories <- as.data.frame(categories); cles_c <- intersect(names(categories), names(table))
+    grille <- merge(grille, categories[, cles_c, drop = FALSE], by = NULL)         # produit cartésien territoires x catégories
+  }
+  cles_j <- c(cle_geo, cles_c)
+  presentes <- do.call(paste, c(as.data.frame(table)[, cles_j, drop = FALSE], sep = "\r"))
+  voulues <- do.call(paste, c(grille[, cles_j, drop = FALSE], sep = "\r"))
+  manq <- grille[!voulues %in% presentes, , drop = FALSE]
+  if (nrow(manq) == 0) return(table)
+  for (v in setdiff(names(table), names(manq))) manq[[v]] <- rep(table[[v]][NA_integer_], nrow(manq))   # NA typé comme la colonne
+  if (!is.null(col_masque) && col_masque %in% names(table)) manq[[col_masque]] <- rep(valeur_masque, nrow(manq))
+  if (!is.null(col_masque) && "motif_masque" %in% names(table)) manq[["motif_masque"]] <- rep(motif, nrow(manq))
+  for (v in intersect(colonnes_constantes, names(table))) manq[[v]] <- rep(table[[v]][1], nrow(manq))
+  for (v in intersect(names(valeurs), names(table))) manq[[v]] <- rep(valeurs[[v]], nrow(manq))
+  out <- dplyr::bind_rows(table, tibble::as_tibble(manq[names(table)]))
+  attr(out, "n_completees") <- nrow(manq)
+  out
+}

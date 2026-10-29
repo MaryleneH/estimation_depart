@@ -237,7 +237,7 @@ test_that("08e sur les sorties réelles du dépôt : 6 cartes HTML (+ PNG), comp
     expect_false(grepl("<script src=|https?://cdn|@import", h), label = paste(dm, nv))
   }
   expect_true(all(b$territoires_csv == b$joints))                                        # aucun territoire perdu
-  expect_equal(b$joints[b$niveau == "departement"], c(20, 20)); expect_equal(b$absents_csv[b$niveau == "departement"], c(81, 81))
+  expect_equal(b$joints[b$niveau == "departement"], c(101, 101)); expect_equal(b$absents_csv[b$niveau == "departement"], c(0, 0))   # tables complétées sur l'univers (SPEC-SEC-035)
   expect_true(any(grepl("pcs x departement", out)))
   # cohérence avec les CSV : cellules masquées = lignes masque = TRUE ; aucun nombre d'une ligne masquée dans le HTML (table interne si présente)
   csv <- env$lire_csv_diffusion(file.path(d, "departs_pcs", "diffusion", "departs_pcs_departement.csv"))

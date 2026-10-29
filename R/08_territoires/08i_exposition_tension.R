@@ -78,7 +78,8 @@ if (!isTRUE(get0("GENERER_EXPOSITION_TENSION", ifnotfound = FALSE))) {
     message("08i : pas de table de diffusion du 08c (DEPARTS_PCS_SECRET = FALSE) ou TYPO_SECRET = FALSE -> aucun fichier diffusion/.")
   } else {
     typo_dif_08i <- if (exists("typologie_departements") && !is.null(typologie_departements$diffusion)) typologie_departements$diffusion else NULL
-    dif_08i <- appliquer_secret_exposition(expo_08i, met_08i, bts_projete, departs_pcs$diffusion$departement, typo_dif_08i, departs_pcs$diffusion$france, regles_secret(), par_08i)
+    dif_08i <- appliquer_secret_exposition(expo_08i, met_08i, bts_projete, departs_pcs$diffusion$departement, typo_dif_08i, departs_pcs$diffusion$france, regles_secret(), par_08i,
+                                           univers = univers_territoires("departement", geo_interet = NULL))   # SPEC-SEC-035 ; même périmètre que le 08c
     if (any(c("n_entreprises", "part_dominante_pct") %in% names(dif_08i)) || any(grepl("^departs_|^effectif_", names(dif_08i))))
       stop("08i : effectif ou indicateur de secret présent dans la diffusion.")
     mat_08i <- matrice_metiers_tension(met_08i, departs_pcs$analytique$france, departs_pcs$diffusion$france, par_08i)
@@ -88,7 +89,7 @@ if (!isTRUE(get0("GENERER_EXPOSITION_TENSION", ifnotfound = FALSE))) {
       base_reg_08i <- ajouter_region(bts_projete, GEO_PASSAGES[["departement->region"]], prefixe = "08i") |> mutate(geo_code = as.character(region_code))
       dif_reg_08i <- appliquer_secret_exposition(expo_reg_08i, met_08i, base_reg_08i,
                                                  departs_pcs$diffusion$region |> rename(geo_code = region_code, geo_nom = region_nom) |> mutate(geo_code = as.character(geo_code)),
-                                                 NULL, departs_pcs$diffusion$france, regles_secret(), par_08i, territoire = "région")
+                                                 NULL, departs_pcs$diffusion$france, regles_secret(), par_08i, territoire = "région", univers = univers_territoires("region", geo_interet = NULL))
       if (any(grepl("^departs_|^effectif_|n_entreprises|part_dominante", names(dif_reg_08i)))) stop("08i : effectif ou indicateur de secret présent dans la diffusion région.")
       write.csv2(restituer_08i(dif_reg_08i), file.path(dir_dif_08i, "exposition_tension_regions.csv"), row.names = FALSE)
       rm(base_reg_08i)

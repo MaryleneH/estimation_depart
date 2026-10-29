@@ -76,6 +76,7 @@ Fonctionnalité: Produire des cartes diffusables
     Et aucune restitution ne doit porter « Aucun salarié observé », une couleur ou un contour propres à l'absence : un zéro de salariés est une valeur couverte par le secret primaire (moins de SECRET_MIN_SALARIES salariés)
     Et un résultat réellement nul d'une cellule diffusable doit rester 0 (SPEC-SEC-009)
     Et le nombre de territoires de la table joints au fond reste contrôlé en console (usage technique), jamais dans la page
+    Et les tables de diffusion elles-mêmes portent tous les territoires et toutes les catégories de l'univers (SPEC-SEC-035) : les cartes, le classeur et les fiches n'ont plus rien à déduire d'une absence
 
   Scénario: [SPEC-PUB-008] Produire une page autonome
     Étant donné une carte générée
@@ -170,6 +171,13 @@ Fonctionnalité: Produire des fiches territoriales diffusables
     Étant donné FICHES_ANNEXE
     Quand il est faux (défaut), aucune seconde page ne doit être produite
     Et quand il est vrai, une seconde page (structure par âge) doit être ajoutée
+
+  Scénario: [SPEC-PUB-021] Soumettre le bloc des seniors de la fiche au secret de sa cellule
+    Étant donné une fiche diffusable, règles de secret actives
+    Quand les salariés de AGE_SENIOR ans et + du territoire ne satisfont pas la règle primaire (salariés, entreprises, dominance), y compris lorsqu'ils sont zéro
+    Alors leur nombre, leur part, leurs départs attendus et leur taux ne sont pas publiés : NA dans les indicateurs et le journal, « non diffusé (secret statistique) » dans l'en-tête, la position et l'annexe, et le bloc « À retenir » le dit sans jamais écrire « aucun salarié de … ans et + »
+    Et quand ils sont publiés, les tranches d'âge senior (dont ce nombre est la marge) et les tranches non senior reçoivent entre elles le secret secondaire
+    Et sans règle de secret (usage interne), le comportement reste celui de SPEC-PUB-017 (« n.d. », « aucun salarié »)
 ```
 
 ## Traçabilité

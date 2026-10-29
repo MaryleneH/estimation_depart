@@ -132,12 +132,18 @@ Cellule C = 25
 Le secret primaire de A serait inefficace : une autre cellule du même bloc doit
 être masquée.
 
+Même raisonnement lorsque toutes les cellules masquées d'un bloc sont des
+cellules à zéro (territoire ou catégorie sans salarié observé, SPEC-SEC-035) :
+leur somme, déductible de la marge, vaut zéro et les révèle toutes ; une
+cellule visible est alors masquée en plus. Une cellule observée compte toujours
+au moins un salarié : cette clause ne change rien aux tables sans cellule à zéro.
+
 ```gherkin
 Fonctionnalité: Empêcher la reconstitution d'une cellule primaire
 
-  Scénario: [SPEC-SEC-010] Ajouter un masque lorsqu'une seule cellule d'un bloc est masquée
+  Scénario: [SPEC-SEC-010] Ajouter un masque lorsqu'une seule cellule d'un bloc est masquée, ou lorsque toutes ses cellules masquées sont à zéro
     Étant donné un bloc comportant au moins 3 cellules
-    Et exactement une cellule déjà masquée
+    Et exactement une cellule déjà masquée, ou seulement des cellules masquées à zéro (sans salarié observé)
     Et la marge du bloc publiée
     Quand le secret secondaire est appliqué
     Alors une deuxième cellule du bloc doit être masquée
@@ -347,6 +353,14 @@ Fonctionnalité: Appliquer le secret au bon moment
     Alors chaque part non vide doit satisfaire la règle primaire (salariés, entreprises, dominance en effectif ou en départs attendus), sinon rien n'est diffusé pour ce territoire
     Et aucune part ne doit contenir exactement une cellule PCS masquée dans la diffusion du 08c, sinon rien n'est diffusé (la cellule se retrouverait par différence)
     Et seuls des pourcentages, des classes et les départs attendus de la part A (estimations, sous la même règle tout ou rien) sont diffusés, jamais les effectifs de salariés des parts
+
+  Scénario: [SPEC-SEC-035] Compléter les tables de diffusion sur l'univers des territoires et des catégories
+    Étant donné l'univers des territoires du niveau (référentiel GEO_REFERENTIELS code;nom, ou la table de passage departement->region pour les régions), restreint à GEO_INTERET s'il est renseigné, et l'univers des catégories observées en France (PCS fines, grandes CS)
+    Quand une table de diffusion territoriale est produite (08 criticité, 08b, 08c et 08d région et département, 08f typologie, 08i exposition département et région)
+    Alors tout territoire de l'univers, et toute catégorie de l'univers pour ce territoire, absents de la table analytique (aucun salarié observé) y reçoivent une ligne masquée : mesures NA, masque = TRUE (tension_diffusee = FALSE pour l'exposition), motif « primaire » (« territoire » pour la typologie), indiscernable d'une cellule masquée pour un autre motif
+    Et pour les tables à blocs (08, 08b, 08c, 08d, typologie), la cellule à zéro entre AVANT le secret : 0 salarié, 0 entreprise, donc masquée en primaire, et comptée dans les blocs du secret secondaire (SPEC-SEC-010) ; aucune table interne n'est modifiée
+    Et sans référentiel du niveau, la table n'est pas complétée et le script le dit en console
+    Car l'absence d'une ligne est la même information qu'un zéro affiché : un zéro de salariés est une valeur sous le seuil du secret primaire (SPEC-PUB-007)
 ```
 
 ## 7. Exemple d'acceptation complet
@@ -369,6 +383,7 @@ Fonctionnalité: Appliquer le secret au bon moment
 - 5 salariés, 3 entreprises, 85 % ne sont pas primaires pour ce seul motif ;
   4 salariés, 2 entreprises, 85,1 % le sont ;
 - les valeurs d'une cellule masquée sont NA, jamais 0 ;
+- une table de diffusion territoriale porte tous les territoires de l'univers et toutes les catégories observées en France ; aucun bloc n'a pour seules cellules masquées des cellules à zéro (SPEC-SEC-035) ;
 - les tables internes restent complètes ;
 - `n_entreprises` et `part_dominante_pct` ne figurent pas dans les tables de
   diffusion ;

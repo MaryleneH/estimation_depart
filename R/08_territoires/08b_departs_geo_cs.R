@@ -41,8 +41,11 @@ library(dplyr)
 # Retourne une liste : brut (non masqué, avec les indicateurs de secret
 # n_entreprises / part_dominante_pct, pour les contrôles — usage interne) et
 # diffusable (sans ces indicateurs, qui révéleraient la structure de la cellule).
+# univers (SPEC-SEC-035) : territoires du référentiel ; chaque territoire x CS sans salarié observé reçoit
+# une cellule à zéro (0 salarié, 0 entreprise) AVANT le secret : masquée en primaire, comptée dans le bloc
+# du territoire. `brut` (table interne) reste celle des seules cellules observées.
 calculer_departs_geo_cs <- function(base, regles = regles_secret(),
-                                    ordre_cs = unname(PCS_VERS_CS1), stock = NULL) {
+                                    ordre_cs = unname(PCS_VERS_CS1), stock = NULL, univers = NULL) {
   inconnues <- setdiff(unique(base$cs1), ordre_cs)
   if (length(inconnues) > 0)
     stop("Grande(s) CS hors nomenclature PCS_VERS_CS1 : ", paste(inconnues, collapse = ", "))
@@ -66,7 +69,11 @@ calculer_departs_geo_cs <- function(base, regles = regles_secret(),
       mutate(part_a_remplacer_pct = 100 * departs_2030 / effectif_tous_ages)
   # Secret statistique : règle Insee (primaire) + secondaire par territoire
   # (bloc = les CS d'un territoire, dont le total est publié par 08 et 09)
-  diffusable <- brut |>
+  grille <- if (is.null(univers)) brut else
+    completer_univers_diffusion(brut, univers, categories = data.frame(cs1 = ordre_cs, stringsAsFactors = FALSE), col_masque = NULL,
+                                valeurs = list(effectif_champ = 0L, n_entreprises = 0L, part_dominante_pct = 100, departs_2030 = 0, departs_bas = 0, departs_haut = 0)) |>
+    arrange(geo_code, match(cs1, ordre_cs))
+  diffusable <- grille |>
     group_by(geo_code) |>
     mutate(masque = masquer_cellules(effectif_champ, n_entreprises, part_dominante_pct, regles)) |>
     ungroup() |>
@@ -86,8 +93,10 @@ base_geo_cs <- bts_projete |>
                            as.character(geo_nom))) |>
   filtrer_geo_interet(GEO_INTERET, prefixe = "08b")
 
+univers_08b <- univers_territoires(GEO_ANALYSE)     # SPEC-SEC-035 : territoires du référentiel (NULL = pas de référentiel pour ce zonage)
+if (is.null(univers_08b)) message("08b : aucun référentiel pour le zonage « ", GEO_ANALYSE, " » (GEO_REFERENTIELS) : table non complétée sur l'univers des territoires.")
 res_08b <- calculer_departs_geo_cs(base_geo_cs, regles_secret(),
-                                   stock = if (exists("stock_tous_ages")) stock_tous_ages else NULL)
+                                   stock = if (exists("stock_tous_ages")) stock_tous_ages else NULL, univers = univers_08b)
 departs_geo_cs <- res_08b$diffusable
 
 # --- Contrôles (arrêt si l'un échoue) ----------------------------------------
@@ -111,11 +120,19 @@ if (!setequal(unique(brut_08b$geo_code), unique(base_geo_cs$geo_code)))
   stop("08b : territoires manquants dans le résultat.")
 # 4. aucune modalité de CS inattendue (déjà bloqué dans la fonction) ; 5. secret :
 #    aucune cellule visible ne viole la règle Insee (salariés, entreprises, dominance)
-if (any(!departs_geo_cs$masque &
-        secret_primaire(brut_08b$effectif_champ, brut_08b$n_entreprises, brut_08b$part_dominante_pct, regles_secret())))
+#    (jointure par clés : la table diffusée porte en plus les cellules à zéro de l'univers, SPEC-SEC-035)
+chk_08b <- inner_join(brut_08b |> select(geo_code, cs1, eff_b = effectif_champ, n_entreprises, part_dominante_pct),
+                      departs_geo_cs |> select(geo_code, cs1, masque), by = c("geo_code", "cs1"))
+if (nrow(chk_08b) != nrow(brut_08b) ||
+    any(!chk_08b$masque & secret_primaire(chk_08b$eff_b, chk_08b$n_entreprises, chk_08b$part_dominante_pct, regles_secret())))
   stop("08b : une cellule contraire à la règle de secret statistique n'est pas masquée.")
+rm(chk_08b)
 if (any(is.na(departs_geo_cs$effectif_champ) & !departs_geo_cs$masque))
   stop("08b : NA sans indicateur de masquage.")
+# 7. univers des territoires (SPEC-SEC-035) : toutes les cellules territoire x CS du référentiel sont présentes
+if (!is.null(univers_08b) && !all(paste(rep(univers_08b$geo_code, each = length(PCS_VERS_CS1)), rep(unname(PCS_VERS_CS1), times = nrow(univers_08b))) %in% paste(departs_geo_cs$geo_code, departs_geo_cs$cs1)))
+  stop("08b : la table diffusée ne couvre pas tout l'univers territoires x CS (SPEC-SEC-035).")
+if (!is.null(univers_08b)) cat(sprintf("  08b : %d cellule(s) à zéro (territoire ou CS sans salarié observé) ajoutée(s) et masquées, SPEC-SEC-035\n", nrow(departs_geo_cs) - nrow(brut_08b)))
 
 # --- Export tableur FR (mêmes conventions que 05/08) -------------------------
 fichier_08b <- fichier_sortie_geo("departs_par_%s_cs.csv", GEO_ANALYSE)

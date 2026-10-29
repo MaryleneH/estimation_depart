@@ -311,6 +311,10 @@ test_that("SPEC-TYPO-040 — chaîne réelle en mode département : 08f en aval 
               "interne/parametres_typologie.csv", "interne/matrice_typologie.png", "diffusion/typologie_departements.csv")) expect_true(file.exists(file.path(dir_t, f)), label = f)
   csv <- utils::read.csv2(file.path(dir_t, "diffusion", "typologie_departements.csv"), colClasses = c(geo_code = "character"))
   expect_false(any(c("n_entreprises", "part_dominante_pct", "n_criteres_frontiere") %in% names(csv)))
+  # SPEC-SEC-035 : tous les départements du référentiel, les absents de la table interne masqués (motif territoire), sans valeur ; interne intacte
+  expect_equal(nrow(csv), 101L); aj <- csv[!csv$geo_code %in% d$geo_code, ]; expect_gt(nrow(aj), 0)
+  expect_true(all(aj$masque) && all(aj$motif_masque == "territoire") && all(aj$profil_typologie == "Non diffusé (secret statistique)") && all(is.na(aj$departs_central)) && all(!is.na(aj$region_code)))
+  expect_equal(nrow(utils::read.csv2(file.path(dir_t, "interne", "typologie_departements.csv"))), nrow(d))
   expect_true(all(csv$departs_central[!csv$masque] == round(csv$departs_central[!csv$masque])))     # personnes entières en restitution
   expect_true(all(c("situation_texte", "motif_expertise", "points_attention") %in% names(csv)))
   expect_true(all(nzchar(d$situation_texte)) && all(c("texte", "consigne_lecture") %in% names(T$synthese)))

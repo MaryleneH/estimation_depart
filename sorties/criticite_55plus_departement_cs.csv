@@ -1,81 +1,405 @@
-﻿"geo_code";"geo_nom";"cs1";"effectif_champ";"effectif_55plus";"part_55plus_pct";"departs_55plus";"perte_seniors_pct";"sous_seuil"
-"59";"Nord";"Employes";64;35;54,7;31,5;49,2;FALSE
-"64";"Pyrénées-Atlantiques";"Ouvriers";97;47;48,5;43,9;45,2;FALSE
-"44";"Loire-Atlantique";"Ouvriers";88;41;46,6;39,5;44,9;FALSE
-"01";"Ain";"Ouvriers";90;42;46,7;39,3;43,7;FALSE
-"64";"Pyrénées-Atlantiques";"Employes";55;26;47,3;23,4;42,5;FALSE
-"83";"Var";"Employes";60;29;48,3;25,2;42,1;FALSE
-"01";"Ain";"Prof. intermediaires";82;38;46,3;32,7;39,9;FALSE
-"18";"Cher";"Ouvriers";77;32;41,6;30,5;39,7;FALSE
-"87";"Haute-Vienne";"Prof. intermediaires";80;39;48,8;31,4;39,2;FALSE
-"01";"Ain";"Employes";61;28;45,9;23,9;39,1;FALSE
-"87";"Haute-Vienne";"Ouvriers";98;41;41,8;38;38,8;FALSE
-"2B";"Haute-Corse";"Employes";69;30;43,5;26,7;38,7;FALSE
-"35";"Ille-et-Vilaine";"Ouvriers";61;25;41;23,4;38,4;FALSE
-"83";"Var";"Ouvriers";89;36;40,4;33,9;38,1;FALSE
-"59";"Nord";"Ouvriers";111;44;39,6;41,3;37,2;FALSE
-"75";"Paris";"Employes";52;22;42,3;18,8;36,2;FALSE
-"69";"Rhône";"Ouvriers";80;31;38,8;28,6;35,8;FALSE
-"33";"Gironde";"Ouvriers";84;32;38,1;29,8;35,5;FALSE
-"78";"Yvelines";"Employes";51;19;37,3;18;35,3;FALSE
-"35";"Ille-et-Vilaine";"Prof. intermediaires";70;30;42,9;24,7;35,2;FALSE
-"18";"Cher";"Prof. intermediaires";83;36;43,4;29,3;35,2;FALSE
-"09";"Ariège";"Ouvriers";87;33;37,9;30,4;34,9;FALSE
-"64";"Pyrénées-Atlantiques";"Prof. intermediaires";82;34;41,5;28,1;34,3;FALSE
-"2B";"Haute-Corse";"Prof. intermediaires";89;35;39,3;29,9;33,6;FALSE
-"69";"Rhône";"Employes";52;18;34,6;17,4;33,5;FALSE
-"33";"Gironde";"Employes";56;22;39,3;18,6;33,3;FALSE
-"59";"Nord";"Prof. intermediaires";82;32;39;26,1;31,8;FALSE
-"09";"Ariège";"Employes";52;18;34,6;16,4;31,5;FALSE
-"87";"Haute-Vienne";"Employes";61;21;34,4;19,1;31,4;FALSE
-"2B";"Haute-Corse";"Ouvriers";88;29;33;27,4;31,1;FALSE
-"78";"Yvelines";"Ouvriers";78;26;33,3;24,1;30,9;FALSE
-"83";"Var";"Prof. intermediaires";87;33;37,9;26,9;30,9;FALSE
-"35";"Ille-et-Vilaine";"Employes";47;17;36,2;14,5;30,8;FALSE
-"18";"Cher";"Employes";46;16;34,8;13,9;30,2;FALSE
-"44";"Loire-Atlantique";"Prof. intermediaires";70;24;34,3;21,2;30,2;FALSE
-"03";"Allier";"Ouvriers";92;30;32,6;27,7;30,1;FALSE
-"09";"Ariège";"Prof. intermediaires";75;27;36;22,1;29,5;FALSE
-"69";"Rhône";"Prof. intermediaires";81;31;38,3;23,8;29,4;FALSE
-"75";"Paris";"Prof. intermediaires";81;27;33,3;23,7;29,3;FALSE
-"64";"Pyrénées-Atlantiques";"Cadres";80;33;41,2;23,1;28,9;FALSE
-"83";"Var";"Cadres";77;33;42,9;22,1;28,7;FALSE
-"78";"Yvelines";"Cadres";53;18;34;14,6;27,5;FALSE
-"69";"Rhône";"Cadres";64;28;43,8;17,6;27,5;FALSE
-"33";"Gironde";"Cadres";62;24;38,7;16,8;27,1;FALSE
-"93";"Seine-Saint-Denis";"Employes";53;17;32,1;14,1;26,6;FALSE
-"2A";"Corse-du-Sud";"Ouvriers";77;22;28,6;20,5;26,6;FALSE
-"44";"Loire-Atlantique";"Employes";70;22;31,4;18,6;26,5;FALSE
-"75";"Paris";"Ouvriers";84;23;27,4;21,9;26,1;FALSE
+﻿"geo_code";"geo_nom";"cs1";"effectif_champ";"effectif_55plus";"part_55plus_pct";"departs_55plus";"perte_seniors_pct";"masque"
+"01";"Ain";"Cadres";74;26;35,1;15;20,6;FALSE
+"01";"Ain";"Prof. intermediaires";82;38;46,3;33;39,9;FALSE
+"01";"Ain";"Employes";61;28;45,9;24;39,1;FALSE
+"01";"Ain";"Ouvriers";90;42;46,7;39;43,7;FALSE
+"02";"Aisne";"Cadres";NA;NA;NA;NA;NA;TRUE
+"02";"Aisne";"Prof. intermediaires";NA;NA;NA;NA;NA;TRUE
+"02";"Aisne";"Employes";NA;NA;NA;NA;NA;TRUE
+"02";"Aisne";"Ouvriers";NA;NA;NA;NA;NA;TRUE
+"03";"Allier";"Cadres";69;14;20,3;10;14,7;FALSE
+"03";"Allier";"Prof. intermediaires";69;19;27,5;14;20,4;FALSE
+"03";"Allier";"Employes";46;12;26,1;10;22,3;FALSE
+"03";"Allier";"Ouvriers";92;30;32,6;28;30,1;FALSE
+"04";"Alpes-de-Haute-Provence";"Cadres";NA;NA;NA;NA;NA;TRUE
+"04";"Alpes-de-Haute-Provence";"Prof. intermediaires";NA;NA;NA;NA;NA;TRUE
+"04";"Alpes-de-Haute-Provence";"Employes";NA;NA;NA;NA;NA;TRUE
+"04";"Alpes-de-Haute-Provence";"Ouvriers";NA;NA;NA;NA;NA;TRUE
+"05";"Hautes-Alpes";"Cadres";NA;NA;NA;NA;NA;TRUE
+"05";"Hautes-Alpes";"Prof. intermediaires";NA;NA;NA;NA;NA;TRUE
+"05";"Hautes-Alpes";"Employes";NA;NA;NA;NA;NA;TRUE
+"05";"Hautes-Alpes";"Ouvriers";NA;NA;NA;NA;NA;TRUE
+"06";"Alpes-Maritimes";"Cadres";NA;NA;NA;NA;NA;TRUE
+"06";"Alpes-Maritimes";"Prof. intermediaires";NA;NA;NA;NA;NA;TRUE
+"06";"Alpes-Maritimes";"Employes";NA;NA;NA;NA;NA;TRUE
+"06";"Alpes-Maritimes";"Ouvriers";NA;NA;NA;NA;NA;TRUE
+"07";"Ardèche";"Cadres";NA;NA;NA;NA;NA;TRUE
+"07";"Ardèche";"Prof. intermediaires";NA;NA;NA;NA;NA;TRUE
+"07";"Ardèche";"Employes";NA;NA;NA;NA;NA;TRUE
+"07";"Ardèche";"Ouvriers";NA;NA;NA;NA;NA;TRUE
+"08";"Ardennes";"Cadres";NA;NA;NA;NA;NA;TRUE
+"08";"Ardennes";"Prof. intermediaires";NA;NA;NA;NA;NA;TRUE
+"08";"Ardennes";"Employes";NA;NA;NA;NA;NA;TRUE
+"08";"Ardennes";"Ouvriers";NA;NA;NA;NA;NA;TRUE
+"09";"Ariège";"Cadres";82;27;32,9;19;22,7;FALSE
+"09";"Ariège";"Prof. intermediaires";75;27;36;22;29,5;FALSE
+"09";"Ariège";"Employes";52;18;34,6;16;31,5;FALSE
+"09";"Ariège";"Ouvriers";87;33;37,9;30;34,9;FALSE
+"10";"Aube";"Cadres";NA;NA;NA;NA;NA;TRUE
+"10";"Aube";"Prof. intermediaires";NA;NA;NA;NA;NA;TRUE
+"10";"Aube";"Employes";NA;NA;NA;NA;NA;TRUE
+"10";"Aube";"Ouvriers";NA;NA;NA;NA;NA;TRUE
+"11";"Aude";"Cadres";NA;NA;NA;NA;NA;TRUE
+"11";"Aude";"Prof. intermediaires";NA;NA;NA;NA;NA;TRUE
+"11";"Aude";"Employes";NA;NA;NA;NA;NA;TRUE
+"11";"Aude";"Ouvriers";NA;NA;NA;NA;NA;TRUE
+"12";"Aveyron";"Cadres";NA;NA;NA;NA;NA;TRUE
+"12";"Aveyron";"Prof. intermediaires";NA;NA;NA;NA;NA;TRUE
+"12";"Aveyron";"Employes";NA;NA;NA;NA;NA;TRUE
+"12";"Aveyron";"Ouvriers";NA;NA;NA;NA;NA;TRUE
+"13";"Bouches-du-Rhône";"Cadres";NA;NA;NA;NA;NA;TRUE
+"13";"Bouches-du-Rhône";"Prof. intermediaires";NA;NA;NA;NA;NA;TRUE
+"13";"Bouches-du-Rhône";"Employes";NA;NA;NA;NA;NA;TRUE
+"13";"Bouches-du-Rhône";"Ouvriers";NA;NA;NA;NA;NA;TRUE
+"14";"Calvados";"Cadres";NA;NA;NA;NA;NA;TRUE
+"14";"Calvados";"Prof. intermediaires";NA;NA;NA;NA;NA;TRUE
+"14";"Calvados";"Employes";NA;NA;NA;NA;NA;TRUE
+"14";"Calvados";"Ouvriers";NA;NA;NA;NA;NA;TRUE
+"15";"Cantal";"Cadres";NA;NA;NA;NA;NA;TRUE
+"15";"Cantal";"Prof. intermediaires";NA;NA;NA;NA;NA;TRUE
+"15";"Cantal";"Employes";NA;NA;NA;NA;NA;TRUE
+"15";"Cantal";"Ouvriers";NA;NA;NA;NA;NA;TRUE
+"16";"Charente";"Cadres";NA;NA;NA;NA;NA;TRUE
+"16";"Charente";"Prof. intermediaires";NA;NA;NA;NA;NA;TRUE
+"16";"Charente";"Employes";NA;NA;NA;NA;NA;TRUE
+"16";"Charente";"Ouvriers";NA;NA;NA;NA;NA;TRUE
+"17";"Charente-Maritime";"Cadres";NA;NA;NA;NA;NA;TRUE
+"17";"Charente-Maritime";"Prof. intermediaires";NA;NA;NA;NA;NA;TRUE
+"17";"Charente-Maritime";"Employes";NA;NA;NA;NA;NA;TRUE
+"17";"Charente-Maritime";"Ouvriers";NA;NA;NA;NA;NA;TRUE
+"18";"Cher";"Cadres";72;27;37,5;18;24,3;FALSE
+"18";"Cher";"Prof. intermediaires";83;36;43,4;29;35,2;FALSE
+"18";"Cher";"Employes";46;16;34,8;14;30,2;FALSE
+"18";"Cher";"Ouvriers";77;32;41,6;31;39,7;FALSE
+"19";"Corrèze";"Cadres";NA;NA;NA;NA;NA;TRUE
+"19";"Corrèze";"Prof. intermediaires";NA;NA;NA;NA;NA;TRUE
+"19";"Corrèze";"Employes";NA;NA;NA;NA;NA;TRUE
+"19";"Corrèze";"Ouvriers";NA;NA;NA;NA;NA;TRUE
+"21";"Côte-d'Or";"Cadres";NA;NA;NA;NA;NA;TRUE
+"21";"Côte-d'Or";"Prof. intermediaires";NA;NA;NA;NA;NA;TRUE
+"21";"Côte-d'Or";"Employes";NA;NA;NA;NA;NA;TRUE
+"21";"Côte-d'Or";"Ouvriers";NA;NA;NA;NA;NA;TRUE
+"22";"Côtes-d'Armor";"Cadres";NA;NA;NA;NA;NA;TRUE
+"22";"Côtes-d'Armor";"Prof. intermediaires";NA;NA;NA;NA;NA;TRUE
+"22";"Côtes-d'Armor";"Employes";NA;NA;NA;NA;NA;TRUE
+"22";"Côtes-d'Armor";"Ouvriers";NA;NA;NA;NA;NA;TRUE
+"23";"Creuse";"Cadres";NA;NA;NA;NA;NA;TRUE
+"23";"Creuse";"Prof. intermediaires";NA;NA;NA;NA;NA;TRUE
+"23";"Creuse";"Employes";NA;NA;NA;NA;NA;TRUE
+"23";"Creuse";"Ouvriers";NA;NA;NA;NA;NA;TRUE
+"24";"Dordogne";"Cadres";NA;NA;NA;NA;NA;TRUE
+"24";"Dordogne";"Prof. intermediaires";NA;NA;NA;NA;NA;TRUE
+"24";"Dordogne";"Employes";NA;NA;NA;NA;NA;TRUE
+"24";"Dordogne";"Ouvriers";NA;NA;NA;NA;NA;TRUE
+"25";"Doubs";"Cadres";NA;NA;NA;NA;NA;TRUE
+"25";"Doubs";"Prof. intermediaires";NA;NA;NA;NA;NA;TRUE
+"25";"Doubs";"Employes";NA;NA;NA;NA;NA;TRUE
+"25";"Doubs";"Ouvriers";NA;NA;NA;NA;NA;TRUE
+"26";"Drôme";"Cadres";NA;NA;NA;NA;NA;TRUE
+"26";"Drôme";"Prof. intermediaires";NA;NA;NA;NA;NA;TRUE
+"26";"Drôme";"Employes";NA;NA;NA;NA;NA;TRUE
+"26";"Drôme";"Ouvriers";NA;NA;NA;NA;NA;TRUE
+"27";"Eure";"Cadres";NA;NA;NA;NA;NA;TRUE
+"27";"Eure";"Prof. intermediaires";NA;NA;NA;NA;NA;TRUE
+"27";"Eure";"Employes";NA;NA;NA;NA;NA;TRUE
+"27";"Eure";"Ouvriers";NA;NA;NA;NA;NA;TRUE
+"28";"Eure-et-Loir";"Cadres";NA;NA;NA;NA;NA;TRUE
+"28";"Eure-et-Loir";"Prof. intermediaires";NA;NA;NA;NA;NA;TRUE
+"28";"Eure-et-Loir";"Employes";NA;NA;NA;NA;NA;TRUE
+"28";"Eure-et-Loir";"Ouvriers";NA;NA;NA;NA;NA;TRUE
+"29";"Finistère";"Cadres";NA;NA;NA;NA;NA;TRUE
+"29";"Finistère";"Prof. intermediaires";NA;NA;NA;NA;NA;TRUE
+"29";"Finistère";"Employes";NA;NA;NA;NA;NA;TRUE
+"29";"Finistère";"Ouvriers";NA;NA;NA;NA;NA;TRUE
+"2A";"Corse-du-Sud";"Cadres";64;23;35,9;14;22,5;FALSE
+"2A";"Corse-du-Sud";"Prof. intermediaires";67;17;25,4;14;21;FALSE
 "2A";"Corse-du-Sud";"Employes";58;16;27,6;15;25,8;FALSE
-"44";"Loire-Atlantique";"Cadres";78;30;38,5;20;25,6;FALSE
-"93";"Seine-Saint-Denis";"Ouvriers";68;18;26,5;17,2;25,3;FALSE
-"2B";"Haute-Corse";"Cadres";75;26;34,7;18,5;24,7;FALSE
-"93";"Seine-Saint-Denis";"Prof. intermediaires";57;18;31,6;13,9;24,4;FALSE
-"18";"Cher";"Cadres";72;27;37,5;17,5;24,3;FALSE
-"56";"Morbihan";"Prof. intermediaires";60;16;26,7;13,9;23,2;FALSE
-"33";"Gironde";"Prof. intermediaires";75;21;28;17,3;23;FALSE
-"91";"Essonne";"Ouvriers";69;17;24,6;15,8;22,9;FALSE
-"09";"Ariège";"Cadres";82;27;32,9;18,6;22,7;FALSE
-"2A";"Corse-du-Sud";"Cadres";64;23;35,9;14,4;22,5;FALSE
-"03";"Allier";"Employes";46;12;26,1;10,3;22,3;FALSE
-"59";"Nord";"Cadres";77;29;37,7;16,8;21,8;FALSE
-"56";"Morbihan";"Employes";51;12;23,5;11,1;21,8;FALSE
-"78";"Yvelines";"Prof. intermediaires";75;19;25,3;15,9;21,2;FALSE
-"2A";"Corse-du-Sud";"Prof. intermediaires";67;17;25,4;14,1;21;FALSE
-"86";"Vienne";"Ouvriers";65;15;23,1;13,6;21;FALSE
-"75";"Paris";"Cadres";70;23;32,9;14,7;21;FALSE
-"01";"Ain";"Cadres";74;26;35,1;15,2;20,6;FALSE
-"03";"Allier";"Prof. intermediaires";69;19;27,5;14,1;20,4;FALSE
-"91";"Essonne";"Employes";41;10;24,4;8,3;20,3;FALSE
-"91";"Essonne";"Cadres";58;15;25,9;11,3;19,5;FALSE
-"87";"Haute-Vienne";"Cadres";82;28;34,1;15,4;18,7;FALSE
-"86";"Vienne";"Employes";41;8;19,5;7,4;18,1;FALSE
-"56";"Morbihan";"Cadres";69;19;27,5;12,5;18,1;FALSE
-"56";"Morbihan";"Ouvriers";72;14;19,4;12,9;18;FALSE
+"2A";"Corse-du-Sud";"Ouvriers";77;22;28,6;20;26,6;FALSE
+"2B";"Haute-Corse";"Cadres";75;26;34,7;19;24,7;FALSE
+"2B";"Haute-Corse";"Prof. intermediaires";89;35;39,3;30;33,6;FALSE
+"2B";"Haute-Corse";"Employes";69;30;43,5;27;38,7;FALSE
+"2B";"Haute-Corse";"Ouvriers";88;29;33;27;31,1;FALSE
+"30";"Gard";"Cadres";NA;NA;NA;NA;NA;TRUE
+"30";"Gard";"Prof. intermediaires";NA;NA;NA;NA;NA;TRUE
+"30";"Gard";"Employes";NA;NA;NA;NA;NA;TRUE
+"30";"Gard";"Ouvriers";NA;NA;NA;NA;NA;TRUE
+"31";"Haute-Garonne";"Cadres";NA;NA;NA;NA;NA;TRUE
+"31";"Haute-Garonne";"Prof. intermediaires";NA;NA;NA;NA;NA;TRUE
+"31";"Haute-Garonne";"Employes";NA;NA;NA;NA;NA;TRUE
+"31";"Haute-Garonne";"Ouvriers";NA;NA;NA;NA;NA;TRUE
+"32";"Gers";"Cadres";NA;NA;NA;NA;NA;TRUE
+"32";"Gers";"Prof. intermediaires";NA;NA;NA;NA;NA;TRUE
+"32";"Gers";"Employes";NA;NA;NA;NA;NA;TRUE
+"32";"Gers";"Ouvriers";NA;NA;NA;NA;NA;TRUE
+"33";"Gironde";"Cadres";62;24;38,7;17;27,1;FALSE
+"33";"Gironde";"Prof. intermediaires";75;21;28;17;23;FALSE
+"33";"Gironde";"Employes";56;22;39,3;19;33,3;FALSE
+"33";"Gironde";"Ouvriers";84;32;38,1;30;35,5;FALSE
+"34";"Hérault";"Cadres";NA;NA;NA;NA;NA;TRUE
+"34";"Hérault";"Prof. intermediaires";NA;NA;NA;NA;NA;TRUE
+"34";"Hérault";"Employes";NA;NA;NA;NA;NA;TRUE
+"34";"Hérault";"Ouvriers";NA;NA;NA;NA;NA;TRUE
 "35";"Ille-et-Vilaine";"Cadres";57;17;29,8;10;17,6;FALSE
-"93";"Seine-Saint-Denis";"Cadres";65;16;24,6;10,3;15,9;FALSE
-"86";"Vienne";"Prof. intermediaires";58;10;17,2;8,6;14,9;FALSE
-"03";"Allier";"Cadres";69;14;20,3;10,1;14,7;FALSE
-"86";"Vienne";"Cadres";68;15;22,1;8,8;12,9;FALSE
-"91";"Essonne";"Prof. intermediaires";65;11;16,9;8,4;12,9;FALSE
+"35";"Ille-et-Vilaine";"Prof. intermediaires";70;30;42,9;25;35,2;FALSE
+"35";"Ille-et-Vilaine";"Employes";47;17;36,2;14;30,8;FALSE
+"35";"Ille-et-Vilaine";"Ouvriers";61;25;41;23;38,4;FALSE
+"36";"Indre";"Cadres";NA;NA;NA;NA;NA;TRUE
+"36";"Indre";"Prof. intermediaires";NA;NA;NA;NA;NA;TRUE
+"36";"Indre";"Employes";NA;NA;NA;NA;NA;TRUE
+"36";"Indre";"Ouvriers";NA;NA;NA;NA;NA;TRUE
+"37";"Indre-et-Loire";"Cadres";NA;NA;NA;NA;NA;TRUE
+"37";"Indre-et-Loire";"Prof. intermediaires";NA;NA;NA;NA;NA;TRUE
+"37";"Indre-et-Loire";"Employes";NA;NA;NA;NA;NA;TRUE
+"37";"Indre-et-Loire";"Ouvriers";NA;NA;NA;NA;NA;TRUE
+"38";"Isère";"Cadres";NA;NA;NA;NA;NA;TRUE
+"38";"Isère";"Prof. intermediaires";NA;NA;NA;NA;NA;TRUE
+"38";"Isère";"Employes";NA;NA;NA;NA;NA;TRUE
+"38";"Isère";"Ouvriers";NA;NA;NA;NA;NA;TRUE
+"39";"Jura";"Cadres";NA;NA;NA;NA;NA;TRUE
+"39";"Jura";"Prof. intermediaires";NA;NA;NA;NA;NA;TRUE
+"39";"Jura";"Employes";NA;NA;NA;NA;NA;TRUE
+"39";"Jura";"Ouvriers";NA;NA;NA;NA;NA;TRUE
+"40";"Landes";"Cadres";NA;NA;NA;NA;NA;TRUE
+"40";"Landes";"Prof. intermediaires";NA;NA;NA;NA;NA;TRUE
+"40";"Landes";"Employes";NA;NA;NA;NA;NA;TRUE
+"40";"Landes";"Ouvriers";NA;NA;NA;NA;NA;TRUE
+"41";"Loir-et-Cher";"Cadres";NA;NA;NA;NA;NA;TRUE
+"41";"Loir-et-Cher";"Prof. intermediaires";NA;NA;NA;NA;NA;TRUE
+"41";"Loir-et-Cher";"Employes";NA;NA;NA;NA;NA;TRUE
+"41";"Loir-et-Cher";"Ouvriers";NA;NA;NA;NA;NA;TRUE
+"42";"Loire";"Cadres";NA;NA;NA;NA;NA;TRUE
+"42";"Loire";"Prof. intermediaires";NA;NA;NA;NA;NA;TRUE
+"42";"Loire";"Employes";NA;NA;NA;NA;NA;TRUE
+"42";"Loire";"Ouvriers";NA;NA;NA;NA;NA;TRUE
+"43";"Haute-Loire";"Cadres";NA;NA;NA;NA;NA;TRUE
+"43";"Haute-Loire";"Prof. intermediaires";NA;NA;NA;NA;NA;TRUE
+"43";"Haute-Loire";"Employes";NA;NA;NA;NA;NA;TRUE
+"43";"Haute-Loire";"Ouvriers";NA;NA;NA;NA;NA;TRUE
+"44";"Loire-Atlantique";"Cadres";78;30;38,5;20;25,6;FALSE
+"44";"Loire-Atlantique";"Prof. intermediaires";70;24;34,3;21;30,2;FALSE
+"44";"Loire-Atlantique";"Employes";70;22;31,4;19;26,5;FALSE
+"44";"Loire-Atlantique";"Ouvriers";88;41;46,6;39;44,9;FALSE
+"45";"Loiret";"Cadres";NA;NA;NA;NA;NA;TRUE
+"45";"Loiret";"Prof. intermediaires";NA;NA;NA;NA;NA;TRUE
+"45";"Loiret";"Employes";NA;NA;NA;NA;NA;TRUE
+"45";"Loiret";"Ouvriers";NA;NA;NA;NA;NA;TRUE
+"46";"Lot";"Cadres";NA;NA;NA;NA;NA;TRUE
+"46";"Lot";"Prof. intermediaires";NA;NA;NA;NA;NA;TRUE
+"46";"Lot";"Employes";NA;NA;NA;NA;NA;TRUE
+"46";"Lot";"Ouvriers";NA;NA;NA;NA;NA;TRUE
+"47";"Lot-et-Garonne";"Cadres";NA;NA;NA;NA;NA;TRUE
+"47";"Lot-et-Garonne";"Prof. intermediaires";NA;NA;NA;NA;NA;TRUE
+"47";"Lot-et-Garonne";"Employes";NA;NA;NA;NA;NA;TRUE
+"47";"Lot-et-Garonne";"Ouvriers";NA;NA;NA;NA;NA;TRUE
+"48";"Lozère";"Cadres";NA;NA;NA;NA;NA;TRUE
+"48";"Lozère";"Prof. intermediaires";NA;NA;NA;NA;NA;TRUE
+"48";"Lozère";"Employes";NA;NA;NA;NA;NA;TRUE
+"48";"Lozère";"Ouvriers";NA;NA;NA;NA;NA;TRUE
+"49";"Maine-et-Loire";"Cadres";NA;NA;NA;NA;NA;TRUE
+"49";"Maine-et-Loire";"Prof. intermediaires";NA;NA;NA;NA;NA;TRUE
+"49";"Maine-et-Loire";"Employes";NA;NA;NA;NA;NA;TRUE
+"49";"Maine-et-Loire";"Ouvriers";NA;NA;NA;NA;NA;TRUE
+"50";"Manche";"Cadres";NA;NA;NA;NA;NA;TRUE
+"50";"Manche";"Prof. intermediaires";NA;NA;NA;NA;NA;TRUE
+"50";"Manche";"Employes";NA;NA;NA;NA;NA;TRUE
+"50";"Manche";"Ouvriers";NA;NA;NA;NA;NA;TRUE
+"51";"Marne";"Cadres";NA;NA;NA;NA;NA;TRUE
+"51";"Marne";"Prof. intermediaires";NA;NA;NA;NA;NA;TRUE
+"51";"Marne";"Employes";NA;NA;NA;NA;NA;TRUE
+"51";"Marne";"Ouvriers";NA;NA;NA;NA;NA;TRUE
+"52";"Haute-Marne";"Cadres";NA;NA;NA;NA;NA;TRUE
+"52";"Haute-Marne";"Prof. intermediaires";NA;NA;NA;NA;NA;TRUE
+"52";"Haute-Marne";"Employes";NA;NA;NA;NA;NA;TRUE
+"52";"Haute-Marne";"Ouvriers";NA;NA;NA;NA;NA;TRUE
+"53";"Mayenne";"Cadres";NA;NA;NA;NA;NA;TRUE
+"53";"Mayenne";"Prof. intermediaires";NA;NA;NA;NA;NA;TRUE
+"53";"Mayenne";"Employes";NA;NA;NA;NA;NA;TRUE
+"53";"Mayenne";"Ouvriers";NA;NA;NA;NA;NA;TRUE
+"54";"Meurthe-et-Moselle";"Cadres";NA;NA;NA;NA;NA;TRUE
+"54";"Meurthe-et-Moselle";"Prof. intermediaires";NA;NA;NA;NA;NA;TRUE
+"54";"Meurthe-et-Moselle";"Employes";NA;NA;NA;NA;NA;TRUE
+"54";"Meurthe-et-Moselle";"Ouvriers";NA;NA;NA;NA;NA;TRUE
+"55";"Meuse";"Cadres";NA;NA;NA;NA;NA;TRUE
+"55";"Meuse";"Prof. intermediaires";NA;NA;NA;NA;NA;TRUE
+"55";"Meuse";"Employes";NA;NA;NA;NA;NA;TRUE
+"55";"Meuse";"Ouvriers";NA;NA;NA;NA;NA;TRUE
+"56";"Morbihan";"Cadres";69;19;27,5;12;18,1;FALSE
+"56";"Morbihan";"Prof. intermediaires";60;16;26,7;14;23,2;FALSE
+"56";"Morbihan";"Employes";51;12;23,5;11;21,8;FALSE
+"56";"Morbihan";"Ouvriers";72;14;19,4;13;18;FALSE
+"57";"Moselle";"Cadres";NA;NA;NA;NA;NA;TRUE
+"57";"Moselle";"Prof. intermediaires";NA;NA;NA;NA;NA;TRUE
+"57";"Moselle";"Employes";NA;NA;NA;NA;NA;TRUE
+"57";"Moselle";"Ouvriers";NA;NA;NA;NA;NA;TRUE
+"58";"Nièvre";"Cadres";NA;NA;NA;NA;NA;TRUE
+"58";"Nièvre";"Prof. intermediaires";NA;NA;NA;NA;NA;TRUE
+"58";"Nièvre";"Employes";NA;NA;NA;NA;NA;TRUE
+"58";"Nièvre";"Ouvriers";NA;NA;NA;NA;NA;TRUE
+"59";"Nord";"Cadres";77;29;37,7;17;21,8;FALSE
+"59";"Nord";"Prof. intermediaires";82;32;39;26;31,8;FALSE
+"59";"Nord";"Employes";64;35;54,7;32;49,2;FALSE
+"59";"Nord";"Ouvriers";111;44;39,6;41;37,2;FALSE
+"60";"Oise";"Cadres";NA;NA;NA;NA;NA;TRUE
+"60";"Oise";"Prof. intermediaires";NA;NA;NA;NA;NA;TRUE
+"60";"Oise";"Employes";NA;NA;NA;NA;NA;TRUE
+"60";"Oise";"Ouvriers";NA;NA;NA;NA;NA;TRUE
+"61";"Orne";"Cadres";NA;NA;NA;NA;NA;TRUE
+"61";"Orne";"Prof. intermediaires";NA;NA;NA;NA;NA;TRUE
+"61";"Orne";"Employes";NA;NA;NA;NA;NA;TRUE
+"61";"Orne";"Ouvriers";NA;NA;NA;NA;NA;TRUE
+"62";"Pas-de-Calais";"Cadres";NA;NA;NA;NA;NA;TRUE
+"62";"Pas-de-Calais";"Prof. intermediaires";NA;NA;NA;NA;NA;TRUE
+"62";"Pas-de-Calais";"Employes";NA;NA;NA;NA;NA;TRUE
+"62";"Pas-de-Calais";"Ouvriers";NA;NA;NA;NA;NA;TRUE
+"63";"Puy-de-Dôme";"Cadres";NA;NA;NA;NA;NA;TRUE
+"63";"Puy-de-Dôme";"Prof. intermediaires";NA;NA;NA;NA;NA;TRUE
+"63";"Puy-de-Dôme";"Employes";NA;NA;NA;NA;NA;TRUE
+"63";"Puy-de-Dôme";"Ouvriers";NA;NA;NA;NA;NA;TRUE
+"64";"Pyrénées-Atlantiques";"Cadres";80;33;41,2;23;28,9;FALSE
+"64";"Pyrénées-Atlantiques";"Prof. intermediaires";82;34;41,5;28;34,3;FALSE
+"64";"Pyrénées-Atlantiques";"Employes";55;26;47,3;23;42,5;FALSE
+"64";"Pyrénées-Atlantiques";"Ouvriers";97;47;48,5;44;45,2;FALSE
+"65";"Hautes-Pyrénées";"Cadres";NA;NA;NA;NA;NA;TRUE
+"65";"Hautes-Pyrénées";"Prof. intermediaires";NA;NA;NA;NA;NA;TRUE
+"65";"Hautes-Pyrénées";"Employes";NA;NA;NA;NA;NA;TRUE
+"65";"Hautes-Pyrénées";"Ouvriers";NA;NA;NA;NA;NA;TRUE
+"66";"Pyrénées-Orientales";"Cadres";NA;NA;NA;NA;NA;TRUE
+"66";"Pyrénées-Orientales";"Prof. intermediaires";NA;NA;NA;NA;NA;TRUE
+"66";"Pyrénées-Orientales";"Employes";NA;NA;NA;NA;NA;TRUE
+"66";"Pyrénées-Orientales";"Ouvriers";NA;NA;NA;NA;NA;TRUE
+"67";"Bas-Rhin";"Cadres";NA;NA;NA;NA;NA;TRUE
+"67";"Bas-Rhin";"Prof. intermediaires";NA;NA;NA;NA;NA;TRUE
+"67";"Bas-Rhin";"Employes";NA;NA;NA;NA;NA;TRUE
+"67";"Bas-Rhin";"Ouvriers";NA;NA;NA;NA;NA;TRUE
+"68";"Haut-Rhin";"Cadres";NA;NA;NA;NA;NA;TRUE
+"68";"Haut-Rhin";"Prof. intermediaires";NA;NA;NA;NA;NA;TRUE
+"68";"Haut-Rhin";"Employes";NA;NA;NA;NA;NA;TRUE
+"68";"Haut-Rhin";"Ouvriers";NA;NA;NA;NA;NA;TRUE
+"69";"Rhône";"Cadres";64;28;43,8;18;27,5;FALSE
+"69";"Rhône";"Prof. intermediaires";81;31;38,3;24;29,4;FALSE
+"69";"Rhône";"Employes";52;18;34,6;17;33,5;FALSE
+"69";"Rhône";"Ouvriers";80;31;38,8;29;35,8;FALSE
+"70";"Haute-Saône";"Cadres";NA;NA;NA;NA;NA;TRUE
+"70";"Haute-Saône";"Prof. intermediaires";NA;NA;NA;NA;NA;TRUE
+"70";"Haute-Saône";"Employes";NA;NA;NA;NA;NA;TRUE
+"70";"Haute-Saône";"Ouvriers";NA;NA;NA;NA;NA;TRUE
+"71";"Saône-et-Loire";"Cadres";NA;NA;NA;NA;NA;TRUE
+"71";"Saône-et-Loire";"Prof. intermediaires";NA;NA;NA;NA;NA;TRUE
+"71";"Saône-et-Loire";"Employes";NA;NA;NA;NA;NA;TRUE
+"71";"Saône-et-Loire";"Ouvriers";NA;NA;NA;NA;NA;TRUE
+"72";"Sarthe";"Cadres";NA;NA;NA;NA;NA;TRUE
+"72";"Sarthe";"Prof. intermediaires";NA;NA;NA;NA;NA;TRUE
+"72";"Sarthe";"Employes";NA;NA;NA;NA;NA;TRUE
+"72";"Sarthe";"Ouvriers";NA;NA;NA;NA;NA;TRUE
+"73";"Savoie";"Cadres";NA;NA;NA;NA;NA;TRUE
+"73";"Savoie";"Prof. intermediaires";NA;NA;NA;NA;NA;TRUE
+"73";"Savoie";"Employes";NA;NA;NA;NA;NA;TRUE
+"73";"Savoie";"Ouvriers";NA;NA;NA;NA;NA;TRUE
+"74";"Haute-Savoie";"Cadres";NA;NA;NA;NA;NA;TRUE
+"74";"Haute-Savoie";"Prof. intermediaires";NA;NA;NA;NA;NA;TRUE
+"74";"Haute-Savoie";"Employes";NA;NA;NA;NA;NA;TRUE
+"74";"Haute-Savoie";"Ouvriers";NA;NA;NA;NA;NA;TRUE
+"75";"Paris";"Cadres";70;23;32,9;15;21;FALSE
+"75";"Paris";"Prof. intermediaires";81;27;33,3;24;29,3;FALSE
+"75";"Paris";"Employes";52;22;42,3;19;36,2;FALSE
+"75";"Paris";"Ouvriers";84;23;27,4;22;26,1;FALSE
+"76";"Seine-Maritime";"Cadres";NA;NA;NA;NA;NA;TRUE
+"76";"Seine-Maritime";"Prof. intermediaires";NA;NA;NA;NA;NA;TRUE
+"76";"Seine-Maritime";"Employes";NA;NA;NA;NA;NA;TRUE
+"76";"Seine-Maritime";"Ouvriers";NA;NA;NA;NA;NA;TRUE
+"77";"Seine-et-Marne";"Cadres";NA;NA;NA;NA;NA;TRUE
+"77";"Seine-et-Marne";"Prof. intermediaires";NA;NA;NA;NA;NA;TRUE
+"77";"Seine-et-Marne";"Employes";NA;NA;NA;NA;NA;TRUE
+"77";"Seine-et-Marne";"Ouvriers";NA;NA;NA;NA;NA;TRUE
+"78";"Yvelines";"Cadres";53;18;34;15;27,5;FALSE
+"78";"Yvelines";"Prof. intermediaires";75;19;25,3;16;21,2;FALSE
+"78";"Yvelines";"Employes";51;19;37,3;18;35,3;FALSE
+"78";"Yvelines";"Ouvriers";78;26;33,3;24;30,9;FALSE
+"79";"Deux-Sèvres";"Cadres";NA;NA;NA;NA;NA;TRUE
+"79";"Deux-Sèvres";"Prof. intermediaires";NA;NA;NA;NA;NA;TRUE
+"79";"Deux-Sèvres";"Employes";NA;NA;NA;NA;NA;TRUE
+"79";"Deux-Sèvres";"Ouvriers";NA;NA;NA;NA;NA;TRUE
+"80";"Somme";"Cadres";NA;NA;NA;NA;NA;TRUE
+"80";"Somme";"Prof. intermediaires";NA;NA;NA;NA;NA;TRUE
+"80";"Somme";"Employes";NA;NA;NA;NA;NA;TRUE
+"80";"Somme";"Ouvriers";NA;NA;NA;NA;NA;TRUE
+"81";"Tarn";"Cadres";NA;NA;NA;NA;NA;TRUE
+"81";"Tarn";"Prof. intermediaires";NA;NA;NA;NA;NA;TRUE
+"81";"Tarn";"Employes";NA;NA;NA;NA;NA;TRUE
+"81";"Tarn";"Ouvriers";NA;NA;NA;NA;NA;TRUE
+"82";"Tarn-et-Garonne";"Cadres";NA;NA;NA;NA;NA;TRUE
+"82";"Tarn-et-Garonne";"Prof. intermediaires";NA;NA;NA;NA;NA;TRUE
+"82";"Tarn-et-Garonne";"Employes";NA;NA;NA;NA;NA;TRUE
+"82";"Tarn-et-Garonne";"Ouvriers";NA;NA;NA;NA;NA;TRUE
+"83";"Var";"Cadres";77;33;42,9;22;28,7;FALSE
+"83";"Var";"Prof. intermediaires";87;33;37,9;27;30,9;FALSE
+"83";"Var";"Employes";60;29;48,3;25;42,1;FALSE
+"83";"Var";"Ouvriers";89;36;40,4;34;38,1;FALSE
+"84";"Vaucluse";"Cadres";NA;NA;NA;NA;NA;TRUE
+"84";"Vaucluse";"Prof. intermediaires";NA;NA;NA;NA;NA;TRUE
+"84";"Vaucluse";"Employes";NA;NA;NA;NA;NA;TRUE
+"84";"Vaucluse";"Ouvriers";NA;NA;NA;NA;NA;TRUE
+"85";"Vendée";"Cadres";NA;NA;NA;NA;NA;TRUE
+"85";"Vendée";"Prof. intermediaires";NA;NA;NA;NA;NA;TRUE
+"85";"Vendée";"Employes";NA;NA;NA;NA;NA;TRUE
+"85";"Vendée";"Ouvriers";NA;NA;NA;NA;NA;TRUE
+"86";"Vienne";"Cadres";68;15;22,1;9;12,9;FALSE
+"86";"Vienne";"Prof. intermediaires";58;10;17,2;9;14,9;FALSE
+"86";"Vienne";"Employes";41;8;19,5;7;18,1;FALSE
+"86";"Vienne";"Ouvriers";65;15;23,1;14;21;FALSE
+"87";"Haute-Vienne";"Cadres";82;28;34,1;15;18,7;FALSE
+"87";"Haute-Vienne";"Prof. intermediaires";80;39;48,8;31;39,2;FALSE
+"87";"Haute-Vienne";"Employes";61;21;34,4;19;31,4;FALSE
+"87";"Haute-Vienne";"Ouvriers";98;41;41,8;38;38,8;FALSE
+"88";"Vosges";"Cadres";NA;NA;NA;NA;NA;TRUE
+"88";"Vosges";"Prof. intermediaires";NA;NA;NA;NA;NA;TRUE
+"88";"Vosges";"Employes";NA;NA;NA;NA;NA;TRUE
+"88";"Vosges";"Ouvriers";NA;NA;NA;NA;NA;TRUE
+"89";"Yonne";"Cadres";NA;NA;NA;NA;NA;TRUE
+"89";"Yonne";"Prof. intermediaires";NA;NA;NA;NA;NA;TRUE
+"89";"Yonne";"Employes";NA;NA;NA;NA;NA;TRUE
+"89";"Yonne";"Ouvriers";NA;NA;NA;NA;NA;TRUE
+"90";"Territoire de Belfort";"Cadres";NA;NA;NA;NA;NA;TRUE
+"90";"Territoire de Belfort";"Prof. intermediaires";NA;NA;NA;NA;NA;TRUE
+"90";"Territoire de Belfort";"Employes";NA;NA;NA;NA;NA;TRUE
+"90";"Territoire de Belfort";"Ouvriers";NA;NA;NA;NA;NA;TRUE
+"91";"Essonne";"Cadres";58;15;25,9;11;19,5;FALSE
+"91";"Essonne";"Prof. intermediaires";65;11;16,9;8;12,9;FALSE
+"91";"Essonne";"Employes";41;10;24,4;8;20,3;FALSE
+"91";"Essonne";"Ouvriers";69;17;24,6;16;22,9;FALSE
+"92";"Hauts-de-Seine";"Cadres";NA;NA;NA;NA;NA;TRUE
+"92";"Hauts-de-Seine";"Prof. intermediaires";NA;NA;NA;NA;NA;TRUE
+"92";"Hauts-de-Seine";"Employes";NA;NA;NA;NA;NA;TRUE
+"92";"Hauts-de-Seine";"Ouvriers";NA;NA;NA;NA;NA;TRUE
+"93";"Seine-Saint-Denis";"Cadres";65;16;24,6;10;15,9;FALSE
+"93";"Seine-Saint-Denis";"Prof. intermediaires";57;18;31,6;14;24,4;FALSE
+"93";"Seine-Saint-Denis";"Employes";53;17;32,1;14;26,6;FALSE
+"93";"Seine-Saint-Denis";"Ouvriers";68;18;26,5;17;25,3;FALSE
+"94";"Val-de-Marne";"Cadres";NA;NA;NA;NA;NA;TRUE
+"94";"Val-de-Marne";"Prof. intermediaires";NA;NA;NA;NA;NA;TRUE
+"94";"Val-de-Marne";"Employes";NA;NA;NA;NA;NA;TRUE
+"94";"Val-de-Marne";"Ouvriers";NA;NA;NA;NA;NA;TRUE
+"95";"Val-d'Oise";"Cadres";NA;NA;NA;NA;NA;TRUE
+"95";"Val-d'Oise";"Prof. intermediaires";NA;NA;NA;NA;NA;TRUE
+"95";"Val-d'Oise";"Employes";NA;NA;NA;NA;NA;TRUE
+"95";"Val-d'Oise";"Ouvriers";NA;NA;NA;NA;NA;TRUE
+"971";"Guadeloupe";"Cadres";NA;NA;NA;NA;NA;TRUE
+"971";"Guadeloupe";"Prof. intermediaires";NA;NA;NA;NA;NA;TRUE
+"971";"Guadeloupe";"Employes";NA;NA;NA;NA;NA;TRUE
+"971";"Guadeloupe";"Ouvriers";NA;NA;NA;NA;NA;TRUE
+"972";"Martinique";"Cadres";NA;NA;NA;NA;NA;TRUE
+"972";"Martinique";"Prof. intermediaires";NA;NA;NA;NA;NA;TRUE
+"972";"Martinique";"Employes";NA;NA;NA;NA;NA;TRUE
+"972";"Martinique";"Ouvriers";NA;NA;NA;NA;NA;TRUE
+"973";"Guyane";"Cadres";NA;NA;NA;NA;NA;TRUE
+"973";"Guyane";"Prof. intermediaires";NA;NA;NA;NA;NA;TRUE
+"973";"Guyane";"Employes";NA;NA;NA;NA;NA;TRUE
+"973";"Guyane";"Ouvriers";NA;NA;NA;NA;NA;TRUE
+"974";"La Réunion";"Cadres";NA;NA;NA;NA;NA;TRUE
+"974";"La Réunion";"Prof. intermediaires";NA;NA;NA;NA;NA;TRUE
+"974";"La Réunion";"Employes";NA;NA;NA;NA;NA;TRUE
+"974";"La Réunion";"Ouvriers";NA;NA;NA;NA;NA;TRUE
+"976";"Mayotte";"Cadres";NA;NA;NA;NA;NA;TRUE
+"976";"Mayotte";"Prof. intermediaires";NA;NA;NA;NA;NA;TRUE
+"976";"Mayotte";"Employes";NA;NA;NA;NA;NA;TRUE
+"976";"Mayotte";"Ouvriers";NA;NA;NA;NA;NA;TRUE

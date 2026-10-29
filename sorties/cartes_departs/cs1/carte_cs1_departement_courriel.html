@@ -21,14 +21,14 @@ select,input[type=search]{width:100%;font:inherit;font-size:15px;padding:9px 10p
 .radios{display:flex;gap:8px;margin:0}.radios label{flex:1;border:1px solid #AEB7C2;border-radius:8px;padding:9px 8px;text-align:center;cursor:pointer;font-size:15px;font-weight:500;color:var(--encre);min-height:42px;display:flex;align-items:center;justify-content:center}.radios input{position:absolute;opacity:0;width:0;height:0}.radios label.on{background:var(--bleu);color:#fff;border-color:var(--bleu)}.radios label:focus-within{outline:2px solid var(--bleu);outline-offset:1px}
 .tabs{display:flex;flex-wrap:wrap;gap:8px;margin:0}.tabs button{font:inherit;font-size:15px;font-weight:600;padding:10px 16px;border-radius:999px;border:1px solid #AEB7C2;background:#fff;color:var(--encre);cursor:pointer;min-height:42px}.tabs button.on{background:var(--bleu);border-color:var(--bleu);color:#fff}.tabs button:focus-visible{outline:2px solid var(--bleu);outline-offset:2px}
 .legend-title{font-size:15px;font-weight:700;margin:16px 0 6px;color:var(--encre)}.map-legend{list-style:none;margin:0;padding:0}.map-legend li{display:flex;align-items:center;gap:10px;font-size:15px;margin:6px 0;color:var(--encre)}.map-legend li.sep{border-top:1px solid var(--filet);margin-top:10px;padding-top:10px}
-.map-legend .sw{width:26px;height:16px;border-radius:3px;border:1px solid #5B6470;flex:none}.map-legend .sw.sans{border:1.5px dashed #7B8794}
+.map-legend .sw{width:26px;height:16px;border-radius:3px;border:1px solid #5B6470;flex:none}
 .compte{font-size:15px;color:var(--encre);margin:10px 0 0}.compte b{font-weight:700}.note{font-size:13.5px;color:var(--texte);margin:10px 0 0;line-height:1.45}
 .sans-js{margin:12px 0 0;padding:10px 14px;border:1px solid #e0b96a;border-left-width:4px;background:#fff8e6;color:#5b4300;font-size:15px;border-radius:0 8px 8px 0}
 .carte{position:relative;min-width:0}.carte svg{width:100%;height:auto;display:block}
-path.t{stroke:#5B6470;stroke-width:1;vector-effect:non-scaling-stroke;cursor:pointer;outline:none}path.t.sans{stroke:#7B8794;stroke-width:0.8;stroke-dasharray:3 2}
+path.t{stroke:#5B6470;stroke-width:1;vector-effect:non-scaling-stroke;cursor:pointer;outline:none}
 .limites-reg path{fill:none;stroke:#2F3945;stroke-width:1.5;vector-effect:non-scaling-stroke;stroke-linejoin:round;pointer-events:none}
 #survol{fill:none;stroke:#111827;stroke-width:2.4;vector-effect:non-scaling-stroke;stroke-linejoin:round;pointer-events:none;display:none}#survol.on{display:inline}
-@media (max-width:640px){path.t{stroke-width:0.7}path.t.sans{stroke-width:0.56}.limites-reg path{stroke-width:1.05}#survol{stroke-width:1.68}}
+@media (max-width:640px){path.t{stroke-width:0.7}.limites-reg path{stroke-width:1.05}#survol{stroke-width:1.68}}
 .encart{fill:none;stroke:#c9ced6;stroke-width:1.2}.encart-lib{font-size:17px;font-weight:600;fill:#3E4C59}
 .bulle{position:absolute;pointer-events:none;background:#1F2933;color:#fff;border-radius:10px;padding:14px 16px;font-size:15px;line-height:1.5;min-width:240px;max-width:320px;box-shadow:0 8px 24px rgba(0,0,0,.22);display:none;z-index:2}
 .tooltip-title{font-size:17px;font-weight:700;margin:0 0 2px}.tooltip-cat{color:#cfd6df;margin:0 0 8px;font-weight:500}.tooltip-rows{border-top:1px solid rgba(255,255,255,.25);padding-top:8px}.tooltip-rows .tooltip-value{font-weight:700;padding:3px 0}.tooltip-rows .tooltip-small{color:#cfd6df;font-size:13.5px;padding:0 0 4px}.tooltip-secret{color:#ffd7a8;font-weight:700;margin-top:8px}.tooltip-secret small{display:block;color:#f3f4f6;font-weight:400}.tooltip-sans{color:#e5e7eb;font-weight:600;margin-top:8px}
@@ -59,7 +59,7 @@ footer{margin-top:28px;color:var(--texte);font-size:13.5px;line-height:1.55;bord
 <details><summary>ⓘ Qui est concerné ?</summary></details>
 <div class="study-scope-detail" id="scope-detail" hidden><p>Ces résultats concernent les salariés des entreprises retenues dans le périmètre Base.</p><p>Ils portent sur les salariés âgés de 45 ans ou plus en 2024, appartenant aux catégories professionnelles couvertes par le modèle : cadres, professions intermédiaires, employés, ouvriers.</p><p>Certaines professions qui ne peuvent pas être rattachées à ces catégories (agriculteurs exploitants, artisans, commerçants et chefs d’entreprise, profession non renseignée) ne sont pas incluses dans les estimations.</p><p>Un départ est une sortie définitive de l’emploi d’ici 2030 : retraite ou fin de carrière, invalidité, décès. Changer d’employeur n’est pas un départ.</p><p>Les nombres de départs sont des estimations, arrondies à l’entier pour la lecture ; la part de salariés susceptibles de partir est calculée parmi les salariés de la catégorie affichée.</p></div>
 </div>
-<p class="context">Choisissez une catégorie pour comparer les territoires. Les zones grisées correspondent à des résultats non diffusés (secret statistique) ; les zones blanches n’ont aucun salarié observé.</p>
+<p class="context">Choisissez une catégorie pour comparer les territoires. Les zones grisées correspondent à des résultats non diffusés (secret statistique), y compris lorsqu’aucun salarié n’y est observé.</p>
 </header>
 <div class="courriel">
 <input type="radio" name="cat" id="cat-1" checked>
@@ -196,7 +196,7 @@ footer{margin-top:28px;color:var(--texte);font-size:13.5px;line-height:1.55;bord
 <div class="carte">
 <section class="vue vue-1">
 <p class="vue-titre">Cadres</p><p class="vue-qui">Salariés de 45 ans ou plus · Part des salariés susceptibles de partir d’ici 2030</p>
-<div class="legend-title">Part des salariés susceptibles de partir d’ici 2030</div><ul class="map-legend"><li><span class="sw" style="background:#deebf7"></span><span>Moins de 20 %</span></li><li><span class="sw" style="background:#9ecae1"></span><span>20 % à 25 %</span></li><li><span class="sw" style="background:#2171b5"></span><span>25 % à 30 %</span></li><li><span class="sw" style="background:#08306b"></span><span>30 % et plus</span></li><li class="sep"><span class="sw" style="background:#b3b3b3"></span><span>Résultat non diffusé — secret statistique</span></li><li><span class="sw sans" style="background:#ffffff"></span><span>Aucun salarié observé</span></li></ul><p class="compte"><b>20</b> départements avec un résultat · <b>0</b> avec un résultat non diffusé (secret statistique) · <b>81</b> sans salarié observé</p>
+<div class="legend-title">Part des salariés susceptibles de partir d’ici 2030</div><ul class="map-legend"><li><span class="sw" style="background:#deebf7"></span><span>Moins de 20 %</span></li><li><span class="sw" style="background:#9ecae1"></span><span>20 % à 25 %</span></li><li><span class="sw" style="background:#2171b5"></span><span>25 % à 30 %</span></li><li><span class="sw" style="background:#08306b"></span><span>30 % et plus</span></li><li class="sep"><span class="sw" style="background:#b3b3b3"></span><span>Résultat non diffusé — secret statistique</span></li></ul><p class="compte"><b>15</b> départements avec un résultat · <b>86</b> avec un résultat non diffusé (secret statistique)</p>
 <svg viewBox="0 0 1000 1230" role="img" aria-label="Départs attendus d’ici 2030 — par département — grande catégorie socioprofessionnelle — Cadres">
 <rect fill="none" stroke="#c9ced6" x="1.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="10.0" y="1024.0">Guadeloupe</text>
 <rect fill="none" stroke="#c9ced6" x="201.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="210.0" y="1024.0">Martinique</text>
@@ -209,96 +209,96 @@ Cadres
 17 départs estimés d’ici 2030
 entre 16 et 19 selon l’hypothèse
 23,5 % pourraient partir d’ici 2030</title></use>
-<use href="#g-02" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Aisne · 02
+<use href="#g-02" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Aisne · 02
 Cadres
-Aucun salarié observé</title></use>
+Résultat non diffusé — secret statistique</title></use>
 <use href="#g-03" fill="#deebf7" stroke="#5B6470" stroke-width="1"><title>Allier · 03
 Cadres
 69 salariés de 45 ans ou plus
 12 départs estimés d’ici 2030
 entre 12 et 13 selon l’hypothèse
 17,9 % pourraient partir d’ici 2030</title></use>
-<use href="#g-04" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Alpes-de-Haute-Provence · 04
+<use href="#g-04" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Alpes-de-Haute-Provence · 04
 Cadres
-Aucun salarié observé</title></use>
-<use href="#g-05" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Hautes-Alpes · 05
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-05" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Hautes-Alpes · 05
 Cadres
-Aucun salarié observé</title></use>
-<use href="#g-06" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Alpes-Maritimes · 06
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-06" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Alpes-Maritimes · 06
 Cadres
-Aucun salarié observé</title></use>
-<use href="#g-07" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Ardèche · 07
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-07" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Ardèche · 07
 Cadres
-Aucun salarié observé</title></use>
-<use href="#g-08" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Ardennes · 08
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-08" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Ardennes · 08
 Cadres
-Aucun salarié observé</title></use>
+Résultat non diffusé — secret statistique</title></use>
 <use href="#g-09" fill="#2171b5" stroke="#5B6470" stroke-width="1"><title>Ariège · 09
 Cadres
 82 salariés de 45 ans ou plus
 21 départs estimés d’ici 2030
 entre 20 et 22 selon l’hypothèse
 25,7 % pourraient partir d’ici 2030</title></use>
-<use href="#g-10" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Aube · 10
+<use href="#g-10" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Aube · 10
 Cadres
-Aucun salarié observé</title></use>
-<use href="#g-11" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Aude · 11
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-11" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Aude · 11
 Cadres
-Aucun salarié observé</title></use>
-<use href="#g-12" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Aveyron · 12
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-12" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Aveyron · 12
 Cadres
-Aucun salarié observé</title></use>
-<use href="#g-13" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Bouches-du-Rhône · 13
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-13" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Bouches-du-Rhône · 13
 Cadres
-Aucun salarié observé</title></use>
-<use href="#g-14" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Calvados · 14
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-14" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Calvados · 14
 Cadres
-Aucun salarié observé</title></use>
-<use href="#g-15" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Cantal · 15
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-15" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Cantal · 15
 Cadres
-Aucun salarié observé</title></use>
-<use href="#g-16" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Charente · 16
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-16" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Charente · 16
 Cadres
-Aucun salarié observé</title></use>
-<use href="#g-17" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Charente-Maritime · 17
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-17" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Charente-Maritime · 17
 Cadres
-Aucun salarié observé</title></use>
+Résultat non diffusé — secret statistique</title></use>
 <use href="#g-18" fill="#2171b5" stroke="#5B6470" stroke-width="1"><title>Cher · 18
 Cadres
 72 salariés de 45 ans ou plus
 20 départs estimés d’ici 2030
 entre 18 et 21 selon l’hypothèse
 27,2 % pourraient partir d’ici 2030</title></use>
-<use href="#g-19" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Corrèze · 19
+<use href="#g-19" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Corrèze · 19
 Cadres
-Aucun salarié observé</title></use>
-<use href="#g-21" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Côte-d'Or · 21
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-21" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Côte-d'Or · 21
 Cadres
-Aucun salarié observé</title></use>
-<use href="#g-22" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Côtes-d'Armor · 22
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-22" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Côtes-d'Armor · 22
 Cadres
-Aucun salarié observé</title></use>
-<use href="#g-23" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Creuse · 23
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-23" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Creuse · 23
 Cadres
-Aucun salarié observé</title></use>
-<use href="#g-24" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Dordogne · 24
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-24" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Dordogne · 24
 Cadres
-Aucun salarié observé</title></use>
-<use href="#g-25" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Doubs · 25
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-25" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Doubs · 25
 Cadres
-Aucun salarié observé</title></use>
-<use href="#g-26" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Drôme · 26
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-26" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Drôme · 26
 Cadres
-Aucun salarié observé</title></use>
-<use href="#g-27" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Eure · 27
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-27" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Eure · 27
 Cadres
-Aucun salarié observé</title></use>
-<use href="#g-28" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Eure-et-Loir · 28
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-28" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Eure-et-Loir · 28
 Cadres
-Aucun salarié observé</title></use>
-<use href="#g-29" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Finistère · 29
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-29" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Finistère · 29
 Cadres
-Aucun salarié observé</title></use>
+Résultat non diffusé — secret statistique</title></use>
 <use href="#g-2A" fill="#2171b5" stroke="#5B6470" stroke-width="1"><title>Corse-du-Sud · 2A
 Cadres
 64 salariés de 45 ans ou plus
@@ -311,204 +311,192 @@ Cadres
 20 départs estimés d’ici 2030
 entre 19 et 22 selon l’hypothèse
 27,2 % pourraient partir d’ici 2030</title></use>
-<use href="#g-30" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Gard · 30
+<use href="#g-30" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Gard · 30
 Cadres
-Aucun salarié observé</title></use>
-<use href="#g-31" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Haute-Garonne · 31
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-31" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Haute-Garonne · 31
 Cadres
-Aucun salarié observé</title></use>
-<use href="#g-32" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Gers · 32
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-32" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Gers · 32
 Cadres
-Aucun salarié observé</title></use>
-<use href="#g-33" fill="#2171b5" stroke="#5B6470" stroke-width="1"><title>Gironde · 33
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-33" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Gironde · 33
 Cadres
-62 salariés de 45 ans ou plus
-18 départs estimés d’ici 2030
-entre 17 et 19 selon l’hypothèse
-29,6 % pourraient partir d’ici 2030</title></use>
-<use href="#g-34" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Hérault · 34
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-34" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Hérault · 34
 Cadres
-Aucun salarié observé</title></use>
-<use href="#g-35" fill="#9ecae1" stroke="#5B6470" stroke-width="1"><title>Ille-et-Vilaine · 35
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-35" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Ille-et-Vilaine · 35
 Cadres
-57 salariés de 45 ans ou plus
-12 départs estimés d’ici 2030
-entre 11 et 14 selon l’hypothèse
-21,7 % pourraient partir d’ici 2030</title></use>
-<use href="#g-36" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Indre · 36
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-36" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Indre · 36
 Cadres
-Aucun salarié observé</title></use>
-<use href="#g-37" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Indre-et-Loire · 37
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-37" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Indre-et-Loire · 37
 Cadres
-Aucun salarié observé</title></use>
-<use href="#g-38" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Isère · 38
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-38" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Isère · 38
 Cadres
-Aucun salarié observé</title></use>
-<use href="#g-39" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Jura · 39
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-39" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Jura · 39
 Cadres
-Aucun salarié observé</title></use>
-<use href="#g-40" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Landes · 40
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-40" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Landes · 40
 Cadres
-Aucun salarié observé</title></use>
-<use href="#g-41" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Loir-et-Cher · 41
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-41" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Loir-et-Cher · 41
 Cadres
-Aucun salarié observé</title></use>
-<use href="#g-42" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Loire · 42
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-42" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Loire · 42
 Cadres
-Aucun salarié observé</title></use>
-<use href="#g-43" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Haute-Loire · 43
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-43" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Haute-Loire · 43
 Cadres
-Aucun salarié observé</title></use>
+Résultat non diffusé — secret statistique</title></use>
 <use href="#g-44" fill="#2171b5" stroke="#5B6470" stroke-width="1"><title>Loire-Atlantique · 44
 Cadres
 78 salariés de 45 ans ou plus
 22 départs estimés d’ici 2030
 entre 21 et 24 selon l’hypothèse
 28,4 % pourraient partir d’ici 2030</title></use>
-<use href="#g-45" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Loiret · 45
+<use href="#g-45" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Loiret · 45
 Cadres
-Aucun salarié observé</title></use>
-<use href="#g-46" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Lot · 46
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-46" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Lot · 46
 Cadres
-Aucun salarié observé</title></use>
-<use href="#g-47" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Lot-et-Garonne · 47
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-47" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Lot-et-Garonne · 47
 Cadres
-Aucun salarié observé</title></use>
-<use href="#g-48" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Lozère · 48
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-48" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Lozère · 48
 Cadres
-Aucun salarié observé</title></use>
-<use href="#g-49" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Maine-et-Loire · 49
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-49" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Maine-et-Loire · 49
 Cadres
-Aucun salarié observé</title></use>
-<use href="#g-50" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Manche · 50
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-50" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Manche · 50
 Cadres
-Aucun salarié observé</title></use>
-<use href="#g-51" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Marne · 51
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-51" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Marne · 51
 Cadres
-Aucun salarié observé</title></use>
-<use href="#g-52" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Haute-Marne · 52
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-52" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Haute-Marne · 52
 Cadres
-Aucun salarié observé</title></use>
-<use href="#g-53" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Mayenne · 53
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-53" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Mayenne · 53
 Cadres
-Aucun salarié observé</title></use>
-<use href="#g-54" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Meurthe-et-Moselle · 54
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-54" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Meurthe-et-Moselle · 54
 Cadres
-Aucun salarié observé</title></use>
-<use href="#g-55" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Meuse · 55
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-55" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Meuse · 55
 Cadres
-Aucun salarié observé</title></use>
+Résultat non diffusé — secret statistique</title></use>
 <use href="#g-56" fill="#9ecae1" stroke="#5B6470" stroke-width="1"><title>Morbihan · 56
 Cadres
 69 salariés de 45 ans ou plus
 15 départs estimés d’ici 2030
 entre 14 et 16 selon l’hypothèse
 22,0 % pourraient partir d’ici 2030</title></use>
-<use href="#g-57" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Moselle · 57
+<use href="#g-57" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Moselle · 57
 Cadres
-Aucun salarié observé</title></use>
-<use href="#g-58" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Nièvre · 58
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-58" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Nièvre · 58
 Cadres
-Aucun salarié observé</title></use>
+Résultat non diffusé — secret statistique</title></use>
 <use href="#g-59" fill="#9ecae1" stroke="#5B6470" stroke-width="1"><title>Nord · 59
 Cadres
 77 salariés de 45 ans ou plus
 19 départs estimés d’ici 2030
 entre 18 et 21 selon l’hypothèse
 24,9 % pourraient partir d’ici 2030</title></use>
-<use href="#g-60" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Oise · 60
+<use href="#g-60" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Oise · 60
 Cadres
-Aucun salarié observé</title></use>
-<use href="#g-61" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Orne · 61
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-61" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Orne · 61
 Cadres
-Aucun salarié observé</title></use>
-<use href="#g-62" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Pas-de-Calais · 62
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-62" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Pas-de-Calais · 62
 Cadres
-Aucun salarié observé</title></use>
-<use href="#g-63" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Puy-de-Dôme · 63
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-63" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Puy-de-Dôme · 63
 Cadres
-Aucun salarié observé</title></use>
+Résultat non diffusé — secret statistique</title></use>
 <use href="#g-64" fill="#08306b" stroke="#5B6470" stroke-width="1"><title>Pyrénées-Atlantiques · 64
 Cadres
 80 salariés de 45 ans ou plus
 26 départs estimés d’ici 2030
 entre 24 et 27 selon l’hypothèse
 32,0 % pourraient partir d’ici 2030</title></use>
-<use href="#g-65" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Hautes-Pyrénées · 65
+<use href="#g-65" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Hautes-Pyrénées · 65
 Cadres
-Aucun salarié observé</title></use>
-<use href="#g-66" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Pyrénées-Orientales · 66
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-66" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Pyrénées-Orientales · 66
 Cadres
-Aucun salarié observé</title></use>
-<use href="#g-67" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Bas-Rhin · 67
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-67" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Bas-Rhin · 67
 Cadres
-Aucun salarié observé</title></use>
-<use href="#g-68" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Haut-Rhin · 68
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-68" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Haut-Rhin · 68
 Cadres
-Aucun salarié observé</title></use>
-<use href="#g-69" fill="#08306b" stroke="#5B6470" stroke-width="1"><title>Rhône · 69
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-69" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Rhône · 69
 Cadres
-64 salariés de 45 ans ou plus
-19 départs estimés d’ici 2030
-entre 18 et 21 selon l’hypothèse
-30,2 % pourraient partir d’ici 2030</title></use>
-<use href="#g-70" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Haute-Saône · 70
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-70" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Haute-Saône · 70
 Cadres
-Aucun salarié observé</title></use>
-<use href="#g-71" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Saône-et-Loire · 71
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-71" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Saône-et-Loire · 71
 Cadres
-Aucun salarié observé</title></use>
-<use href="#g-72" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Sarthe · 72
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-72" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Sarthe · 72
 Cadres
-Aucun salarié observé</title></use>
-<use href="#g-73" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Savoie · 73
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-73" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Savoie · 73
 Cadres
-Aucun salarié observé</title></use>
-<use href="#g-74" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Haute-Savoie · 74
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-74" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Haute-Savoie · 74
 Cadres
-Aucun salarié observé</title></use>
+Résultat non diffusé — secret statistique</title></use>
 <use href="#g-75" fill="#9ecae1" stroke="#5B6470" stroke-width="1"><title>Paris · 75
 Cadres
 70 salariés de 45 ans ou plus
 17 départs estimés d’ici 2030
 entre 15 et 18 selon l’hypothèse
 23,7 % pourraient partir d’ici 2030</title></use>
-<use href="#g-76" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Seine-Maritime · 76
+<use href="#g-76" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Seine-Maritime · 76
 Cadres
-Aucun salarié observé</title></use>
-<use href="#g-77" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Seine-et-Marne · 77
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-77" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Seine-et-Marne · 77
 Cadres
-Aucun salarié observé</title></use>
-<use href="#g-78" fill="#08306b" stroke="#5B6470" stroke-width="1"><title>Yvelines · 78
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-78" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Yvelines · 78
 Cadres
-53 salariés de 45 ans ou plus
-16 départs estimés d’ici 2030
-entre 16 et 17 selon l’hypothèse
-30,7 % pourraient partir d’ici 2030</title></use>
-<use href="#g-79" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Deux-Sèvres · 79
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-79" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Deux-Sèvres · 79
 Cadres
-Aucun salarié observé</title></use>
-<use href="#g-80" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Somme · 80
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-80" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Somme · 80
 Cadres
-Aucun salarié observé</title></use>
-<use href="#g-81" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Tarn · 81
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-81" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Tarn · 81
 Cadres
-Aucun salarié observé</title></use>
-<use href="#g-82" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Tarn-et-Garonne · 82
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-82" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Tarn-et-Garonne · 82
 Cadres
-Aucun salarié observé</title></use>
+Résultat non diffusé — secret statistique</title></use>
 <use href="#g-83" fill="#08306b" stroke="#5B6470" stroke-width="1"><title>Var · 83
 Cadres
 77 salariés de 45 ans ou plus
 24 départs estimés d’ici 2030
 entre 23 et 26 selon l’hypothèse
 31,6 % pourraient partir d’ici 2030</title></use>
-<use href="#g-84" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Vaucluse · 84
+<use href="#g-84" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Vaucluse · 84
 Cadres
-Aucun salarié observé</title></use>
-<use href="#g-85" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Vendée · 85
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-85" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Vendée · 85
 Cadres
-Aucun salarié observé</title></use>
+Résultat non diffusé — secret statistique</title></use>
 <use href="#g-86" fill="#deebf7" stroke="#5B6470" stroke-width="1"><title>Vienne · 86
 Cadres
 68 salariés de 45 ans ou plus
@@ -521,434 +509,410 @@ Cadres
 18 départs estimés d’ici 2030
 entre 16 et 19 selon l’hypothèse
 21,7 % pourraient partir d’ici 2030</title></use>
-<use href="#g-88" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Vosges · 88
+<use href="#g-88" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Vosges · 88
 Cadres
-Aucun salarié observé</title></use>
-<use href="#g-89" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Yonne · 89
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-89" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Yonne · 89
 Cadres
-Aucun salarié observé</title></use>
-<use href="#g-90" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Territoire de Belfort · 90
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-90" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Territoire de Belfort · 90
 Cadres
-Aucun salarié observé</title></use>
-<use href="#g-91" fill="#9ecae1" stroke="#5B6470" stroke-width="1"><title>Essonne · 91
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-91" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Essonne · 91
 Cadres
-58 salariés de 45 ans ou plus
-13 départs estimés d’ici 2030
-entre 13 et 14 selon l’hypothèse
-22,7 % pourraient partir d’ici 2030</title></use>
-<use href="#g-92" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Hauts-de-Seine · 92
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-92" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Hauts-de-Seine · 92
 Cadres
-Aucun salarié observé</title></use>
+Résultat non diffusé — secret statistique</title></use>
 <use href="#g-93" fill="#deebf7" stroke="#5B6470" stroke-width="1"><title>Seine-Saint-Denis · 93
 Cadres
 65 salariés de 45 ans ou plus
 13 départs estimés d’ici 2030
 entre 12 et 14 selon l’hypothèse
 19,6 % pourraient partir d’ici 2030</title></use>
-<use href="#g-94" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Val-de-Marne · 94
+<use href="#g-94" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Val-de-Marne · 94
 Cadres
-Aucun salarié observé</title></use>
-<use href="#g-95" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Val-d'Oise · 95
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-95" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Val-d'Oise · 95
 Cadres
-Aucun salarié observé</title></use>
-<use href="#g-971" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Guadeloupe · 971
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-971" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Guadeloupe · 971
 Cadres
-Aucun salarié observé</title></use>
-<use href="#g-972" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Martinique · 972
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-972" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Martinique · 972
 Cadres
-Aucun salarié observé</title></use>
-<use href="#g-973" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Guyane · 973
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-973" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Guyane · 973
 Cadres
-Aucun salarié observé</title></use>
-<use href="#g-974" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>La Réunion · 974
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-974" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>La Réunion · 974
 Cadres
-Aucun salarié observé</title></use>
-<use href="#g-976" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Mayotte · 976
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-976" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Mayotte · 976
 Cadres
-Aucun salarié observé</title></use>
+Résultat non diffusé — secret statistique</title></use>
 <use href="#g-regions"></use>
 </svg>
 <p class="note">Part calculée parmi les salariés de 45 ans ou plus de la catégorie affichée. Même échelle pour tous les territoires ; elle est recalculée quand vous changez de catégorie ou d’indicateur. Survolez un territoire pour lire ses chiffres.</p>
 </section>
 <section class="vue vue-2">
 <p class="vue-titre">Employés</p><p class="vue-qui">Salariés de 45 ans ou plus · Part des salariés susceptibles de partir d’ici 2030</p>
-<div class="legend-title">Part des salariés susceptibles de partir d’ici 2030</div><ul class="map-legend"><li><span class="sw" style="background:#deebf7"></span><span>Moins de 30 %</span></li><li><span class="sw" style="background:#9ecae1"></span><span>30 % à 40 %</span></li><li><span class="sw" style="background:#2171b5"></span><span>40 % à 50 %</span></li><li><span class="sw" style="background:#08306b"></span><span>50 % et plus</span></li><li class="sep"><span class="sw" style="background:#b3b3b3"></span><span>Résultat non diffusé — secret statistique</span></li><li><span class="sw sans" style="background:#ffffff"></span><span>Aucun salarié observé</span></li></ul><p class="compte"><b>20</b> départements avec un résultat · <b>0</b> avec un résultat non diffusé (secret statistique) · <b>81</b> sans salarié observé</p>
+<div class="legend-title">Part des salariés susceptibles de partir d’ici 2030</div><ul class="map-legend"><li><span class="sw" style="background:#deebf7"></span><span>Moins de 40 %</span></li><li><span class="sw" style="background:#4292c6"></span><span>40 % à 50 %</span></li><li><span class="sw" style="background:#08306b"></span><span>50 % et plus</span></li><li class="sep"><span class="sw" style="background:#b3b3b3"></span><span>Résultat non diffusé — secret statistique</span></li></ul><p class="compte"><b>13</b> départements avec un résultat · <b>88</b> avec un résultat non diffusé (secret statistique)</p>
 <svg viewBox="0 0 1000 1230" role="img" aria-label="Départs attendus d’ici 2030 — par département — grande catégorie socioprofessionnelle — Employés">
 <rect fill="none" stroke="#c9ced6" x="1.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="10.0" y="1024.0">Guadeloupe</text>
 <rect fill="none" stroke="#c9ced6" x="201.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="210.0" y="1024.0">Martinique</text>
 <rect fill="none" stroke="#c9ced6" x="401.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="410.0" y="1024.0">Guyane</text>
 <rect fill="none" stroke="#c9ced6" x="601.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="610.0" y="1024.0">La Réunion</text>
 <rect fill="none" stroke="#c9ced6" x="801.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="810.0" y="1024.0">Mayotte</text>
-<use href="#g-01" fill="#2171b5" stroke="#5B6470" stroke-width="1"><title>Ain · 01
+<use href="#g-01" fill="#4292c6" stroke="#5B6470" stroke-width="1"><title>Ain · 01
 Employés
 61 salariés de 45 ans ou plus
 29 départs estimés d’ici 2030
 entre 27 et 31 selon l’hypothèse
 47,5 % pourraient partir d’ici 2030</title></use>
-<use href="#g-02" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Aisne · 02
+<use href="#g-02" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Aisne · 02
 Employés
-Aucun salarié observé</title></use>
-<use href="#g-03" fill="#9ecae1" stroke="#5B6470" stroke-width="1"><title>Allier · 03
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-03" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Allier · 03
 Employés
-46 salariés de 45 ans ou plus
-15 départs estimés d’ici 2030
-entre 14 et 15 selon l’hypothèse
-31,5 % pourraient partir d’ici 2030</title></use>
-<use href="#g-04" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Alpes-de-Haute-Provence · 04
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-04" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Alpes-de-Haute-Provence · 04
 Employés
-Aucun salarié observé</title></use>
-<use href="#g-05" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Hautes-Alpes · 05
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-05" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Hautes-Alpes · 05
 Employés
-Aucun salarié observé</title></use>
-<use href="#g-06" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Alpes-Maritimes · 06
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-06" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Alpes-Maritimes · 06
 Employés
-Aucun salarié observé</title></use>
-<use href="#g-07" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Ardèche · 07
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-07" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Ardèche · 07
 Employés
-Aucun salarié observé</title></use>
-<use href="#g-08" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Ardennes · 08
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-08" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Ardennes · 08
 Employés
-Aucun salarié observé</title></use>
-<use href="#g-09" fill="#2171b5" stroke="#5B6470" stroke-width="1"><title>Ariège · 09
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-09" fill="#4292c6" stroke="#5B6470" stroke-width="1"><title>Ariège · 09
 Employés
 52 salariés de 45 ans ou plus
 21 départs estimés d’ici 2030
 entre 20 et 22 selon l’hypothèse
 40,2 % pourraient partir d’ici 2030</title></use>
-<use href="#g-10" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Aube · 10
+<use href="#g-10" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Aube · 10
 Employés
-Aucun salarié observé</title></use>
-<use href="#g-11" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Aude · 11
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-11" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Aude · 11
 Employés
-Aucun salarié observé</title></use>
-<use href="#g-12" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Aveyron · 12
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-12" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Aveyron · 12
 Employés
-Aucun salarié observé</title></use>
-<use href="#g-13" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Bouches-du-Rhône · 13
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-13" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Bouches-du-Rhône · 13
 Employés
-Aucun salarié observé</title></use>
-<use href="#g-14" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Calvados · 14
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-14" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Calvados · 14
 Employés
-Aucun salarié observé</title></use>
-<use href="#g-15" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Cantal · 15
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-15" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Cantal · 15
 Employés
-Aucun salarié observé</title></use>
-<use href="#g-16" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Charente · 16
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-16" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Charente · 16
 Employés
-Aucun salarié observé</title></use>
-<use href="#g-17" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Charente-Maritime · 17
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-17" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Charente-Maritime · 17
 Employés
-Aucun salarié observé</title></use>
-<use href="#g-18" fill="#2171b5" stroke="#5B6470" stroke-width="1"><title>Cher · 18
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-18" fill="#4292c6" stroke="#5B6470" stroke-width="1"><title>Cher · 18
 Employés
 46 salariés de 45 ans ou plus
 19 départs estimés d’ici 2030
 entre 18 et 20 selon l’hypothèse
 41,1 % pourraient partir d’ici 2030</title></use>
-<use href="#g-19" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Corrèze · 19
+<use href="#g-19" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Corrèze · 19
 Employés
-Aucun salarié observé</title></use>
-<use href="#g-21" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Côte-d'Or · 21
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-21" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Côte-d'Or · 21
 Employés
-Aucun salarié observé</title></use>
-<use href="#g-22" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Côtes-d'Armor · 22
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-22" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Côtes-d'Armor · 22
 Employés
-Aucun salarié observé</title></use>
-<use href="#g-23" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Creuse · 23
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-23" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Creuse · 23
 Employés
-Aucun salarié observé</title></use>
-<use href="#g-24" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Dordogne · 24
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-24" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Dordogne · 24
 Employés
-Aucun salarié observé</title></use>
-<use href="#g-25" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Doubs · 25
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-25" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Doubs · 25
 Employés
-Aucun salarié observé</title></use>
-<use href="#g-26" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Drôme · 26
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-26" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Drôme · 26
 Employés
-Aucun salarié observé</title></use>
-<use href="#g-27" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Eure · 27
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-27" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Eure · 27
 Employés
-Aucun salarié observé</title></use>
-<use href="#g-28" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Eure-et-Loir · 28
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-28" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Eure-et-Loir · 28
 Employés
-Aucun salarié observé</title></use>
-<use href="#g-29" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Finistère · 29
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-29" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Finistère · 29
 Employés
-Aucun salarié observé</title></use>
-<use href="#g-2A" fill="#9ecae1" stroke="#5B6470" stroke-width="1"><title>Corse-du-Sud · 2A
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-2A" fill="#deebf7" stroke="#5B6470" stroke-width="1"><title>Corse-du-Sud · 2A
 Employés
 58 salariés de 45 ans ou plus
 21 départs estimés d’ici 2030
 entre 20 et 22 selon l’hypothèse
 36,4 % pourraient partir d’ici 2030</title></use>
-<use href="#g-2B" fill="#2171b5" stroke="#5B6470" stroke-width="1"><title>Haute-Corse · 2B
+<use href="#g-2B" fill="#4292c6" stroke="#5B6470" stroke-width="1"><title>Haute-Corse · 2B
 Employés
 69 salariés de 45 ans ou plus
 32 départs estimés d’ici 2030
 entre 31 et 34 selon l’hypothèse
 46,7 % pourraient partir d’ici 2030</title></use>
-<use href="#g-30" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Gard · 30
+<use href="#g-30" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Gard · 30
 Employés
-Aucun salarié observé</title></use>
-<use href="#g-31" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Haute-Garonne · 31
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-31" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Haute-Garonne · 31
 Employés
-Aucun salarié observé</title></use>
-<use href="#g-32" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Gers · 32
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-32" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Gers · 32
 Employés
-Aucun salarié observé</title></use>
-<use href="#g-33" fill="#2171b5" stroke="#5B6470" stroke-width="1"><title>Gironde · 33
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-33" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Gironde · 33
 Employés
-56 salariés de 45 ans ou plus
-24 départs estimés d’ici 2030
-entre 22 et 25 selon l’hypothèse
-42,5 % pourraient partir d’ici 2030</title></use>
-<use href="#g-34" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Hérault · 34
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-34" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Hérault · 34
 Employés
-Aucun salarié observé</title></use>
-<use href="#g-35" fill="#9ecae1" stroke="#5B6470" stroke-width="1"><title>Ille-et-Vilaine · 35
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-35" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Ille-et-Vilaine · 35
 Employés
-47 salariés de 45 ans ou plus
-18 départs estimés d’ici 2030
-entre 17 et 19 selon l’hypothèse
-37,8 % pourraient partir d’ici 2030</title></use>
-<use href="#g-36" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Indre · 36
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-36" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Indre · 36
 Employés
-Aucun salarié observé</title></use>
-<use href="#g-37" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Indre-et-Loire · 37
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-37" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Indre-et-Loire · 37
 Employés
-Aucun salarié observé</title></use>
-<use href="#g-38" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Isère · 38
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-38" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Isère · 38
 Employés
-Aucun salarié observé</title></use>
-<use href="#g-39" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Jura · 39
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-39" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Jura · 39
 Employés
-Aucun salarié observé</title></use>
-<use href="#g-40" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Landes · 40
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-40" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Landes · 40
 Employés
-Aucun salarié observé</title></use>
-<use href="#g-41" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Loir-et-Cher · 41
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-41" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Loir-et-Cher · 41
 Employés
-Aucun salarié observé</title></use>
-<use href="#g-42" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Loire · 42
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-42" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Loire · 42
 Employés
-Aucun salarié observé</title></use>
-<use href="#g-43" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Haute-Loire · 43
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-43" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Haute-Loire · 43
 Employés
-Aucun salarié observé</title></use>
-<use href="#g-44" fill="#9ecae1" stroke="#5B6470" stroke-width="1"><title>Loire-Atlantique · 44
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-44" fill="#deebf7" stroke="#5B6470" stroke-width="1"><title>Loire-Atlantique · 44
 Employés
 70 salariés de 45 ans ou plus
 24 départs estimés d’ici 2030
 entre 23 et 26 selon l’hypothèse
 34,7 % pourraient partir d’ici 2030</title></use>
-<use href="#g-45" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Loiret · 45
+<use href="#g-45" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Loiret · 45
 Employés
-Aucun salarié observé</title></use>
-<use href="#g-46" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Lot · 46
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-46" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Lot · 46
 Employés
-Aucun salarié observé</title></use>
-<use href="#g-47" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Lot-et-Garonne · 47
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-47" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Lot-et-Garonne · 47
 Employés
-Aucun salarié observé</title></use>
-<use href="#g-48" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Lozère · 48
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-48" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Lozère · 48
 Employés
-Aucun salarié observé</title></use>
-<use href="#g-49" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Maine-et-Loire · 49
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-49" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Maine-et-Loire · 49
 Employés
-Aucun salarié observé</title></use>
-<use href="#g-50" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Manche · 50
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-50" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Manche · 50
 Employés
-Aucun salarié observé</title></use>
-<use href="#g-51" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Marne · 51
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-51" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Marne · 51
 Employés
-Aucun salarié observé</title></use>
-<use href="#g-52" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Haute-Marne · 52
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-52" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Haute-Marne · 52
 Employés
-Aucun salarié observé</title></use>
-<use href="#g-53" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Mayenne · 53
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-53" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Mayenne · 53
 Employés
-Aucun salarié observé</title></use>
-<use href="#g-54" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Meurthe-et-Moselle · 54
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-54" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Meurthe-et-Moselle · 54
 Employés
-Aucun salarié observé</title></use>
-<use href="#g-55" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Meuse · 55
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-55" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Meuse · 55
 Employés
-Aucun salarié observé</title></use>
-<use href="#g-56" fill="#9ecae1" stroke="#5B6470" stroke-width="1"><title>Morbihan · 56
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-56" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Morbihan · 56
 Employés
-51 salariés de 45 ans ou plus
-16 départs estimés d’ici 2030
-entre 15 et 17 selon l’hypothèse
-31,8 % pourraient partir d’ici 2030</title></use>
-<use href="#g-57" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Moselle · 57
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-57" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Moselle · 57
 Employés
-Aucun salarié observé</title></use>
-<use href="#g-58" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Nièvre · 58
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-58" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Nièvre · 58
 Employés
-Aucun salarié observé</title></use>
+Résultat non diffusé — secret statistique</title></use>
 <use href="#g-59" fill="#08306b" stroke="#5B6470" stroke-width="1"><title>Nord · 59
 Employés
 64 salariés de 45 ans ou plus
 36 départs estimés d’ici 2030
 entre 34 et 37 selon l’hypothèse
 55,9 % pourraient partir d’ici 2030</title></use>
-<use href="#g-60" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Oise · 60
+<use href="#g-60" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Oise · 60
 Employés
-Aucun salarié observé</title></use>
-<use href="#g-61" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Orne · 61
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-61" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Orne · 61
 Employés
-Aucun salarié observé</title></use>
-<use href="#g-62" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Pas-de-Calais · 62
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-62" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Pas-de-Calais · 62
 Employés
-Aucun salarié observé</title></use>
-<use href="#g-63" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Puy-de-Dôme · 63
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-63" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Puy-de-Dôme · 63
 Employés
-Aucun salarié observé</title></use>
-<use href="#g-64" fill="#2171b5" stroke="#5B6470" stroke-width="1"><title>Pyrénées-Atlantiques · 64
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-64" fill="#4292c6" stroke="#5B6470" stroke-width="1"><title>Pyrénées-Atlantiques · 64
 Employés
 55 salariés de 45 ans ou plus
 27 départs estimés d’ici 2030
 entre 26 et 28 selon l’hypothèse
 48,8 % pourraient partir d’ici 2030</title></use>
-<use href="#g-65" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Hautes-Pyrénées · 65
+<use href="#g-65" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Hautes-Pyrénées · 65
 Employés
-Aucun salarié observé</title></use>
-<use href="#g-66" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Pyrénées-Orientales · 66
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-66" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Pyrénées-Orientales · 66
 Employés
-Aucun salarié observé</title></use>
-<use href="#g-67" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Bas-Rhin · 67
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-67" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Bas-Rhin · 67
 Employés
-Aucun salarié observé</title></use>
-<use href="#g-68" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Haut-Rhin · 68
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-68" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Haut-Rhin · 68
 Employés
-Aucun salarié observé</title></use>
-<use href="#g-69" fill="#2171b5" stroke="#5B6470" stroke-width="1"><title>Rhône · 69
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-69" fill="#4292c6" stroke="#5B6470" stroke-width="1"><title>Rhône · 69
 Employés
 52 salariés de 45 ans ou plus
 23 départs estimés d’ici 2030
 entre 22 et 24 selon l’hypothèse
 43,4 % pourraient partir d’ici 2030</title></use>
-<use href="#g-70" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Haute-Saône · 70
+<use href="#g-70" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Haute-Saône · 70
 Employés
-Aucun salarié observé</title></use>
-<use href="#g-71" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Saône-et-Loire · 71
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-71" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Saône-et-Loire · 71
 Employés
-Aucun salarié observé</title></use>
-<use href="#g-72" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Sarthe · 72
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-72" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Sarthe · 72
 Employés
-Aucun salarié observé</title></use>
-<use href="#g-73" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Savoie · 73
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-73" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Savoie · 73
 Employés
-Aucun salarié observé</title></use>
-<use href="#g-74" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Haute-Savoie · 74
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-74" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Haute-Savoie · 74
 Employés
-Aucun salarié observé</title></use>
-<use href="#g-75" fill="#2171b5" stroke="#5B6470" stroke-width="1"><title>Paris · 75
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-75" fill="#4292c6" stroke="#5B6470" stroke-width="1"><title>Paris · 75
 Employés
 52 salariés de 45 ans ou plus
 24 départs estimés d’ici 2030
 entre 23 et 26 selon l’hypothèse
 46,7 % pourraient partir d’ici 2030</title></use>
-<use href="#g-76" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Seine-Maritime · 76
+<use href="#g-76" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Seine-Maritime · 76
 Employés
-Aucun salarié observé</title></use>
-<use href="#g-77" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Seine-et-Marne · 77
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-77" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Seine-et-Marne · 77
 Employés
-Aucun salarié observé</title></use>
-<use href="#g-78" fill="#2171b5" stroke="#5B6470" stroke-width="1"><title>Yvelines · 78
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-78" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Yvelines · 78
 Employés
-51 salariés de 45 ans ou plus
-23 départs estimés d’ici 2030
-entre 22 et 24 selon l’hypothèse
-45,7 % pourraient partir d’ici 2030</title></use>
-<use href="#g-79" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Deux-Sèvres · 79
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-79" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Deux-Sèvres · 79
 Employés
-Aucun salarié observé</title></use>
-<use href="#g-80" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Somme · 80
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-80" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Somme · 80
 Employés
-Aucun salarié observé</title></use>
-<use href="#g-81" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Tarn · 81
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-81" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Tarn · 81
 Employés
-Aucun salarié observé</title></use>
-<use href="#g-82" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Tarn-et-Garonne · 82
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-82" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Tarn-et-Garonne · 82
 Employés
-Aucun salarié observé</title></use>
-<use href="#g-83" fill="#2171b5" stroke="#5B6470" stroke-width="1"><title>Var · 83
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-83" fill="#4292c6" stroke="#5B6470" stroke-width="1"><title>Var · 83
 Employés
 60 salariés de 45 ans ou plus
 30 départs estimés d’ici 2030
 entre 28 et 31 selon l’hypothèse
 49,2 % pourraient partir d’ici 2030</title></use>
-<use href="#g-84" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Vaucluse · 84
+<use href="#g-84" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Vaucluse · 84
 Employés
-Aucun salarié observé</title></use>
-<use href="#g-85" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Vendée · 85
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-85" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Vendée · 85
 Employés
-Aucun salarié observé</title></use>
-<use href="#g-86" fill="#deebf7" stroke="#5B6470" stroke-width="1"><title>Vienne · 86
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-86" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Vienne · 86
 Employés
-41 salariés de 45 ans ou plus
-11 départs estimés d’ici 2030
-entre 11 et 12 selon l’hypothèse
-27,2 % pourraient partir d’ici 2030</title></use>
-<use href="#g-87" fill="#2171b5" stroke="#5B6470" stroke-width="1"><title>Haute-Vienne · 87
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-87" fill="#4292c6" stroke="#5B6470" stroke-width="1"><title>Haute-Vienne · 87
 Employés
 61 salariés de 45 ans ou plus
 24 départs estimés d’ici 2030
 entre 23 et 26 selon l’hypothèse
 40,0 % pourraient partir d’ici 2030</title></use>
-<use href="#g-88" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Vosges · 88
+<use href="#g-88" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Vosges · 88
 Employés
-Aucun salarié observé</title></use>
-<use href="#g-89" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Yonne · 89
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-89" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Yonne · 89
 Employés
-Aucun salarié observé</title></use>
-<use href="#g-90" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Territoire de Belfort · 90
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-90" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Territoire de Belfort · 90
 Employés
-Aucun salarié observé</title></use>
-<use href="#g-91" fill="#9ecae1" stroke="#5B6470" stroke-width="1"><title>Essonne · 91
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-91" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Essonne · 91
 Employés
-41 salariés de 45 ans ou plus
-12 départs estimés d’ici 2030
-entre 11 et 13 selon l’hypothèse
-30,2 % pourraient partir d’ici 2030</title></use>
-<use href="#g-92" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Hauts-de-Seine · 92
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-92" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Hauts-de-Seine · 92
 Employés
-Aucun salarié observé</title></use>
-<use href="#g-93" fill="#9ecae1" stroke="#5B6470" stroke-width="1"><title>Seine-Saint-Denis · 93
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-93" fill="#deebf7" stroke="#5B6470" stroke-width="1"><title>Seine-Saint-Denis · 93
 Employés
 53 salariés de 45 ans ou plus
 19 départs estimés d’ici 2030
 entre 18 et 20 selon l’hypothèse
 36,1 % pourraient partir d’ici 2030</title></use>
-<use href="#g-94" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Val-de-Marne · 94
+<use href="#g-94" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Val-de-Marne · 94
 Employés
-Aucun salarié observé</title></use>
-<use href="#g-95" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Val-d'Oise · 95
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-95" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Val-d'Oise · 95
 Employés
-Aucun salarié observé</title></use>
-<use href="#g-971" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Guadeloupe · 971
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-971" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Guadeloupe · 971
 Employés
-Aucun salarié observé</title></use>
-<use href="#g-972" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Martinique · 972
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-972" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Martinique · 972
 Employés
-Aucun salarié observé</title></use>
-<use href="#g-973" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Guyane · 973
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-973" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Guyane · 973
 Employés
-Aucun salarié observé</title></use>
-<use href="#g-974" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>La Réunion · 974
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-974" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>La Réunion · 974
 Employés
-Aucun salarié observé</title></use>
-<use href="#g-976" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Mayotte · 976
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-976" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Mayotte · 976
 Employés
-Aucun salarié observé</title></use>
+Résultat non diffusé — secret statistique</title></use>
 <use href="#g-regions"></use>
 </svg>
 <p class="note">Part calculée parmi les salariés de 45 ans ou plus de la catégorie affichée. Même échelle pour tous les territoires ; elle est recalculée quand vous changez de catégorie ou d’indicateur. Survolez un territoire pour lire ses chiffres.</p>
 </section>
 <section class="vue vue-3">
 <p class="vue-titre">Ouvriers</p><p class="vue-qui">Salariés de 45 ans ou plus · Part des salariés susceptibles de partir d’ici 2030</p>
-<div class="legend-title">Part des salariés susceptibles de partir d’ici 2030</div><ul class="map-legend"><li><span class="sw" style="background:#deebf7"></span><span>Moins de 40 %</span></li><li><span class="sw" style="background:#4292c6"></span><span>40 % à 50 %</span></li><li><span class="sw" style="background:#08306b"></span><span>50 % et plus</span></li><li class="sep"><span class="sw" style="background:#b3b3b3"></span><span>Résultat non diffusé — secret statistique</span></li><li><span class="sw sans" style="background:#ffffff"></span><span>Aucun salarié observé</span></li></ul><p class="compte"><b>20</b> départements avec un résultat · <b>0</b> avec un résultat non diffusé (secret statistique) · <b>81</b> sans salarié observé</p>
+<div class="legend-title">Part des salariés susceptibles de partir d’ici 2030</div><ul class="map-legend"><li><span class="sw" style="background:#deebf7"></span><span>Moins de 40 %</span></li><li><span class="sw" style="background:#4292c6"></span><span>40 % à 50 %</span></li><li><span class="sw" style="background:#08306b"></span><span>50 % et plus</span></li><li class="sep"><span class="sw" style="background:#b3b3b3"></span><span>Résultat non diffusé — secret statistique</span></li></ul><p class="compte"><b>16</b> départements avec un résultat · <b>85</b> avec un résultat non diffusé (secret statistique)</p>
 <svg viewBox="0 0 1000 1230" role="img" aria-label="Départs attendus d’ici 2030 — par département — grande catégorie socioprofessionnelle — Ouvriers">
 <rect fill="none" stroke="#c9ced6" x="1.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="10.0" y="1024.0">Guadeloupe</text>
 <rect fill="none" stroke="#c9ced6" x="201.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="210.0" y="1024.0">Martinique</text>
@@ -961,96 +925,96 @@ Ouvriers
 47 départs estimés d’ici 2030
 entre 46 et 49 selon l’hypothèse
 52,7 % pourraient partir d’ici 2030</title></use>
-<use href="#g-02" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Aisne · 02
+<use href="#g-02" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Aisne · 02
 Ouvriers
-Aucun salarié observé</title></use>
+Résultat non diffusé — secret statistique</title></use>
 <use href="#g-03" fill="#4292c6" stroke="#5B6470" stroke-width="1"><title>Allier · 03
 Ouvriers
 92 salariés de 45 ans ou plus
 41 départs estimés d’ici 2030
 entre 39 et 44 selon l’hypothèse
 45,1 % pourraient partir d’ici 2030</title></use>
-<use href="#g-04" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Alpes-de-Haute-Provence · 04
+<use href="#g-04" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Alpes-de-Haute-Provence · 04
 Ouvriers
-Aucun salarié observé</title></use>
-<use href="#g-05" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Hautes-Alpes · 05
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-05" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Hautes-Alpes · 05
 Ouvriers
-Aucun salarié observé</title></use>
-<use href="#g-06" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Alpes-Maritimes · 06
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-06" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Alpes-Maritimes · 06
 Ouvriers
-Aucun salarié observé</title></use>
-<use href="#g-07" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Ardèche · 07
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-07" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Ardèche · 07
 Ouvriers
-Aucun salarié observé</title></use>
-<use href="#g-08" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Ardennes · 08
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-08" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Ardennes · 08
 Ouvriers
-Aucun salarié observé</title></use>
+Résultat non diffusé — secret statistique</title></use>
 <use href="#g-09" fill="#4292c6" stroke="#5B6470" stroke-width="1"><title>Ariège · 09
 Ouvriers
 87 salariés de 45 ans ou plus
 42 départs estimés d’ici 2030
 entre 40 et 45 selon l’hypothèse
 48,5 % pourraient partir d’ici 2030</title></use>
-<use href="#g-10" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Aube · 10
+<use href="#g-10" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Aube · 10
 Ouvriers
-Aucun salarié observé</title></use>
-<use href="#g-11" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Aude · 11
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-11" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Aude · 11
 Ouvriers
-Aucun salarié observé</title></use>
-<use href="#g-12" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Aveyron · 12
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-12" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Aveyron · 12
 Ouvriers
-Aucun salarié observé</title></use>
-<use href="#g-13" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Bouches-du-Rhône · 13
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-13" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Bouches-du-Rhône · 13
 Ouvriers
-Aucun salarié observé</title></use>
-<use href="#g-14" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Calvados · 14
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-14" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Calvados · 14
 Ouvriers
-Aucun salarié observé</title></use>
-<use href="#g-15" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Cantal · 15
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-15" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Cantal · 15
 Ouvriers
-Aucun salarié observé</title></use>
-<use href="#g-16" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Charente · 16
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-16" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Charente · 16
 Ouvriers
-Aucun salarié observé</title></use>
-<use href="#g-17" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Charente-Maritime · 17
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-17" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Charente-Maritime · 17
 Ouvriers
-Aucun salarié observé</title></use>
+Résultat non diffusé — secret statistique</title></use>
 <use href="#g-18" fill="#08306b" stroke="#5B6470" stroke-width="1"><title>Cher · 18
 Ouvriers
 77 salariés de 45 ans ou plus
 40 départs estimés d’ici 2030
 entre 38 et 42 selon l’hypothèse
 51,9 % pourraient partir d’ici 2030</title></use>
-<use href="#g-19" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Corrèze · 19
+<use href="#g-19" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Corrèze · 19
 Ouvriers
-Aucun salarié observé</title></use>
-<use href="#g-21" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Côte-d'Or · 21
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-21" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Côte-d'Or · 21
 Ouvriers
-Aucun salarié observé</title></use>
-<use href="#g-22" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Côtes-d'Armor · 22
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-22" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Côtes-d'Armor · 22
 Ouvriers
-Aucun salarié observé</title></use>
-<use href="#g-23" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Creuse · 23
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-23" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Creuse · 23
 Ouvriers
-Aucun salarié observé</title></use>
-<use href="#g-24" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Dordogne · 24
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-24" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Dordogne · 24
 Ouvriers
-Aucun salarié observé</title></use>
-<use href="#g-25" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Doubs · 25
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-25" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Doubs · 25
 Ouvriers
-Aucun salarié observé</title></use>
-<use href="#g-26" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Drôme · 26
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-26" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Drôme · 26
 Ouvriers
-Aucun salarié observé</title></use>
-<use href="#g-27" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Eure · 27
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-27" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Eure · 27
 Ouvriers
-Aucun salarié observé</title></use>
-<use href="#g-28" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Eure-et-Loir · 28
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-28" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Eure-et-Loir · 28
 Ouvriers
-Aucun salarié observé</title></use>
-<use href="#g-29" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Finistère · 29
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-29" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Finistère · 29
 Ouvriers
-Aucun salarié observé</title></use>
+Résultat non diffusé — secret statistique</title></use>
 <use href="#g-2A" fill="#deebf7" stroke="#5B6470" stroke-width="1"><title>Corse-du-Sud · 2A
 Ouvriers
 77 salariés de 45 ans ou plus
@@ -1063,268 +1027,256 @@ Ouvriers
 37 départs estimés d’ici 2030
 entre 35 et 38 selon l’hypothèse
 41,6 % pourraient partir d’ici 2030</title></use>
-<use href="#g-30" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Gard · 30
+<use href="#g-30" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Gard · 30
 Ouvriers
-Aucun salarié observé</title></use>
-<use href="#g-31" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Haute-Garonne · 31
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-31" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Haute-Garonne · 31
 Ouvriers
-Aucun salarié observé</title></use>
-<use href="#g-32" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Gers · 32
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-32" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Gers · 32
 Ouvriers
-Aucun salarié observé</title></use>
+Résultat non diffusé — secret statistique</title></use>
 <use href="#g-33" fill="#4292c6" stroke="#5B6470" stroke-width="1"><title>Gironde · 33
 Ouvriers
 84 salariés de 45 ans ou plus
 38 départs estimés d’ici 2030
 entre 36 et 40 selon l’hypothèse
 45,3 % pourraient partir d’ici 2030</title></use>
-<use href="#g-34" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Hérault · 34
+<use href="#g-34" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Hérault · 34
 Ouvriers
-Aucun salarié observé</title></use>
-<use href="#g-35" fill="#08306b" stroke="#5B6470" stroke-width="1"><title>Ille-et-Vilaine · 35
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-35" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Ille-et-Vilaine · 35
 Ouvriers
-61 salariés de 45 ans ou plus
-31 départs estimés d’ici 2030
-entre 29 et 32 selon l’hypothèse
-50,0 % pourraient partir d’ici 2030</title></use>
-<use href="#g-36" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Indre · 36
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-36" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Indre · 36
 Ouvriers
-Aucun salarié observé</title></use>
-<use href="#g-37" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Indre-et-Loire · 37
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-37" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Indre-et-Loire · 37
 Ouvriers
-Aucun salarié observé</title></use>
-<use href="#g-38" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Isère · 38
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-38" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Isère · 38
 Ouvriers
-Aucun salarié observé</title></use>
-<use href="#g-39" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Jura · 39
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-39" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Jura · 39
 Ouvriers
-Aucun salarié observé</title></use>
-<use href="#g-40" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Landes · 40
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-40" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Landes · 40
 Ouvriers
-Aucun salarié observé</title></use>
-<use href="#g-41" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Loir-et-Cher · 41
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-41" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Loir-et-Cher · 41
 Ouvriers
-Aucun salarié observé</title></use>
-<use href="#g-42" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Loire · 42
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-42" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Loire · 42
 Ouvriers
-Aucun salarié observé</title></use>
-<use href="#g-43" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Haute-Loire · 43
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-43" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Haute-Loire · 43
 Ouvriers
-Aucun salarié observé</title></use>
+Résultat non diffusé — secret statistique</title></use>
 <use href="#g-44" fill="#08306b" stroke="#5B6470" stroke-width="1"><title>Loire-Atlantique · 44
 Ouvriers
 88 salariés de 45 ans ou plus
 51 départs estimés d’ici 2030
 entre 49 et 53 selon l’hypothèse
 57,4 % pourraient partir d’ici 2030</title></use>
-<use href="#g-45" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Loiret · 45
+<use href="#g-45" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Loiret · 45
 Ouvriers
-Aucun salarié observé</title></use>
-<use href="#g-46" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Lot · 46
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-46" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Lot · 46
 Ouvriers
-Aucun salarié observé</title></use>
-<use href="#g-47" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Lot-et-Garonne · 47
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-47" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Lot-et-Garonne · 47
 Ouvriers
-Aucun salarié observé</title></use>
-<use href="#g-48" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Lozère · 48
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-48" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Lozère · 48
 Ouvriers
-Aucun salarié observé</title></use>
-<use href="#g-49" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Maine-et-Loire · 49
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-49" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Maine-et-Loire · 49
 Ouvriers
-Aucun salarié observé</title></use>
-<use href="#g-50" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Manche · 50
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-50" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Manche · 50
 Ouvriers
-Aucun salarié observé</title></use>
-<use href="#g-51" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Marne · 51
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-51" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Marne · 51
 Ouvriers
-Aucun salarié observé</title></use>
-<use href="#g-52" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Haute-Marne · 52
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-52" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Haute-Marne · 52
 Ouvriers
-Aucun salarié observé</title></use>
-<use href="#g-53" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Mayenne · 53
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-53" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Mayenne · 53
 Ouvriers
-Aucun salarié observé</title></use>
-<use href="#g-54" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Meurthe-et-Moselle · 54
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-54" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Meurthe-et-Moselle · 54
 Ouvriers
-Aucun salarié observé</title></use>
-<use href="#g-55" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Meuse · 55
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-55" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Meuse · 55
 Ouvriers
-Aucun salarié observé</title></use>
+Résultat non diffusé — secret statistique</title></use>
 <use href="#g-56" fill="#deebf7" stroke="#5B6470" stroke-width="1"><title>Morbihan · 56
 Ouvriers
 72 salariés de 45 ans ou plus
 25 départs estimés d’ici 2030
 entre 23 et 27 selon l’hypothèse
 34,7 % pourraient partir d’ici 2030</title></use>
-<use href="#g-57" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Moselle · 57
+<use href="#g-57" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Moselle · 57
 Ouvriers
-Aucun salarié observé</title></use>
-<use href="#g-58" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Nièvre · 58
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-58" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Nièvre · 58
 Ouvriers
-Aucun salarié observé</title></use>
+Résultat non diffusé — secret statistique</title></use>
 <use href="#g-59" fill="#4292c6" stroke="#5B6470" stroke-width="1"><title>Nord · 59
 Ouvriers
 111 salariés de 45 ans ou plus
 54 départs estimés d’ici 2030
 entre 52 et 57 selon l’hypothèse
 49,1 % pourraient partir d’ici 2030</title></use>
-<use href="#g-60" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Oise · 60
+<use href="#g-60" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Oise · 60
 Ouvriers
-Aucun salarié observé</title></use>
-<use href="#g-61" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Orne · 61
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-61" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Orne · 61
 Ouvriers
-Aucun salarié observé</title></use>
-<use href="#g-62" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Pas-de-Calais · 62
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-62" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Pas-de-Calais · 62
 Ouvriers
-Aucun salarié observé</title></use>
-<use href="#g-63" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Puy-de-Dôme · 63
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-63" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Puy-de-Dôme · 63
 Ouvriers
-Aucun salarié observé</title></use>
+Résultat non diffusé — secret statistique</title></use>
 <use href="#g-64" fill="#08306b" stroke="#5B6470" stroke-width="1"><title>Pyrénées-Atlantiques · 64
 Ouvriers
 97 salariés de 45 ans ou plus
 55 départs estimés d’ici 2030
 entre 52 et 57 selon l’hypothèse
 56,4 % pourraient partir d’ici 2030</title></use>
-<use href="#g-65" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Hautes-Pyrénées · 65
+<use href="#g-65" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Hautes-Pyrénées · 65
 Ouvriers
-Aucun salarié observé</title></use>
-<use href="#g-66" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Pyrénées-Orientales · 66
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-66" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Pyrénées-Orientales · 66
 Ouvriers
-Aucun salarié observé</title></use>
-<use href="#g-67" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Bas-Rhin · 67
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-67" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Bas-Rhin · 67
 Ouvriers
-Aucun salarié observé</title></use>
-<use href="#g-68" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Haut-Rhin · 68
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-68" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Haut-Rhin · 68
 Ouvriers
-Aucun salarié observé</title></use>
-<use href="#g-69" fill="#4292c6" stroke="#5B6470" stroke-width="1"><title>Rhône · 69
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-69" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Rhône · 69
 Ouvriers
-80 salariés de 45 ans ou plus
-38 départs estimés d’ici 2030
-entre 37 et 40 selon l’hypothèse
-48,1 % pourraient partir d’ici 2030</title></use>
-<use href="#g-70" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Haute-Saône · 70
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-70" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Haute-Saône · 70
 Ouvriers
-Aucun salarié observé</title></use>
-<use href="#g-71" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Saône-et-Loire · 71
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-71" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Saône-et-Loire · 71
 Ouvriers
-Aucun salarié observé</title></use>
-<use href="#g-72" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Sarthe · 72
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-72" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Sarthe · 72
 Ouvriers
-Aucun salarié observé</title></use>
-<use href="#g-73" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Savoie · 73
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-73" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Savoie · 73
 Ouvriers
-Aucun salarié observé</title></use>
-<use href="#g-74" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Haute-Savoie · 74
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-74" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Haute-Savoie · 74
 Ouvriers
-Aucun salarié observé</title></use>
+Résultat non diffusé — secret statistique</title></use>
 <use href="#g-75" fill="#deebf7" stroke="#5B6470" stroke-width="1"><title>Paris · 75
 Ouvriers
 84 salariés de 45 ans ou plus
 34 départs estimés d’ici 2030
 entre 32 et 35 selon l’hypothèse
 39,9 % pourraient partir d’ici 2030</title></use>
-<use href="#g-76" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Seine-Maritime · 76
+<use href="#g-76" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Seine-Maritime · 76
 Ouvriers
-Aucun salarié observé</title></use>
-<use href="#g-77" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Seine-et-Marne · 77
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-77" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Seine-et-Marne · 77
 Ouvriers
-Aucun salarié observé</title></use>
+Résultat non diffusé — secret statistique</title></use>
 <use href="#g-78" fill="#4292c6" stroke="#5B6470" stroke-width="1"><title>Yvelines · 78
 Ouvriers
 78 salariés de 45 ans ou plus
 36 départs estimés d’ici 2030
 entre 34 et 38 selon l’hypothèse
 45,9 % pourraient partir d’ici 2030</title></use>
-<use href="#g-79" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Deux-Sèvres · 79
+<use href="#g-79" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Deux-Sèvres · 79
 Ouvriers
-Aucun salarié observé</title></use>
-<use href="#g-80" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Somme · 80
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-80" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Somme · 80
 Ouvriers
-Aucun salarié observé</title></use>
-<use href="#g-81" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Tarn · 81
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-81" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Tarn · 81
 Ouvriers
-Aucun salarié observé</title></use>
-<use href="#g-82" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Tarn-et-Garonne · 82
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-82" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Tarn-et-Garonne · 82
 Ouvriers
-Aucun salarié observé</title></use>
+Résultat non diffusé — secret statistique</title></use>
 <use href="#g-83" fill="#4292c6" stroke="#5B6470" stroke-width="1"><title>Var · 83
 Ouvriers
 89 salariés de 45 ans ou plus
 44 départs estimés d’ici 2030
 entre 42 et 46 selon l’hypothèse
 49,7 % pourraient partir d’ici 2030</title></use>
-<use href="#g-84" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Vaucluse · 84
+<use href="#g-84" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Vaucluse · 84
 Ouvriers
-Aucun salarié observé</title></use>
-<use href="#g-85" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Vendée · 85
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-85" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Vendée · 85
 Ouvriers
-Aucun salarié observé</title></use>
-<use href="#g-86" fill="#deebf7" stroke="#5B6470" stroke-width="1"><title>Vienne · 86
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-86" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Vienne · 86
 Ouvriers
-65 salariés de 45 ans ou plus
-23 départs estimés d’ici 2030
-entre 21 et 24 selon l’hypothèse
-35,1 % pourraient partir d’ici 2030</title></use>
+Résultat non diffusé — secret statistique</title></use>
 <use href="#g-87" fill="#4292c6" stroke="#5B6470" stroke-width="1"><title>Haute-Vienne · 87
 Ouvriers
 98 salariés de 45 ans ou plus
 48 départs estimés d’ici 2030
 entre 46 et 50 selon l’hypothèse
 48,7 % pourraient partir d’ici 2030</title></use>
-<use href="#g-88" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Vosges · 88
+<use href="#g-88" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Vosges · 88
 Ouvriers
-Aucun salarié observé</title></use>
-<use href="#g-89" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Yonne · 89
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-89" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Yonne · 89
 Ouvriers
-Aucun salarié observé</title></use>
-<use href="#g-90" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Territoire de Belfort · 90
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-90" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Territoire de Belfort · 90
 Ouvriers
-Aucun salarié observé</title></use>
+Résultat non diffusé — secret statistique</title></use>
 <use href="#g-91" fill="#deebf7" stroke="#5B6470" stroke-width="1"><title>Essonne · 91
 Ouvriers
 69 salariés de 45 ans ou plus
 26 départs estimés d’ici 2030
 entre 25 et 28 selon l’hypothèse
 37,8 % pourraient partir d’ici 2030</title></use>
-<use href="#g-92" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Hauts-de-Seine · 92
+<use href="#g-92" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Hauts-de-Seine · 92
 Ouvriers
-Aucun salarié observé</title></use>
-<use href="#g-93" fill="#deebf7" stroke="#5B6470" stroke-width="1"><title>Seine-Saint-Denis · 93
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-93" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Seine-Saint-Denis · 93
 Ouvriers
-68 salariés de 45 ans ou plus
-26 départs estimés d’ici 2030
-entre 25 et 28 selon l’hypothèse
-38,4 % pourraient partir d’ici 2030</title></use>
-<use href="#g-94" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Val-de-Marne · 94
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-94" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Val-de-Marne · 94
 Ouvriers
-Aucun salarié observé</title></use>
-<use href="#g-95" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Val-d'Oise · 95
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-95" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Val-d'Oise · 95
 Ouvriers
-Aucun salarié observé</title></use>
-<use href="#g-971" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Guadeloupe · 971
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-971" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Guadeloupe · 971
 Ouvriers
-Aucun salarié observé</title></use>
-<use href="#g-972" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Martinique · 972
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-972" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Martinique · 972
 Ouvriers
-Aucun salarié observé</title></use>
-<use href="#g-973" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Guyane · 973
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-973" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Guyane · 973
 Ouvriers
-Aucun salarié observé</title></use>
-<use href="#g-974" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>La Réunion · 974
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-974" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>La Réunion · 974
 Ouvriers
-Aucun salarié observé</title></use>
-<use href="#g-976" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Mayotte · 976
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-976" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Mayotte · 976
 Ouvriers
-Aucun salarié observé</title></use>
+Résultat non diffusé — secret statistique</title></use>
 <use href="#g-regions"></use>
 </svg>
 <p class="note">Part calculée parmi les salariés de 45 ans ou plus de la catégorie affichée. Même échelle pour tous les territoires ; elle est recalculée quand vous changez de catégorie ou d’indicateur. Survolez un territoire pour lire ses chiffres.</p>
 </section>
 <section class="vue vue-4">
 <p class="vue-titre">Professions intermédiaires</p><p class="vue-qui">Salariés de 45 ans ou plus · Part des salariés susceptibles de partir d’ici 2030</p>
-<div class="legend-title">Part des salariés susceptibles de partir d’ici 2030</div><ul class="map-legend"><li><span class="sw" style="background:#deebf7"></span><span>Moins de 30 %</span></li><li><span class="sw" style="background:#4292c6"></span><span>30 % à 40 %</span></li><li><span class="sw" style="background:#08306b"></span><span>40 % et plus</span></li><li class="sep"><span class="sw" style="background:#b3b3b3"></span><span>Résultat non diffusé — secret statistique</span></li><li><span class="sw sans" style="background:#ffffff"></span><span>Aucun salarié observé</span></li></ul><p class="compte"><b>20</b> départements avec un résultat · <b>0</b> avec un résultat non diffusé (secret statistique) · <b>81</b> sans salarié observé</p>
+<div class="legend-title">Part des salariés susceptibles de partir d’ici 2030</div><ul class="map-legend"><li><span class="sw" style="background:#deebf7"></span><span>Moins de 30 %</span></li><li><span class="sw" style="background:#4292c6"></span><span>30 % à 40 %</span></li><li><span class="sw" style="background:#08306b"></span><span>40 % et plus</span></li><li class="sep"><span class="sw" style="background:#b3b3b3"></span><span>Résultat non diffusé — secret statistique</span></li></ul><p class="compte"><b>16</b> départements avec un résultat · <b>85</b> avec un résultat non diffusé (secret statistique)</p>
 <svg viewBox="0 0 1000 1230" role="img" aria-label="Départs attendus d’ici 2030 — par département — grande catégorie socioprofessionnelle — Professions intermédiaires">
 <rect fill="none" stroke="#c9ced6" x="1.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="10.0" y="1024.0">Guadeloupe</text>
 <rect fill="none" stroke="#c9ced6" x="201.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="210.0" y="1024.0">Martinique</text>
@@ -1337,96 +1289,93 @@ Professions intermédiaires
 37 départs estimés d’ici 2030
 entre 35 et 39 selon l’hypothèse
 45,3 % pourraient partir d’ici 2030</title></use>
-<use href="#g-02" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Aisne · 02
+<use href="#g-02" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Aisne · 02
 Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-03" fill="#deebf7" stroke="#5B6470" stroke-width="1"><title>Allier · 03
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-03" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Allier · 03
 Professions intermédiaires
-69 salariés de 45 ans ou plus
-19 départs estimés d’ici 2030
-entre 17 et 20 selon l’hypothèse
-27,2 % pourraient partir d’ici 2030</title></use>
-<use href="#g-04" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Alpes-de-Haute-Provence · 04
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-04" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Alpes-de-Haute-Provence · 04
 Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-05" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Hautes-Alpes · 05
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-05" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Hautes-Alpes · 05
 Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-06" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Alpes-Maritimes · 06
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-06" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Alpes-Maritimes · 06
 Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-07" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Ardèche · 07
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-07" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Ardèche · 07
 Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-08" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Ardennes · 08
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-08" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Ardennes · 08
 Professions intermédiaires
-Aucun salarié observé</title></use>
+Résultat non diffusé — secret statistique</title></use>
 <use href="#g-09" fill="#4292c6" stroke="#5B6470" stroke-width="1"><title>Ariège · 09
 Professions intermédiaires
 75 salariés de 45 ans ou plus
 27 départs estimés d’ici 2030
 entre 26 et 29 selon l’hypothèse
 36,3 % pourraient partir d’ici 2030</title></use>
-<use href="#g-10" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Aube · 10
+<use href="#g-10" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Aube · 10
 Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-11" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Aude · 11
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-11" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Aude · 11
 Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-12" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Aveyron · 12
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-12" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Aveyron · 12
 Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-13" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Bouches-du-Rhône · 13
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-13" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Bouches-du-Rhône · 13
 Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-14" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Calvados · 14
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-14" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Calvados · 14
 Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-15" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Cantal · 15
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-15" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Cantal · 15
 Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-16" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Charente · 16
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-16" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Charente · 16
 Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-17" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Charente-Maritime · 17
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-17" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Charente-Maritime · 17
 Professions intermédiaires
-Aucun salarié observé</title></use>
+Résultat non diffusé — secret statistique</title></use>
 <use href="#g-18" fill="#08306b" stroke="#5B6470" stroke-width="1"><title>Cher · 18
 Professions intermédiaires
 83 salariés de 45 ans ou plus
 34 départs estimés d’ici 2030
 entre 32 et 35 selon l’hypothèse
 40,4 % pourraient partir d’ici 2030</title></use>
-<use href="#g-19" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Corrèze · 19
+<use href="#g-19" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Corrèze · 19
 Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-21" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Côte-d'Or · 21
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-21" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Côte-d'Or · 21
 Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-22" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Côtes-d'Armor · 22
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-22" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Côtes-d'Armor · 22
 Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-23" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Creuse · 23
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-23" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Creuse · 23
 Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-24" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Dordogne · 24
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-24" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Dordogne · 24
 Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-25" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Doubs · 25
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-25" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Doubs · 25
 Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-26" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Drôme · 26
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-26" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Drôme · 26
 Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-27" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Eure · 27
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-27" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Eure · 27
 Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-28" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Eure-et-Loir · 28
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-28" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Eure-et-Loir · 28
 Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-29" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Finistère · 29
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-29" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Finistère · 29
 Professions intermédiaires
-Aucun salarié observé</title></use>
+Résultat non diffusé — secret statistique</title></use>
 <use href="#g-2A" fill="#deebf7" stroke="#5B6470" stroke-width="1"><title>Corse-du-Sud · 2A
 Professions intermédiaires
 67 salariés de 45 ans ou plus
@@ -1439,265 +1388,256 @@ Professions intermédiaires
 35 départs estimés d’ici 2030
 entre 33 et 36 selon l’hypothèse
 38,8 % pourraient partir d’ici 2030</title></use>
-<use href="#g-30" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Gard · 30
+<use href="#g-30" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Gard · 30
 Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-31" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Haute-Garonne · 31
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-31" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Haute-Garonne · 31
 Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-32" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Gers · 32
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-32" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Gers · 32
 Professions intermédiaires
-Aucun salarié observé</title></use>
+Résultat non diffusé — secret statistique</title></use>
 <use href="#g-33" fill="#deebf7" stroke="#5B6470" stroke-width="1"><title>Gironde · 33
 Professions intermédiaires
 75 salariés de 45 ans ou plus
 22 départs estimés d’ici 2030
 entre 21 et 24 selon l’hypothèse
 29,7 % pourraient partir d’ici 2030</title></use>
-<use href="#g-34" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Hérault · 34
+<use href="#g-34" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Hérault · 34
 Professions intermédiaires
-Aucun salarié observé</title></use>
+Résultat non diffusé — secret statistique</title></use>
 <use href="#g-35" fill="#08306b" stroke="#5B6470" stroke-width="1"><title>Ille-et-Vilaine · 35
 Professions intermédiaires
 70 salariés de 45 ans ou plus
 29 départs estimés d’ici 2030
 entre 27 et 30 selon l’hypothèse
 40,8 % pourraient partir d’ici 2030</title></use>
-<use href="#g-36" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Indre · 36
+<use href="#g-36" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Indre · 36
 Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-37" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Indre-et-Loire · 37
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-37" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Indre-et-Loire · 37
 Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-38" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Isère · 38
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-38" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Isère · 38
 Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-39" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Jura · 39
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-39" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Jura · 39
 Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-40" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Landes · 40
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-40" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Landes · 40
 Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-41" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Loir-et-Cher · 41
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-41" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Loir-et-Cher · 41
 Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-42" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Loire · 42
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-42" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Loire · 42
 Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-43" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Haute-Loire · 43
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-43" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Haute-Loire · 43
 Professions intermédiaires
-Aucun salarié observé</title></use>
+Résultat non diffusé — secret statistique</title></use>
 <use href="#g-44" fill="#4292c6" stroke="#5B6470" stroke-width="1"><title>Loire-Atlantique · 44
 Professions intermédiaires
 70 salariés de 45 ans ou plus
 26 départs estimés d’ici 2030
 entre 24 et 27 selon l’hypothèse
 36,7 % pourraient partir d’ici 2030</title></use>
-<use href="#g-45" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Loiret · 45
+<use href="#g-45" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Loiret · 45
 Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-46" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Lot · 46
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-46" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Lot · 46
 Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-47" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Lot-et-Garonne · 47
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-47" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Lot-et-Garonne · 47
 Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-48" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Lozère · 48
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-48" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Lozère · 48
 Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-49" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Maine-et-Loire · 49
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-49" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Maine-et-Loire · 49
 Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-50" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Manche · 50
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-50" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Manche · 50
 Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-51" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Marne · 51
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-51" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Marne · 51
 Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-52" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Haute-Marne · 52
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-52" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Haute-Marne · 52
 Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-53" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Mayenne · 53
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-53" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Mayenne · 53
 Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-54" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Meurthe-et-Moselle · 54
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-54" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Meurthe-et-Moselle · 54
 Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-55" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Meuse · 55
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-55" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Meuse · 55
 Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-56" fill="#deebf7" stroke="#5B6470" stroke-width="1"><title>Morbihan · 56
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-56" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Morbihan · 56
 Professions intermédiaires
-60 salariés de 45 ans ou plus
-18 départs estimés d’ici 2030
-entre 17 et 19 selon l’hypothèse
-29,8 % pourraient partir d’ici 2030</title></use>
-<use href="#g-57" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Moselle · 57
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-57" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Moselle · 57
 Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-58" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Nièvre · 58
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-58" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Nièvre · 58
 Professions intermédiaires
-Aucun salarié observé</title></use>
+Résultat non diffusé — secret statistique</title></use>
 <use href="#g-59" fill="#4292c6" stroke="#5B6470" stroke-width="1"><title>Nord · 59
 Professions intermédiaires
 82 salariés de 45 ans ou plus
 30 départs estimés d’ici 2030
 entre 29 et 32 selon l’hypothèse
 37,2 % pourraient partir d’ici 2030</title></use>
-<use href="#g-60" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Oise · 60
+<use href="#g-60" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Oise · 60
 Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-61" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Orne · 61
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-61" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Orne · 61
 Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-62" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Pas-de-Calais · 62
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-62" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Pas-de-Calais · 62
 Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-63" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Puy-de-Dôme · 63
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-63" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Puy-de-Dôme · 63
 Professions intermédiaires
-Aucun salarié observé</title></use>
+Résultat non diffusé — secret statistique</title></use>
 <use href="#g-64" fill="#4292c6" stroke="#5B6470" stroke-width="1"><title>Pyrénées-Atlantiques · 64
 Professions intermédiaires
 82 salariés de 45 ans ou plus
 32 départs estimés d’ici 2030
 entre 30 et 33 selon l’hypothèse
 38,7 % pourraient partir d’ici 2030</title></use>
-<use href="#g-65" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Hautes-Pyrénées · 65
+<use href="#g-65" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Hautes-Pyrénées · 65
 Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-66" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Pyrénées-Orientales · 66
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-66" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Pyrénées-Orientales · 66
 Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-67" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Bas-Rhin · 67
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-67" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Bas-Rhin · 67
 Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-68" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Haut-Rhin · 68
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-68" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Haut-Rhin · 68
 Professions intermédiaires
-Aucun salarié observé</title></use>
+Résultat non diffusé — secret statistique</title></use>
 <use href="#g-69" fill="#4292c6" stroke="#5B6470" stroke-width="1"><title>Rhône · 69
 Professions intermédiaires
 81 salariés de 45 ans ou plus
 28 départs estimés d’ici 2030
 entre 26 et 29 selon l’hypothèse
 34,2 % pourraient partir d’ici 2030</title></use>
-<use href="#g-70" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Haute-Saône · 70
+<use href="#g-70" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Haute-Saône · 70
 Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-71" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Saône-et-Loire · 71
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-71" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Saône-et-Loire · 71
 Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-72" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Sarthe · 72
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-72" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Sarthe · 72
 Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-73" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Savoie · 73
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-73" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Savoie · 73
 Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-74" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Haute-Savoie · 74
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-74" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Haute-Savoie · 74
 Professions intermédiaires
-Aucun salarié observé</title></use>
+Résultat non diffusé — secret statistique</title></use>
 <use href="#g-75" fill="#4292c6" stroke="#5B6470" stroke-width="1"><title>Paris · 75
 Professions intermédiaires
 81 salariés de 45 ans ou plus
 30 départs estimés d’ici 2030
 entre 28 et 31 selon l’hypothèse
 36,4 % pourraient partir d’ici 2030</title></use>
-<use href="#g-76" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Seine-Maritime · 76
+<use href="#g-76" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Seine-Maritime · 76
 Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-77" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Seine-et-Marne · 77
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-77" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Seine-et-Marne · 77
 Professions intermédiaires
-Aucun salarié observé</title></use>
+Résultat non diffusé — secret statistique</title></use>
 <use href="#g-78" fill="#deebf7" stroke="#5B6470" stroke-width="1"><title>Yvelines · 78
 Professions intermédiaires
 75 salariés de 45 ans ou plus
 22 départs estimés d’ici 2030
 entre 20 et 23 selon l’hypothèse
 28,9 % pourraient partir d’ici 2030</title></use>
-<use href="#g-79" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Deux-Sèvres · 79
+<use href="#g-79" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Deux-Sèvres · 79
 Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-80" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Somme · 80
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-80" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Somme · 80
 Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-81" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Tarn · 81
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-81" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Tarn · 81
 Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-82" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Tarn-et-Garonne · 82
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-82" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Tarn-et-Garonne · 82
 Professions intermédiaires
-Aucun salarié observé</title></use>
+Résultat non diffusé — secret statistique</title></use>
 <use href="#g-83" fill="#4292c6" stroke="#5B6470" stroke-width="1"><title>Var · 83
 Professions intermédiaires
 87 salariés de 45 ans ou plus
 32 départs estimés d’ici 2030
 entre 30 et 34 selon l’hypothèse
 37,1 % pourraient partir d’ici 2030</title></use>
-<use href="#g-84" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Vaucluse · 84
+<use href="#g-84" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Vaucluse · 84
 Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-85" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Vendée · 85
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-85" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Vendée · 85
 Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-86" fill="#deebf7" stroke="#5B6470" stroke-width="1"><title>Vienne · 86
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-86" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Vienne · 86
 Professions intermédiaires
-58 salariés de 45 ans ou plus
-13 départs estimés d’ici 2030
-entre 12 et 14 selon l’hypothèse
-22,2 % pourraient partir d’ici 2030</title></use>
+Résultat non diffusé — secret statistique</title></use>
 <use href="#g-87" fill="#08306b" stroke="#5B6470" stroke-width="1"><title>Haute-Vienne · 87
 Professions intermédiaires
 80 salariés de 45 ans ou plus
 34 départs estimés d’ici 2030
 entre 33 et 36 selon l’hypothèse
 43,1 % pourraient partir d’ici 2030</title></use>
-<use href="#g-88" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Vosges · 88
+<use href="#g-88" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Vosges · 88
 Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-89" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Yonne · 89
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-89" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Yonne · 89
 Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-90" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Territoire de Belfort · 90
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-90" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Territoire de Belfort · 90
 Professions intermédiaires
-Aucun salarié observé</title></use>
+Résultat non diffusé — secret statistique</title></use>
 <use href="#g-91" fill="#deebf7" stroke="#5B6470" stroke-width="1"><title>Essonne · 91
 Professions intermédiaires
 65 salariés de 45 ans ou plus
 13 départs estimés d’ici 2030
 entre 12 et 14 selon l’hypothèse
 20,2 % pourraient partir d’ici 2030</title></use>
-<use href="#g-92" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Hauts-de-Seine · 92
+<use href="#g-92" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Hauts-de-Seine · 92
 Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-93" fill="#4292c6" stroke="#5B6470" stroke-width="1"><title>Seine-Saint-Denis · 93
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-93" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Seine-Saint-Denis · 93
 Professions intermédiaires
-57 salariés de 45 ans ou plus
-18 départs estimés d’ici 2030
-entre 16 et 19 selon l’hypothèse
-30,7 % pourraient partir d’ici 2030</title></use>
-<use href="#g-94" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Val-de-Marne · 94
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-94" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Val-de-Marne · 94
 Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-95" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Val-d'Oise · 95
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-95" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Val-d'Oise · 95
 Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-971" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Guadeloupe · 971
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-971" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Guadeloupe · 971
 Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-972" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Martinique · 972
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-972" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Martinique · 972
 Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-973" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Guyane · 973
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-973" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Guyane · 973
 Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-974" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>La Réunion · 974
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-974" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>La Réunion · 974
 Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-976" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Mayotte · 976
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-976" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Mayotte · 976
 Professions intermédiaires
-Aucun salarié observé</title></use>
+Résultat non diffusé — secret statistique</title></use>
 <use href="#g-regions"></use>
 </svg>
 <p class="note">Part calculée parmi les salariés de 45 ans ou plus de la catégorie affichée. Même échelle pour tous les territoires ; elle est recalculée quand vous changez de catégorie ou d’indicateur. Survolez un territoire pour lire ses chiffres.</p>
 </section>
 </div></div></div>
-<footer><b>Qui est concerné ?</b> Ces résultats concernent les salariés des entreprises retenues dans le périmètre Base. Ils portent sur les salariés âgés de 45 ans ou plus en 2024, appartenant aux catégories professionnelles couvertes par le modèle : cadres, professions intermédiaires, employés, ouvriers. Certaines professions qui ne peuvent pas être rattachées à ces catégories (agriculteurs exploitants, artisans, commerçants et chefs d’entreprise, profession non renseignée) ne sont pas incluses dans les estimations. Un départ est une sortie définitive de l’emploi d’ici 2030 : retraite ou fin de carrière, invalidité, décès. Changer d’employeur n’est pas un départ. Les nombres de départs sont des estimations, arrondies à l’entier pour la lecture ; la part de salariés susceptibles de partir est calculée parmi les salariés de la catégorie affichée. <b>Secret statistique.</b> Certains résultats ne sont pas affichés parce qu’ils concernent trop peu de salariés ou d’entreprises, ou qu’une seule entreprise y pèserait trop ; ces chiffres ne figurent ni dans cette page ni dans ses données. Gris = résultat non diffusé ; blanc pointillé = aucun salarié observé ; un résultat nul est affiché comme tout autre. <b>Source.</b> table test — calculs propres. Fond de carte : IGN Admin Express (COG 2018) via france-geojson, licence ouverte.</footer>
+<footer><b>Qui est concerné ?</b> Ces résultats concernent les salariés des entreprises retenues dans le périmètre Base. Ils portent sur les salariés âgés de 45 ans ou plus en 2024, appartenant aux catégories professionnelles couvertes par le modèle : cadres, professions intermédiaires, employés, ouvriers. Certaines professions qui ne peuvent pas être rattachées à ces catégories (agriculteurs exploitants, artisans, commerçants et chefs d’entreprise, profession non renseignée) ne sont pas incluses dans les estimations. Un départ est une sortie définitive de l’emploi d’ici 2030 : retraite ou fin de carrière, invalidité, décès. Changer d’employeur n’est pas un départ. Les nombres de départs sont des estimations, arrondies à l’entier pour la lecture ; la part de salariés susceptibles de partir est calculée parmi les salariés de la catégorie affichée. <b>Secret statistique.</b> Certains résultats ne sont pas affichés parce qu’ils concernent trop peu de salariés ou d’entreprises, ou qu’une seule entreprise y pèserait trop ; ces chiffres ne figurent ni dans cette page ni dans ses données. Gris = résultat non diffusé, y compris lorsqu’aucun salarié n’est observé ; un résultat nul d’une cellule diffusable est affiché comme tout autre. <b>Source.</b> table test — calculs propres. Fond de carte : IGN Admin Express (COG 2018) via france-geojson, licence ouverte.</footer>
 </div></body></html>

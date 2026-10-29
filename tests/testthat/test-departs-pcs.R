@@ -24,6 +24,9 @@ E   <- lancer_pcs("departement")
 A   <- E$departs_pcs$analytique; D <- E$departs_pcs$diffusion; M <- E$MESURES_DEPARTS_PCS
 `%||%` <- function(a, b) if (is.null(a)) b else a
 PASSAGE_REGION <- file.path(RACINE, E$GEO_PASSAGES[["departement->region"]])   # chemin absolu (cwd des tests)
+# univers des territoires (SPEC-SEC-035) : chemins de 00_config relatifs à la racine
+univers_de <- function(niveau, env = E, ...) { old <- setwd(RACINE); on.exit(setwd(old), add = TRUE); env$univers_territoires(niveau, ...) }
+U_DEP <- univers_de("departement"); U_REG <- univers_de("region"); CAT_FR <- A$france |> dplyr::distinct(pcs, cs1)
 
 test_that("pcs : conservée jusqu'aux résultats, plusieurs PCS d'une même cs1 restent distinctes", {
   expect_true("pcs" %in% names(E$bts_projete))
@@ -112,13 +115,18 @@ test_that("géographie : codes en texte (01, 2A, 2B, DROM), région correcte, d�
 test_that("secret : règle Insee (primaire) + secondaire minimale sur la diffusion ; tables internes complètes ; NA jamais 0", {
   r <- E$regles_secret()
   for (n in names(D)) {
-    d <- D[[n]]; a <- A[[n]]
-    prim <- E$secret_primaire(a$effectif_champ, a$n_entreprises, a$part_dominante_pct, r)
-    expect_false(any(!d$masque & prim), label = n)                           # rien de visible ne viole la règle
-    expect_identical(d$motif_masque %in% "primaire", prim, label = n)        # primaire = exactement la règle Insee
+    d <- D[[n]]; a <- A[[n]]; cles <- c(E$cles_niveau_pcs(n, E$base_pcs), "pcs")
+    # cellules OBSERVÉES : jointure par clés (la diffusion porte en plus les cellules à zéro de l'univers, SPEC-SEC-035)
+    dj <- dplyr::inner_join(a |> dplyr::select(dplyr::all_of(cles), eff_a = effectif_champ, dep_a = departs_central, n_entreprises, part_dominante_pct), d, by = cles)
+    expect_equal(nrow(dj), nrow(a), label = n)
+    prim <- E$secret_primaire(dj$eff_a, dj$n_entreprises, dj$part_dominante_pct, r)
+    expect_false(any(!dj$masque & prim), label = n)                          # rien de visible ne viole la règle
+    expect_identical(dj$motif_masque %in% "primaire", prim, label = n)       # primaire = exactement la règle Insee (cellules observées)
+    kcol <- intersect(c("geo_code", "region_code"), names(d)); kd <- if (length(kcol)) paste(d[[kcol[1]]], d$pcs) else d$pcs; kj <- if (length(kcol)) paste(dj[[kcol[1]]], dj$pcs) else dj$pcs
+    expect_true(all(d$motif_masque[!kd %in% kj] == "primaire"), label = n)                                     # cellules à zéro : primaire
     expect_false(any(!is.na(d$effectif_champ) & d$effectif_champ < r$min_salaries), label = n)
     expect_true(all(is.na(d$departs_central[d$masque])) && all(!is.na(d$departs_central[!d$masque])), label = n)
-    expect_false(any(d$departs_central[!d$masque] == 0 & a$departs_central[!d$masque] > 0), label = n)
+    expect_false(any(dj$departs_central[!dj$masque] == 0 & dj$dep_a[!dj$masque] > 0), label = n)
     expect_true(all(d$motif_masque[d$masque] %in% c("primaire", "secondaire")))
     expect_false(anyNA(a$effectif_champ)); expect_false(anyNA(a$departs_central))   # interne complète
     expect_true(all(c("n_entreprises", "part_dominante_pct") %in% names(a)))          # indicateurs : interne oui...
@@ -130,7 +138,7 @@ test_that("secret : règle Insee (primaire) + secondaire minimale sur la diffusi
     }
   }
   expect_gt(sum(D$departement$masque), 0)                              # département x pcs : très masqué, attendu
-  expect_lte(sum(D$region$motif_masque %in% "secondaire"), 10)         # secondaire minimale, pas « jusqu'à tout masquer »
+  expect_lte(sum(D$region$motif_masque %in% "secondaire"), 30)         # secondaire minimale : au plus une cellule par bloc, blocs « tous zéros » compris (SPEC-SEC-010)
   csv <- read.csv2(file.path(E$DIR_SORTIES, "departs_pcs", "diffusion", "departs_pcs_departement.csv"),
                    stringsAsFactors = FALSE, colClasses = c(geo_code = "character", region_code = "character", pcs = "character"))
   expect_type(csv$geo_code, "character"); expect_true(all(is.na(csv$departs_central[csv$masque])))
@@ -156,6 +164,7 @@ test_that("fichiers : interne/ toujours, diffusion/ seulement avec DEPARTS_PCS_S
 test_that("NON-RÉGRESSION : les 6 fichiers PCS (interne + diffusion) sont IDENTIQUES aux références figées avant la généralisation (dimension)", {
   # références : tests/testthat/reference/departs_pcs/, figées sur main 2876edc (table test, zonage département),
   # re-figées VOLONTAIREMENT avec la convention de restitution 00g (personnes entières, causes cohérentes, taux 1 décimale)
+  # puis (diffusion seulement) avec la complétion sur l'univers des territoires et des PCS (SPEC-SEC-035) ; les références internes n'ont pas bougé
   for (couche in c("interne", "diffusion")) for (n in c("france", "region", "departement")) {
     ref <- file.path(RACINE, "tests", "testthat", "reference", "departs_pcs", sprintf("%s_departs_pcs_%s.csv", couche, n))
     skip_if_not(file.exists(ref), "référence absente")
@@ -167,7 +176,7 @@ test_that("NON-RÉGRESSION : les 6 fichiers PCS (interne + diffusion) sont IDENT
     expect_identical(E$calculer_departs_pcs(E$base_pcs, n), E$calculer_departs(E$base_pcs, n, dimension = "pcs"), label = n)
     expect_identical(E$blocs_secret_pcs(n, A[[n]]), E$blocs_secret(n, A[[n]], "pcs"), label = n)
     expect_identical(E$appliquer_secret_pcs(A[[n]], n), E$appliquer_secret_pcs(A[[n]], n, dimension = "pcs"), label = n)
-    expect_identical(D[[n]], E$appliquer_secret_pcs(A[[n]], n), label = n)
+    expect_identical(D[[n]], E$appliquer_secret_pcs(A[[n]], n, univers = switch(n, region = U_REG, departement = U_DEP, NULL), categories = CAT_FR), label = n)
   }
   expect_true(E$controler_departs_pcs(A, E$base_pcs)); expect_true(E$controler_departs(A, E$base_pcs, "pcs"))
 })
@@ -190,4 +199,31 @@ test_that("table de passage : doublon, code vide ou libellé manquant = arrêt e
   writeLines(c("code_source;code_cible;nom_cible", "33;75;"), f)
   expect_error(E$lire_passage_geo(f, "test", nom_requis = TRUE), "nom_cible manquant pour : 33")
   expect_silent(E$lire_passage_geo(f, "test"))                           # libellé facultatif par défaut
+})
+
+test_that("SPEC-SEC-035 — univers : région et département complétés par une ligne masquée par territoire x PCS sans salarié observé ; lignes observées et tables internes intactes ; GEO_INTERET restreint l'univers", {
+  U <- U_DEP; UR <- U_REG; cat_fr <- CAT_FR
+  expect_equal(nrow(U), 101L); expect_true(all(c("geo_code", "geo_nom", "region_code", "region_nom") %in% names(U))); expect_equal(nrow(UR), 18L)
+  dd <- D$departement; dr <- D$region
+  expect_setequal(setdiff(dd$geo_code, "inconnu"), U$geo_code); expect_equal(nrow(dd), nrow(U) * nrow(cat_fr) + sum(dd$geo_code == "inconnu"))
+  expect_setequal(dr$region_code, UR$geo_code); expect_equal(nrow(dr), nrow(UR) * nrow(cat_fr))
+  expect_equal(anyDuplicated(dd[, c("geo_code", "pcs")]), 0); expect_equal(anyDuplicated(dr[, c("region_code", "pcs")]), 0)
+  aj <- dplyr::anti_join(dd, A$departement, by = c("geo_code", "pcs")); obs <- dplyr::semi_join(dd, A$departement, by = c("geo_code", "pcs"))
+  expect_equal(nrow(aj), nrow(dd) - nrow(A$departement)); expect_gt(nrow(aj), 0)
+  expect_true(all(aj$masque) && all(aj$motif_masque == "primaire")); expect_true(all(is.na(as.matrix(aj[, c("effectif_champ", M, "taux_depart_central_pct")]))))
+  expect_true(all(!is.na(aj$geo_nom) & !is.na(aj$region_code) & !is.na(aj$cs1)))                                   # clés et libellés toujours renseignés
+  # cellules observées : le masque ne peut que s'étendre (cellules à zéro dans les blocs, SPEC-SEC-010) ; les valeurs visibles sont identiques
+  sans <- E$appliquer_secret_pcs(A$departement, "departement") |> dplyr::arrange(geo_code, pcs); obs <- obs |> dplyr::arrange(geo_code, pcs)
+  expect_identical(paste(obs$geo_code, obs$pcs), paste(sans$geo_code, sans$pcs)); expect_true(all(obs$masque | !sans$masque))
+  v <- !obs$masque; expect_identical(obs$departs_central[v], sans$departs_central[v]); expect_true(all(obs$motif_masque[obs$masque & !sans$masque] == "secondaire"))
+  expect_false(any(setdiff(U$geo_code, A$departement$geo_code) %in% A$departement$geo_code))                  # interne : seules les cellules observées
+  expect_identical(E$appliquer_secret_pcs(A$france, "france", univers = U, categories = cat_fr), E$appliquer_secret_pcs(A$france, "france"))    # France : jamais complétée
+  csv <- read.csv2(file.path(E$DIR_SORTIES, "departs_pcs", "diffusion", "departs_pcs_departement.csv"), colClasses = c(geo_code = "character"), fileEncoding = "UTF-8-BOM")
+  expect_equal(dplyr::n_distinct(csv$geo_code), nrow(U) + as.integer("inconnu" %in% csv$geo_code))
+  expect_equal(nrow(read.csv2(file.path(E$DIR_SORTIES, "departs_pcs", "interne", "departs_pcs_departement.csv"), fileEncoding = "UTF-8-BOM")), nrow(A$departement))
+  e2 <- lancer_pcs("departement", geo_interet = c("33", "64", "2A"))                                              # le 08c ignore GEO_INTERET : univers complet quand même
+  expect_setequal(setdiff(e2$departs_pcs$diffusion$departement$geo_code, "inconnu"), U$geo_code); expect_setequal(e2$departs_pcs$diffusion$region$region_code, UR$geo_code)
+  expect_setequal(univers_de("departement", geo_interet = c("33", "64", "2A"))$geo_code, c("33", "64", "2A"))        # le 08 et le 08b, eux, suivent GEO_INTERET
+  expect_setequal(univers_de("region", geo_interet = c("33", "64", "2A"))$geo_code, c("75", "94"))
+  expect_null(univers_de("ze"))                                                                            # pas de référentiel : NULL, table non complétée
 })

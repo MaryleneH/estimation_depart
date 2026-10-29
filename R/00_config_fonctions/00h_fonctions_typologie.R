@@ -522,14 +522,21 @@ controler_typologie <- function(typo, cs_dep, tol = 1e-6) {
 # jamais une catégorie masquée et sont NA pour un territoire masqué (SPEC-TYPO-054) ;
 # (5) pyramide des âges : une tranche masquée -> parts, ratios et classes NA, effectifs
 # par tranche jamais diffusés (SPEC-TYPO-095).
-appliquer_secret_typologie <- function(typo, diffusion_cs_dep, base, regles = regles_secret()) {
+appliquer_secret_typologie <- function(typo, diffusion_cs_dep, base, regles = regles_secret(), univers = NULL) {
   d <- typo$departements
   if (!"masque" %in% names(diffusion_cs_dep)) stop("appliquer_secret_typologie : table de diffusion du 08d requise (colonne masque).")
   sec <- indicateurs_secret(base |> mutate(geo_code = as.character(geo_code)), "geo_code")
   d <- d |> left_join(sec, by = "geo_code") |>
-    mutate(n_entreprises = coalesce(n_entreprises, 0L), part_dominante_pct = coalesce(part_dominante_pct, 100),
-           masque = masquer_cellules(effectif_champ_total, n_entreprises, part_dominante_pct, regles)) |>
-    select(-n_entreprises, -part_dominante_pct)
+    mutate(n_entreprises = coalesce(n_entreprises, 0L), part_dominante_pct = coalesce(part_dominante_pct, 100))
+  # bloc = tous les départements (marge : total France publié). Avec l'univers (SPEC-SEC-035), les départements du
+  # référentiel sans salarié observé entrent dans le bloc comme cellules à zéro (masquées en primaire) : si aucun
+  # département observé n'est masqué, leur somme serait déductible (zéro) et le secret secondaire masque le plus petit.
+  cell <- d |> select(geo_code, n = effectif_champ_total, n_entreprises, part_dominante_pct)
+  if (!is.null(univers)) { manq <- setdiff(univers$geo_code, cell$geo_code)
+    if (length(manq)) cell <- bind_rows(cell, tibble::tibble(geo_code = manq, n = 0L, n_entreprises = 0L, part_dominante_pct = 100)) }
+  cell$masque <- masquer_cellules(cell$n, cell$n_entreprises, cell$part_dominante_pct, regles)
+  d$masque <- cell$masque[match(d$geo_code, cell$geo_code)]
+  d <- d |> select(-n_entreprises, -part_dominante_pct)
   masq_cs <- diffusion_cs_dep |> group_by(geo_code) |> summarise(cs_masquee = any(masque), .groups = "drop")
   d <- d |> left_join(masq_cs, by = "geo_code") |> mutate(cs_masquee = coalesce(cs_masquee, FALSE))
   cols_cs <- grep("^(effectif|part|departs|intensite)_[A-Za-z_]+(_pct)?$", names(d), value = TRUE)
@@ -565,8 +572,16 @@ appliquer_secret_typologie <- function(typo, diffusion_cs_dep, base, regles = re
   d$profil_typologie[d$masque] <- "Non diffusé (secret statistique)"
   d$justification_profil[d$masque | dep_cs_profil] <- NA_character_
   d$situation_texte[d$masque] <- NA_character_
-  d |> select(-starts_with("frontiere_"), -n_criteres_frontiere, -intensite_extreme_faible_stock, -egalite_structure, -cs_masquee, -starts_with("pyramide_n_")) |>
+  out <- d |> select(-starts_with("frontiere_"), -n_criteres_frontiere, -intensite_extreme_faible_stock, -egalite_structure, -cs_masquee, -starts_with("pyramide_n_")) |>
     mutate(motif_masque = ifelse(masque, "territoire", ifelse(dep_cs_profil, "cellule cs masquée", NA_character_)))
+  # univers des départements (SPEC-SEC-035) : un département du référentiel sans salarié observé = ligne masquée (motif « territoire »)
+  if (!is.null(univers)) {
+    n0 <- nrow(out); out <- completer_univers_diffusion(out, univers, motif = "territoire", colonnes_constantes = c("indicateur_intensite", "base_poids"))
+    if (nrow(out) > n0) { aj <- seq(n0 + 1, nrow(out)); out$profil_typologie[aj] <- "Non diffusé (secret statistique)"
+      if ("pyramide_masquee" %in% names(out)) out$pyramide_masquee[aj] <- TRUE }
+    out <- out |> arrange(geo_code)
+  }
+  out
 }
 
 # --- AIDE AU RÉGLAGE : proposer des seuils fixes à partir des données ----------------
