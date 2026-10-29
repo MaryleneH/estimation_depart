@@ -37,6 +37,8 @@ if (!isTRUE(get0("GENERER_EXPOSITION_TENSION", ifnotfound = FALSE))) {
   if (any(!met_08i$present_base))
     message("08i : ", sum(!met_08i$present_base), texte_perimetre(" PCS de la liste absente(s) des départs de la Base (aucun salarié du champ) : "),
             paste(met_08i$pcs_source[!met_08i$present_base], collapse = ", "))
+  if (!is.na(par_08i$n_suivis) && par_08i$n_suivis != nrow(met_08i))
+    message("08i : TENSION_N_METIERS_SUIVIS = ", par_08i$n_suivis, " alors que le classeur compte ", nrow(met_08i), " PCS : les textes nomment ", par_08i$n_suivis, " métiers suivis (00_config.R).")
   if (any(!met_08i$tension_connue)) message("08i : ", sum(!met_08i$tension_connue), " PCS de tension inconnue (rang manquant), comptée(s) hors des métiers stratégiques.")
   expo_08i <- exposition_departements(dep_08i, met_08i, par_08i)
   typo_int_08i <- if (exists("typologie_departements")) typologie_departements$departements else NULL
@@ -79,7 +81,7 @@ if (!isTRUE(get0("GENERER_EXPOSITION_TENSION", ifnotfound = FALSE))) {
     png_08i <- tryCatch(png_matrice_metiers_tension(mat_08i, png_08i),
                         error = function(e) { message("08i : PNG de la matrice non produit (", conditionMessage(e), ") — les CSV restent la référence."); NULL })
     typo_pour_msg <- if (!is.null(typo_dif_08i)) typo_dif_08i else tibble(geo_code = character(0), masque = logical(0), departs_central = numeric(0))
-    msg_08i <- messages_fiche_tension(dif_08i, typo_pour_msg, mat_08i)
+    msg_08i <- messages_fiche_tension(dif_08i, typo_pour_msg, mat_08i, par_08i)
     fiche_08i <- file.path(dir_dif_08i, "fiche_exposition_tension.html")
     source_08i <- if (identical(get0("SOURCE_BTS", ifnotfound = ""), "parquet")) "BTS 2024, DREES, EACR, Insee — calculs propres" else "table test — calculs propres"
     generer_fiche_exposition_tension(msg_08i, fiche_08i, png_08i, construire_libelle_champ(), par_08i, expo_08i$bornes,

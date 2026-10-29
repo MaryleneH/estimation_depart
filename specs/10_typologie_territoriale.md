@@ -720,6 +720,16 @@ deux nomenclatures est la PCS : la liste des PCS stratégiques donne, pour chacu
 sa FAP et les indicateurs de tension de cette FAP. SPEC-TYPO-020 à 023 restent
 vraies : aucun départ au bassin, aucune correspondance FAP → grande CS.
 
+**Information partielle.** La tension n'est connue que pour les **N métiers
+stratégiques de la liste** (N = `TENSION_N_METIERS_SUIVIS`, saisi dans `00_config.R` ;
+le 08i signale en console s'il diffère du nombre de PCS du classeur). Les autres métiers peuvent être en tension sans que la chaîne le sache. Règle
+d'écriture, partout : toute phrase sur la tension nomme son univers (« parmi les N
+métiers stratégiques suivis ») et toute absence se dit « aucun parmi les métiers
+suivis », jamais « aucun » ; un zéro ou une situation vide se lit « aucun parmi les
+métiers suivis ». Le complément non observé est rendu visible : la couverture dit la
+part des départs observée, et son complément est nommé (« les autres départs
+concernent des métiers dont la tension n'est pas observée »).
+
 **Source** (`FICHIER_PCS_FAP_TENSION`, hors dépôt ; gabarit fictif
 `data/templates/pcs_fap_tension_template.xlsx`). C'est un classeur Excel ; on lit la
 feuille `TENSION_FEUILLE` (« Sheet1 »), une ligne par PCS stratégique. Colonnes
@@ -840,7 +850,8 @@ Fonctionnalité: Lire, avec la typologie, si les départs portent sur des métie
 
   Scénario: [SPEC-TYPO-105] Rédiger les phrases et les leviers par gabarits fixes
     Quand les textes sont produits
-    Alors chaque département diffusé reçoit une phrase : part des remplacements difficiles (l'exposition), repère France, classe, robustesse, couverture, levier le plus fréquent ; le mot « exposition » n'apparaît dans aucun texte lu
+    Alors chaque département diffusé reçoit une phrase : part des remplacements difficiles (l'exposition), repère France, classe, robustesse, couverture et son complément (« les autres départs concernent des métiers dont la tension n'est pas observée »), levier le plus fréquent ; le mot « exposition » n'apparaît dans aucun texte lu
+    Et chaque message, chaque situation vide et le sous-titre de la fiche nomment l'univers observé (« parmi les N métiers stratégiques suivis », N = `TENSION_N_METIERS_SUIVIS`) ; aucun texte ne commence par « Aucun département » ou « Aucun métier » sans cet univers ; « Ce que cette page ne dit pas » rappelle que la tension des autres métiers n'est pas observée
     Et la fiche porte trois messages (départements cumulant renouvellement rapide et exposition forte ; métiers à départs rapides et en tension ; levier dominant), puis un TABLEAU des métiers stratégiques diffusables groupés par situation (métier et code, famille professionnelle, départs et fourchette, part susceptible de partir face au repère France, tension en France avec sa réglette et sa valeur fine, composante qui pèse le plus, levier, confiance du rattachement), les métiers non diffusés, de tension inconnue ou absents n'étant que des comptes ; puis « Comment lire » et « Ce que cette page ne dit pas » (ni une prédiction de pénurie, ni une tension mesurée dans le département)
     Et aucun texte n'est généré : uniquement des gabarits et des règles
 
@@ -856,7 +867,7 @@ Fonctionnalité: Lire, avec la typologie, si les départs portent sur des métie
     Étant donné diffusion/exposition_tension_departements.csv à côté de la table de diffusion de la typologie
     Quand le 08g produit les cartes
     Alors un département d'exposition Forte est hachuré (motif SVG, aussi dans la version courriel sans script), la couleur restant celle de son profil
-    Et la légende ajoute une entrée « hachures » (« Forte part de remplacements difficiles (métiers en tension) ») avec le nombre de départements, le détail ajoute une ligne et le panneau la phrase
+    Et la légende ajoute une entrée « hachures » (« Forte part de remplacements difficiles parmi les métiers stratégiques suivis ») avec le nombre de départements, le détail ajoute une ligne et le panneau la phrase
     Et un département masqué n'est jamais hachuré et n'embarque aucune valeur d'exposition
     Et sans ce fichier, ou sans le classeur de tension (message, jamais d'arrêt), les pages et les sorties sont celles d'avant ; le PNG du 08g reste inchangé
 

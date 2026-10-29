@@ -7,7 +7,7 @@ ET2 <- new.env()
 .old_wd <- setwd(RACINE)
 source(chemin_script("00_config.R"), local = ET2)
 setwd(.old_wd)
-assign("DIR_DATA", file.path(RACINE, "data"), envir = ET2)
+assign("DIR_DATA", file.path(RACINE, "data"), envir = ET2); assign("TENSION_N_METIERS_SUIVIS", 9L, envir = ET2)   # N saisi : les 9 PCS de la liste fictive
 for (f in c("00g_format_restitution.R", "00c_fonctions_geo.R", "00d_fonctions_fiches.R", "00f_fonctions_cartes.R", "00h_fonctions_typologie.R",
             "00i_fonctions_carte_typologie.R", "00k_fonctions_tension.R")) sys.source(chemin_script(f), envir = ET2)
 # paramètres explicites : classes FIXES 25 / 50, couverture minimale 30 %, seuil de rang 4 sur 5
@@ -84,6 +84,7 @@ test_that("SPEC-TYPO-101 / 102 — exposition = A / (A + B), couverture = (A + B
   expect_match(t[d$geo_code == "D1"], "Sur 100 départs attendus d’ici 2030 dans les métiers stratégiques, 30 concernent des métiers en tension en France", fixed = TRUE)
   expect_match(t[d$geo_code == "D1"], "Levier le plus fréquent : attirer et élargir les viviers de recrutement (manque de main-d’œuvre disponible).", fixed = TRUE)
   expect_match(t[d$geo_code == "D2"], "ne représentent que 9,5 % des départs", fixed = TRUE)
+  expect_match(t[d$geo_code == "D1"], "Ces métiers représentent 50 % des départs du département ; les autres départs (50 %) concernent des métiers dont la tension n’est pas observée.", fixed = TRUE)
   expect_false(any(grepl("département est en tension|département en tension", t)))
 })
 
@@ -117,9 +118,9 @@ test_that("SPEC-TYPO-104 / 105 — matrice nationale (quadrants, cellule masqué
   dif <- tibble::tibble(geo_code = c("D1", "D3"), geo_nom = c("Un", "Trois"), tension_cumul = c(FALSE, TRUE))
   typo <- tibble::tibble(geo_code = c("D1", "D3"), masque = FALSE, departs_central = c(300, 100))
   msg <- ET2$messages_fiche_tension(dif, typo, m)
-  expect_length(msg, 3); expect_match(msg[1], "1 département cumule un renouvellement rapide d’ici 2030 et des départs portés surtout par des métiers en tension en France : Trois (D3).", fixed = TRUE); expect_match(msg[1], "25 % des départs", fixed = TRUE)
+  expect_length(msg, 3); expect_match(msg[1], "1 département cumule un renouvellement rapide d’ici 2030 et une forte part de remplacements difficiles parmi les 9 métiers stratégiques suivis : Trois (D3).", fixed = TRUE); expect_match(msg[1], "La tension des autres métiers n’est pas observée.$"); expect_match(msg[1], "25 % des départs", fixed = TRUE)
   expect_false(any(grepl("horloge", msg, ignore.case = TRUE)))
-  expect_match(msg[2], "^1 métier stratégique cumule des départs plus rapides que la moyenne et une tension forte en France"); expect_false(any(grepl("critique|Sous contrôle", msg))); expect_match(msg[3], "^Aucune composante de la tension n’atteint le seuil")   # le seul métier critique (2A2A) n'a aucune composante en tension
+  expect_match(msg[2], "^Parmi les 9 métiers stratégiques suivis, 1 cumule des départs plus rapides que la moyenne et une tension forte en France"); expect_false(any(grepl("^Aucun (département|métier)", msg))); expect_false(any(grepl("critique|Sous contrôle", msg))); expect_match(msg[3], "^Aucune composante de la tension n’atteint le seuil")   # le seul métier critique (2A2A) n'a aucune composante en tension
   f <- tempfile(fileext = ".html"); ET2$generer_fiche_exposition_tension(msg, f, NULL, ET2$construire_libelle_champ(), PAR_T, c(bas = 25, haut = 50), 1L, mat = m)
   h <- paste(readLines(f, encoding = "UTF-8"), collapse = "\n")
   # tableau des métiers par situation : quatre sections factuelles, lignes des seuls diffusables, comptes des autres, réglette de tension
@@ -146,6 +147,14 @@ test_that("SPEC-TYPO-104 / 105 — matrice nationale (quadrants, cellule masqué
   expect_false(grepl("<details", h0, fixed = TRUE)); expect_false(grepl("<svg", h0, fixed = TRUE))                                                        # rien de diffusable : pas d'annexe
   expect_false(grepl("<script|javascript:| on[a-z]+=", h)); expect_match(h, "Ce que cette page ne dit pas", fixed = TRUE); expect_match(h, "Salariés de 45 ans ou plus", fixed = TRUE)
   expect_false(grepl("horloge", h, ignore.case = TRUE)); expect_match(h, "<h1>Départs attendus et difficultés de recrutement</h1>", fixed = TRUE)
+  # information partielle (N = TENSION_N_METIERS_SUIVIS) : univers nommé dans le sous-titre, l'encadré, les situations vides ; jamais « Aucun » sans univers
+  expect_true(grepl("· 9 métiers stratégiques suivis, dont 8 présents dans la Base</p>", h, fixed = TRUE))
+  expect_true(grepl("La tension n’est connue que pour les 9 métiers stratégiques de la liste : un zéro ou une situation vide veut dire « aucun parmi les métiers suivis », pas « aucun »", h, fixed = TRUE))
+  expect_true(grepl("Aucun métier dans cette situation parmi les métiers stratégiques suivis et diffusables.", h, fixed = TRUE)); expect_false(grepl("Aucun métier stratégique diffusable", h, fixed = TRUE))
+  msg0 <- ET2$messages_fiche_tension(dif |> dplyr::mutate(tension_cumul = FALSE), typo, m)
+  expect_identical(msg0[1], "Parmi les 9 métiers stratégiques suivis, aucun département ne cumule un renouvellement rapide d’ici 2030 et une forte part de remplacements difficiles. La tension des autres métiers n’est pas observée.")
+  m0 <- m; m0$metiers$quadrant[m0$metiers$quadrant %in% ET2$QUADRANTS_TENSION[["critique"]]] <- ET2$QUADRANTS_TENSION[["difficile"]]
+  expect_match(ET2$messages_fiche_tension(dif, typo, m0)[2], "^Parmi les 9 métiers stratégiques suivis, aucun ne cumule"); expect_false(any(grepl("^Aucun (département|métier)", ET2$messages_fiche_tension(dif, typo, m0))))
   expect_false(grepl('c\\("', h))
 })
 
@@ -193,7 +202,7 @@ test_that("SPEC-TYPO-107 — carte des profils : hachures pour l'exposition fort
   f <- file.path(dir, "avec.html"); ET2$generer_carte_typologie(p, fond, f); h <- paste(readLines(f, encoding = "UTF-8"), collapse = "\n")
   expect_equal(lengths(regmatches(h, gregexpr('<path class="h" data-code="', h))), 1L)
   expect_true(grepl(sprintf('<path class="h" data-code="%s"', tout$geo_code[1]), h, fixed = TRUE)); expect_false(grepl(sprintf('class="h" data-code="%s"', tout$geo_code[2]), h, fixed = TRUE))
-  expect_false(grepl("FUITE-MASQUE", h, fixed = TRUE)); expect_true(grepl("Forte part de remplacements difficiles (métiers en tension)", h, fixed = TRUE)); expect_false(grepl("exposition", gsub("<[^>]+>", " ", h)))
+  expect_false(grepl("FUITE-MASQUE", h, fixed = TRUE)); expect_true(grepl("Forte part de remplacements difficiles parmi les métiers stratégiques suivis", h, fixed = TRUE)); expect_false(grepl("exposition", gsub("<[^>]+>", " ", h)))
   expect_true(grepl('querySelectorAll("path.t,path.h")', h, fixed = TRUE))
   l <- ET2$lignes_detail_typologie(p$territoires[p$territoires$code == tout$geo_code[1], ])
   expect_true(any(grepl("^Remplacements difficiles : 60 % des départs des métiers stratégiques \\(France : 40 %\\) · part forte · robuste$", l)))
@@ -277,7 +286,7 @@ test_that("SPEC-TYPO-108 — classeur Excel : quatre feuilles issues des tables 
   expect_identical(mt$`Rattachement PCS → FAP`[mt$`Code PCS` == "5A5A"], "à confirmer"); expect_identical(mt$`Tension (rang)`[mt$`Code PCS` == "1A1A"], 5L)
   li <- tb$`Lisez-moi`; expect_identical(names(li), "texte"); expect_identical(li$texte[1], "Départs attendus et difficultés de recrutement"); expect_true(attr(li, "gras")[1]); expect_false(attr(li, "gras")[2])
   expect_true("Trois messages" %in% li$texte); expect_true(any(grepl("^Renouvellement rapide et métiers en tension : M1\\.$", li$texte))); expect_true(any(grepl("Classeur produit le 01/01/2030", li$texte, fixed = TRUE)))
-  expect_true(any(grepl("Ce que ce classeur ne dit pas", li$texte, fixed = TRUE))); expect_true(any(grepl("faible sous 25,0 %, forte à partir de 50,0 % (seuils fixes)", li$texte, fixed = TRUE)))
+  expect_true(any(grepl("Ce que ce classeur ne dit pas", li$texte, fixed = TRUE))); expect_true(any(grepl("La tension n’est connue que pour les 9 métiers stratégiques de la liste", li$texte, fixed = TRUE))); expect_true(any(grepl("faible sous 25,0 %, forte à partir de 50,0 % (seuils fixes)", li$texte, fixed = TRUE)))
   expect_false(any(grepl("horloge|critique|Sous contrôle", li$texte, ignore.case = TRUE)))
   expect_identical(tb$Paramètres$parametre, c("seuil_rang", "rang_max"))
   # garde : un effectif dans la table des départements arrête la construction (le 08i le transforme en message)

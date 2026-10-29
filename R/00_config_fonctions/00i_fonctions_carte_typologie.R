@@ -180,7 +180,7 @@ puces_tension_typo <- function(r) {
     return(if (!is.na(r$tension_couverture_pct)) sprintf("Les métiers stratégiques portent %s %% des départs : part des remplacements difficiles non interprétée", f0(r$tension_couverture_pct)) else NULL)
   c(sprintf("Sur 100 départs des métiers stratégiques, %s concernent des métiers en tension en France (France : %s)", f0(r$tension_exposition_pct), f0(r$tension_exposition_france_pct)),
     sprintf("Part des remplacements difficiles %s, %s", tolower(r$tension_classe), if (identical(r$tension_robustesse, "robuste")) "résultat robuste" else paste0("résultat à confirmer", if (!is.na(r$tension_causes)) paste0(" (sensible : ", r$tension_causes, ")") else "")),
-    if (!is.na(r$tension_couverture_pct)) sprintf("Les métiers stratégiques portent %s %% des départs du département", f0(r$tension_couverture_pct)),
+    if (!is.na(r$tension_couverture_pct)) sprintf("Les métiers stratégiques suivis portent %s %% des départs du département ; tension des autres métiers non observée", f0(r$tension_couverture_pct)),
     if (!is.na(r$tension_levier)) sprintf("Levier le plus fréquent : %s (%s)", r$tension_levier, r$tension_composante),
     if (!is.na(r$tension_metiers)) paste0("Métiers en tension les plus concernés : ", r$tension_metiers))
 }
@@ -226,6 +226,7 @@ ligne_tension_typologie <- function(r) {
     return(if (!is.na(r$tension_couverture_pct)) sprintf("Métiers stratégiques : %s %% des départs — part des remplacements difficiles non interprétée", f0(r$tension_couverture_pct)) else NULL)
   c(sprintf("Remplacements difficiles : %s %% des départs des métiers stratégiques (France : %s %%) · part %s · %s", f0(r$tension_exposition_pct),
             f0(r$tension_exposition_france_pct), tolower(r$tension_classe), if (identical(r$tension_robustesse, "robuste")) "robuste" else "à confirmer"),
+    if (!is.na(r$tension_couverture_pct)) sprintf("Métiers suivis : %s %% des départs ; tension des autres métiers non observée", f0(r$tension_couverture_pct)),
     if (!is.na(r$tension_metiers)) paste0("Métiers en tension les plus concernés : ", r$tension_metiers) else NULL)
 }
 titre_profil_typo <- function(r, prep) if (!is.na(r$cle)) prep$profils[[r$cle]] else if (r$statut == "sans") LIBELLES_CARTE_TYPO$absent else LIBELLE_NON_DIFFUSE_TYPO
@@ -379,7 +380,7 @@ svg_hachures_typo <- function(prep, lay) {
 }
 html_legende_hachures <- function(prep) {
   n <- prep$comptes[["hachures"]]; if (is.null(n) || is.na(n) || n == 0) return("")
-  sprintf('<ul class="typo-legende legende-hachures"><li><span class="item"><span class="sw sw-hachures"></span><span><span class="lib">Forte part de remplacements difficiles (métiers en tension)<span class="n">%d</span></span><span class="sig">Hachures : une grande part des départs des métiers stratégiques concerne des métiers difficiles à recruter en France. La tension est celle du métier, pas celle du département.</span></span></span></li></ul>', n)
+  sprintf('<ul class="typo-legende legende-hachures"><li><span class="item"><span class="sw sw-hachures"></span><span><span class="lib">Forte part de remplacements difficiles parmi les métiers stratégiques suivis<span class="n">%d</span></span><span class="sig">Hachures : une grande part des départs des métiers stratégiques concerne des métiers difficiles à recruter en France. La tension est celle du métier, pas celle du département.</span></span></span></li></ul>', n)
 }
 html_definitions_profils <- function(prep, ouvert = FALSE) {
   defs <- DEFINITIONS_PROFILS
