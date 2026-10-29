@@ -114,13 +114,21 @@ criticite_geo_cs <- base_geo |>
 
 # Secret statistique (règle Insee, 00d) : décision par cellule territoire x CS,
 # secondaire par territoire — même décision que le 08b sur les mêmes cellules.
-masque_08 <- criticite_geo_cs |>
-  left_join(indicateurs_secret(base_geo, c("geo_code", "cs1")), by = c("geo_code", "cs1")) |>
+# Univers des territoires (SPEC-SEC-035) : chaque territoire du référentiel x CS sans salarié observé reçoit une
+# cellule à zéro AVANT le secret (masquée en primaire, comptée dans le bloc du territoire) ; la synthèse par
+# territoire et les cellules observées ne changent pas.
+univers_08 <- univers_territoires(GEO_ANALYSE)
+grille_08 <- criticite_geo_cs |> left_join(indicateurs_secret(base_geo, c("geo_code", "cs1")), by = c("geo_code", "cs1"))
+if (!is.null(univers_08))
+  grille_08 <- completer_univers_diffusion(grille_08, univers_08, categories = data.frame(cs1 = unname(PCS_VERS_CS1), stringsAsFactors = FALSE), col_masque = NULL,
+                                           valeurs = list(effectif_champ = 0L, effectif_55plus = 0L, departs_55plus = 0, n_entreprises = 0L, part_dominante_pct = 100)) |>
+    arrange(geo_code, match(cs1, unname(PCS_VERS_CS1)))
+criticite_geo_cs <- grille_08 |>
   group_by(geo_code) |>
   mutate(masque = masquer_cellules(effectif_champ, n_entreprises, part_dominante_pct, regles_secret())) |>
   ungroup() |>
-  select(geo_code, cs1, masque)
-criticite_geo_cs <- criticite_geo_cs |> left_join(masque_08, by = c("geo_code", "cs1"))
+  select(-n_entreprises, -part_dominante_pct)
+rm(grille_08)
 
 cellules_critiques <- criticite_geo_cs |>
   filter(!masque, perte_seniors_pct >= 25)

@@ -421,6 +421,7 @@ Fonctionnalité: Diffuser la typologie sans révéler une cellule protégée
     Et diffusion/ ne contient ni n_entreprises, ni part_dominante_pct, ni les indicateurs de frontière
     Et interne/ n'est jamais versionné (.gitignore)
 ```
+    Et diffusion/typologie_departements.csv porte tous les départements du référentiel (SPEC-SEC-035) : un département sans salarié observé est une ligne masquée (motif « territoire », profil « Non diffusé (secret statistique) »), jamais une absence
 
 ## 7. Sorties et orchestration
 
@@ -868,6 +869,7 @@ Fonctionnalité: Lire, avec la typologie, si les départs portent sur des métie
     Et elle n'est pas publiée si une part contient exactement une cellule PCS masquée dans la diffusion du 08c (différenciation)
     Et un département masqué dans la diffusion de la typologie n'a aucune valeur
     Et la diffusion ne contient que des pourcentages, des classes, des textes et les départs attendus de la part A (estimations, planchers de la carte), jamais un effectif de salariés ; les métiers cités sont des cellules PCS diffusables
+    Et les tables de diffusion département et région portent tous les territoires du référentiel (SPEC-SEC-035) : un territoire sans salarié observé est une ligne non diffusée, sans valeur
 
   Scénario: [SPEC-TYPO-107] Montrer l'exposition sur la carte des profils, sans rien changer sans elle
     Étant donné diffusion/exposition_tension_departements.csv à côté de la table de diffusion de la typologie

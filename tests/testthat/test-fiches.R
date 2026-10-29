@@ -121,10 +121,13 @@ test_that("résilience : territoire absent signalé, autres fiches produites ; s
   expect_identical(j$statut[j$code == "33"], "ok")
   expect_identical(j$motif[j$code == "99"], "absent des données")
   ctx <- calculer_contexte_perimetre(BASE_FICHES)
-  ind <- calculer_indicateurs_territoire(BASE_FICHES, "09", ctx)
-  expect_true(is.na(ind$departs$taux_seniors))
+  ind <- calculer_indicateurs_territoire(BASE_FICHES, "09", ctx)                      # secret actif : zéro senior = cellule sous le seuil (SPEC-PUB-021)
+  expect_true(is.na(ind$departs$taux_seniors)); expect_true(ind$seniors_masques); expect_true(is.na(ind$population$n55))
   html <- paste(generer_html_fiche(ind, ctx, ZONAGE_DEP), collapse = "\n")
-  expect_match(html, "aucun salarié de 55 ans et \\+")
+  expect_false(grepl("aucun salarié de 55 ans et \\+", html)); expect_match(html, "ne sont pas diffusés \\(secret statistique")
+  ind0 <- calculer_indicateurs_territoire(BASE_FICHES, "09", ctx, regles = NULL)      # usage interne, sans secret : « aucun salarié », n.d.
+  expect_false(ind0$seniors_masques); expect_equal(ind0$population$n55, 0L)
+  expect_match(paste(generer_html_fiche(ind0, ctx, ZONAGE_DEP), collapse = "\n"), "aucun salarié de 55 ans et \\+")
 })
 
 test_that("règles textuelles : position, « À retenir » en 2-3 phrases factuelles, sans répéter le chiffre clé", {
@@ -221,7 +224,7 @@ test_that("cohérence avec le 08 sur la chaîne (mode test département)", {
   expect_equal(nrow(j), nrow(sg))                                   # même nombre de territoires
   cmp <- dplyr::inner_join(j, sg, by = c("code" = "geo_code"))
   expect_equal(cmp$effectif,   cmp$effectif_champ)
-  expect_equal(cmp$effectif55, cmp$effectif_55plus)
+  ok55 <- !is.na(cmp$effectif55); expect_equal(cmp$effectif55[ok55], cmp$effectif_55plus[ok55])   # NA = bloc seniors sous secret (SPEC-PUB-021)
   # départs des 55+ de la fiche == tableau territorial du 08
   ctx <- env$calculer_contexte_perimetre(env$base_fiches)
   ind <- env$calculer_indicateurs_territoire(env$base_fiches, "33", ctx)
@@ -298,4 +301,26 @@ test_that("FICHES_SECRET = FALSE sur la chaîne : dossier _interne, tous les ter
   expect_true(all(env$journal_fiches$statut == "ok"))
   f <- paste(readLines(file.path(env$DIR_SORTIES, "fiches_departement_interne", "33_gironde.html"), warn = FALSE, encoding = "UTF-8"), collapse = "\n")
   expect_match(f, "Entreprises du territoire"); expect_match(f, "ne pas diffuser")
+})
+
+test_that("SPEC-PUB-021 — bloc des seniors sous le secret de sa cellule : peu de seniors = rien de publié (NA, « non diffusé »), jamais « aucun » ; publié = secret secondaire entre tranches senior ; journal", {
+  b <- fabriquer_base_fiches(list(list(code = "77", nom = "Seine-et-Marne", n_cs = CS4, part_senior = 0.02, n_entreprises = 6),
+                                  list(code = "33", nom = "Gironde", n_cs = CS4 * 2, part_senior = 0.40, n_entreprises = 9)), seed = 3)
+  n77 <- sum(b$age_2024[b$geo_code == "77"] >= AGE_SENIOR); expect_true(n77 >= 1 && n77 < SECRET_MIN_SALARIES)   # 1 à 4 seniors : cellule sous le seuil
+  ctx <- calculer_contexte_perimetre(b); ind <- calculer_indicateurs_territoire(b, "77", ctx)
+  expect_true(ind$seniors_masques); expect_true(is.na(ind$population$n55)); expect_true(is.na(ind$population$part55))
+  expect_true(all(is.na(c(ind$departs$seniors_central, ind$departs$seniors_bas, ind$departs$seniors_haut, ind$departs$taux_seniors))))
+  expect_identical(ind$position$part$libelle, "n.d."); expect_identical(ind$position$taux$libelle, "n.d.")
+  html <- paste(generer_html_fiche(ind, ctx, ZONAGE_DEP, annexe = TRUE), collapse = "\n")
+  expect_false(grepl(sprintf("aucun salarié de %d ans", AGE_SENIOR), html)); expect_false(grepl(sprintf("<div class=\"ctx-n\">%d</div>", n77), html, fixed = TRUE))
+  expect_match(html, "non diffusé \\(secret statistique\\)"); expect_match(html, "ne sont pas diffusés \\(secret statistique")
+  expect_false(grepl("non calculable", html))
+  # territoire dont les seniors sont publiés : rien ne change, et jamais une seule tranche senior masquée
+  ind33 <- calculer_indicateurs_territoire(b, "33", ctx); expect_false(ind33$seniors_masques); expect_gt(ind33$population$n55, 0)
+  sen <- ind33$ages$senior %in% TRUE; expect_false(sum(ind33$ages$masque[sen]) == 1 && sum(!ind33$ages$masque[sen]) > 1); expect_false(sum(ind33$ages$masque[!sen]) == 1 && sum(!ind33$ages$masque[!sen]) > 1)
+  expect_match(paste(generer_html_fiche(ind33, ctx, ZONAGE_DEP), collapse = "\n"), sprintf("des salariés de %d ans et \\+ ont %d ans ou plus", AGE_MIN_BTS, AGE_SENIOR))
+  # journal : effectif55 NA pour le territoire masqué, renseigné pour l'autre
+  dir <- file.path(tempdir(), "fiches_pub021"); unlink(dir, recursive = TRUE)
+  j <- suppressMessages(generer_fiches(b, dir, mode = "tous", zonage = ZONAGE_DEP))
+  expect_true(is.na(j$effectif55[j$code == "77"])); expect_false(is.na(j$effectif55[j$code == "33"])); expect_identical(j$statut[j$code == "77"], "ok")
 })

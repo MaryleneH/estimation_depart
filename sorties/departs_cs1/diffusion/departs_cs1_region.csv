@@ -1,20 +1,52 @@
 ﻿"region_code";"region_nom";"cs1";"effectif_champ";"departs_central";"departs_bas";"departs_haut";"dep_retraite";"dep_invalidite";"dep_deces";"taux_depart_central_pct";"masque";"motif_masque"
+"01";"Guadeloupe";"Cadres";NA;NA;NA;NA;NA;NA;NA;NA;TRUE;"primaire"
+"01";"Guadeloupe";"Employes";NA;NA;NA;NA;NA;NA;NA;NA;TRUE;"primaire"
+"01";"Guadeloupe";"Ouvriers";NA;NA;NA;NA;NA;NA;NA;NA;TRUE;"primaire"
+"01";"Guadeloupe";"Prof. intermediaires";NA;NA;NA;NA;NA;NA;NA;NA;TRUE;"primaire"
+"02";"Martinique";"Cadres";NA;NA;NA;NA;NA;NA;NA;NA;TRUE;"primaire"
+"02";"Martinique";"Employes";NA;NA;NA;NA;NA;NA;NA;NA;TRUE;"primaire"
+"02";"Martinique";"Ouvriers";NA;NA;NA;NA;NA;NA;NA;NA;TRUE;"primaire"
+"02";"Martinique";"Prof. intermediaires";NA;NA;NA;NA;NA;NA;NA;NA;TRUE;"primaire"
+"03";"Guyane";"Cadres";NA;NA;NA;NA;NA;NA;NA;NA;TRUE;"primaire"
+"03";"Guyane";"Employes";NA;NA;NA;NA;NA;NA;NA;NA;TRUE;"primaire"
+"03";"Guyane";"Ouvriers";NA;NA;NA;NA;NA;NA;NA;NA;TRUE;"primaire"
+"03";"Guyane";"Prof. intermediaires";NA;NA;NA;NA;NA;NA;NA;NA;TRUE;"primaire"
+"04";"La Réunion";"Cadres";NA;NA;NA;NA;NA;NA;NA;NA;TRUE;"primaire"
+"04";"La Réunion";"Employes";NA;NA;NA;NA;NA;NA;NA;NA;TRUE;"primaire"
+"04";"La Réunion";"Ouvriers";NA;NA;NA;NA;NA;NA;NA;NA;TRUE;"primaire"
+"04";"La Réunion";"Prof. intermediaires";NA;NA;NA;NA;NA;NA;NA;NA;TRUE;"primaire"
+"06";"Mayotte";"Cadres";NA;NA;NA;NA;NA;NA;NA;NA;TRUE;"primaire"
+"06";"Mayotte";"Employes";NA;NA;NA;NA;NA;NA;NA;NA;TRUE;"primaire"
+"06";"Mayotte";"Ouvriers";NA;NA;NA;NA;NA;NA;NA;NA;TRUE;"primaire"
+"06";"Mayotte";"Prof. intermediaires";NA;NA;NA;NA;NA;NA;NA;NA;TRUE;"primaire"
 "11";"Île-de-France";"Cadres";246;59;55;62;51;4;4;23,9;FALSE;NA
 "11";"Île-de-France";"Employes";197;79;74;84;71;6;2;40,2;FALSE;NA
 "11";"Île-de-France";"Ouvriers";299;122;115;129;106;12;4;40,6;FALSE;NA
 "11";"Île-de-France";"Prof. intermediaires";278;82;77;87;70;8;4;29,4;FALSE;NA
-"24";"Centre-Val de Loire";"Cadres";72;20;18;21;17;1;2;27,2;FALSE;NA
-"24";"Centre-Val de Loire";"Employes";46;19;18;20;17;1;1;41,1;FALSE;NA
-"24";"Centre-Val de Loire";"Ouvriers";77;40;38;42;36;3;1;51,9;FALSE;NA
+"24";"Centre-Val de Loire";"Cadres";NA;NA;NA;NA;NA;NA;NA;NA;TRUE;"secondaire"
+"24";"Centre-Val de Loire";"Employes";NA;NA;NA;NA;NA;NA;NA;NA;TRUE;"secondaire"
+"24";"Centre-Val de Loire";"Ouvriers";NA;NA;NA;NA;NA;NA;NA;NA;TRUE;"secondaire"
 "24";"Centre-Val de Loire";"Prof. intermediaires";83;34;32;35;31;2;1;40,4;FALSE;NA
+"27";"Bourgogne-Franche-Comté";"Cadres";NA;NA;NA;NA;NA;NA;NA;NA;TRUE;"primaire"
+"27";"Bourgogne-Franche-Comté";"Employes";NA;NA;NA;NA;NA;NA;NA;NA;TRUE;"primaire"
+"27";"Bourgogne-Franche-Comté";"Ouvriers";NA;NA;NA;NA;NA;NA;NA;NA;TRUE;"primaire"
+"27";"Bourgogne-Franche-Comté";"Prof. intermediaires";NA;NA;NA;NA;NA;NA;NA;NA;TRUE;"primaire"
+"28";"Normandie";"Cadres";NA;NA;NA;NA;NA;NA;NA;NA;TRUE;"primaire"
+"28";"Normandie";"Employes";NA;NA;NA;NA;NA;NA;NA;NA;TRUE;"primaire"
+"28";"Normandie";"Ouvriers";NA;NA;NA;NA;NA;NA;NA;NA;TRUE;"primaire"
+"28";"Normandie";"Prof. intermediaires";NA;NA;NA;NA;NA;NA;NA;NA;TRUE;"primaire"
 "32";"Hauts-de-France";"Cadres";77;19;18;21;16;1;2;24,9;FALSE;NA
 "32";"Hauts-de-France";"Employes";64;36;34;37;34;1;1;55,9;FALSE;NA
 "32";"Hauts-de-France";"Ouvriers";111;54;52;57;49;4;1;49,1;FALSE;NA
 "32";"Hauts-de-France";"Prof. intermediaires";82;30;29;32;27;2;1;37,2;FALSE;NA
+"44";"Grand Est";"Cadres";NA;NA;NA;NA;NA;NA;NA;NA;TRUE;"primaire"
+"44";"Grand Est";"Employes";NA;NA;NA;NA;NA;NA;NA;NA;TRUE;"primaire"
+"44";"Grand Est";"Ouvriers";NA;NA;NA;NA;NA;NA;NA;NA;TRUE;"primaire"
+"44";"Grand Est";"Prof. intermediaires";NA;NA;NA;NA;NA;NA;NA;NA;TRUE;"primaire"
 "52";"Pays de la Loire";"Cadres";78;22;21;24;20;1;1;28,4;FALSE;NA
-"52";"Pays de la Loire";"Employes";70;24;23;26;21;2;1;34,7;FALSE;NA
+"52";"Pays de la Loire";"Employes";NA;NA;NA;NA;NA;NA;NA;NA;TRUE;"secondaire"
 "52";"Pays de la Loire";"Ouvriers";88;51;49;53;47;3;1;57,4;FALSE;NA
-"52";"Pays de la Loire";"Prof. intermediaires";70;26;24;27;23;2;1;36,7;FALSE;NA
+"52";"Pays de la Loire";"Prof. intermediaires";NA;NA;NA;NA;NA;NA;NA;NA;TRUE;"secondaire"
 "53";"Bretagne";"Cadres";126;28;25;30;23;2;3;21,9;FALSE;NA
 "53";"Bretagne";"Employes";98;34;32;36;30;3;1;34,7;FALSE;NA
 "53";"Bretagne";"Ouvriers";133;56;53;59;49;5;2;41,7;FALSE;NA

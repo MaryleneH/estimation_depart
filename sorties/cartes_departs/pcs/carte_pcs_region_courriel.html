@@ -21,14 +21,14 @@ select,input[type=search]{width:100%;font:inherit;font-size:15px;padding:9px 10p
 .radios{display:flex;gap:8px;margin:0}.radios label{flex:1;border:1px solid #AEB7C2;border-radius:8px;padding:9px 8px;text-align:center;cursor:pointer;font-size:15px;font-weight:500;color:var(--encre);min-height:42px;display:flex;align-items:center;justify-content:center}.radios input{position:absolute;opacity:0;width:0;height:0}.radios label.on{background:var(--bleu);color:#fff;border-color:var(--bleu)}.radios label:focus-within{outline:2px solid var(--bleu);outline-offset:1px}
 .tabs{display:flex;flex-wrap:wrap;gap:8px;margin:0}.tabs button{font:inherit;font-size:15px;font-weight:600;padding:10px 16px;border-radius:999px;border:1px solid #AEB7C2;background:#fff;color:var(--encre);cursor:pointer;min-height:42px}.tabs button.on{background:var(--bleu);border-color:var(--bleu);color:#fff}.tabs button:focus-visible{outline:2px solid var(--bleu);outline-offset:2px}
 .legend-title{font-size:15px;font-weight:700;margin:16px 0 6px;color:var(--encre)}.map-legend{list-style:none;margin:0;padding:0}.map-legend li{display:flex;align-items:center;gap:10px;font-size:15px;margin:6px 0;color:var(--encre)}.map-legend li.sep{border-top:1px solid var(--filet);margin-top:10px;padding-top:10px}
-.map-legend .sw{width:26px;height:16px;border-radius:3px;border:1px solid #5B6470;flex:none}.map-legend .sw.sans{border:1.5px dashed #7B8794}
+.map-legend .sw{width:26px;height:16px;border-radius:3px;border:1px solid #5B6470;flex:none}
 .compte{font-size:15px;color:var(--encre);margin:10px 0 0}.compte b{font-weight:700}.note{font-size:13.5px;color:var(--texte);margin:10px 0 0;line-height:1.45}
 .sans-js{margin:12px 0 0;padding:10px 14px;border:1px solid #e0b96a;border-left-width:4px;background:#fff8e6;color:#5b4300;font-size:15px;border-radius:0 8px 8px 0}
 .carte{position:relative;min-width:0}.carte svg{width:100%;height:auto;display:block}
-path.t{stroke:#5B6470;stroke-width:1;vector-effect:non-scaling-stroke;cursor:pointer;outline:none}path.t.sans{stroke:#7B8794;stroke-width:0.8;stroke-dasharray:3 2}
+path.t{stroke:#5B6470;stroke-width:1;vector-effect:non-scaling-stroke;cursor:pointer;outline:none}
 .limites-reg path{fill:none;stroke:#2F3945;stroke-width:1.5;vector-effect:non-scaling-stroke;stroke-linejoin:round;pointer-events:none}
 #survol{fill:none;stroke:#111827;stroke-width:2.4;vector-effect:non-scaling-stroke;stroke-linejoin:round;pointer-events:none;display:none}#survol.on{display:inline}
-@media (max-width:640px){path.t{stroke-width:0.7}path.t.sans{stroke-width:0.56}.limites-reg path{stroke-width:1.05}#survol{stroke-width:1.68}}
+@media (max-width:640px){path.t{stroke-width:0.7}.limites-reg path{stroke-width:1.05}#survol{stroke-width:1.68}}
 .encart{fill:none;stroke:#c9ced6;stroke-width:1.2}.encart-lib{font-size:17px;font-weight:600;fill:#3E4C59}
 .bulle{position:absolute;pointer-events:none;background:#1F2933;color:#fff;border-radius:10px;padding:14px 16px;font-size:15px;line-height:1.5;min-width:240px;max-width:320px;box-shadow:0 8px 24px rgba(0,0,0,.22);display:none;z-index:2}
 .tooltip-title{font-size:17px;font-weight:700;margin:0 0 2px}.tooltip-cat{color:#cfd6df;margin:0 0 8px;font-weight:500}.tooltip-rows{border-top:1px solid rgba(255,255,255,.25);padding-top:8px}.tooltip-rows .tooltip-value{font-weight:700;padding:3px 0}.tooltip-rows .tooltip-small{color:#cfd6df;font-size:13.5px;padding:0 0 4px}.tooltip-secret{color:#ffd7a8;font-weight:700;margin-top:8px}.tooltip-secret small{display:block;color:#f3f4f6;font-weight:400}.tooltip-sans{color:#e5e7eb;font-weight:600;margin-top:8px}
@@ -59,7 +59,7 @@ footer{margin-top:28px;color:var(--texte);font-size:13.5px;line-height:1.55;bord
 <details><summary>ⓘ Qui est concerné ?</summary></details>
 <div class="study-scope-detail" id="scope-detail" hidden><p>Ces résultats concernent les salariés des entreprises retenues dans le périmètre Base.</p><p>Ils portent sur les salariés âgés de 45 ans ou plus en 2024, appartenant aux catégories professionnelles couvertes par le modèle : cadres, professions intermédiaires, employés, ouvriers.</p><p>Certaines professions qui ne peuvent pas être rattachées à ces catégories (agriculteurs exploitants, artisans, commerçants et chefs d’entreprise, profession non renseignée) ne sont pas incluses dans les estimations.</p><p>Un départ est une sortie définitive de l’emploi d’ici 2030 : retraite ou fin de carrière, invalidité, décès. Changer d’employeur n’est pas un départ.</p><p>Les nombres de départs sont des estimations, arrondies à l’entier pour la lecture ; la part de salariés susceptibles de partir est calculée parmi les salariés de la catégorie affichée.</p></div>
 </div>
-<p class="context">Choisissez une PCS pour comparer les territoires. Les zones grisées correspondent à des résultats non diffusés (secret statistique) ; les zones blanches n’ont aucun salarié observé.</p>
+<p class="context">Choisissez une PCS pour comparer les territoires. Les zones grisées correspondent à des résultats non diffusés (secret statistique), y compris lorsqu’aucun salarié n’y est observé.</p>
 </header>
 <div class="courriel">
 <input type="radio" name="cat" id="cat-1" checked>
@@ -105,54 +105,148 @@ footer{margin-top:28px;color:var(--texte);font-size:13.5px;line-height:1.55;bord
 </defs></svg>
 <div class="grille"><aside class="panneau">
 <span class="control-label">Quelle PCS ?</span><ul class="cats">
-<li><label for="cat-1">6712 — Ouvriers</label></li>
-<li><label for="cat-2">6821 — Ouvriers</label></li>
-<li><label for="cat-3">6210 — Ouvriers</label></li>
+<li><label for="cat-1">6210 — Ouvriers</label></li>
+<li><label for="cat-2">6712 — Ouvriers</label></li>
+<li><label for="cat-3">6821 — Ouvriers</label></li>
 <li><label for="cat-4">6234 — Ouvriers</label></li>
 <li><label for="cat-5">6543 — Ouvriers</label></li>
 <li><label for="cat-6">4652 — Professions intermédiaires</label></li>
 <li><label for="cat-7">4611 — Professions intermédiaires</label></li>
-<li><label for="cat-8">4631 — Professions intermédiaires</label></li>
-<li><label for="cat-9">4620 — Professions intermédiaires</label></li>
-<li><label for="cat-10">5422 — Employés</label></li>
-<li><label for="cat-11">5511 — Employés</label></li>
+<li><label for="cat-8">5511 — Employés</label></li>
+<li><label for="cat-9">4631 — Professions intermédiaires</label></li>
+<li><label for="cat-10">4620 — Professions intermédiaires</label></li>
+<li><label for="cat-11">5422 — Employés</label></li>
 <li><label for="cat-12">4642 — Professions intermédiaires</label></li>
-<li><label for="cat-13">5621 — Employés</label></li>
-<li><label for="cat-14">5311 — Employés</label></li>
-<li><label for="cat-15">5411 — Employés</label></li>
+<li><label for="cat-13">5311 — Employés</label></li>
+<li><label for="cat-14">5411 — Employés</label></li>
+<li><label for="cat-15">5621 — Employés</label></li>
 <li><label for="cat-16">3812 — Cadres</label></li>
-<li><label for="cat-17">3719 — Cadres</label></li>
-<li><label for="cat-18">3753 — Cadres</label></li>
-<li><label for="cat-19">3892 — Cadres</label></li>
-<li><label for="cat-20">3822 — Cadres</label></li>
+<li><label for="cat-17">3753 — Cadres</label></li>
+<li><label for="cat-18">3892 — Cadres</label></li>
+<li><label for="cat-19">3822 — Cadres</label></li>
+<li><label for="cat-20">3719 — Cadres</label></li>
 </ul>
 <p class="note">Outre-mer en encarts, chacun à sa propre échelle.</p>
 </aside>
 <div class="carte">
 <section class="vue vue-1">
+<p class="vue-titre">PCS 6210 · Ouvriers</p><p class="vue-qui">Salariés de 45 ans ou plus · Part des salariés susceptibles de partir d’ici 2030</p>
+<div class="legend-title">Part des salariés susceptibles de partir d’ici 2030</div><ul class="map-legend"><li><span class="sw" style="background:#deebf7"></span><span>Moins de 45 %</span></li><li><span class="sw" style="background:#4292c6"></span><span>45 % à 50 %</span></li><li><span class="sw" style="background:#08306b"></span><span>50 % et plus</span></li><li class="sep"><span class="sw" style="background:#b3b3b3"></span><span>Résultat non diffusé — secret statistique</span></li></ul><p class="compte"><b>9</b> régions avec un résultat · <b>9</b> avec un résultat non diffusé (secret statistique)</p>
+<svg viewBox="0 0 1000 1230" role="img" aria-label="Départs attendus d’ici 2030 — par région — PCS fine — PCS 6210 · Ouvriers">
+<rect fill="none" stroke="#c9ced6" x="1.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="10.0" y="1024.0">Guadeloupe</text>
+<rect fill="none" stroke="#c9ced6" x="201.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="210.0" y="1024.0">Martinique</text>
+<rect fill="none" stroke="#c9ced6" x="401.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="410.0" y="1024.0">Guyane</text>
+<rect fill="none" stroke="#c9ced6" x="601.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="610.0" y="1024.0">La Réunion</text>
+<rect fill="none" stroke="#c9ced6" x="801.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="810.0" y="1024.0">Mayotte</text>
+<use href="#g-01" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Guadeloupe · 01
+PCS 6210 · Ouvriers
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-02" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Martinique · 02
+PCS 6210 · Ouvriers
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-03" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Guyane · 03
+PCS 6210 · Ouvriers
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-04" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>La Réunion · 04
+PCS 6210 · Ouvriers
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-06" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Mayotte · 06
+PCS 6210 · Ouvriers
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-11" fill="#deebf7" stroke="#5B6470" stroke-width="1"><title>Île-de-France · 11
+PCS 6210 · Ouvriers
+58 salariés de 45 ans ou plus
+25 départs estimés d’ici 2030
+entre 24 et 27 selon l’hypothèse
+43,8 % pourraient partir d’ici 2030</title></use>
+<use href="#g-24" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Centre-Val de Loire · 24
+PCS 6210 · Ouvriers
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-27" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Bourgogne-Franche-Comté · 27
+PCS 6210 · Ouvriers
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-28" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Normandie · 28
+PCS 6210 · Ouvriers
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-32" fill="#4292c6" stroke="#5B6470" stroke-width="1"><title>Hauts-de-France · 32
+PCS 6210 · Ouvriers
+22 salariés de 45 ans ou plus
+11 départs estimés d’ici 2030
+entre 10 et 11 selon l’hypothèse
+48,9 % pourraient partir d’ici 2030</title></use>
+<use href="#g-44" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Grand Est · 44
+PCS 6210 · Ouvriers
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-52" fill="#08306b" stroke="#5B6470" stroke-width="1"><title>Pays de la Loire · 52
+PCS 6210 · Ouvriers
+12 salariés de 45 ans ou plus
+6 départs estimés d’ici 2030
+entre 6 et 6 selon l’hypothèse
+51,2 % pourraient partir d’ici 2030</title></use>
+<use href="#g-53" fill="#deebf7" stroke="#5B6470" stroke-width="1"><title>Bretagne · 53
+PCS 6210 · Ouvriers
+24 salariés de 45 ans ou plus
+10 départs estimés d’ici 2030
+entre 10 et 11 selon l’hypothèse
+43,5 % pourraient partir d’ici 2030</title></use>
+<use href="#g-75" fill="#08306b" stroke="#5B6470" stroke-width="1"><title>Nouvelle-Aquitaine · 75
+PCS 6210 · Ouvriers
+66 salariés de 45 ans ou plus
+35 départs estimés d’ici 2030
+entre 33 et 37 selon l’hypothèse
+53,3 % pourraient partir d’ici 2030</title></use>
+<use href="#g-76" fill="#08306b" stroke="#5B6470" stroke-width="1"><title>Occitanie · 76
+PCS 6210 · Ouvriers
+20 salariés de 45 ans ou plus
+11 départs estimés d’ici 2030
+entre 10 et 11 selon l’hypothèse
+54,0 % pourraient partir d’ici 2030</title></use>
+<use href="#g-84" fill="#08306b" stroke="#5B6470" stroke-width="1"><title>Auvergne-Rhône-Alpes · 84
+PCS 6210 · Ouvriers
+57 salariés de 45 ans ou plus
+29 départs estimés d’ici 2030
+entre 27 et 30 selon l’hypothèse
+50,3 % pourraient partir d’ici 2030</title></use>
+<use href="#g-93" fill="#08306b" stroke="#5B6470" stroke-width="1"><title>Provence-Alpes-Côte d'Azur · 93
+PCS 6210 · Ouvriers
+15 salariés de 45 ans ou plus
+8 départs estimés d’ici 2030
+entre 8 et 8 selon l’hypothèse
+54,6 % pourraient partir d’ici 2030</title></use>
+<use href="#g-94" fill="#deebf7" stroke="#5B6470" stroke-width="1"><title>Corse · 94
+PCS 6210 · Ouvriers
+34 salariés de 45 ans ou plus
+14 départs estimés d’ici 2030
+entre 13 et 15 selon l’hypothèse
+41,5 % pourraient partir d’ici 2030</title></use>
+
+</svg>
+<p class="note">Part calculée parmi les salariés de 45 ans ou plus de la catégorie affichée. Même échelle pour tous les territoires ; elle est recalculée quand vous changez de PCS ou d’indicateur. Survolez un territoire pour lire ses chiffres.</p>
+</section>
+<section class="vue vue-2">
 <p class="vue-titre">PCS 6712 · Ouvriers</p><p class="vue-qui">Salariés de 45 ans ou plus · Part des salariés susceptibles de partir d’ici 2030</p>
-<div class="legend-title">Part des salariés susceptibles de partir d’ici 2030</div><ul class="map-legend"><li><span class="sw" style="background:#deebf7"></span><span>Moins de 40 %</span></li><li><span class="sw" style="background:#9ecae1"></span><span>40 % à 50 %</span></li><li><span class="sw" style="background:#4292c6"></span><span>50 % à 60 %</span></li><li><span class="sw" style="background:#2171b5"></span><span>60 % à 70 %</span></li><li><span class="sw" style="background:#08306b"></span><span>70 % et plus</span></li><li class="sep"><span class="sw" style="background:#b3b3b3"></span><span>Résultat non diffusé — secret statistique</span></li><li><span class="sw sans" style="background:#ffffff"></span><span>Aucun salarié observé</span></li></ul><p class="compte"><b>10</b> régions avec un résultat · <b>0</b> avec un résultat non diffusé (secret statistique) · <b>8</b> sans salarié observé</p>
+<div class="legend-title">Part des salariés susceptibles de partir d’ici 2030</div><ul class="map-legend"><li><span class="sw" style="background:#deebf7"></span><span>Moins de 40 %</span></li><li><span class="sw" style="background:#9ecae1"></span><span>40 % à 50 %</span></li><li><span class="sw" style="background:#4292c6"></span><span>50 % à 60 %</span></li><li><span class="sw" style="background:#2171b5"></span><span>60 % à 70 %</span></li><li><span class="sw" style="background:#08306b"></span><span>70 % et plus</span></li><li class="sep"><span class="sw" style="background:#b3b3b3"></span><span>Résultat non diffusé — secret statistique</span></li></ul><p class="compte"><b>9</b> régions avec un résultat · <b>9</b> avec un résultat non diffusé (secret statistique)</p>
 <svg viewBox="0 0 1000 1230" role="img" aria-label="Départs attendus d’ici 2030 — par région — PCS fine — PCS 6712 · Ouvriers">
 <rect fill="none" stroke="#c9ced6" x="1.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="10.0" y="1024.0">Guadeloupe</text>
 <rect fill="none" stroke="#c9ced6" x="201.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="210.0" y="1024.0">Martinique</text>
 <rect fill="none" stroke="#c9ced6" x="401.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="410.0" y="1024.0">Guyane</text>
 <rect fill="none" stroke="#c9ced6" x="601.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="610.0" y="1024.0">La Réunion</text>
 <rect fill="none" stroke="#c9ced6" x="801.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="810.0" y="1024.0">Mayotte</text>
-<use href="#g-01" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Guadeloupe · 01
+<use href="#g-01" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Guadeloupe · 01
 PCS 6712 · Ouvriers
-Aucun salarié observé</title></use>
-<use href="#g-02" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Martinique · 02
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-02" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Martinique · 02
 PCS 6712 · Ouvriers
-Aucun salarié observé</title></use>
-<use href="#g-03" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Guyane · 03
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-03" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Guyane · 03
 PCS 6712 · Ouvriers
-Aucun salarié observé</title></use>
-<use href="#g-04" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>La Réunion · 04
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-04" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>La Réunion · 04
 PCS 6712 · Ouvriers
-Aucun salarié observé</title></use>
-<use href="#g-06" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Mayotte · 06
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-06" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Mayotte · 06
 PCS 6712 · Ouvriers
-Aucun salarié observé</title></use>
+Résultat non diffusé — secret statistique</title></use>
 <use href="#g-11" fill="#deebf7" stroke="#5B6470" stroke-width="1"><title>Île-de-France · 11
 PCS 6712 · Ouvriers
 66 salariés de 45 ans ou plus
@@ -165,21 +259,21 @@ PCS 6712 · Ouvriers
 10 départs estimés d’ici 2030
 entre 10 et 11 selon l’hypothèse
 52,1 % pourraient partir d’ici 2030</title></use>
-<use href="#g-27" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Bourgogne-Franche-Comté · 27
+<use href="#g-27" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Bourgogne-Franche-Comté · 27
 PCS 6712 · Ouvriers
-Aucun salarié observé</title></use>
-<use href="#g-28" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Normandie · 28
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-28" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Normandie · 28
 PCS 6712 · Ouvriers
-Aucun salarié observé</title></use>
+Résultat non diffusé — secret statistique</title></use>
 <use href="#g-32" fill="#4292c6" stroke="#5B6470" stroke-width="1"><title>Hauts-de-France · 32
 PCS 6712 · Ouvriers
 26 salariés de 45 ans ou plus
 13 départs estimés d’ici 2030
 entre 13 et 13 selon l’hypothèse
 50,1 % pourraient partir d’ici 2030</title></use>
-<use href="#g-44" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Grand Est · 44
+<use href="#g-44" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Grand Est · 44
 PCS 6712 · Ouvriers
-Aucun salarié observé</title></use>
+Résultat non diffusé — secret statistique</title></use>
 <use href="#g-52" fill="#08306b" stroke="#5B6470" stroke-width="1"><title>Pays de la Loire · 52
 PCS 6712 · Ouvriers
 21 salariés de 45 ans ou plus
@@ -210,12 +304,9 @@ PCS 6712 · Ouvriers
 23 départs estimés d’ici 2030
 entre 22 et 24 selon l’hypothèse
 50,9 % pourraient partir d’ici 2030</title></use>
-<use href="#g-93" fill="#2171b5" stroke="#5B6470" stroke-width="1"><title>Provence-Alpes-Côte d'Azur · 93
+<use href="#g-93" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Provence-Alpes-Côte d'Azur · 93
 PCS 6712 · Ouvriers
-17 salariés de 45 ans ou plus
-10 départs estimés d’ici 2030
-entre 10 et 11 selon l’hypothèse
-61,4 % pourraient partir d’ici 2030</title></use>
+Résultat non diffusé — secret statistique</title></use>
 <use href="#g-94" fill="#deebf7" stroke="#5B6470" stroke-width="1"><title>Corse · 94
 PCS 6712 · Ouvriers
 33 salariés de 45 ans ou plus
@@ -226,57 +317,54 @@ entre 11 et 13 selon l’hypothèse
 </svg>
 <p class="note">Part calculée parmi les salariés de 45 ans ou plus de la catégorie affichée. Même échelle pour tous les territoires ; elle est recalculée quand vous changez de PCS ou d’indicateur. Survolez un territoire pour lire ses chiffres.</p>
 </section>
-<section class="vue vue-2">
+<section class="vue vue-3">
 <p class="vue-titre">PCS 6821 · Ouvriers</p><p class="vue-qui">Salariés de 45 ans ou plus · Part des salariés susceptibles de partir d’ici 2030</p>
-<div class="legend-title">Part des salariés susceptibles de partir d’ici 2030</div><ul class="map-legend"><li><span class="sw" style="background:#deebf7"></span><span>Moins de 45 %</span></li><li><span class="sw" style="background:#9ecae1"></span><span>45 % à 50 %</span></li><li><span class="sw" style="background:#2171b5"></span><span>50 % à 55 %</span></li><li><span class="sw" style="background:#08306b"></span><span>55 % et plus</span></li><li class="sep"><span class="sw" style="background:#b3b3b3"></span><span>Résultat non diffusé — secret statistique</span></li><li><span class="sw sans" style="background:#ffffff"></span><span>Aucun salarié observé</span></li></ul><p class="compte"><b>10</b> régions avec un résultat · <b>0</b> avec un résultat non diffusé (secret statistique) · <b>8</b> sans salarié observé</p>
+<div class="legend-title">Part des salariés susceptibles de partir d’ici 2030</div><ul class="map-legend"><li><span class="sw" style="background:#deebf7"></span><span>Moins de 45 %</span></li><li><span class="sw" style="background:#9ecae1"></span><span>45 % à 50 %</span></li><li><span class="sw" style="background:#2171b5"></span><span>50 % à 55 %</span></li><li><span class="sw" style="background:#08306b"></span><span>55 % et plus</span></li><li class="sep"><span class="sw" style="background:#b3b3b3"></span><span>Résultat non diffusé — secret statistique</span></li></ul><p class="compte"><b>9</b> régions avec un résultat · <b>9</b> avec un résultat non diffusé (secret statistique)</p>
 <svg viewBox="0 0 1000 1230" role="img" aria-label="Départs attendus d’ici 2030 — par région — PCS fine — PCS 6821 · Ouvriers">
 <rect fill="none" stroke="#c9ced6" x="1.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="10.0" y="1024.0">Guadeloupe</text>
 <rect fill="none" stroke="#c9ced6" x="201.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="210.0" y="1024.0">Martinique</text>
 <rect fill="none" stroke="#c9ced6" x="401.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="410.0" y="1024.0">Guyane</text>
 <rect fill="none" stroke="#c9ced6" x="601.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="610.0" y="1024.0">La Réunion</text>
 <rect fill="none" stroke="#c9ced6" x="801.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="810.0" y="1024.0">Mayotte</text>
-<use href="#g-01" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Guadeloupe · 01
+<use href="#g-01" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Guadeloupe · 01
 PCS 6821 · Ouvriers
-Aucun salarié observé</title></use>
-<use href="#g-02" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Martinique · 02
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-02" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Martinique · 02
 PCS 6821 · Ouvriers
-Aucun salarié observé</title></use>
-<use href="#g-03" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Guyane · 03
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-03" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Guyane · 03
 PCS 6821 · Ouvriers
-Aucun salarié observé</title></use>
-<use href="#g-04" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>La Réunion · 04
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-04" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>La Réunion · 04
 PCS 6821 · Ouvriers
-Aucun salarié observé</title></use>
-<use href="#g-06" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Mayotte · 06
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-06" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Mayotte · 06
 PCS 6821 · Ouvriers
-Aucun salarié observé</title></use>
+Résultat non diffusé — secret statistique</title></use>
 <use href="#g-11" fill="#deebf7" stroke="#5B6470" stroke-width="1"><title>Île-de-France · 11
 PCS 6821 · Ouvriers
 56 salariés de 45 ans ou plus
 24 départs estimés d’ici 2030
 entre 23 et 25 selon l’hypothèse
 42,9 % pourraient partir d’ici 2030</title></use>
-<use href="#g-24" fill="#2171b5" stroke="#5B6470" stroke-width="1"><title>Centre-Val de Loire · 24
+<use href="#g-24" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Centre-Val de Loire · 24
 PCS 6821 · Ouvriers
-14 salariés de 45 ans ou plus
-8 départs estimés d’ici 2030
-entre 7 et 8 selon l’hypothèse
-53,8 % pourraient partir d’ici 2030</title></use>
-<use href="#g-27" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Bourgogne-Franche-Comté · 27
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-27" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Bourgogne-Franche-Comté · 27
 PCS 6821 · Ouvriers
-Aucun salarié observé</title></use>
-<use href="#g-28" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Normandie · 28
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-28" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Normandie · 28
 PCS 6821 · Ouvriers
-Aucun salarié observé</title></use>
+Résultat non diffusé — secret statistique</title></use>
 <use href="#g-32" fill="#deebf7" stroke="#5B6470" stroke-width="1"><title>Hauts-de-France · 32
 PCS 6821 · Ouvriers
 28 salariés de 45 ans ou plus
 12 départs estimés d’ici 2030
 entre 11 et 13 selon l’hypothèse
 43,0 % pourraient partir d’ici 2030</title></use>
-<use href="#g-44" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Grand Est · 44
+<use href="#g-44" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Grand Est · 44
 PCS 6821 · Ouvriers
-Aucun salarié observé</title></use>
+Résultat non diffusé — secret statistique</title></use>
 <use href="#g-52" fill="#9ecae1" stroke="#5B6470" stroke-width="1"><title>Pays de la Loire · 52
 PCS 6821 · Ouvriers
 14 salariés de 45 ans ou plus
@@ -323,127 +411,30 @@ entre 11 et 13 selon l’hypothèse
 </svg>
 <p class="note">Part calculée parmi les salariés de 45 ans ou plus de la catégorie affichée. Même échelle pour tous les territoires ; elle est recalculée quand vous changez de PCS ou d’indicateur. Survolez un territoire pour lire ses chiffres.</p>
 </section>
-<section class="vue vue-3">
-<p class="vue-titre">PCS 6210 · Ouvriers</p><p class="vue-qui">Salariés de 45 ans ou plus · Part des salariés susceptibles de partir d’ici 2030</p>
-<div class="legend-title">Part des salariés susceptibles de partir d’ici 2030</div><ul class="map-legend"><li><span class="sw" style="background:#deebf7"></span><span>Moins de 45 %</span></li><li><span class="sw" style="background:#9ecae1"></span><span>45 % à 50 %</span></li><li><span class="sw" style="background:#2171b5"></span><span>50 % à 55 %</span></li><li><span class="sw" style="background:#08306b"></span><span>55 % et plus</span></li><li class="sep"><span class="sw" style="background:#b3b3b3"></span><span>Résultat non diffusé — secret statistique</span></li><li><span class="sw sans" style="background:#ffffff"></span><span>Aucun salarié observé</span></li></ul><p class="compte"><b>10</b> régions avec un résultat · <b>0</b> avec un résultat non diffusé (secret statistique) · <b>8</b> sans salarié observé</p>
-<svg viewBox="0 0 1000 1230" role="img" aria-label="Départs attendus d’ici 2030 — par région — PCS fine — PCS 6210 · Ouvriers">
-<rect fill="none" stroke="#c9ced6" x="1.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="10.0" y="1024.0">Guadeloupe</text>
-<rect fill="none" stroke="#c9ced6" x="201.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="210.0" y="1024.0">Martinique</text>
-<rect fill="none" stroke="#c9ced6" x="401.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="410.0" y="1024.0">Guyane</text>
-<rect fill="none" stroke="#c9ced6" x="601.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="610.0" y="1024.0">La Réunion</text>
-<rect fill="none" stroke="#c9ced6" x="801.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="810.0" y="1024.0">Mayotte</text>
-<use href="#g-01" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Guadeloupe · 01
-PCS 6210 · Ouvriers
-Aucun salarié observé</title></use>
-<use href="#g-02" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Martinique · 02
-PCS 6210 · Ouvriers
-Aucun salarié observé</title></use>
-<use href="#g-03" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Guyane · 03
-PCS 6210 · Ouvriers
-Aucun salarié observé</title></use>
-<use href="#g-04" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>La Réunion · 04
-PCS 6210 · Ouvriers
-Aucun salarié observé</title></use>
-<use href="#g-06" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Mayotte · 06
-PCS 6210 · Ouvriers
-Aucun salarié observé</title></use>
-<use href="#g-11" fill="#deebf7" stroke="#5B6470" stroke-width="1"><title>Île-de-France · 11
-PCS 6210 · Ouvriers
-58 salariés de 45 ans ou plus
-25 départs estimés d’ici 2030
-entre 24 et 27 selon l’hypothèse
-43,8 % pourraient partir d’ici 2030</title></use>
-<use href="#g-24" fill="#08306b" stroke="#5B6470" stroke-width="1"><title>Centre-Val de Loire · 24
-PCS 6210 · Ouvriers
-8 salariés de 45 ans ou plus
-5 départs estimés d’ici 2030
-entre 4 et 5 selon l’hypothèse
-58,2 % pourraient partir d’ici 2030</title></use>
-<use href="#g-27" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Bourgogne-Franche-Comté · 27
-PCS 6210 · Ouvriers
-Aucun salarié observé</title></use>
-<use href="#g-28" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Normandie · 28
-PCS 6210 · Ouvriers
-Aucun salarié observé</title></use>
-<use href="#g-32" fill="#9ecae1" stroke="#5B6470" stroke-width="1"><title>Hauts-de-France · 32
-PCS 6210 · Ouvriers
-22 salariés de 45 ans ou plus
-11 départs estimés d’ici 2030
-entre 10 et 11 selon l’hypothèse
-48,9 % pourraient partir d’ici 2030</title></use>
-<use href="#g-44" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Grand Est · 44
-PCS 6210 · Ouvriers
-Aucun salarié observé</title></use>
-<use href="#g-52" fill="#2171b5" stroke="#5B6470" stroke-width="1"><title>Pays de la Loire · 52
-PCS 6210 · Ouvriers
-12 salariés de 45 ans ou plus
-6 départs estimés d’ici 2030
-entre 6 et 6 selon l’hypothèse
-51,2 % pourraient partir d’ici 2030</title></use>
-<use href="#g-53" fill="#deebf7" stroke="#5B6470" stroke-width="1"><title>Bretagne · 53
-PCS 6210 · Ouvriers
-24 salariés de 45 ans ou plus
-10 départs estimés d’ici 2030
-entre 10 et 11 selon l’hypothèse
-43,5 % pourraient partir d’ici 2030</title></use>
-<use href="#g-75" fill="#2171b5" stroke="#5B6470" stroke-width="1"><title>Nouvelle-Aquitaine · 75
-PCS 6210 · Ouvriers
-66 salariés de 45 ans ou plus
-35 départs estimés d’ici 2030
-entre 33 et 37 selon l’hypothèse
-53,3 % pourraient partir d’ici 2030</title></use>
-<use href="#g-76" fill="#2171b5" stroke="#5B6470" stroke-width="1"><title>Occitanie · 76
-PCS 6210 · Ouvriers
-20 salariés de 45 ans ou plus
-11 départs estimés d’ici 2030
-entre 10 et 11 selon l’hypothèse
-54,0 % pourraient partir d’ici 2030</title></use>
-<use href="#g-84" fill="#2171b5" stroke="#5B6470" stroke-width="1"><title>Auvergne-Rhône-Alpes · 84
-PCS 6210 · Ouvriers
-57 salariés de 45 ans ou plus
-29 départs estimés d’ici 2030
-entre 27 et 30 selon l’hypothèse
-50,3 % pourraient partir d’ici 2030</title></use>
-<use href="#g-93" fill="#2171b5" stroke="#5B6470" stroke-width="1"><title>Provence-Alpes-Côte d'Azur · 93
-PCS 6210 · Ouvriers
-15 salariés de 45 ans ou plus
-8 départs estimés d’ici 2030
-entre 8 et 8 selon l’hypothèse
-54,6 % pourraient partir d’ici 2030</title></use>
-<use href="#g-94" fill="#deebf7" stroke="#5B6470" stroke-width="1"><title>Corse · 94
-PCS 6210 · Ouvriers
-34 salariés de 45 ans ou plus
-14 départs estimés d’ici 2030
-entre 13 et 15 selon l’hypothèse
-41,5 % pourraient partir d’ici 2030</title></use>
-
-</svg>
-<p class="note">Part calculée parmi les salariés de 45 ans ou plus de la catégorie affichée. Même échelle pour tous les territoires ; elle est recalculée quand vous changez de PCS ou d’indicateur. Survolez un territoire pour lire ses chiffres.</p>
-</section>
 <section class="vue vue-4">
 <p class="vue-titre">PCS 6234 · Ouvriers</p><p class="vue-qui">Salariés de 45 ans ou plus · Part des salariés susceptibles de partir d’ici 2030</p>
-<div class="legend-title">Part des salariés susceptibles de partir d’ici 2030</div><ul class="map-legend"><li><span class="sw" style="background:#deebf7"></span><span>Moins de 40 %</span></li><li><span class="sw" style="background:#9ecae1"></span><span>40 % à 45 %</span></li><li><span class="sw" style="background:#4292c6"></span><span>45 % à 50 %</span></li><li><span class="sw" style="background:#2171b5"></span><span>50 % à 55 %</span></li><li><span class="sw" style="background:#08306b"></span><span>55 % et plus</span></li><li class="sep"><span class="sw" style="background:#b3b3b3"></span><span>Résultat non diffusé — secret statistique</span></li><li><span class="sw sans" style="background:#ffffff"></span><span>Aucun salarié observé</span></li></ul><p class="compte"><b>10</b> régions avec un résultat · <b>0</b> avec un résultat non diffusé (secret statistique) · <b>8</b> sans salarié observé</p>
+<div class="legend-title">Part des salariés susceptibles de partir d’ici 2030</div><ul class="map-legend"><li><span class="sw" style="background:#deebf7"></span><span>Moins de 40 %</span></li><li><span class="sw" style="background:#9ecae1"></span><span>40 % à 45 %</span></li><li><span class="sw" style="background:#4292c6"></span><span>45 % à 50 %</span></li><li><span class="sw" style="background:#2171b5"></span><span>50 % à 55 %</span></li><li><span class="sw" style="background:#08306b"></span><span>55 % et plus</span></li><li class="sep"><span class="sw" style="background:#b3b3b3"></span><span>Résultat non diffusé — secret statistique</span></li></ul><p class="compte"><b>9</b> régions avec un résultat · <b>9</b> avec un résultat non diffusé (secret statistique)</p>
 <svg viewBox="0 0 1000 1230" role="img" aria-label="Départs attendus d’ici 2030 — par région — PCS fine — PCS 6234 · Ouvriers">
 <rect fill="none" stroke="#c9ced6" x="1.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="10.0" y="1024.0">Guadeloupe</text>
 <rect fill="none" stroke="#c9ced6" x="201.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="210.0" y="1024.0">Martinique</text>
 <rect fill="none" stroke="#c9ced6" x="401.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="410.0" y="1024.0">Guyane</text>
 <rect fill="none" stroke="#c9ced6" x="601.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="610.0" y="1024.0">La Réunion</text>
 <rect fill="none" stroke="#c9ced6" x="801.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="810.0" y="1024.0">Mayotte</text>
-<use href="#g-01" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Guadeloupe · 01
+<use href="#g-01" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Guadeloupe · 01
 PCS 6234 · Ouvriers
-Aucun salarié observé</title></use>
-<use href="#g-02" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Martinique · 02
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-02" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Martinique · 02
 PCS 6234 · Ouvriers
-Aucun salarié observé</title></use>
-<use href="#g-03" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Guyane · 03
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-03" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Guyane · 03
 PCS 6234 · Ouvriers
-Aucun salarié observé</title></use>
-<use href="#g-04" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>La Réunion · 04
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-04" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>La Réunion · 04
 PCS 6234 · Ouvriers
-Aucun salarié observé</title></use>
-<use href="#g-06" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Mayotte · 06
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-06" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Mayotte · 06
 PCS 6234 · Ouvriers
-Aucun salarié observé</title></use>
+Résultat non diffusé — secret statistique</title></use>
 <use href="#g-11" fill="#9ecae1" stroke="#5B6470" stroke-width="1"><title>Île-de-France · 11
 PCS 6234 · Ouvriers
 56 salariés de 45 ans ou plus
@@ -456,21 +447,21 @@ PCS 6234 · Ouvriers
 8 départs estimés d’ici 2030
 entre 7 et 8 selon l’hypothèse
 38,3 % pourraient partir d’ici 2030</title></use>
-<use href="#g-27" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Bourgogne-Franche-Comté · 27
+<use href="#g-27" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Bourgogne-Franche-Comté · 27
 PCS 6234 · Ouvriers
-Aucun salarié observé</title></use>
-<use href="#g-28" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Normandie · 28
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-28" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Normandie · 28
 PCS 6234 · Ouvriers
-Aucun salarié observé</title></use>
+Résultat non diffusé — secret statistique</title></use>
 <use href="#g-32" fill="#08306b" stroke="#5B6470" stroke-width="1"><title>Hauts-de-France · 32
 PCS 6234 · Ouvriers
 17 salariés de 45 ans ou plus
 10 départs estimés d’ici 2030
 entre 10 et 10 selon l’hypothèse
 59,7 % pourraient partir d’ici 2030</title></use>
-<use href="#g-44" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Grand Est · 44
+<use href="#g-44" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Grand Est · 44
 PCS 6234 · Ouvriers
-Aucun salarié observé</title></use>
+Résultat non diffusé — secret statistique</title></use>
 <use href="#g-52" fill="#4292c6" stroke="#5B6470" stroke-width="1"><title>Pays de la Loire · 52
 PCS 6234 · Ouvriers
 26 salariés de 45 ans ou plus
@@ -501,12 +492,9 @@ PCS 6234 · Ouvriers
 27 départs estimés d’ici 2030
 entre 26 et 29 selon l’hypothèse
 47,6 % pourraient partir d’ici 2030</title></use>
-<use href="#g-93" fill="#9ecae1" stroke="#5B6470" stroke-width="1"><title>Provence-Alpes-Côte d'Azur · 93
+<use href="#g-93" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Provence-Alpes-Côte d'Azur · 93
 PCS 6234 · Ouvriers
-14 salariés de 45 ans ou plus
-6 départs estimés d’ici 2030
-entre 5 et 6 selon l’hypothèse
-42,1 % pourraient partir d’ici 2030</title></use>
+Résultat non diffusé — secret statistique</title></use>
 <use href="#g-94" fill="#deebf7" stroke="#5B6470" stroke-width="1"><title>Corse · 94
 PCS 6234 · Ouvriers
 37 salariés de 45 ans ou plus
@@ -519,55 +507,52 @@ entre 13 et 14 selon l’hypothèse
 </section>
 <section class="vue vue-5">
 <p class="vue-titre">PCS 6543 · Ouvriers</p><p class="vue-qui">Salariés de 45 ans ou plus · Part des salariés susceptibles de partir d’ici 2030</p>
-<div class="legend-title">Part des salariés susceptibles de partir d’ici 2030</div><ul class="map-legend"><li><span class="sw" style="background:#deebf7"></span><span>Moins de 40 %</span></li><li><span class="sw" style="background:#9ecae1"></span><span>40 % à 50 %</span></li><li><span class="sw" style="background:#2171b5"></span><span>50 % à 60 %</span></li><li><span class="sw" style="background:#08306b"></span><span>60 % et plus</span></li><li class="sep"><span class="sw" style="background:#b3b3b3"></span><span>Résultat non diffusé — secret statistique</span></li><li><span class="sw sans" style="background:#ffffff"></span><span>Aucun salarié observé</span></li></ul><p class="compte"><b>10</b> régions avec un résultat · <b>0</b> avec un résultat non diffusé (secret statistique) · <b>8</b> sans salarié observé</p>
+<div class="legend-title">Part des salariés susceptibles de partir d’ici 2030</div><ul class="map-legend"><li><span class="sw" style="background:#deebf7"></span><span>Moins de 40 %</span></li><li><span class="sw" style="background:#9ecae1"></span><span>40 % à 50 %</span></li><li><span class="sw" style="background:#2171b5"></span><span>50 % à 60 %</span></li><li><span class="sw" style="background:#08306b"></span><span>60 % et plus</span></li><li class="sep"><span class="sw" style="background:#b3b3b3"></span><span>Résultat non diffusé — secret statistique</span></li></ul><p class="compte"><b>9</b> régions avec un résultat · <b>9</b> avec un résultat non diffusé (secret statistique)</p>
 <svg viewBox="0 0 1000 1230" role="img" aria-label="Départs attendus d’ici 2030 — par région — PCS fine — PCS 6543 · Ouvriers">
 <rect fill="none" stroke="#c9ced6" x="1.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="10.0" y="1024.0">Guadeloupe</text>
 <rect fill="none" stroke="#c9ced6" x="201.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="210.0" y="1024.0">Martinique</text>
 <rect fill="none" stroke="#c9ced6" x="401.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="410.0" y="1024.0">Guyane</text>
 <rect fill="none" stroke="#c9ced6" x="601.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="610.0" y="1024.0">La Réunion</text>
 <rect fill="none" stroke="#c9ced6" x="801.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="810.0" y="1024.0">Mayotte</text>
-<use href="#g-01" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Guadeloupe · 01
+<use href="#g-01" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Guadeloupe · 01
 PCS 6543 · Ouvriers
-Aucun salarié observé</title></use>
-<use href="#g-02" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Martinique · 02
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-02" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Martinique · 02
 PCS 6543 · Ouvriers
-Aucun salarié observé</title></use>
-<use href="#g-03" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Guyane · 03
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-03" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Guyane · 03
 PCS 6543 · Ouvriers
-Aucun salarié observé</title></use>
-<use href="#g-04" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>La Réunion · 04
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-04" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>La Réunion · 04
 PCS 6543 · Ouvriers
-Aucun salarié observé</title></use>
-<use href="#g-06" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Mayotte · 06
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-06" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Mayotte · 06
 PCS 6543 · Ouvriers
-Aucun salarié observé</title></use>
+Résultat non diffusé — secret statistique</title></use>
 <use href="#g-11" fill="#deebf7" stroke="#5B6470" stroke-width="1"><title>Île-de-France · 11
 PCS 6543 · Ouvriers
 63 salariés de 45 ans ou plus
 24 départs estimés d’ici 2030
 entre 23 et 25 selon l’hypothèse
 37,9 % pourraient partir d’ici 2030</title></use>
-<use href="#g-24" fill="#08306b" stroke="#5B6470" stroke-width="1"><title>Centre-Val de Loire · 24
+<use href="#g-24" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Centre-Val de Loire · 24
 PCS 6543 · Ouvriers
-15 salariés de 45 ans ou plus
-10 départs estimés d’ici 2030
-entre 10 et 10 selon l’hypothèse
-64,8 % pourraient partir d’ici 2030</title></use>
-<use href="#g-27" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Bourgogne-Franche-Comté · 27
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-27" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Bourgogne-Franche-Comté · 27
 PCS 6543 · Ouvriers
-Aucun salarié observé</title></use>
-<use href="#g-28" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Normandie · 28
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-28" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Normandie · 28
 PCS 6543 · Ouvriers
-Aucun salarié observé</title></use>
+Résultat non diffusé — secret statistique</title></use>
 <use href="#g-32" fill="#9ecae1" stroke="#5B6470" stroke-width="1"><title>Hauts-de-France · 32
 PCS 6543 · Ouvriers
 18 salariés de 45 ans ou plus
 9 départs estimés d’ici 2030
 entre 8 et 9 selon l’hypothèse
 47,3 % pourraient partir d’ici 2030</title></use>
-<use href="#g-44" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Grand Est · 44
+<use href="#g-44" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Grand Est · 44
 PCS 6543 · Ouvriers
-Aucun salarié observé</title></use>
+Résultat non diffusé — secret statistique</title></use>
 <use href="#g-52" fill="#08306b" stroke="#5B6470" stroke-width="1"><title>Pays de la Loire · 52
 PCS 6543 · Ouvriers
 15 salariés de 45 ans ou plus
@@ -616,28 +601,28 @@ entre 14 et 15 selon l’hypothèse
 </section>
 <section class="vue vue-6">
 <p class="vue-titre">PCS 4652 · Professions intermédiaires</p><p class="vue-qui">Salariés de 45 ans ou plus · Part des salariés susceptibles de partir d’ici 2030</p>
-<div class="legend-title">Part des salariés susceptibles de partir d’ici 2030</div><ul class="map-legend"><li><span class="sw" style="background:#deebf7"></span><span>Moins de 30 %</span></li><li><span class="sw" style="background:#4292c6"></span><span>30 % à 40 %</span></li><li><span class="sw" style="background:#08306b"></span><span>40 % et plus</span></li><li class="sep"><span class="sw" style="background:#b3b3b3"></span><span>Résultat non diffusé — secret statistique</span></li><li><span class="sw sans" style="background:#ffffff"></span><span>Aucun salarié observé</span></li></ul><p class="compte"><b>10</b> régions avec un résultat · <b>0</b> avec un résultat non diffusé (secret statistique) · <b>8</b> sans salarié observé</p>
+<div class="legend-title">Part des salariés susceptibles de partir d’ici 2030</div><ul class="map-legend"><li><span class="sw" style="background:#deebf7"></span><span>Moins de 30 %</span></li><li><span class="sw" style="background:#9ecae1"></span><span>30 % à 35 %</span></li><li><span class="sw" style="background:#4292c6"></span><span>35 % à 40 %</span></li><li><span class="sw" style="background:#2171b5"></span><span>40 % à 45 %</span></li><li><span class="sw" style="background:#08306b"></span><span>45 % et plus</span></li><li class="sep"><span class="sw" style="background:#b3b3b3"></span><span>Résultat non diffusé — secret statistique</span></li></ul><p class="compte"><b>9</b> régions avec un résultat · <b>9</b> avec un résultat non diffusé (secret statistique)</p>
 <svg viewBox="0 0 1000 1230" role="img" aria-label="Départs attendus d’ici 2030 — par région — PCS fine — PCS 4652 · Professions intermédiaires">
 <rect fill="none" stroke="#c9ced6" x="1.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="10.0" y="1024.0">Guadeloupe</text>
 <rect fill="none" stroke="#c9ced6" x="201.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="210.0" y="1024.0">Martinique</text>
 <rect fill="none" stroke="#c9ced6" x="401.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="410.0" y="1024.0">Guyane</text>
 <rect fill="none" stroke="#c9ced6" x="601.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="610.0" y="1024.0">La Réunion</text>
 <rect fill="none" stroke="#c9ced6" x="801.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="810.0" y="1024.0">Mayotte</text>
-<use href="#g-01" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Guadeloupe · 01
+<use href="#g-01" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Guadeloupe · 01
 PCS 4652 · Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-02" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Martinique · 02
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-02" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Martinique · 02
 PCS 4652 · Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-03" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Guyane · 03
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-03" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Guyane · 03
 PCS 4652 · Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-04" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>La Réunion · 04
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-04" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>La Réunion · 04
 PCS 4652 · Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-06" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Mayotte · 06
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-06" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Mayotte · 06
 PCS 4652 · Professions intermédiaires
-Aucun salarié observé</title></use>
+Résultat non diffusé — secret statistique</title></use>
 <use href="#g-11" fill="#deebf7" stroke="#5B6470" stroke-width="1"><title>Île-de-France · 11
 PCS 4652 · Professions intermédiaires
 56 salariés de 45 ans ou plus
@@ -650,21 +635,21 @@ PCS 4652 · Professions intermédiaires
 10 départs estimés d’ici 2030
 entre 9 et 10 selon l’hypothèse
 45,9 % pourraient partir d’ici 2030</title></use>
-<use href="#g-27" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Bourgogne-Franche-Comté · 27
+<use href="#g-27" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Bourgogne-Franche-Comté · 27
 PCS 4652 · Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-28" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Normandie · 28
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-28" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Normandie · 28
 PCS 4652 · Professions intermédiaires
-Aucun salarié observé</title></use>
+Résultat non diffusé — secret statistique</title></use>
 <use href="#g-32" fill="#deebf7" stroke="#5B6470" stroke-width="1"><title>Hauts-de-France · 32
 PCS 4652 · Professions intermédiaires
 18 salariés de 45 ans ou plus
 5 départs estimés d’ici 2030
 entre 5 et 5 selon l’hypothèse
 28,8 % pourraient partir d’ici 2030</title></use>
-<use href="#g-44" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Grand Est · 44
+<use href="#g-44" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Grand Est · 44
 PCS 4652 · Professions intermédiaires
-Aucun salarié observé</title></use>
+Résultat non diffusé — secret statistique</title></use>
 <use href="#g-52" fill="#08306b" stroke="#5B6470" stroke-width="1"><title>Pays de la Loire · 52
 PCS 4652 · Professions intermédiaires
 20 salariés de 45 ans ou plus
@@ -683,25 +668,22 @@ PCS 4652 · Professions intermédiaires
 23 départs estimés d’ici 2030
 entre 21 et 24 selon l’hypothèse
 35,0 % pourraient partir d’ici 2030</title></use>
-<use href="#g-76" fill="#deebf7" stroke="#5B6470" stroke-width="1"><title>Occitanie · 76
+<use href="#g-76" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Occitanie · 76
 PCS 4652 · Professions intermédiaires
-11 salariés de 45 ans ou plus
-2 départs estimés d’ici 2030
-entre 2 et 3 selon l’hypothèse
-21,2 % pourraient partir d’ici 2030</title></use>
-<use href="#g-84" fill="#08306b" stroke="#5B6470" stroke-width="1"><title>Auvergne-Rhône-Alpes · 84
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-84" fill="#2171b5" stroke="#5B6470" stroke-width="1"><title>Auvergne-Rhône-Alpes · 84
 PCS 4652 · Professions intermédiaires
 47 salariés de 45 ans ou plus
 20 départs estimés d’ici 2030
 entre 19 et 21 selon l’hypothèse
 43,2 % pourraient partir d’ici 2030</title></use>
-<use href="#g-93" fill="#4292c6" stroke="#5B6470" stroke-width="1"><title>Provence-Alpes-Côte d'Azur · 93
+<use href="#g-93" fill="#9ecae1" stroke="#5B6470" stroke-width="1"><title>Provence-Alpes-Côte d'Azur · 93
 PCS 4652 · Professions intermédiaires
 18 salariés de 45 ans ou plus
 6 départs estimés d’ici 2030
 entre 6 et 6 selon l’hypothèse
 34,2 % pourraient partir d’ici 2030</title></use>
-<use href="#g-94" fill="#4292c6" stroke="#5B6470" stroke-width="1"><title>Corse · 94
+<use href="#g-94" fill="#9ecae1" stroke="#5B6470" stroke-width="1"><title>Corse · 94
 PCS 4652 · Professions intermédiaires
 28 salariés de 45 ans ou plus
 9 départs estimés d’ici 2030
@@ -713,28 +695,28 @@ entre 9 et 10 selon l’hypothèse
 </section>
 <section class="vue vue-7">
 <p class="vue-titre">PCS 4611 · Professions intermédiaires</p><p class="vue-qui">Salariés de 45 ans ou plus · Part des salariés susceptibles de partir d’ici 2030</p>
-<div class="legend-title">Part des salariés susceptibles de partir d’ici 2030</div><ul class="map-legend"><li><span class="sw" style="background:#deebf7"></span><span>Moins de 35 %</span></li><li><span class="sw" style="background:#9ecae1"></span><span>35 % à 40 %</span></li><li><span class="sw" style="background:#2171b5"></span><span>40 % à 45 %</span></li><li><span class="sw" style="background:#08306b"></span><span>45 % et plus</span></li><li class="sep"><span class="sw" style="background:#b3b3b3"></span><span>Résultat non diffusé — secret statistique</span></li><li><span class="sw sans" style="background:#ffffff"></span><span>Aucun salarié observé</span></li></ul><p class="compte"><b>10</b> régions avec un résultat · <b>0</b> avec un résultat non diffusé (secret statistique) · <b>8</b> sans salarié observé</p>
+<div class="legend-title">Part des salariés susceptibles de partir d’ici 2030</div><ul class="map-legend"><li><span class="sw" style="background:#deebf7"></span><span>Moins de 35 %</span></li><li><span class="sw" style="background:#9ecae1"></span><span>35 % à 40 %</span></li><li><span class="sw" style="background:#2171b5"></span><span>40 % à 45 %</span></li><li><span class="sw" style="background:#08306b"></span><span>45 % et plus</span></li><li class="sep"><span class="sw" style="background:#b3b3b3"></span><span>Résultat non diffusé — secret statistique</span></li></ul><p class="compte"><b>9</b> régions avec un résultat · <b>9</b> avec un résultat non diffusé (secret statistique)</p>
 <svg viewBox="0 0 1000 1230" role="img" aria-label="Départs attendus d’ici 2030 — par région — PCS fine — PCS 4611 · Professions intermédiaires">
 <rect fill="none" stroke="#c9ced6" x="1.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="10.0" y="1024.0">Guadeloupe</text>
 <rect fill="none" stroke="#c9ced6" x="201.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="210.0" y="1024.0">Martinique</text>
 <rect fill="none" stroke="#c9ced6" x="401.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="410.0" y="1024.0">Guyane</text>
 <rect fill="none" stroke="#c9ced6" x="601.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="610.0" y="1024.0">La Réunion</text>
 <rect fill="none" stroke="#c9ced6" x="801.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="810.0" y="1024.0">Mayotte</text>
-<use href="#g-01" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Guadeloupe · 01
+<use href="#g-01" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Guadeloupe · 01
 PCS 4611 · Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-02" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Martinique · 02
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-02" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Martinique · 02
 PCS 4611 · Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-03" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Guyane · 03
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-03" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Guyane · 03
 PCS 4611 · Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-04" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>La Réunion · 04
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-04" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>La Réunion · 04
 PCS 4611 · Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-06" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Mayotte · 06
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-06" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Mayotte · 06
 PCS 4611 · Professions intermédiaires
-Aucun salarié observé</title></use>
+Résultat non diffusé — secret statistique</title></use>
 <use href="#g-11" fill="#deebf7" stroke="#5B6470" stroke-width="1"><title>Île-de-France · 11
 PCS 4611 · Professions intermédiaires
 56 salariés de 45 ans ou plus
@@ -747,27 +729,24 @@ PCS 4611 · Professions intermédiaires
 7 départs estimés d’ici 2030
 entre 6 et 7 selon l’hypothèse
 34,5 % pourraient partir d’ici 2030</title></use>
-<use href="#g-27" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Bourgogne-Franche-Comté · 27
+<use href="#g-27" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Bourgogne-Franche-Comté · 27
 PCS 4611 · Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-28" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Normandie · 28
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-28" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Normandie · 28
 PCS 4611 · Professions intermédiaires
-Aucun salarié observé</title></use>
+Résultat non diffusé — secret statistique</title></use>
 <use href="#g-32" fill="#08306b" stroke="#5B6470" stroke-width="1"><title>Hauts-de-France · 32
 PCS 4611 · Professions intermédiaires
 19 salariés de 45 ans ou plus
 9 départs estimés d’ici 2030
 entre 8 et 9 selon l’hypothèse
 45,7 % pourraient partir d’ici 2030</title></use>
-<use href="#g-44" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Grand Est · 44
+<use href="#g-44" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Grand Est · 44
 PCS 4611 · Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-52" fill="#9ecae1" stroke="#5B6470" stroke-width="1"><title>Pays de la Loire · 52
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-52" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Pays de la Loire · 52
 PCS 4611 · Professions intermédiaires
-14 salariés de 45 ans ou plus
-5 départs estimés d’ici 2030
-entre 5 et 6 selon l’hypothèse
-38,8 % pourraient partir d’ici 2030</title></use>
+Résultat non diffusé — secret statistique</title></use>
 <use href="#g-53" fill="#deebf7" stroke="#5B6470" stroke-width="1"><title>Bretagne · 53
 PCS 4611 · Professions intermédiaires
 22 salariés de 45 ans ou plus
@@ -809,320 +788,29 @@ entre 13 et 15 selon l’hypothèse
 <p class="note">Part calculée parmi les salariés de 45 ans ou plus de la catégorie affichée. Même échelle pour tous les territoires ; elle est recalculée quand vous changez de PCS ou d’indicateur. Survolez un territoire pour lire ses chiffres.</p>
 </section>
 <section class="vue vue-8">
-<p class="vue-titre">PCS 4631 · Professions intermédiaires</p><p class="vue-qui">Salariés de 45 ans ou plus · Part des salariés susceptibles de partir d’ici 2030</p>
-<div class="legend-title">Part des salariés susceptibles de partir d’ici 2030</div><ul class="map-legend"><li><span class="sw" style="background:#deebf7"></span><span>Moins de 30 %</span></li><li><span class="sw" style="background:#9ecae1"></span><span>30 % à 40 %</span></li><li><span class="sw" style="background:#2171b5"></span><span>40 % à 50 %</span></li><li><span class="sw" style="background:#08306b"></span><span>50 % et plus</span></li><li class="sep"><span class="sw" style="background:#b3b3b3"></span><span>Résultat non diffusé — secret statistique</span></li><li><span class="sw sans" style="background:#ffffff"></span><span>Aucun salarié observé</span></li></ul><p class="compte"><b>10</b> régions avec un résultat · <b>0</b> avec un résultat non diffusé (secret statistique) · <b>8</b> sans salarié observé</p>
-<svg viewBox="0 0 1000 1230" role="img" aria-label="Départs attendus d’ici 2030 — par région — PCS fine — PCS 4631 · Professions intermédiaires">
-<rect fill="none" stroke="#c9ced6" x="1.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="10.0" y="1024.0">Guadeloupe</text>
-<rect fill="none" stroke="#c9ced6" x="201.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="210.0" y="1024.0">Martinique</text>
-<rect fill="none" stroke="#c9ced6" x="401.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="410.0" y="1024.0">Guyane</text>
-<rect fill="none" stroke="#c9ced6" x="601.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="610.0" y="1024.0">La Réunion</text>
-<rect fill="none" stroke="#c9ced6" x="801.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="810.0" y="1024.0">Mayotte</text>
-<use href="#g-01" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Guadeloupe · 01
-PCS 4631 · Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-02" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Martinique · 02
-PCS 4631 · Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-03" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Guyane · 03
-PCS 4631 · Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-04" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>La Réunion · 04
-PCS 4631 · Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-06" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Mayotte · 06
-PCS 4631 · Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-11" fill="#9ecae1" stroke="#5B6470" stroke-width="1"><title>Île-de-France · 11
-PCS 4631 · Professions intermédiaires
-39 salariés de 45 ans ou plus
-13 départs estimés d’ici 2030
-entre 13 et 14 selon l’hypothèse
-34,0 % pourraient partir d’ici 2030</title></use>
-<use href="#g-24" fill="#08306b" stroke="#5B6470" stroke-width="1"><title>Centre-Val de Loire · 24
-PCS 4631 · Professions intermédiaires
-12 salariés de 45 ans ou plus
-7 départs estimés d’ici 2030
-entre 6 et 7 selon l’hypothèse
-54,6 % pourraient partir d’ici 2030</title></use>
-<use href="#g-27" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Bourgogne-Franche-Comté · 27
-PCS 4631 · Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-28" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Normandie · 28
-PCS 4631 · Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-32" fill="#deebf7" stroke="#5B6470" stroke-width="1"><title>Hauts-de-France · 32
-PCS 4631 · Professions intermédiaires
-11 salariés de 45 ans ou plus
-3 départs estimés d’ici 2030
-entre 3 et 3 selon l’hypothèse
-27,7 % pourraient partir d’ici 2030</title></use>
-<use href="#g-44" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Grand Est · 44
-PCS 4631 · Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-52" fill="#2171b5" stroke="#5B6470" stroke-width="1"><title>Pays de la Loire · 52
-PCS 4631 · Professions intermédiaires
-12 salariés de 45 ans ou plus
-6 départs estimés d’ici 2030
-entre 6 et 6 selon l’hypothèse
-49,8 % pourraient partir d’ici 2030</title></use>
-<use href="#g-53" fill="#deebf7" stroke="#5B6470" stroke-width="1"><title>Bretagne · 53
-PCS 4631 · Professions intermédiaires
-24 salariés de 45 ans ou plus
-7 départs estimés d’ici 2030
-entre 6 et 7 selon l’hypothèse
-28,3 % pourraient partir d’ici 2030</title></use>
-<use href="#g-75" fill="#2171b5" stroke="#5B6470" stroke-width="1"><title>Nouvelle-Aquitaine · 75
-PCS 4631 · Professions intermédiaires
-54 salariés de 45 ans ou plus
-22 départs estimés d’ici 2030
-entre 21 et 23 selon l’hypothèse
-40,5 % pourraient partir d’ici 2030</title></use>
-<use href="#g-76" fill="#08306b" stroke="#5B6470" stroke-width="1"><title>Occitanie · 76
-PCS 4631 · Professions intermédiaires
-13 salariés de 45 ans ou plus
-7 départs estimés d’ici 2030
-entre 7 et 7 selon l’hypothèse
-52,7 % pourraient partir d’ici 2030</title></use>
-<use href="#g-84" fill="#9ecae1" stroke="#5B6470" stroke-width="1"><title>Auvergne-Rhône-Alpes · 84
-PCS 4631 · Professions intermédiaires
-55 salariés de 45 ans ou plus
-19 départs estimés d’ici 2030
-entre 18 et 20 selon l’hypothèse
-34,9 % pourraient partir d’ici 2030</title></use>
-<use href="#g-93" fill="#2171b5" stroke="#5B6470" stroke-width="1"><title>Provence-Alpes-Côte d'Azur · 93
-PCS 4631 · Professions intermédiaires
-12 salariés de 45 ans ou plus
-5 départs estimés d’ici 2030
-entre 5 et 6 selon l’hypothèse
-43,6 % pourraient partir d’ici 2030</title></use>
-<use href="#g-94" fill="#9ecae1" stroke="#5B6470" stroke-width="1"><title>Corse · 94
-PCS 4631 · Professions intermédiaires
-39 salariés de 45 ans ou plus
-14 départs estimés d’ici 2030
-entre 13 et 15 selon l’hypothèse
-36,0 % pourraient partir d’ici 2030</title></use>
-
-</svg>
-<p class="note">Part calculée parmi les salariés de 45 ans ou plus de la catégorie affichée. Même échelle pour tous les territoires ; elle est recalculée quand vous changez de PCS ou d’indicateur. Survolez un territoire pour lire ses chiffres.</p>
-</section>
-<section class="vue vue-9">
-<p class="vue-titre">PCS 4620 · Professions intermédiaires</p><p class="vue-qui">Salariés de 45 ans ou plus · Part des salariés susceptibles de partir d’ici 2030</p>
-<div class="legend-title">Part des salariés susceptibles de partir d’ici 2030</div><ul class="map-legend"><li><span class="sw" style="background:#deebf7"></span><span>Moins de 25 %</span></li><li><span class="sw" style="background:#9ecae1"></span><span>25 % à 30 %</span></li><li><span class="sw" style="background:#4292c6"></span><span>30 % à 35 %</span></li><li><span class="sw" style="background:#2171b5"></span><span>35 % à 40 %</span></li><li><span class="sw" style="background:#08306b"></span><span>40 % et plus</span></li><li class="sep"><span class="sw" style="background:#b3b3b3"></span><span>Résultat non diffusé — secret statistique</span></li><li><span class="sw sans" style="background:#ffffff"></span><span>Aucun salarié observé</span></li></ul><p class="compte"><b>10</b> régions avec un résultat · <b>0</b> avec un résultat non diffusé (secret statistique) · <b>8</b> sans salarié observé</p>
-<svg viewBox="0 0 1000 1230" role="img" aria-label="Départs attendus d’ici 2030 — par région — PCS fine — PCS 4620 · Professions intermédiaires">
-<rect fill="none" stroke="#c9ced6" x="1.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="10.0" y="1024.0">Guadeloupe</text>
-<rect fill="none" stroke="#c9ced6" x="201.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="210.0" y="1024.0">Martinique</text>
-<rect fill="none" stroke="#c9ced6" x="401.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="410.0" y="1024.0">Guyane</text>
-<rect fill="none" stroke="#c9ced6" x="601.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="610.0" y="1024.0">La Réunion</text>
-<rect fill="none" stroke="#c9ced6" x="801.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="810.0" y="1024.0">Mayotte</text>
-<use href="#g-01" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Guadeloupe · 01
-PCS 4620 · Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-02" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Martinique · 02
-PCS 4620 · Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-03" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Guyane · 03
-PCS 4620 · Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-04" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>La Réunion · 04
-PCS 4620 · Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-06" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Mayotte · 06
-PCS 4620 · Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-11" fill="#9ecae1" stroke="#5B6470" stroke-width="1"><title>Île-de-France · 11
-PCS 4620 · Professions intermédiaires
-60 salariés de 45 ans ou plus
-18 départs estimés d’ici 2030
-entre 17 et 19 selon l’hypothèse
-29,6 % pourraient partir d’ici 2030</title></use>
-<use href="#g-24" fill="#08306b" stroke="#5B6470" stroke-width="1"><title>Centre-Val de Loire · 24
-PCS 4620 · Professions intermédiaires
-18 salariés de 45 ans ou plus
-7 départs estimés d’ici 2030
-entre 7 et 8 selon l’hypothèse
-40,2 % pourraient partir d’ici 2030</title></use>
-<use href="#g-27" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Bourgogne-Franche-Comté · 27
-PCS 4620 · Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-28" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Normandie · 28
-PCS 4620 · Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-32" fill="#08306b" stroke="#5B6470" stroke-width="1"><title>Hauts-de-France · 32
-PCS 4620 · Professions intermédiaires
-17 salariés de 45 ans ou plus
-7 départs estimés d’ici 2030
-entre 7 et 8 selon l’hypothèse
-43,5 % pourraient partir d’ici 2030</title></use>
-<use href="#g-44" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Grand Est · 44
-PCS 4620 · Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-52" fill="#deebf7" stroke="#5B6470" stroke-width="1"><title>Pays de la Loire · 52
-PCS 4620 · Professions intermédiaires
-16 salariés de 45 ans ou plus
-3 départs estimés d’ici 2030
-entre 3 et 4 selon l’hypothèse
-21,7 % pourraient partir d’ici 2030</title></use>
-<use href="#g-53" fill="#4292c6" stroke="#5B6470" stroke-width="1"><title>Bretagne · 53
-PCS 4620 · Professions intermédiaires
-27 salariés de 45 ans ou plus
-9 départs estimés d’ici 2030
-entre 9 et 10 selon l’hypothèse
-33,5 % pourraient partir d’ici 2030</title></use>
-<use href="#g-75" fill="#2171b5" stroke="#5B6470" stroke-width="1"><title>Nouvelle-Aquitaine · 75
-PCS 4620 · Professions intermédiaires
-56 salariés de 45 ans ou plus
-20 départs estimés d’ici 2030
-entre 19 et 21 selon l’hypothèse
-35,2 % pourraient partir d’ici 2030</title></use>
-<use href="#g-76" fill="#08306b" stroke="#5B6470" stroke-width="1"><title>Occitanie · 76
-PCS 4620 · Professions intermédiaires
-19 salariés de 45 ans ou plus
-8 départs estimés d’ici 2030
-entre 7 et 8 selon l’hypothèse
-40,0 % pourraient partir d’ici 2030</title></use>
-<use href="#g-84" fill="#2171b5" stroke="#5B6470" stroke-width="1"><title>Auvergne-Rhône-Alpes · 84
-PCS 4620 · Professions intermédiaires
-40 salariés de 45 ans ou plus
-14 départs estimés d’ici 2030
-entre 13 et 15 selon l’hypothèse
-35,4 % pourraient partir d’ici 2030</title></use>
-<use href="#g-93" fill="#08306b" stroke="#5B6470" stroke-width="1"><title>Provence-Alpes-Côte d'Azur · 93
-PCS 4620 · Professions intermédiaires
-19 salariés de 45 ans ou plus
-8 départs estimés d’ici 2030
-entre 7 et 8 selon l’hypothèse
-40,9 % pourraient partir d’ici 2030</title></use>
-<use href="#g-94" fill="#9ecae1" stroke="#5B6470" stroke-width="1"><title>Corse · 94
-PCS 4620 · Professions intermédiaires
-24 salariés de 45 ans ou plus
-7 départs estimés d’ici 2030
-entre 7 et 8 selon l’hypothèse
-29,9 % pourraient partir d’ici 2030</title></use>
-
-</svg>
-<p class="note">Part calculée parmi les salariés de 45 ans ou plus de la catégorie affichée. Même échelle pour tous les territoires ; elle est recalculée quand vous changez de PCS ou d’indicateur. Survolez un territoire pour lire ses chiffres.</p>
-</section>
-<section class="vue vue-10">
-<p class="vue-titre">PCS 5422 · Employés</p><p class="vue-qui">Salariés de 45 ans ou plus · Part des salariés susceptibles de partir d’ici 2030</p>
-<div class="legend-title">Part des salariés susceptibles de partir d’ici 2030</div><ul class="map-legend"><li><span class="sw" style="background:#deebf7"></span><span>Moins de 30 %</span></li><li><span class="sw" style="background:#9ecae1"></span><span>30 % à 40 %</span></li><li><span class="sw" style="background:#4292c6"></span><span>40 % à 50 %</span></li><li><span class="sw" style="background:#2171b5"></span><span>50 % à 60 %</span></li><li><span class="sw" style="background:#08306b"></span><span>60 % et plus</span></li><li class="sep"><span class="sw" style="background:#b3b3b3"></span><span>Résultat non diffusé — secret statistique</span></li><li><span class="sw sans" style="background:#ffffff"></span><span>Aucun salarié observé</span></li></ul><p class="compte"><b>10</b> régions avec un résultat · <b>0</b> avec un résultat non diffusé (secret statistique) · <b>8</b> sans salarié observé</p>
-<svg viewBox="0 0 1000 1230" role="img" aria-label="Départs attendus d’ici 2030 — par région — PCS fine — PCS 5422 · Employés">
-<rect fill="none" stroke="#c9ced6" x="1.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="10.0" y="1024.0">Guadeloupe</text>
-<rect fill="none" stroke="#c9ced6" x="201.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="210.0" y="1024.0">Martinique</text>
-<rect fill="none" stroke="#c9ced6" x="401.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="410.0" y="1024.0">Guyane</text>
-<rect fill="none" stroke="#c9ced6" x="601.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="610.0" y="1024.0">La Réunion</text>
-<rect fill="none" stroke="#c9ced6" x="801.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="810.0" y="1024.0">Mayotte</text>
-<use href="#g-01" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Guadeloupe · 01
-PCS 5422 · Employés
-Aucun salarié observé</title></use>
-<use href="#g-02" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Martinique · 02
-PCS 5422 · Employés
-Aucun salarié observé</title></use>
-<use href="#g-03" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Guyane · 03
-PCS 5422 · Employés
-Aucun salarié observé</title></use>
-<use href="#g-04" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>La Réunion · 04
-PCS 5422 · Employés
-Aucun salarié observé</title></use>
-<use href="#g-06" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Mayotte · 06
-PCS 5422 · Employés
-Aucun salarié observé</title></use>
-<use href="#g-11" fill="#4292c6" stroke="#5B6470" stroke-width="1"><title>Île-de-France · 11
-PCS 5422 · Employés
-42 salariés de 45 ans ou plus
-18 départs estimés d’ici 2030
-entre 17 et 19 selon l’hypothèse
-43,1 % pourraient partir d’ici 2030</title></use>
-<use href="#g-24" fill="#4292c6" stroke="#5B6470" stroke-width="1"><title>Centre-Val de Loire · 24
-PCS 5422 · Employés
-12 salariés de 45 ans ou plus
-5 départs estimés d’ici 2030
-entre 5 et 6 selon l’hypothèse
-44,4 % pourraient partir d’ici 2030</title></use>
-<use href="#g-27" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Bourgogne-Franche-Comté · 27
-PCS 5422 · Employés
-Aucun salarié observé</title></use>
-<use href="#g-28" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Normandie · 28
-PCS 5422 · Employés
-Aucun salarié observé</title></use>
-<use href="#g-32" fill="#08306b" stroke="#5B6470" stroke-width="1"><title>Hauts-de-France · 32
-PCS 5422 · Employés
-21 salariés de 45 ans ou plus
-13 départs estimés d’ici 2030
-entre 12 et 13 selon l’hypothèse
-60,9 % pourraient partir d’ici 2030</title></use>
-<use href="#g-44" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Grand Est · 44
-PCS 5422 · Employés
-Aucun salarié observé</title></use>
-<use href="#g-52" fill="#9ecae1" stroke="#5B6470" stroke-width="1"><title>Pays de la Loire · 52
-PCS 5422 · Employés
-14 salariés de 45 ans ou plus
-5 départs estimés d’ici 2030
-entre 5 et 6 selon l’hypothèse
-37,7 % pourraient partir d’ici 2030</title></use>
-<use href="#g-53" fill="#4292c6" stroke="#5B6470" stroke-width="1"><title>Bretagne · 53
-PCS 5422 · Employés
-16 salariés de 45 ans ou plus
-6 départs estimés d’ici 2030
-entre 6 et 7 selon l’hypothèse
-40,6 % pourraient partir d’ici 2030</title></use>
-<use href="#g-75" fill="#9ecae1" stroke="#5B6470" stroke-width="1"><title>Nouvelle-Aquitaine · 75
-PCS 5422 · Employés
-45 salariés de 45 ans ou plus
-18 départs estimés d’ici 2030
-entre 17 et 19 selon l’hypothèse
-39,6 % pourraient partir d’ici 2030</title></use>
-<use href="#g-76" fill="#9ecae1" stroke="#5B6470" stroke-width="1"><title>Occitanie · 76
-PCS 5422 · Employés
-10 salariés de 45 ans ou plus
-4 départs estimés d’ici 2030
-entre 4 et 4 selon l’hypothèse
-37,8 % pourraient partir d’ici 2030</title></use>
-<use href="#g-84" fill="#deebf7" stroke="#5B6470" stroke-width="1"><title>Auvergne-Rhône-Alpes · 84
-PCS 5422 · Employés
-37 salariés de 45 ans ou plus
-11 départs estimés d’ici 2030
-entre 10 et 12 selon l’hypothèse
-29,0 % pourraient partir d’ici 2030</title></use>
-<use href="#g-93" fill="#4292c6" stroke="#5B6470" stroke-width="1"><title>Provence-Alpes-Côte d'Azur · 93
-PCS 5422 · Employés
-10 salariés de 45 ans ou plus
-4 départs estimés d’ici 2030
-entre 4 et 5 selon l’hypothèse
-44,1 % pourraient partir d’ici 2030</title></use>
-<use href="#g-94" fill="#deebf7" stroke="#5B6470" stroke-width="1"><title>Corse · 94
-PCS 5422 · Employés
-31 salariés de 45 ans ou plus
-9 départs estimés d’ici 2030
-entre 9 et 10 selon l’hypothèse
-29,5 % pourraient partir d’ici 2030</title></use>
-
-</svg>
-<p class="note">Part calculée parmi les salariés de 45 ans ou plus de la catégorie affichée. Même échelle pour tous les territoires ; elle est recalculée quand vous changez de PCS ou d’indicateur. Survolez un territoire pour lire ses chiffres.</p>
-</section>
-<section class="vue vue-11">
 <p class="vue-titre">PCS 5511 · Employés</p><p class="vue-qui">Salariés de 45 ans ou plus · Part des salariés susceptibles de partir d’ici 2030</p>
-<div class="legend-title">Part des salariés susceptibles de partir d’ici 2030</div><ul class="map-legend"><li><span class="sw" style="background:#deebf7"></span><span>Moins de 30 %</span></li><li><span class="sw" style="background:#9ecae1"></span><span>30 % à 40 %</span></li><li><span class="sw" style="background:#2171b5"></span><span>40 % à 50 %</span></li><li><span class="sw" style="background:#08306b"></span><span>50 % et plus</span></li><li class="sep"><span class="sw" style="background:#b3b3b3"></span><span>Résultat non diffusé — secret statistique</span></li><li><span class="sw sans" style="background:#ffffff"></span><span>Aucun salarié observé</span></li></ul><p class="compte"><b>8</b> régions avec un résultat · <b>2</b> avec un résultat non diffusé (secret statistique) · <b>8</b> sans salarié observé</p>
+<div class="legend-title">Part des salariés susceptibles de partir d’ici 2030</div><ul class="map-legend"><li><span class="sw" style="background:#deebf7"></span><span>Moins de 30 %</span></li><li><span class="sw" style="background:#9ecae1"></span><span>30 % à 40 %</span></li><li><span class="sw" style="background:#2171b5"></span><span>40 % à 50 %</span></li><li><span class="sw" style="background:#08306b"></span><span>50 % et plus</span></li><li class="sep"><span class="sw" style="background:#b3b3b3"></span><span>Résultat non diffusé — secret statistique</span></li></ul><p class="compte"><b>9</b> régions avec un résultat · <b>9</b> avec un résultat non diffusé (secret statistique)</p>
 <svg viewBox="0 0 1000 1230" role="img" aria-label="Départs attendus d’ici 2030 — par région — PCS fine — PCS 5511 · Employés">
 <rect fill="none" stroke="#c9ced6" x="1.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="10.0" y="1024.0">Guadeloupe</text>
 <rect fill="none" stroke="#c9ced6" x="201.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="210.0" y="1024.0">Martinique</text>
 <rect fill="none" stroke="#c9ced6" x="401.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="410.0" y="1024.0">Guyane</text>
 <rect fill="none" stroke="#c9ced6" x="601.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="610.0" y="1024.0">La Réunion</text>
 <rect fill="none" stroke="#c9ced6" x="801.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="810.0" y="1024.0">Mayotte</text>
-<use href="#g-01" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Guadeloupe · 01
+<use href="#g-01" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Guadeloupe · 01
 PCS 5511 · Employés
-Aucun salarié observé</title></use>
-<use href="#g-02" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Martinique · 02
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-02" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Martinique · 02
 PCS 5511 · Employés
-Aucun salarié observé</title></use>
-<use href="#g-03" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Guyane · 03
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-03" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Guyane · 03
 PCS 5511 · Employés
-Aucun salarié observé</title></use>
-<use href="#g-04" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>La Réunion · 04
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-04" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>La Réunion · 04
 PCS 5511 · Employés
-Aucun salarié observé</title></use>
-<use href="#g-06" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Mayotte · 06
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-06" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Mayotte · 06
 PCS 5511 · Employés
-Aucun salarié observé</title></use>
+Résultat non diffusé — secret statistique</title></use>
 <use href="#g-11" fill="#2171b5" stroke="#5B6470" stroke-width="1"><title>Île-de-France · 11
 PCS 5511 · Employés
 39 salariés de 45 ans ou plus
@@ -1132,24 +820,27 @@ entre 18 et 19 selon l’hypothèse
 <use href="#g-24" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Centre-Val de Loire · 24
 PCS 5511 · Employés
 Résultat non diffusé — secret statistique</title></use>
-<use href="#g-27" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Bourgogne-Franche-Comté · 27
+<use href="#g-27" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Bourgogne-Franche-Comté · 27
 PCS 5511 · Employés
-Aucun salarié observé</title></use>
-<use href="#g-28" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Normandie · 28
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-28" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Normandie · 28
 PCS 5511 · Employés
-Aucun salarié observé</title></use>
+Résultat non diffusé — secret statistique</title></use>
 <use href="#g-32" fill="#08306b" stroke="#5B6470" stroke-width="1"><title>Hauts-de-France · 32
 PCS 5511 · Employés
 15 salariés de 45 ans ou plus
 8 départs estimés d’ici 2030
 entre 7 et 8 selon l’hypothèse
 50,4 % pourraient partir d’ici 2030</title></use>
-<use href="#g-44" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Grand Est · 44
-PCS 5511 · Employés
-Aucun salarié observé</title></use>
-<use href="#g-52" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Pays de la Loire · 52
+<use href="#g-44" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Grand Est · 44
 PCS 5511 · Employés
 Résultat non diffusé — secret statistique</title></use>
+<use href="#g-52" fill="#2171b5" stroke="#5B6470" stroke-width="1"><title>Pays de la Loire · 52
+PCS 5511 · Employés
+13 salariés de 45 ans ou plus
+5 départs estimés d’ici 2030
+entre 5 et 6 selon l’hypothèse
+41,5 % pourraient partir d’ici 2030</title></use>
 <use href="#g-53" fill="#9ecae1" stroke="#5B6470" stroke-width="1"><title>Bretagne · 53
 PCS 5511 · Employés
 23 salariés de 45 ans ou plus
@@ -1190,88 +881,361 @@ entre 9 et 10 selon l’hypothèse
 </svg>
 <p class="note">Part calculée parmi les salariés de 45 ans ou plus de la catégorie affichée. Même échelle pour tous les territoires ; elle est recalculée quand vous changez de PCS ou d’indicateur. Survolez un territoire pour lire ses chiffres.</p>
 </section>
+<section class="vue vue-9">
+<p class="vue-titre">PCS 4631 · Professions intermédiaires</p><p class="vue-qui">Salariés de 45 ans ou plus · Part des salariés susceptibles de partir d’ici 2030</p>
+<div class="legend-title">Part des salariés susceptibles de partir d’ici 2030</div><ul class="map-legend"><li><span class="sw" style="background:#deebf7"></span><span>Moins de 30 %</span></li><li><span class="sw" style="background:#9ecae1"></span><span>30 % à 40 %</span></li><li><span class="sw" style="background:#2171b5"></span><span>40 % à 50 %</span></li><li><span class="sw" style="background:#08306b"></span><span>50 % et plus</span></li><li class="sep"><span class="sw" style="background:#b3b3b3"></span><span>Résultat non diffusé — secret statistique</span></li></ul><p class="compte"><b>8</b> régions avec un résultat · <b>10</b> avec un résultat non diffusé (secret statistique)</p>
+<svg viewBox="0 0 1000 1230" role="img" aria-label="Départs attendus d’ici 2030 — par région — PCS fine — PCS 4631 · Professions intermédiaires">
+<rect fill="none" stroke="#c9ced6" x="1.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="10.0" y="1024.0">Guadeloupe</text>
+<rect fill="none" stroke="#c9ced6" x="201.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="210.0" y="1024.0">Martinique</text>
+<rect fill="none" stroke="#c9ced6" x="401.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="410.0" y="1024.0">Guyane</text>
+<rect fill="none" stroke="#c9ced6" x="601.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="610.0" y="1024.0">La Réunion</text>
+<rect fill="none" stroke="#c9ced6" x="801.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="810.0" y="1024.0">Mayotte</text>
+<use href="#g-01" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Guadeloupe · 01
+PCS 4631 · Professions intermédiaires
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-02" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Martinique · 02
+PCS 4631 · Professions intermédiaires
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-03" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Guyane · 03
+PCS 4631 · Professions intermédiaires
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-04" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>La Réunion · 04
+PCS 4631 · Professions intermédiaires
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-06" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Mayotte · 06
+PCS 4631 · Professions intermédiaires
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-11" fill="#9ecae1" stroke="#5B6470" stroke-width="1"><title>Île-de-France · 11
+PCS 4631 · Professions intermédiaires
+39 salariés de 45 ans ou plus
+13 départs estimés d’ici 2030
+entre 13 et 14 selon l’hypothèse
+34,0 % pourraient partir d’ici 2030</title></use>
+<use href="#g-24" fill="#08306b" stroke="#5B6470" stroke-width="1"><title>Centre-Val de Loire · 24
+PCS 4631 · Professions intermédiaires
+12 salariés de 45 ans ou plus
+7 départs estimés d’ici 2030
+entre 6 et 7 selon l’hypothèse
+54,6 % pourraient partir d’ici 2030</title></use>
+<use href="#g-27" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Bourgogne-Franche-Comté · 27
+PCS 4631 · Professions intermédiaires
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-28" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Normandie · 28
+PCS 4631 · Professions intermédiaires
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-32" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Hauts-de-France · 32
+PCS 4631 · Professions intermédiaires
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-44" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Grand Est · 44
+PCS 4631 · Professions intermédiaires
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-52" fill="#2171b5" stroke="#5B6470" stroke-width="1"><title>Pays de la Loire · 52
+PCS 4631 · Professions intermédiaires
+12 salariés de 45 ans ou plus
+6 départs estimés d’ici 2030
+entre 6 et 6 selon l’hypothèse
+49,8 % pourraient partir d’ici 2030</title></use>
+<use href="#g-53" fill="#deebf7" stroke="#5B6470" stroke-width="1"><title>Bretagne · 53
+PCS 4631 · Professions intermédiaires
+24 salariés de 45 ans ou plus
+7 départs estimés d’ici 2030
+entre 6 et 7 selon l’hypothèse
+28,3 % pourraient partir d’ici 2030</title></use>
+<use href="#g-75" fill="#2171b5" stroke="#5B6470" stroke-width="1"><title>Nouvelle-Aquitaine · 75
+PCS 4631 · Professions intermédiaires
+54 salariés de 45 ans ou plus
+22 départs estimés d’ici 2030
+entre 21 et 23 selon l’hypothèse
+40,5 % pourraient partir d’ici 2030</title></use>
+<use href="#g-76" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Occitanie · 76
+PCS 4631 · Professions intermédiaires
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-84" fill="#9ecae1" stroke="#5B6470" stroke-width="1"><title>Auvergne-Rhône-Alpes · 84
+PCS 4631 · Professions intermédiaires
+55 salariés de 45 ans ou plus
+19 départs estimés d’ici 2030
+entre 18 et 20 selon l’hypothèse
+34,9 % pourraient partir d’ici 2030</title></use>
+<use href="#g-93" fill="#2171b5" stroke="#5B6470" stroke-width="1"><title>Provence-Alpes-Côte d'Azur · 93
+PCS 4631 · Professions intermédiaires
+12 salariés de 45 ans ou plus
+5 départs estimés d’ici 2030
+entre 5 et 6 selon l’hypothèse
+43,6 % pourraient partir d’ici 2030</title></use>
+<use href="#g-94" fill="#9ecae1" stroke="#5B6470" stroke-width="1"><title>Corse · 94
+PCS 4631 · Professions intermédiaires
+39 salariés de 45 ans ou plus
+14 départs estimés d’ici 2030
+entre 13 et 15 selon l’hypothèse
+36,0 % pourraient partir d’ici 2030</title></use>
+
+</svg>
+<p class="note">Part calculée parmi les salariés de 45 ans ou plus de la catégorie affichée. Même échelle pour tous les territoires ; elle est recalculée quand vous changez de PCS ou d’indicateur. Survolez un territoire pour lire ses chiffres.</p>
+</section>
+<section class="vue vue-10">
+<p class="vue-titre">PCS 4620 · Professions intermédiaires</p><p class="vue-qui">Salariés de 45 ans ou plus · Part des salariés susceptibles de partir d’ici 2030</p>
+<div class="legend-title">Part des salariés susceptibles de partir d’ici 2030</div><ul class="map-legend"><li><span class="sw" style="background:#deebf7"></span><span>Moins de 30 %</span></li><li><span class="sw" style="background:#9ecae1"></span><span>30 % à 35 %</span></li><li><span class="sw" style="background:#2171b5"></span><span>35 % à 40 %</span></li><li><span class="sw" style="background:#08306b"></span><span>40 % et plus</span></li><li class="sep"><span class="sw" style="background:#b3b3b3"></span><span>Résultat non diffusé — secret statistique</span></li></ul><p class="compte"><b>8</b> régions avec un résultat · <b>10</b> avec un résultat non diffusé (secret statistique)</p>
+<svg viewBox="0 0 1000 1230" role="img" aria-label="Départs attendus d’ici 2030 — par région — PCS fine — PCS 4620 · Professions intermédiaires">
+<rect fill="none" stroke="#c9ced6" x="1.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="10.0" y="1024.0">Guadeloupe</text>
+<rect fill="none" stroke="#c9ced6" x="201.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="210.0" y="1024.0">Martinique</text>
+<rect fill="none" stroke="#c9ced6" x="401.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="410.0" y="1024.0">Guyane</text>
+<rect fill="none" stroke="#c9ced6" x="601.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="610.0" y="1024.0">La Réunion</text>
+<rect fill="none" stroke="#c9ced6" x="801.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="810.0" y="1024.0">Mayotte</text>
+<use href="#g-01" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Guadeloupe · 01
+PCS 4620 · Professions intermédiaires
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-02" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Martinique · 02
+PCS 4620 · Professions intermédiaires
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-03" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Guyane · 03
+PCS 4620 · Professions intermédiaires
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-04" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>La Réunion · 04
+PCS 4620 · Professions intermédiaires
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-06" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Mayotte · 06
+PCS 4620 · Professions intermédiaires
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-11" fill="#deebf7" stroke="#5B6470" stroke-width="1"><title>Île-de-France · 11
+PCS 4620 · Professions intermédiaires
+60 salariés de 45 ans ou plus
+18 départs estimés d’ici 2030
+entre 17 et 19 selon l’hypothèse
+29,6 % pourraient partir d’ici 2030</title></use>
+<use href="#g-24" fill="#08306b" stroke="#5B6470" stroke-width="1"><title>Centre-Val de Loire · 24
+PCS 4620 · Professions intermédiaires
+18 salariés de 45 ans ou plus
+7 départs estimés d’ici 2030
+entre 7 et 8 selon l’hypothèse
+40,2 % pourraient partir d’ici 2030</title></use>
+<use href="#g-27" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Bourgogne-Franche-Comté · 27
+PCS 4620 · Professions intermédiaires
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-28" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Normandie · 28
+PCS 4620 · Professions intermédiaires
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-32" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Hauts-de-France · 32
+PCS 4620 · Professions intermédiaires
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-44" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Grand Est · 44
+PCS 4620 · Professions intermédiaires
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-52" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Pays de la Loire · 52
+PCS 4620 · Professions intermédiaires
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-53" fill="#9ecae1" stroke="#5B6470" stroke-width="1"><title>Bretagne · 53
+PCS 4620 · Professions intermédiaires
+27 salariés de 45 ans ou plus
+9 départs estimés d’ici 2030
+entre 9 et 10 selon l’hypothèse
+33,5 % pourraient partir d’ici 2030</title></use>
+<use href="#g-75" fill="#2171b5" stroke="#5B6470" stroke-width="1"><title>Nouvelle-Aquitaine · 75
+PCS 4620 · Professions intermédiaires
+56 salariés de 45 ans ou plus
+20 départs estimés d’ici 2030
+entre 19 et 21 selon l’hypothèse
+35,2 % pourraient partir d’ici 2030</title></use>
+<use href="#g-76" fill="#08306b" stroke="#5B6470" stroke-width="1"><title>Occitanie · 76
+PCS 4620 · Professions intermédiaires
+19 salariés de 45 ans ou plus
+8 départs estimés d’ici 2030
+entre 7 et 8 selon l’hypothèse
+40,0 % pourraient partir d’ici 2030</title></use>
+<use href="#g-84" fill="#2171b5" stroke="#5B6470" stroke-width="1"><title>Auvergne-Rhône-Alpes · 84
+PCS 4620 · Professions intermédiaires
+40 salariés de 45 ans ou plus
+14 départs estimés d’ici 2030
+entre 13 et 15 selon l’hypothèse
+35,4 % pourraient partir d’ici 2030</title></use>
+<use href="#g-93" fill="#08306b" stroke="#5B6470" stroke-width="1"><title>Provence-Alpes-Côte d'Azur · 93
+PCS 4620 · Professions intermédiaires
+19 salariés de 45 ans ou plus
+8 départs estimés d’ici 2030
+entre 7 et 8 selon l’hypothèse
+40,9 % pourraient partir d’ici 2030</title></use>
+<use href="#g-94" fill="#deebf7" stroke="#5B6470" stroke-width="1"><title>Corse · 94
+PCS 4620 · Professions intermédiaires
+24 salariés de 45 ans ou plus
+7 départs estimés d’ici 2030
+entre 7 et 8 selon l’hypothèse
+29,9 % pourraient partir d’ici 2030</title></use>
+
+</svg>
+<p class="note">Part calculée parmi les salariés de 45 ans ou plus de la catégorie affichée. Même échelle pour tous les territoires ; elle est recalculée quand vous changez de PCS ou d’indicateur. Survolez un territoire pour lire ses chiffres.</p>
+</section>
+<section class="vue vue-11">
+<p class="vue-titre">PCS 5422 · Employés</p><p class="vue-qui">Salariés de 45 ans ou plus · Part des salariés susceptibles de partir d’ici 2030</p>
+<div class="legend-title">Part des salariés susceptibles de partir d’ici 2030</div><ul class="map-legend"><li><span class="sw" style="background:#deebf7"></span><span>Moins de 30 %</span></li><li><span class="sw" style="background:#9ecae1"></span><span>30 % à 40 %</span></li><li><span class="sw" style="background:#4292c6"></span><span>40 % à 50 %</span></li><li><span class="sw" style="background:#2171b5"></span><span>50 % à 60 %</span></li><li><span class="sw" style="background:#08306b"></span><span>60 % et plus</span></li><li class="sep"><span class="sw" style="background:#b3b3b3"></span><span>Résultat non diffusé — secret statistique</span></li></ul><p class="compte"><b>9</b> régions avec un résultat · <b>9</b> avec un résultat non diffusé (secret statistique)</p>
+<svg viewBox="0 0 1000 1230" role="img" aria-label="Départs attendus d’ici 2030 — par région — PCS fine — PCS 5422 · Employés">
+<rect fill="none" stroke="#c9ced6" x="1.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="10.0" y="1024.0">Guadeloupe</text>
+<rect fill="none" stroke="#c9ced6" x="201.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="210.0" y="1024.0">Martinique</text>
+<rect fill="none" stroke="#c9ced6" x="401.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="410.0" y="1024.0">Guyane</text>
+<rect fill="none" stroke="#c9ced6" x="601.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="610.0" y="1024.0">La Réunion</text>
+<rect fill="none" stroke="#c9ced6" x="801.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="810.0" y="1024.0">Mayotte</text>
+<use href="#g-01" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Guadeloupe · 01
+PCS 5422 · Employés
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-02" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Martinique · 02
+PCS 5422 · Employés
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-03" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Guyane · 03
+PCS 5422 · Employés
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-04" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>La Réunion · 04
+PCS 5422 · Employés
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-06" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Mayotte · 06
+PCS 5422 · Employés
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-11" fill="#4292c6" stroke="#5B6470" stroke-width="1"><title>Île-de-France · 11
+PCS 5422 · Employés
+42 salariés de 45 ans ou plus
+18 départs estimés d’ici 2030
+entre 17 et 19 selon l’hypothèse
+43,1 % pourraient partir d’ici 2030</title></use>
+<use href="#g-24" fill="#4292c6" stroke="#5B6470" stroke-width="1"><title>Centre-Val de Loire · 24
+PCS 5422 · Employés
+12 salariés de 45 ans ou plus
+5 départs estimés d’ici 2030
+entre 5 et 6 selon l’hypothèse
+44,4 % pourraient partir d’ici 2030</title></use>
+<use href="#g-27" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Bourgogne-Franche-Comté · 27
+PCS 5422 · Employés
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-28" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Normandie · 28
+PCS 5422 · Employés
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-32" fill="#08306b" stroke="#5B6470" stroke-width="1"><title>Hauts-de-France · 32
+PCS 5422 · Employés
+21 salariés de 45 ans ou plus
+13 départs estimés d’ici 2030
+entre 12 et 13 selon l’hypothèse
+60,9 % pourraient partir d’ici 2030</title></use>
+<use href="#g-44" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Grand Est · 44
+PCS 5422 · Employés
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-52" fill="#9ecae1" stroke="#5B6470" stroke-width="1"><title>Pays de la Loire · 52
+PCS 5422 · Employés
+14 salariés de 45 ans ou plus
+5 départs estimés d’ici 2030
+entre 5 et 6 selon l’hypothèse
+37,7 % pourraient partir d’ici 2030</title></use>
+<use href="#g-53" fill="#4292c6" stroke="#5B6470" stroke-width="1"><title>Bretagne · 53
+PCS 5422 · Employés
+16 salariés de 45 ans ou plus
+6 départs estimés d’ici 2030
+entre 6 et 7 selon l’hypothèse
+40,6 % pourraient partir d’ici 2030</title></use>
+<use href="#g-75" fill="#9ecae1" stroke="#5B6470" stroke-width="1"><title>Nouvelle-Aquitaine · 75
+PCS 5422 · Employés
+45 salariés de 45 ans ou plus
+18 départs estimés d’ici 2030
+entre 17 et 19 selon l’hypothèse
+39,6 % pourraient partir d’ici 2030</title></use>
+<use href="#g-76" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Occitanie · 76
+PCS 5422 · Employés
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-84" fill="#deebf7" stroke="#5B6470" stroke-width="1"><title>Auvergne-Rhône-Alpes · 84
+PCS 5422 · Employés
+37 salariés de 45 ans ou plus
+11 départs estimés d’ici 2030
+entre 10 et 12 selon l’hypothèse
+29,0 % pourraient partir d’ici 2030</title></use>
+<use href="#g-93" fill="#4292c6" stroke="#5B6470" stroke-width="1"><title>Provence-Alpes-Côte d'Azur · 93
+PCS 5422 · Employés
+10 salariés de 45 ans ou plus
+4 départs estimés d’ici 2030
+entre 4 et 5 selon l’hypothèse
+44,1 % pourraient partir d’ici 2030</title></use>
+<use href="#g-94" fill="#deebf7" stroke="#5B6470" stroke-width="1"><title>Corse · 94
+PCS 5422 · Employés
+31 salariés de 45 ans ou plus
+9 départs estimés d’ici 2030
+entre 9 et 10 selon l’hypothèse
+29,5 % pourraient partir d’ici 2030</title></use>
+
+</svg>
+<p class="note">Part calculée parmi les salariés de 45 ans ou plus de la catégorie affichée. Même échelle pour tous les territoires ; elle est recalculée quand vous changez de PCS ou d’indicateur. Survolez un territoire pour lire ses chiffres.</p>
+</section>
 <section class="vue vue-12">
 <p class="vue-titre">PCS 4642 · Professions intermédiaires</p><p class="vue-qui">Salariés de 45 ans ou plus · Part des salariés susceptibles de partir d’ici 2030</p>
-<div class="legend-title">Part des salariés susceptibles de partir d’ici 2030</div><ul class="map-legend"><li><span class="sw" style="background:#deebf7"></span><span>Moins de 20 %</span></li><li><span class="sw" style="background:#4292c6"></span><span>20 % à 30 %</span></li><li><span class="sw" style="background:#08306b"></span><span>30 % et plus</span></li><li class="sep"><span class="sw" style="background:#b3b3b3"></span><span>Résultat non diffusé — secret statistique</span></li><li><span class="sw sans" style="background:#ffffff"></span><span>Aucun salarié observé</span></li></ul><p class="compte"><b>10</b> régions avec un résultat · <b>0</b> avec un résultat non diffusé (secret statistique) · <b>8</b> sans salarié observé</p>
+<div class="legend-title">Part des salariés susceptibles de partir d’ici 2030</div><ul class="map-legend"><li><span class="sw" style="background:#deebf7"></span><span>Moins de 25 %</span></li><li><span class="sw" style="background:#9ecae1"></span><span>25 % à 30 %</span></li><li><span class="sw" style="background:#2171b5"></span><span>30 % à 35 %</span></li><li><span class="sw" style="background:#08306b"></span><span>35 % et plus</span></li><li class="sep"><span class="sw" style="background:#b3b3b3"></span><span>Résultat non diffusé — secret statistique</span></li></ul><p class="compte"><b>9</b> régions avec un résultat · <b>9</b> avec un résultat non diffusé (secret statistique)</p>
 <svg viewBox="0 0 1000 1230" role="img" aria-label="Départs attendus d’ici 2030 — par région — PCS fine — PCS 4642 · Professions intermédiaires">
 <rect fill="none" stroke="#c9ced6" x="1.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="10.0" y="1024.0">Guadeloupe</text>
 <rect fill="none" stroke="#c9ced6" x="201.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="210.0" y="1024.0">Martinique</text>
 <rect fill="none" stroke="#c9ced6" x="401.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="410.0" y="1024.0">Guyane</text>
 <rect fill="none" stroke="#c9ced6" x="601.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="610.0" y="1024.0">La Réunion</text>
 <rect fill="none" stroke="#c9ced6" x="801.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="810.0" y="1024.0">Mayotte</text>
-<use href="#g-01" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Guadeloupe · 01
+<use href="#g-01" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Guadeloupe · 01
 PCS 4642 · Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-02" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Martinique · 02
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-02" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Martinique · 02
 PCS 4642 · Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-03" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Guyane · 03
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-03" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Guyane · 03
 PCS 4642 · Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-04" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>La Réunion · 04
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-04" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>La Réunion · 04
 PCS 4642 · Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-06" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Mayotte · 06
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-06" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Mayotte · 06
 PCS 4642 · Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-11" fill="#4292c6" stroke="#5B6470" stroke-width="1"><title>Île-de-France · 11
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-11" fill="#9ecae1" stroke="#5B6470" stroke-width="1"><title>Île-de-France · 11
 PCS 4642 · Professions intermédiaires
 67 salariés de 45 ans ou plus
 17 départs estimés d’ici 2030
 entre 16 et 18 selon l’hypothèse
 25,7 % pourraient partir d’ici 2030</title></use>
-<use href="#g-24" fill="#4292c6" stroke="#5B6470" stroke-width="1"><title>Centre-Val de Loire · 24
+<use href="#g-24" fill="#9ecae1" stroke="#5B6470" stroke-width="1"><title>Centre-Val de Loire · 24
 PCS 4642 · Professions intermédiaires
 13 salariés de 45 ans ou plus
 4 départs estimés d’ici 2030
 entre 3 et 4 selon l’hypothèse
 27,1 % pourraient partir d’ici 2030</title></use>
-<use href="#g-27" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Bourgogne-Franche-Comté · 27
+<use href="#g-27" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Bourgogne-Franche-Comté · 27
 PCS 4642 · Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-28" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Normandie · 28
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-28" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Normandie · 28
 PCS 4642 · Professions intermédiaires
-Aucun salarié observé</title></use>
+Résultat non diffusé — secret statistique</title></use>
 <use href="#g-32" fill="#08306b" stroke="#5B6470" stroke-width="1"><title>Hauts-de-France · 32
 PCS 4642 · Professions intermédiaires
 17 salariés de 45 ans ou plus
 6 départs estimés d’ici 2030
 entre 6 et 6 selon l’hypothèse
 36,3 % pourraient partir d’ici 2030</title></use>
-<use href="#g-44" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Grand Est · 44
+<use href="#g-44" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Grand Est · 44
 PCS 4642 · Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-52" fill="#deebf7" stroke="#5B6470" stroke-width="1"><title>Pays de la Loire · 52
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-52" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Pays de la Loire · 52
 PCS 4642 · Professions intermédiaires
-8 salariés de 45 ans ou plus
-1 départs estimés d’ici 2030
-entre 1 et 1 selon l’hypothèse
-13,1 % pourraient partir d’ici 2030</title></use>
-<use href="#g-53" fill="#08306b" stroke="#5B6470" stroke-width="1"><title>Bretagne · 53
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-53" fill="#2171b5" stroke="#5B6470" stroke-width="1"><title>Bretagne · 53
 PCS 4642 · Professions intermédiaires
 27 salariés de 45 ans ou plus
 9 départs estimés d’ici 2030
 entre 8 et 10 selon l’hypothèse
 32,6 % pourraient partir d’ici 2030</title></use>
-<use href="#g-75" fill="#4292c6" stroke="#5B6470" stroke-width="1"><title>Nouvelle-Aquitaine · 75
+<use href="#g-75" fill="#9ecae1" stroke="#5B6470" stroke-width="1"><title>Nouvelle-Aquitaine · 75
 PCS 4642 · Professions intermédiaires
 55 salariés de 45 ans ou plus
 15 départs estimés d’ici 2030
 entre 14 et 17 selon l’hypothèse
 27,7 % pourraient partir d’ici 2030</title></use>
-<use href="#g-76" fill="#4292c6" stroke="#5B6470" stroke-width="1"><title>Occitanie · 76
+<use href="#g-76" fill="#deebf7" stroke="#5B6470" stroke-width="1"><title>Occitanie · 76
 PCS 4642 · Professions intermédiaires
 17 salariés de 45 ans ou plus
 4 départs estimés d’ici 2030
 entre 4 et 5 selon l’hypothèse
 24,2 % pourraient partir d’ici 2030</title></use>
-<use href="#g-84" fill="#08306b" stroke="#5B6470" stroke-width="1"><title>Auvergne-Rhône-Alpes · 84
+<use href="#g-84" fill="#2171b5" stroke="#5B6470" stroke-width="1"><title>Auvergne-Rhône-Alpes · 84
 PCS 4642 · Professions intermédiaires
 47 salariés de 45 ans ou plus
 15 départs estimés d’ici 2030
 entre 15 et 16 selon l’hypothèse
 32,8 % pourraient partir d’ici 2030</title></use>
-<use href="#g-93" fill="#4292c6" stroke="#5B6470" stroke-width="1"><title>Provence-Alpes-Côte d'Azur · 93
+<use href="#g-93" fill="#9ecae1" stroke="#5B6470" stroke-width="1"><title>Provence-Alpes-Côte d'Azur · 93
 PCS 4642 · Professions intermédiaires
 16 salariés de 45 ans ou plus
 4 départs estimés d’ici 2030
@@ -1288,126 +1252,29 @@ entre 9 et 10 selon l’hypothèse
 <p class="note">Part calculée parmi les salariés de 45 ans ou plus de la catégorie affichée. Même échelle pour tous les territoires ; elle est recalculée quand vous changez de PCS ou d’indicateur. Survolez un territoire pour lire ses chiffres.</p>
 </section>
 <section class="vue vue-13">
-<p class="vue-titre">PCS 5621 · Employés</p><p class="vue-qui">Salariés de 45 ans ou plus · Part des salariés susceptibles de partir d’ici 2030</p>
-<div class="legend-title">Part des salariés susceptibles de partir d’ici 2030</div><ul class="map-legend"><li><span class="sw" style="background:#deebf7"></span><span>Moins de 30 %</span></li><li><span class="sw" style="background:#9ecae1"></span><span>30 % à 40 %</span></li><li><span class="sw" style="background:#2171b5"></span><span>40 % à 50 %</span></li><li><span class="sw" style="background:#08306b"></span><span>50 % et plus</span></li><li class="sep"><span class="sw" style="background:#b3b3b3"></span><span>Résultat non diffusé — secret statistique</span></li><li><span class="sw sans" style="background:#ffffff"></span><span>Aucun salarié observé</span></li></ul><p class="compte"><b>10</b> régions avec un résultat · <b>0</b> avec un résultat non diffusé (secret statistique) · <b>8</b> sans salarié observé</p>
-<svg viewBox="0 0 1000 1230" role="img" aria-label="Départs attendus d’ici 2030 — par région — PCS fine — PCS 5621 · Employés">
-<rect fill="none" stroke="#c9ced6" x="1.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="10.0" y="1024.0">Guadeloupe</text>
-<rect fill="none" stroke="#c9ced6" x="201.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="210.0" y="1024.0">Martinique</text>
-<rect fill="none" stroke="#c9ced6" x="401.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="410.0" y="1024.0">Guyane</text>
-<rect fill="none" stroke="#c9ced6" x="601.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="610.0" y="1024.0">La Réunion</text>
-<rect fill="none" stroke="#c9ced6" x="801.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="810.0" y="1024.0">Mayotte</text>
-<use href="#g-01" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Guadeloupe · 01
-PCS 5621 · Employés
-Aucun salarié observé</title></use>
-<use href="#g-02" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Martinique · 02
-PCS 5621 · Employés
-Aucun salarié observé</title></use>
-<use href="#g-03" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Guyane · 03
-PCS 5621 · Employés
-Aucun salarié observé</title></use>
-<use href="#g-04" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>La Réunion · 04
-PCS 5621 · Employés
-Aucun salarié observé</title></use>
-<use href="#g-06" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Mayotte · 06
-PCS 5621 · Employés
-Aucun salarié observé</title></use>
-<use href="#g-11" fill="#deebf7" stroke="#5B6470" stroke-width="1"><title>Île-de-France · 11
-PCS 5621 · Employés
-32 salariés de 45 ans ou plus
-8 départs estimés d’ici 2030
-entre 7 et 9 selon l’hypothèse
-25,4 % pourraient partir d’ici 2030</title></use>
-<use href="#g-24" fill="#deebf7" stroke="#5B6470" stroke-width="1"><title>Centre-Val de Loire · 24
-PCS 5621 · Employés
-10 salariés de 45 ans ou plus
-3 départs estimés d’ici 2030
-entre 2 et 3 selon l’hypothèse
-26,5 % pourraient partir d’ici 2030</title></use>
-<use href="#g-27" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Bourgogne-Franche-Comté · 27
-PCS 5621 · Employés
-Aucun salarié observé</title></use>
-<use href="#g-28" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Normandie · 28
-PCS 5621 · Employés
-Aucun salarié observé</title></use>
-<use href="#g-32" fill="#08306b" stroke="#5B6470" stroke-width="1"><title>Hauts-de-France · 32
-PCS 5621 · Employés
-16 salariés de 45 ans ou plus
-8 départs estimés d’ici 2030
-entre 8 et 8 selon l’hypothèse
-50,5 % pourraient partir d’ici 2030</title></use>
-<use href="#g-44" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Grand Est · 44
-PCS 5621 · Employés
-Aucun salarié observé</title></use>
-<use href="#g-52" fill="#9ecae1" stroke="#5B6470" stroke-width="1"><title>Pays de la Loire · 52
-PCS 5621 · Employés
-19 salariés de 45 ans ou plus
-7 départs estimés d’ici 2030
-entre 6 et 7 selon l’hypothèse
-35,8 % pourraient partir d’ici 2030</title></use>
-<use href="#g-53" fill="#9ecae1" stroke="#5B6470" stroke-width="1"><title>Bretagne · 53
-PCS 5621 · Employés
-19 salariés de 45 ans ou plus
-7 départs estimés d’ici 2030
-entre 6 et 7 selon l’hypothèse
-34,3 % pourraient partir d’ici 2030</title></use>
-<use href="#g-75" fill="#9ecae1" stroke="#5B6470" stroke-width="1"><title>Nouvelle-Aquitaine · 75
-PCS 5621 · Employés
-43 salariés de 45 ans ou plus
-16 départs estimés d’ici 2030
-entre 15 et 16 selon l’hypothèse
-36,0 % pourraient partir d’ici 2030</title></use>
-<use href="#g-76" fill="#08306b" stroke="#5B6470" stroke-width="1"><title>Occitanie · 76
-PCS 5621 · Employés
-7 salariés de 45 ans ou plus
-4 départs estimés d’ici 2030
-entre 4 et 4 selon l’hypothèse
-57,6 % pourraient partir d’ici 2030</title></use>
-<use href="#g-84" fill="#2171b5" stroke="#5B6470" stroke-width="1"><title>Auvergne-Rhône-Alpes · 84
-PCS 5621 · Employés
-32 salariés de 45 ans ou plus
-14 départs estimés d’ici 2030
-entre 14 et 15 selon l’hypothèse
-45,2 % pourraient partir d’ici 2030</title></use>
-<use href="#g-93" fill="#9ecae1" stroke="#5B6470" stroke-width="1"><title>Provence-Alpes-Côte d'Azur · 93
-PCS 5621 · Employés
-11 salariés de 45 ans ou plus
-4 départs estimés d’ici 2030
-entre 4 et 4 selon l’hypothèse
-34,8 % pourraient partir d’ici 2030</title></use>
-<use href="#g-94" fill="#2171b5" stroke="#5B6470" stroke-width="1"><title>Corse · 94
-PCS 5621 · Employés
-29 salariés de 45 ans ou plus
-13 départs estimés d’ici 2030
-entre 13 et 14 selon l’hypothèse
-46,1 % pourraient partir d’ici 2030</title></use>
-
-</svg>
-<p class="note">Part calculée parmi les salariés de 45 ans ou plus de la catégorie affichée. Même échelle pour tous les territoires ; elle est recalculée quand vous changez de PCS ou d’indicateur. Survolez un territoire pour lire ses chiffres.</p>
-</section>
-<section class="vue vue-14">
 <p class="vue-titre">PCS 5311 · Employés</p><p class="vue-qui">Salariés de 45 ans ou plus · Part des salariés susceptibles de partir d’ici 2030</p>
-<div class="legend-title">Part des salariés susceptibles de partir d’ici 2030</div><ul class="map-legend"><li><span class="sw" style="background:#deebf7"></span><span>Moins de 40 %</span></li><li><span class="sw" style="background:#4292c6"></span><span>40 % à 50 %</span></li><li><span class="sw" style="background:#08306b"></span><span>50 % et plus</span></li><li class="sep"><span class="sw" style="background:#b3b3b3"></span><span>Résultat non diffusé — secret statistique</span></li><li><span class="sw sans" style="background:#ffffff"></span><span>Aucun salarié observé</span></li></ul><p class="compte"><b>8</b> régions avec un résultat · <b>2</b> avec un résultat non diffusé (secret statistique) · <b>8</b> sans salarié observé</p>
+<div class="legend-title">Part des salariés susceptibles de partir d’ici 2030</div><ul class="map-legend"><li><span class="sw" style="background:#deebf7"></span><span>Moins de 40 %</span></li><li><span class="sw" style="background:#4292c6"></span><span>40 % à 50 %</span></li><li><span class="sw" style="background:#08306b"></span><span>50 % et plus</span></li><li class="sep"><span class="sw" style="background:#b3b3b3"></span><span>Résultat non diffusé — secret statistique</span></li></ul><p class="compte"><b>8</b> régions avec un résultat · <b>10</b> avec un résultat non diffusé (secret statistique)</p>
 <svg viewBox="0 0 1000 1230" role="img" aria-label="Départs attendus d’ici 2030 — par région — PCS fine — PCS 5311 · Employés">
 <rect fill="none" stroke="#c9ced6" x="1.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="10.0" y="1024.0">Guadeloupe</text>
 <rect fill="none" stroke="#c9ced6" x="201.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="210.0" y="1024.0">Martinique</text>
 <rect fill="none" stroke="#c9ced6" x="401.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="410.0" y="1024.0">Guyane</text>
 <rect fill="none" stroke="#c9ced6" x="601.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="610.0" y="1024.0">La Réunion</text>
 <rect fill="none" stroke="#c9ced6" x="801.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="810.0" y="1024.0">Mayotte</text>
-<use href="#g-01" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Guadeloupe · 01
+<use href="#g-01" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Guadeloupe · 01
 PCS 5311 · Employés
-Aucun salarié observé</title></use>
-<use href="#g-02" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Martinique · 02
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-02" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Martinique · 02
 PCS 5311 · Employés
-Aucun salarié observé</title></use>
-<use href="#g-03" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Guyane · 03
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-03" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Guyane · 03
 PCS 5311 · Employés
-Aucun salarié observé</title></use>
-<use href="#g-04" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>La Réunion · 04
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-04" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>La Réunion · 04
 PCS 5311 · Employés
-Aucun salarié observé</title></use>
-<use href="#g-06" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Mayotte · 06
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-06" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Mayotte · 06
 PCS 5311 · Employés
-Aucun salarié observé</title></use>
+Résultat non diffusé — secret statistique</title></use>
 <use href="#g-11" fill="#deebf7" stroke="#5B6470" stroke-width="1"><title>Île-de-France · 11
 PCS 5311 · Employés
 33 salariés de 45 ans ou plus
@@ -1417,18 +1284,18 @@ entre 11 et 13 selon l’hypothèse
 <use href="#g-24" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Centre-Val de Loire · 24
 PCS 5311 · Employés
 Résultat non diffusé — secret statistique</title></use>
-<use href="#g-27" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Bourgogne-Franche-Comté · 27
+<use href="#g-27" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Bourgogne-Franche-Comté · 27
 PCS 5311 · Employés
-Aucun salarié observé</title></use>
-<use href="#g-28" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Normandie · 28
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-28" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Normandie · 28
 PCS 5311 · Employés
-Aucun salarié observé</title></use>
+Résultat non diffusé — secret statistique</title></use>
 <use href="#g-32" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Hauts-de-France · 32
 PCS 5311 · Employés
 Résultat non diffusé — secret statistique</title></use>
-<use href="#g-44" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Grand Est · 44
+<use href="#g-44" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Grand Est · 44
 PCS 5311 · Employés
-Aucun salarié observé</title></use>
+Résultat non diffusé — secret statistique</title></use>
 <use href="#g-52" fill="#deebf7" stroke="#5B6470" stroke-width="1"><title>Pays de la Loire · 52
 PCS 5311 · Employés
 15 salariés de 45 ans ou plus
@@ -1475,31 +1342,31 @@ entre 13 et 14 selon l’hypothèse
 </svg>
 <p class="note">Part calculée parmi les salariés de 45 ans ou plus de la catégorie affichée. Même échelle pour tous les territoires ; elle est recalculée quand vous changez de PCS ou d’indicateur. Survolez un territoire pour lire ses chiffres.</p>
 </section>
-<section class="vue vue-15">
+<section class="vue vue-14">
 <p class="vue-titre">PCS 5411 · Employés</p><p class="vue-qui">Salariés de 45 ans ou plus · Part des salariés susceptibles de partir d’ici 2030</p>
-<div class="legend-title">Part des salariés susceptibles de partir d’ici 2030</div><ul class="map-legend"><li><span class="sw" style="background:#deebf7"></span><span>Moins de 35 %</span></li><li><span class="sw" style="background:#9ecae1"></span><span>35 % à 40 %</span></li><li><span class="sw" style="background:#2171b5"></span><span>40 % à 45 %</span></li><li><span class="sw" style="background:#08306b"></span><span>45 % et plus</span></li><li class="sep"><span class="sw" style="background:#b3b3b3"></span><span>Résultat non diffusé — secret statistique</span></li><li><span class="sw sans" style="background:#ffffff"></span><span>Aucun salarié observé</span></li></ul><p class="compte"><b>8</b> régions avec un résultat · <b>2</b> avec un résultat non diffusé (secret statistique) · <b>8</b> sans salarié observé</p>
+<div class="legend-title">Part des salariés susceptibles de partir d’ici 2030</div><ul class="map-legend"><li><span class="sw" style="background:#deebf7"></span><span>Moins de 20 %</span></li><li><span class="sw" style="background:#9ecae1"></span><span>20 % à 30 %</span></li><li><span class="sw" style="background:#2171b5"></span><span>30 % à 40 %</span></li><li><span class="sw" style="background:#08306b"></span><span>40 % et plus</span></li><li class="sep"><span class="sw" style="background:#b3b3b3"></span><span>Résultat non diffusé — secret statistique</span></li></ul><p class="compte"><b>9</b> régions avec un résultat · <b>9</b> avec un résultat non diffusé (secret statistique)</p>
 <svg viewBox="0 0 1000 1230" role="img" aria-label="Départs attendus d’ici 2030 — par région — PCS fine — PCS 5411 · Employés">
 <rect fill="none" stroke="#c9ced6" x="1.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="10.0" y="1024.0">Guadeloupe</text>
 <rect fill="none" stroke="#c9ced6" x="201.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="210.0" y="1024.0">Martinique</text>
 <rect fill="none" stroke="#c9ced6" x="401.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="410.0" y="1024.0">Guyane</text>
 <rect fill="none" stroke="#c9ced6" x="601.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="610.0" y="1024.0">La Réunion</text>
 <rect fill="none" stroke="#c9ced6" x="801.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="810.0" y="1024.0">Mayotte</text>
-<use href="#g-01" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Guadeloupe · 01
+<use href="#g-01" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Guadeloupe · 01
 PCS 5411 · Employés
-Aucun salarié observé</title></use>
-<use href="#g-02" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Martinique · 02
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-02" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Martinique · 02
 PCS 5411 · Employés
-Aucun salarié observé</title></use>
-<use href="#g-03" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Guyane · 03
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-03" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Guyane · 03
 PCS 5411 · Employés
-Aucun salarié observé</title></use>
-<use href="#g-04" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>La Réunion · 04
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-04" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>La Réunion · 04
 PCS 5411 · Employés
-Aucun salarié observé</title></use>
-<use href="#g-06" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Mayotte · 06
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-06" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Mayotte · 06
 PCS 5411 · Employés
-Aucun salarié observé</title></use>
-<use href="#g-11" fill="#2171b5" stroke="#5B6470" stroke-width="1"><title>Île-de-France · 11
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-11" fill="#08306b" stroke="#5B6470" stroke-width="1"><title>Île-de-France · 11
 PCS 5411 · Employés
 51 salariés de 45 ans ou plus
 22 départs estimés d’ici 2030
@@ -1511,34 +1378,37 @@ PCS 5411 · Employés
 5 départs estimés d’ici 2030
 entre 4 et 5 selon l’hypothèse
 48,0 % pourraient partir d’ici 2030</title></use>
-<use href="#g-27" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Bourgogne-Franche-Comté · 27
+<use href="#g-27" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Bourgogne-Franche-Comté · 27
 PCS 5411 · Employés
-Aucun salarié observé</title></use>
-<use href="#g-28" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Normandie · 28
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-28" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Normandie · 28
 PCS 5411 · Employés
-Aucun salarié observé</title></use>
+Résultat non diffusé — secret statistique</title></use>
 <use href="#g-32" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Hauts-de-France · 32
 PCS 5411 · Employés
 Résultat non diffusé — secret statistique</title></use>
-<use href="#g-44" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Grand Est · 44
-PCS 5411 · Employés
-Aucun salarié observé</title></use>
-<use href="#g-52" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Pays de la Loire · 52
+<use href="#g-44" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Grand Est · 44
 PCS 5411 · Employés
 Résultat non diffusé — secret statistique</title></use>
-<use href="#g-53" fill="#deebf7" stroke="#5B6470" stroke-width="1"><title>Bretagne · 53
+<use href="#g-52" fill="#deebf7" stroke="#5B6470" stroke-width="1"><title>Pays de la Loire · 52
+PCS 5411 · Employés
+9 salariés de 45 ans ou plus
+1 départs estimés d’ici 2030
+entre 1 et 1 selon l’hypothèse
+14,6 % pourraient partir d’ici 2030</title></use>
+<use href="#g-53" fill="#2171b5" stroke="#5B6470" stroke-width="1"><title>Bretagne · 53
 PCS 5411 · Employés
 16 salariés de 45 ans ou plus
 6 départs estimés d’ici 2030
 entre 5 et 6 selon l’hypothèse
 34,7 % pourraient partir d’ici 2030</title></use>
-<use href="#g-75" fill="#9ecae1" stroke="#5B6470" stroke-width="1"><title>Nouvelle-Aquitaine · 75
+<use href="#g-75" fill="#2171b5" stroke="#5B6470" stroke-width="1"><title>Nouvelle-Aquitaine · 75
 PCS 5411 · Employés
 38 salariés de 45 ans ou plus
 15 départs estimés d’ici 2030
 entre 14 et 15 selon l’hypothèse
 38,3 % pourraient partir d’ici 2030</title></use>
-<use href="#g-76" fill="#9ecae1" stroke="#5B6470" stroke-width="1"><title>Occitanie · 76
+<use href="#g-76" fill="#2171b5" stroke="#5B6470" stroke-width="1"><title>Occitanie · 76
 PCS 5411 · Employés
 14 salariés de 45 ans ou plus
 5 départs estimés d’ici 2030
@@ -1556,7 +1426,7 @@ PCS 5411 · Employés
 6 départs estimés d’ici 2030
 entre 6 et 6 selon l’hypothèse
 46,0 % pourraient partir d’ici 2030</title></use>
-<use href="#g-94" fill="#2171b5" stroke="#5B6470" stroke-width="1"><title>Corse · 94
+<use href="#g-94" fill="#08306b" stroke="#5B6470" stroke-width="1"><title>Corse · 94
 PCS 5411 · Employés
 18 salariés de 45 ans ou plus
 7 départs estimés d’ici 2030
@@ -1566,30 +1436,124 @@ entre 7 et 8 selon l’hypothèse
 </svg>
 <p class="note">Part calculée parmi les salariés de 45 ans ou plus de la catégorie affichée. Même échelle pour tous les territoires ; elle est recalculée quand vous changez de PCS ou d’indicateur. Survolez un territoire pour lire ses chiffres.</p>
 </section>
+<section class="vue vue-15">
+<p class="vue-titre">PCS 5621 · Employés</p><p class="vue-qui">Salariés de 45 ans ou plus · Part des salariés susceptibles de partir d’ici 2030</p>
+<div class="legend-title">Part des salariés susceptibles de partir d’ici 2030</div><ul class="map-legend"><li><span class="sw" style="background:#deebf7"></span><span>Moins de 30 %</span></li><li><span class="sw" style="background:#9ecae1"></span><span>30 % à 40 %</span></li><li><span class="sw" style="background:#2171b5"></span><span>40 % à 50 %</span></li><li><span class="sw" style="background:#08306b"></span><span>50 % et plus</span></li><li class="sep"><span class="sw" style="background:#b3b3b3"></span><span>Résultat non diffusé — secret statistique</span></li></ul><p class="compte"><b>9</b> régions avec un résultat · <b>9</b> avec un résultat non diffusé (secret statistique)</p>
+<svg viewBox="0 0 1000 1230" role="img" aria-label="Départs attendus d’ici 2030 — par région — PCS fine — PCS 5621 · Employés">
+<rect fill="none" stroke="#c9ced6" x="1.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="10.0" y="1024.0">Guadeloupe</text>
+<rect fill="none" stroke="#c9ced6" x="201.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="210.0" y="1024.0">Martinique</text>
+<rect fill="none" stroke="#c9ced6" x="401.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="410.0" y="1024.0">Guyane</text>
+<rect fill="none" stroke="#c9ced6" x="601.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="610.0" y="1024.0">La Réunion</text>
+<rect fill="none" stroke="#c9ced6" x="801.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="810.0" y="1024.0">Mayotte</text>
+<use href="#g-01" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Guadeloupe · 01
+PCS 5621 · Employés
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-02" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Martinique · 02
+PCS 5621 · Employés
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-03" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Guyane · 03
+PCS 5621 · Employés
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-04" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>La Réunion · 04
+PCS 5621 · Employés
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-06" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Mayotte · 06
+PCS 5621 · Employés
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-11" fill="#deebf7" stroke="#5B6470" stroke-width="1"><title>Île-de-France · 11
+PCS 5621 · Employés
+32 salariés de 45 ans ou plus
+8 départs estimés d’ici 2030
+entre 7 et 9 selon l’hypothèse
+25,4 % pourraient partir d’ici 2030</title></use>
+<use href="#g-24" fill="#deebf7" stroke="#5B6470" stroke-width="1"><title>Centre-Val de Loire · 24
+PCS 5621 · Employés
+10 salariés de 45 ans ou plus
+3 départs estimés d’ici 2030
+entre 2 et 3 selon l’hypothèse
+26,5 % pourraient partir d’ici 2030</title></use>
+<use href="#g-27" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Bourgogne-Franche-Comté · 27
+PCS 5621 · Employés
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-28" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Normandie · 28
+PCS 5621 · Employés
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-32" fill="#08306b" stroke="#5B6470" stroke-width="1"><title>Hauts-de-France · 32
+PCS 5621 · Employés
+16 salariés de 45 ans ou plus
+8 départs estimés d’ici 2030
+entre 8 et 8 selon l’hypothèse
+50,5 % pourraient partir d’ici 2030</title></use>
+<use href="#g-44" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Grand Est · 44
+PCS 5621 · Employés
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-52" fill="#9ecae1" stroke="#5B6470" stroke-width="1"><title>Pays de la Loire · 52
+PCS 5621 · Employés
+19 salariés de 45 ans ou plus
+7 départs estimés d’ici 2030
+entre 6 et 7 selon l’hypothèse
+35,8 % pourraient partir d’ici 2030</title></use>
+<use href="#g-53" fill="#9ecae1" stroke="#5B6470" stroke-width="1"><title>Bretagne · 53
+PCS 5621 · Employés
+19 salariés de 45 ans ou plus
+7 départs estimés d’ici 2030
+entre 6 et 7 selon l’hypothèse
+34,3 % pourraient partir d’ici 2030</title></use>
+<use href="#g-75" fill="#9ecae1" stroke="#5B6470" stroke-width="1"><title>Nouvelle-Aquitaine · 75
+PCS 5621 · Employés
+43 salariés de 45 ans ou plus
+16 départs estimés d’ici 2030
+entre 15 et 16 selon l’hypothèse
+36,0 % pourraient partir d’ici 2030</title></use>
+<use href="#g-76" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Occitanie · 76
+PCS 5621 · Employés
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-84" fill="#2171b5" stroke="#5B6470" stroke-width="1"><title>Auvergne-Rhône-Alpes · 84
+PCS 5621 · Employés
+32 salariés de 45 ans ou plus
+14 départs estimés d’ici 2030
+entre 14 et 15 selon l’hypothèse
+45,2 % pourraient partir d’ici 2030</title></use>
+<use href="#g-93" fill="#9ecae1" stroke="#5B6470" stroke-width="1"><title>Provence-Alpes-Côte d'Azur · 93
+PCS 5621 · Employés
+11 salariés de 45 ans ou plus
+4 départs estimés d’ici 2030
+entre 4 et 4 selon l’hypothèse
+34,8 % pourraient partir d’ici 2030</title></use>
+<use href="#g-94" fill="#2171b5" stroke="#5B6470" stroke-width="1"><title>Corse · 94
+PCS 5621 · Employés
+29 salariés de 45 ans ou plus
+13 départs estimés d’ici 2030
+entre 13 et 14 selon l’hypothèse
+46,1 % pourraient partir d’ici 2030</title></use>
+
+</svg>
+<p class="note">Part calculée parmi les salariés de 45 ans ou plus de la catégorie affichée. Même échelle pour tous les territoires ; elle est recalculée quand vous changez de PCS ou d’indicateur. Survolez un territoire pour lire ses chiffres.</p>
+</section>
 <section class="vue vue-16">
 <p class="vue-titre">PCS 3812 · Cadres</p><p class="vue-qui">Salariés de 45 ans ou plus · Part des salariés susceptibles de partir d’ici 2030</p>
-<div class="legend-title">Part des salariés susceptibles de partir d’ici 2030</div><ul class="map-legend"><li><span class="sw" style="background:#deebf7"></span><span>Moins de 20 %</span></li><li><span class="sw" style="background:#9ecae1"></span><span>20 % à 30 %</span></li><li><span class="sw" style="background:#2171b5"></span><span>30 % à 40 %</span></li><li><span class="sw" style="background:#08306b"></span><span>40 % et plus</span></li><li class="sep"><span class="sw" style="background:#b3b3b3"></span><span>Résultat non diffusé — secret statistique</span></li><li><span class="sw sans" style="background:#ffffff"></span><span>Aucun salarié observé</span></li></ul><p class="compte"><b>10</b> régions avec un résultat · <b>0</b> avec un résultat non diffusé (secret statistique) · <b>8</b> sans salarié observé</p>
+<div class="legend-title">Part des salariés susceptibles de partir d’ici 2030</div><ul class="map-legend"><li><span class="sw" style="background:#deebf7"></span><span>Moins de 20 %</span></li><li><span class="sw" style="background:#9ecae1"></span><span>20 % à 30 %</span></li><li><span class="sw" style="background:#2171b5"></span><span>30 % à 40 %</span></li><li><span class="sw" style="background:#08306b"></span><span>40 % et plus</span></li><li class="sep"><span class="sw" style="background:#b3b3b3"></span><span>Résultat non diffusé — secret statistique</span></li></ul><p class="compte"><b>9</b> régions avec un résultat · <b>9</b> avec un résultat non diffusé (secret statistique)</p>
 <svg viewBox="0 0 1000 1230" role="img" aria-label="Départs attendus d’ici 2030 — par région — PCS fine — PCS 3812 · Cadres">
 <rect fill="none" stroke="#c9ced6" x="1.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="10.0" y="1024.0">Guadeloupe</text>
 <rect fill="none" stroke="#c9ced6" x="201.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="210.0" y="1024.0">Martinique</text>
 <rect fill="none" stroke="#c9ced6" x="401.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="410.0" y="1024.0">Guyane</text>
 <rect fill="none" stroke="#c9ced6" x="601.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="610.0" y="1024.0">La Réunion</text>
 <rect fill="none" stroke="#c9ced6" x="801.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="810.0" y="1024.0">Mayotte</text>
-<use href="#g-01" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Guadeloupe · 01
+<use href="#g-01" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Guadeloupe · 01
 PCS 3812 · Cadres
-Aucun salarié observé</title></use>
-<use href="#g-02" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Martinique · 02
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-02" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Martinique · 02
 PCS 3812 · Cadres
-Aucun salarié observé</title></use>
-<use href="#g-03" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Guyane · 03
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-03" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Guyane · 03
 PCS 3812 · Cadres
-Aucun salarié observé</title></use>
-<use href="#g-04" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>La Réunion · 04
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-04" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>La Réunion · 04
 PCS 3812 · Cadres
-Aucun salarié observé</title></use>
-<use href="#g-06" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Mayotte · 06
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-06" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Mayotte · 06
 PCS 3812 · Cadres
-Aucun salarié observé</title></use>
+Résultat non diffusé — secret statistique</title></use>
 <use href="#g-11" fill="#9ecae1" stroke="#5B6470" stroke-width="1"><title>Île-de-France · 11
 PCS 3812 · Cadres
 48 salariés de 45 ans ou plus
@@ -1602,21 +1566,18 @@ PCS 3812 · Cadres
 4 départs estimés d’ici 2030
 entre 4 et 5 selon l’hypothèse
 33,6 % pourraient partir d’ici 2030</title></use>
-<use href="#g-27" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Bourgogne-Franche-Comté · 27
+<use href="#g-27" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Bourgogne-Franche-Comté · 27
 PCS 3812 · Cadres
-Aucun salarié observé</title></use>
-<use href="#g-28" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Normandie · 28
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-28" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Normandie · 28
 PCS 3812 · Cadres
-Aucun salarié observé</title></use>
-<use href="#g-32" fill="#2171b5" stroke="#5B6470" stroke-width="1"><title>Hauts-de-France · 32
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-32" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Hauts-de-France · 32
 PCS 3812 · Cadres
-12 salariés de 45 ans ou plus
-4 départs estimés d’ici 2030
-entre 4 et 5 selon l’hypothèse
-36,8 % pourraient partir d’ici 2030</title></use>
-<use href="#g-44" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Grand Est · 44
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-44" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Grand Est · 44
 PCS 3812 · Cadres
-Aucun salarié observé</title></use>
+Résultat non diffusé — secret statistique</title></use>
 <use href="#g-52" fill="#2171b5" stroke="#5B6470" stroke-width="1"><title>Pays de la Loire · 52
 PCS 3812 · Cadres
 16 salariés de 45 ans ou plus
@@ -1664,126 +1625,29 @@ entre 9 et 10 selon l’hypothèse
 <p class="note">Part calculée parmi les salariés de 45 ans ou plus de la catégorie affichée. Même échelle pour tous les territoires ; elle est recalculée quand vous changez de PCS ou d’indicateur. Survolez un territoire pour lire ses chiffres.</p>
 </section>
 <section class="vue vue-17">
-<p class="vue-titre">PCS 3719 · Cadres</p><p class="vue-qui">Salariés de 45 ans ou plus · Part des salariés susceptibles de partir d’ici 2030</p>
-<div class="legend-title">Part des salariés susceptibles de partir d’ici 2030</div><ul class="map-legend"><li><span class="sw" style="background:#deebf7"></span><span>Moins de 15 %</span></li><li><span class="sw" style="background:#9ecae1"></span><span>15 % à 20 %</span></li><li><span class="sw" style="background:#4292c6"></span><span>20 % à 25 %</span></li><li><span class="sw" style="background:#2171b5"></span><span>25 % à 30 %</span></li><li><span class="sw" style="background:#08306b"></span><span>30 % et plus</span></li><li class="sep"><span class="sw" style="background:#b3b3b3"></span><span>Résultat non diffusé — secret statistique</span></li><li><span class="sw sans" style="background:#ffffff"></span><span>Aucun salarié observé</span></li></ul><p class="compte"><b>10</b> régions avec un résultat · <b>0</b> avec un résultat non diffusé (secret statistique) · <b>8</b> sans salarié observé</p>
-<svg viewBox="0 0 1000 1230" role="img" aria-label="Départs attendus d’ici 2030 — par région — PCS fine — PCS 3719 · Cadres">
-<rect fill="none" stroke="#c9ced6" x="1.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="10.0" y="1024.0">Guadeloupe</text>
-<rect fill="none" stroke="#c9ced6" x="201.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="210.0" y="1024.0">Martinique</text>
-<rect fill="none" stroke="#c9ced6" x="401.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="410.0" y="1024.0">Guyane</text>
-<rect fill="none" stroke="#c9ced6" x="601.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="610.0" y="1024.0">La Réunion</text>
-<rect fill="none" stroke="#c9ced6" x="801.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="810.0" y="1024.0">Mayotte</text>
-<use href="#g-01" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Guadeloupe · 01
-PCS 3719 · Cadres
-Aucun salarié observé</title></use>
-<use href="#g-02" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Martinique · 02
-PCS 3719 · Cadres
-Aucun salarié observé</title></use>
-<use href="#g-03" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Guyane · 03
-PCS 3719 · Cadres
-Aucun salarié observé</title></use>
-<use href="#g-04" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>La Réunion · 04
-PCS 3719 · Cadres
-Aucun salarié observé</title></use>
-<use href="#g-06" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Mayotte · 06
-PCS 3719 · Cadres
-Aucun salarié observé</title></use>
-<use href="#g-11" fill="#9ecae1" stroke="#5B6470" stroke-width="1"><title>Île-de-France · 11
-PCS 3719 · Cadres
-55 salariés de 45 ans ou plus
-11 départs estimés d’ici 2030
-entre 10 et 11 selon l’hypothèse
-19,5 % pourraient partir d’ici 2030</title></use>
-<use href="#g-24" fill="#2171b5" stroke="#5B6470" stroke-width="1"><title>Centre-Val de Loire · 24
-PCS 3719 · Cadres
-14 salariés de 45 ans ou plus
-4 départs estimés d’ici 2030
-entre 4 et 4 selon l’hypothèse
-28,5 % pourraient partir d’ici 2030</title></use>
-<use href="#g-27" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Bourgogne-Franche-Comté · 27
-PCS 3719 · Cadres
-Aucun salarié observé</title></use>
-<use href="#g-28" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Normandie · 28
-PCS 3719 · Cadres
-Aucun salarié observé</title></use>
-<use href="#g-32" fill="#deebf7" stroke="#5B6470" stroke-width="1"><title>Hauts-de-France · 32
-PCS 3719 · Cadres
-18 salariés de 45 ans ou plus
-3 départs estimés d’ici 2030
-entre 2 et 3 selon l’hypothèse
-14,2 % pourraient partir d’ici 2030</title></use>
-<use href="#g-44" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Grand Est · 44
-PCS 3719 · Cadres
-Aucun salarié observé</title></use>
-<use href="#g-52" fill="#2171b5" stroke="#5B6470" stroke-width="1"><title>Pays de la Loire · 52
-PCS 3719 · Cadres
-14 salariés de 45 ans ou plus
-4 départs estimés d’ici 2030
-entre 4 et 4 selon l’hypothèse
-29,9 % pourraient partir d’ici 2030</title></use>
-<use href="#g-53" fill="#08306b" stroke="#5B6470" stroke-width="1"><title>Bretagne · 53
-PCS 3719 · Cadres
-24 salariés de 45 ans ou plus
-8 départs estimés d’ici 2030
-entre 7 et 8 selon l’hypothèse
-31,8 % pourraient partir d’ici 2030</title></use>
-<use href="#g-75" fill="#4292c6" stroke="#5B6470" stroke-width="1"><title>Nouvelle-Aquitaine · 75
-PCS 3719 · Cadres
-53 salariés de 45 ans ou plus
-12 départs estimés d’ici 2030
-entre 11 et 14 selon l’hypothèse
-23,3 % pourraient partir d’ici 2030</title></use>
-<use href="#g-76" fill="#4292c6" stroke="#5B6470" stroke-width="1"><title>Occitanie · 76
-PCS 3719 · Cadres
-20 salariés de 45 ans ou plus
-5 départs estimés d’ici 2030
-entre 4 et 5 selon l’hypothèse
-23,1 % pourraient partir d’ici 2030</title></use>
-<use href="#g-84" fill="#2171b5" stroke="#5B6470" stroke-width="1"><title>Auvergne-Rhône-Alpes · 84
-PCS 3719 · Cadres
-38 salariés de 45 ans ou plus
-10 départs estimés d’ici 2030
-entre 9 et 11 selon l’hypothèse
-25,6 % pourraient partir d’ici 2030</title></use>
-<use href="#g-93" fill="#2171b5" stroke="#5B6470" stroke-width="1"><title>Provence-Alpes-Côte d'Azur · 93
-PCS 3719 · Cadres
-18 salariés de 45 ans ou plus
-5 départs estimés d’ici 2030
-entre 4 et 5 selon l’hypothèse
-25,8 % pourraient partir d’ici 2030</title></use>
-<use href="#g-94" fill="#08306b" stroke="#5B6470" stroke-width="1"><title>Corse · 94
-PCS 3719 · Cadres
-21 salariés de 45 ans ou plus
-7 départs estimés d’ici 2030
-entre 7 et 8 selon l’hypothèse
-34,0 % pourraient partir d’ici 2030</title></use>
-
-</svg>
-<p class="note">Part calculée parmi les salariés de 45 ans ou plus de la catégorie affichée. Même échelle pour tous les territoires ; elle est recalculée quand vous changez de PCS ou d’indicateur. Survolez un territoire pour lire ses chiffres.</p>
-</section>
-<section class="vue vue-18">
 <p class="vue-titre">PCS 3753 · Cadres</p><p class="vue-qui">Salariés de 45 ans ou plus · Part des salariés susceptibles de partir d’ici 2030</p>
-<div class="legend-title">Part des salariés susceptibles de partir d’ici 2030</div><ul class="map-legend"><li><span class="sw" style="background:#deebf7"></span><span>Moins de 20 %</span></li><li><span class="sw" style="background:#9ecae1"></span><span>20 % à 25 %</span></li><li><span class="sw" style="background:#2171b5"></span><span>25 % à 30 %</span></li><li><span class="sw" style="background:#08306b"></span><span>30 % et plus</span></li><li class="sep"><span class="sw" style="background:#b3b3b3"></span><span>Résultat non diffusé — secret statistique</span></li><li><span class="sw sans" style="background:#ffffff"></span><span>Aucun salarié observé</span></li></ul><p class="compte"><b>10</b> régions avec un résultat · <b>0</b> avec un résultat non diffusé (secret statistique) · <b>8</b> sans salarié observé</p>
+<div class="legend-title">Part des salariés susceptibles de partir d’ici 2030</div><ul class="map-legend"><li><span class="sw" style="background:#deebf7"></span><span>Moins de 20 %</span></li><li><span class="sw" style="background:#9ecae1"></span><span>20 % à 25 %</span></li><li><span class="sw" style="background:#2171b5"></span><span>25 % à 30 %</span></li><li><span class="sw" style="background:#08306b"></span><span>30 % et plus</span></li><li class="sep"><span class="sw" style="background:#b3b3b3"></span><span>Résultat non diffusé — secret statistique</span></li></ul><p class="compte"><b>9</b> régions avec un résultat · <b>9</b> avec un résultat non diffusé (secret statistique)</p>
 <svg viewBox="0 0 1000 1230" role="img" aria-label="Départs attendus d’ici 2030 — par région — PCS fine — PCS 3753 · Cadres">
 <rect fill="none" stroke="#c9ced6" x="1.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="10.0" y="1024.0">Guadeloupe</text>
 <rect fill="none" stroke="#c9ced6" x="201.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="210.0" y="1024.0">Martinique</text>
 <rect fill="none" stroke="#c9ced6" x="401.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="410.0" y="1024.0">Guyane</text>
 <rect fill="none" stroke="#c9ced6" x="601.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="610.0" y="1024.0">La Réunion</text>
 <rect fill="none" stroke="#c9ced6" x="801.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="810.0" y="1024.0">Mayotte</text>
-<use href="#g-01" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Guadeloupe · 01
+<use href="#g-01" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Guadeloupe · 01
 PCS 3753 · Cadres
-Aucun salarié observé</title></use>
-<use href="#g-02" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Martinique · 02
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-02" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Martinique · 02
 PCS 3753 · Cadres
-Aucun salarié observé</title></use>
-<use href="#g-03" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Guyane · 03
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-03" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Guyane · 03
 PCS 3753 · Cadres
-Aucun salarié observé</title></use>
-<use href="#g-04" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>La Réunion · 04
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-04" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>La Réunion · 04
 PCS 3753 · Cadres
-Aucun salarié observé</title></use>
-<use href="#g-06" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Mayotte · 06
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-06" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Mayotte · 06
 PCS 3753 · Cadres
-Aucun salarié observé</title></use>
+Résultat non diffusé — secret statistique</title></use>
 <use href="#g-11" fill="#2171b5" stroke="#5B6470" stroke-width="1"><title>Île-de-France · 11
 PCS 3753 · Cadres
 52 salariés de 45 ans ou plus
@@ -1796,27 +1660,24 @@ PCS 3753 · Cadres
 4 départs estimés d’ici 2030
 entre 4 et 4 selon l’hypothèse
 22,7 % pourraient partir d’ici 2030</title></use>
-<use href="#g-27" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Bourgogne-Franche-Comté · 27
+<use href="#g-27" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Bourgogne-Franche-Comté · 27
 PCS 3753 · Cadres
-Aucun salarié observé</title></use>
-<use href="#g-28" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Normandie · 28
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-28" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Normandie · 28
 PCS 3753 · Cadres
-Aucun salarié observé</title></use>
+Résultat non diffusé — secret statistique</title></use>
 <use href="#g-32" fill="#2171b5" stroke="#5B6470" stroke-width="1"><title>Hauts-de-France · 32
 PCS 3753 · Cadres
 23 salariés de 45 ans ou plus
 6 départs estimés d’ici 2030
 entre 6 et 7 selon l’hypothèse
 27,9 % pourraient partir d’ici 2030</title></use>
-<use href="#g-44" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Grand Est · 44
+<use href="#g-44" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Grand Est · 44
 PCS 3753 · Cadres
-Aucun salarié observé</title></use>
-<use href="#g-52" fill="#deebf7" stroke="#5B6470" stroke-width="1"><title>Pays de la Loire · 52
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-52" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Pays de la Loire · 52
 PCS 3753 · Cadres
-11 salariés de 45 ans ou plus
-2 départs estimés d’ici 2030
-entre 2 et 2 selon l’hypothèse
-17,4 % pourraient partir d’ici 2030</title></use>
+Résultat non diffusé — secret statistique</title></use>
 <use href="#g-53" fill="#9ecae1" stroke="#5B6470" stroke-width="1"><title>Bretagne · 53
 PCS 3753 · Cadres
 27 salariés de 45 ans ou plus
@@ -1857,30 +1718,30 @@ entre 4 et 5 selon l’hypothèse
 </svg>
 <p class="note">Part calculée parmi les salariés de 45 ans ou plus de la catégorie affichée. Même échelle pour tous les territoires ; elle est recalculée quand vous changez de PCS ou d’indicateur. Survolez un territoire pour lire ses chiffres.</p>
 </section>
-<section class="vue vue-19">
+<section class="vue vue-18">
 <p class="vue-titre">PCS 3892 · Cadres</p><p class="vue-qui">Salariés de 45 ans ou plus · Part des salariés susceptibles de partir d’ici 2030</p>
-<div class="legend-title">Part des salariés susceptibles de partir d’ici 2030</div><ul class="map-legend"><li><span class="sw" style="background:#deebf7"></span><span>Moins de 20 %</span></li><li><span class="sw" style="background:#9ecae1"></span><span>20 % à 25 %</span></li><li><span class="sw" style="background:#4292c6"></span><span>25 % à 30 %</span></li><li><span class="sw" style="background:#2171b5"></span><span>30 % à 35 %</span></li><li><span class="sw" style="background:#08306b"></span><span>35 % et plus</span></li><li class="sep"><span class="sw" style="background:#b3b3b3"></span><span>Résultat non diffusé — secret statistique</span></li><li><span class="sw sans" style="background:#ffffff"></span><span>Aucun salarié observé</span></li></ul><p class="compte"><b>10</b> régions avec un résultat · <b>0</b> avec un résultat non diffusé (secret statistique) · <b>8</b> sans salarié observé</p>
+<div class="legend-title">Part des salariés susceptibles de partir d’ici 2030</div><ul class="map-legend"><li><span class="sw" style="background:#deebf7"></span><span>Moins de 20 %</span></li><li><span class="sw" style="background:#9ecae1"></span><span>20 % à 25 %</span></li><li><span class="sw" style="background:#4292c6"></span><span>25 % à 30 %</span></li><li><span class="sw" style="background:#2171b5"></span><span>30 % à 35 %</span></li><li><span class="sw" style="background:#08306b"></span><span>35 % et plus</span></li><li class="sep"><span class="sw" style="background:#b3b3b3"></span><span>Résultat non diffusé — secret statistique</span></li></ul><p class="compte"><b>9</b> régions avec un résultat · <b>9</b> avec un résultat non diffusé (secret statistique)</p>
 <svg viewBox="0 0 1000 1230" role="img" aria-label="Départs attendus d’ici 2030 — par région — PCS fine — PCS 3892 · Cadres">
 <rect fill="none" stroke="#c9ced6" x="1.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="10.0" y="1024.0">Guadeloupe</text>
 <rect fill="none" stroke="#c9ced6" x="201.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="210.0" y="1024.0">Martinique</text>
 <rect fill="none" stroke="#c9ced6" x="401.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="410.0" y="1024.0">Guyane</text>
 <rect fill="none" stroke="#c9ced6" x="601.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="610.0" y="1024.0">La Réunion</text>
 <rect fill="none" stroke="#c9ced6" x="801.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="810.0" y="1024.0">Mayotte</text>
-<use href="#g-01" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Guadeloupe · 01
+<use href="#g-01" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Guadeloupe · 01
 PCS 3892 · Cadres
-Aucun salarié observé</title></use>
-<use href="#g-02" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Martinique · 02
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-02" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Martinique · 02
 PCS 3892 · Cadres
-Aucun salarié observé</title></use>
-<use href="#g-03" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Guyane · 03
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-03" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Guyane · 03
 PCS 3892 · Cadres
-Aucun salarié observé</title></use>
-<use href="#g-04" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>La Réunion · 04
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-04" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>La Réunion · 04
 PCS 3892 · Cadres
-Aucun salarié observé</title></use>
-<use href="#g-06" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Mayotte · 06
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-06" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Mayotte · 06
 PCS 3892 · Cadres
-Aucun salarié observé</title></use>
+Résultat non diffusé — secret statistique</title></use>
 <use href="#g-11" fill="#4292c6" stroke="#5B6470" stroke-width="1"><title>Île-de-France · 11
 PCS 3892 · Cadres
 48 salariés de 45 ans ou plus
@@ -1893,21 +1754,18 @@ PCS 3892 · Cadres
 5 départs estimés d’ici 2030
 entre 4 et 5 selon l’hypothèse
 30,5 % pourraient partir d’ici 2030</title></use>
-<use href="#g-27" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Bourgogne-Franche-Comté · 27
+<use href="#g-27" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Bourgogne-Franche-Comté · 27
 PCS 3892 · Cadres
-Aucun salarié observé</title></use>
-<use href="#g-28" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Normandie · 28
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-28" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Normandie · 28
 PCS 3892 · Cadres
-Aucun salarié observé</title></use>
-<use href="#g-32" fill="#4292c6" stroke="#5B6470" stroke-width="1"><title>Hauts-de-France · 32
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-32" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Hauts-de-France · 32
 PCS 3892 · Cadres
-11 salariés de 45 ans ou plus
-3 départs estimés d’ici 2030
-entre 3 et 3 selon l’hypothèse
-25,4 % pourraient partir d’ici 2030</title></use>
-<use href="#g-44" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Grand Est · 44
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-44" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Grand Est · 44
 PCS 3892 · Cadres
-Aucun salarié observé</title></use>
+Résultat non diffusé — secret statistique</title></use>
 <use href="#g-52" fill="#4292c6" stroke="#5B6470" stroke-width="1"><title>Pays de la Loire · 52
 PCS 3892 · Cadres
 15 salariés de 45 ans ou plus
@@ -1954,57 +1812,54 @@ entre 9 et 10 selon l’hypothèse
 </svg>
 <p class="note">Part calculée parmi les salariés de 45 ans ou plus de la catégorie affichée. Même échelle pour tous les territoires ; elle est recalculée quand vous changez de PCS ou d’indicateur. Survolez un territoire pour lire ses chiffres.</p>
 </section>
-<section class="vue vue-20">
+<section class="vue vue-19">
 <p class="vue-titre">PCS 3822 · Cadres</p><p class="vue-qui">Salariés de 45 ans ou plus · Part des salariés susceptibles de partir d’ici 2030</p>
-<div class="legend-title">Part des salariés susceptibles de partir d’ici 2030</div><ul class="map-legend"><li><span class="sw" style="background:#deebf7"></span><span>Moins de 20 %</span></li><li><span class="sw" style="background:#9ecae1"></span><span>20 % à 23 %</span></li><li><span class="sw" style="background:#4292c6"></span><span>23 % à 25 %</span></li><li><span class="sw" style="background:#2171b5"></span><span>25 % à 28 %</span></li><li><span class="sw" style="background:#08306b"></span><span>28 % et plus</span></li><li class="sep"><span class="sw" style="background:#b3b3b3"></span><span>Résultat non diffusé — secret statistique</span></li><li><span class="sw sans" style="background:#ffffff"></span><span>Aucun salarié observé</span></li></ul><p class="compte"><b>10</b> régions avec un résultat · <b>0</b> avec un résultat non diffusé (secret statistique) · <b>8</b> sans salarié observé</p>
+<div class="legend-title">Part des salariés susceptibles de partir d’ici 2030</div><ul class="map-legend"><li><span class="sw" style="background:#deebf7"></span><span>Moins de 20 %</span></li><li><span class="sw" style="background:#9ecae1"></span><span>20 % à 23 %</span></li><li><span class="sw" style="background:#4292c6"></span><span>23 % à 25 %</span></li><li><span class="sw" style="background:#2171b5"></span><span>25 % à 28 %</span></li><li><span class="sw" style="background:#08306b"></span><span>28 % et plus</span></li><li class="sep"><span class="sw" style="background:#b3b3b3"></span><span>Résultat non diffusé — secret statistique</span></li></ul><p class="compte"><b>9</b> régions avec un résultat · <b>9</b> avec un résultat non diffusé (secret statistique)</p>
 <svg viewBox="0 0 1000 1230" role="img" aria-label="Départs attendus d’ici 2030 — par région — PCS fine — PCS 3822 · Cadres">
 <rect fill="none" stroke="#c9ced6" x="1.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="10.0" y="1024.0">Guadeloupe</text>
 <rect fill="none" stroke="#c9ced6" x="201.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="210.0" y="1024.0">Martinique</text>
 <rect fill="none" stroke="#c9ced6" x="401.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="410.0" y="1024.0">Guyane</text>
 <rect fill="none" stroke="#c9ced6" x="601.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="610.0" y="1024.0">La Réunion</text>
 <rect fill="none" stroke="#c9ced6" x="801.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="810.0" y="1024.0">Mayotte</text>
-<use href="#g-01" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Guadeloupe · 01
+<use href="#g-01" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Guadeloupe · 01
 PCS 3822 · Cadres
-Aucun salarié observé</title></use>
-<use href="#g-02" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Martinique · 02
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-02" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Martinique · 02
 PCS 3822 · Cadres
-Aucun salarié observé</title></use>
-<use href="#g-03" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Guyane · 03
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-03" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Guyane · 03
 PCS 3822 · Cadres
-Aucun salarié observé</title></use>
-<use href="#g-04" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>La Réunion · 04
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-04" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>La Réunion · 04
 PCS 3822 · Cadres
-Aucun salarié observé</title></use>
-<use href="#g-06" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Mayotte · 06
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-06" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Mayotte · 06
 PCS 3822 · Cadres
-Aucun salarié observé</title></use>
+Résultat non diffusé — secret statistique</title></use>
 <use href="#g-11" fill="#2171b5" stroke="#5B6470" stroke-width="1"><title>Île-de-France · 11
 PCS 3822 · Cadres
 43 salariés de 45 ans ou plus
 12 départs estimés d’ici 2030
 entre 11 et 12 selon l’hypothèse
 27,1 % pourraient partir d’ici 2030</title></use>
-<use href="#g-24" fill="#9ecae1" stroke="#5B6470" stroke-width="1"><title>Centre-Val de Loire · 24
+<use href="#g-24" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Centre-Val de Loire · 24
 PCS 3822 · Cadres
-12 salariés de 45 ans ou plus
-2 départs estimés d’ici 2030
-entre 2 et 3 selon l’hypothèse
-20,7 % pourraient partir d’ici 2030</title></use>
-<use href="#g-27" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Bourgogne-Franche-Comté · 27
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-27" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Bourgogne-Franche-Comté · 27
 PCS 3822 · Cadres
-Aucun salarié observé</title></use>
-<use href="#g-28" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Normandie · 28
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-28" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Normandie · 28
 PCS 3822 · Cadres
-Aucun salarié observé</title></use>
+Résultat non diffusé — secret statistique</title></use>
 <use href="#g-32" fill="#4292c6" stroke="#5B6470" stroke-width="1"><title>Hauts-de-France · 32
 PCS 3822 · Cadres
 13 salariés de 45 ans ou plus
 3 départs estimés d’ici 2030
 entre 3 et 3 selon l’hypothèse
 23,0 % pourraient partir d’ici 2030</title></use>
-<use href="#g-44" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Grand Est · 44
+<use href="#g-44" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Grand Est · 44
 PCS 3822 · Cadres
-Aucun salarié observé</title></use>
+Résultat non diffusé — secret statistique</title></use>
 <use href="#g-52" fill="#08306b" stroke="#5B6470" stroke-width="1"><title>Pays de la Loire · 52
 PCS 3822 · Cadres
 22 salariés de 45 ans ou plus
@@ -2051,6 +1906,97 @@ entre 6 et 6 selon l’hypothèse
 </svg>
 <p class="note">Part calculée parmi les salariés de 45 ans ou plus de la catégorie affichée. Même échelle pour tous les territoires ; elle est recalculée quand vous changez de PCS ou d’indicateur. Survolez un territoire pour lire ses chiffres.</p>
 </section>
+<section class="vue vue-20">
+<p class="vue-titre">PCS 3719 · Cadres</p><p class="vue-qui">Salariés de 45 ans ou plus · Part des salariés susceptibles de partir d’ici 2030</p>
+<div class="legend-title">Part des salariés susceptibles de partir d’ici 2030</div><ul class="map-legend"><li><span class="sw" style="background:#deebf7"></span><span>Moins de 15 %</span></li><li><span class="sw" style="background:#9ecae1"></span><span>15 % à 20 %</span></li><li><span class="sw" style="background:#4292c6"></span><span>20 % à 25 %</span></li><li><span class="sw" style="background:#2171b5"></span><span>25 % à 30 %</span></li><li><span class="sw" style="background:#08306b"></span><span>30 % et plus</span></li><li class="sep"><span class="sw" style="background:#b3b3b3"></span><span>Résultat non diffusé — secret statistique</span></li></ul><p class="compte"><b>8</b> régions avec un résultat · <b>10</b> avec un résultat non diffusé (secret statistique)</p>
+<svg viewBox="0 0 1000 1230" role="img" aria-label="Départs attendus d’ici 2030 — par région — PCS fine — PCS 3719 · Cadres">
+<rect fill="none" stroke="#c9ced6" x="1.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="10.0" y="1024.0">Guadeloupe</text>
+<rect fill="none" stroke="#c9ced6" x="201.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="210.0" y="1024.0">Martinique</text>
+<rect fill="none" stroke="#c9ced6" x="401.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="410.0" y="1024.0">Guyane</text>
+<rect fill="none" stroke="#c9ced6" x="601.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="610.0" y="1024.0">La Réunion</text>
+<rect fill="none" stroke="#c9ced6" x="801.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="810.0" y="1024.0">Mayotte</text>
+<use href="#g-01" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Guadeloupe · 01
+PCS 3719 · Cadres
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-02" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Martinique · 02
+PCS 3719 · Cadres
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-03" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Guyane · 03
+PCS 3719 · Cadres
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-04" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>La Réunion · 04
+PCS 3719 · Cadres
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-06" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Mayotte · 06
+PCS 3719 · Cadres
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-11" fill="#9ecae1" stroke="#5B6470" stroke-width="1"><title>Île-de-France · 11
+PCS 3719 · Cadres
+55 salariés de 45 ans ou plus
+11 départs estimés d’ici 2030
+entre 10 et 11 selon l’hypothèse
+19,5 % pourraient partir d’ici 2030</title></use>
+<use href="#g-24" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Centre-Val de Loire · 24
+PCS 3719 · Cadres
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-27" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Bourgogne-Franche-Comté · 27
+PCS 3719 · Cadres
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-28" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Normandie · 28
+PCS 3719 · Cadres
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-32" fill="#deebf7" stroke="#5B6470" stroke-width="1"><title>Hauts-de-France · 32
+PCS 3719 · Cadres
+18 salariés de 45 ans ou plus
+3 départs estimés d’ici 2030
+entre 2 et 3 selon l’hypothèse
+14,2 % pourraient partir d’ici 2030</title></use>
+<use href="#g-44" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Grand Est · 44
+PCS 3719 · Cadres
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-52" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Pays de la Loire · 52
+PCS 3719 · Cadres
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-53" fill="#08306b" stroke="#5B6470" stroke-width="1"><title>Bretagne · 53
+PCS 3719 · Cadres
+24 salariés de 45 ans ou plus
+8 départs estimés d’ici 2030
+entre 7 et 8 selon l’hypothèse
+31,8 % pourraient partir d’ici 2030</title></use>
+<use href="#g-75" fill="#4292c6" stroke="#5B6470" stroke-width="1"><title>Nouvelle-Aquitaine · 75
+PCS 3719 · Cadres
+53 salariés de 45 ans ou plus
+12 départs estimés d’ici 2030
+entre 11 et 14 selon l’hypothèse
+23,3 % pourraient partir d’ici 2030</title></use>
+<use href="#g-76" fill="#4292c6" stroke="#5B6470" stroke-width="1"><title>Occitanie · 76
+PCS 3719 · Cadres
+20 salariés de 45 ans ou plus
+5 départs estimés d’ici 2030
+entre 4 et 5 selon l’hypothèse
+23,1 % pourraient partir d’ici 2030</title></use>
+<use href="#g-84" fill="#2171b5" stroke="#5B6470" stroke-width="1"><title>Auvergne-Rhône-Alpes · 84
+PCS 3719 · Cadres
+38 salariés de 45 ans ou plus
+10 départs estimés d’ici 2030
+entre 9 et 11 selon l’hypothèse
+25,6 % pourraient partir d’ici 2030</title></use>
+<use href="#g-93" fill="#2171b5" stroke="#5B6470" stroke-width="1"><title>Provence-Alpes-Côte d'Azur · 93
+PCS 3719 · Cadres
+18 salariés de 45 ans ou plus
+5 départs estimés d’ici 2030
+entre 4 et 5 selon l’hypothèse
+25,8 % pourraient partir d’ici 2030</title></use>
+<use href="#g-94" fill="#08306b" stroke="#5B6470" stroke-width="1"><title>Corse · 94
+PCS 3719 · Cadres
+21 salariés de 45 ans ou plus
+7 départs estimés d’ici 2030
+entre 7 et 8 selon l’hypothèse
+34,0 % pourraient partir d’ici 2030</title></use>
+
+</svg>
+<p class="note">Part calculée parmi les salariés de 45 ans ou plus de la catégorie affichée. Même échelle pour tous les territoires ; elle est recalculée quand vous changez de PCS ou d’indicateur. Survolez un territoire pour lire ses chiffres.</p>
+</section>
 </div></div></div>
-<footer><b>Qui est concerné ?</b> Ces résultats concernent les salariés des entreprises retenues dans le périmètre Base. Ils portent sur les salariés âgés de 45 ans ou plus en 2024, appartenant aux catégories professionnelles couvertes par le modèle : cadres, professions intermédiaires, employés, ouvriers. Certaines professions qui ne peuvent pas être rattachées à ces catégories (agriculteurs exploitants, artisans, commerçants et chefs d’entreprise, profession non renseignée) ne sont pas incluses dans les estimations. Un départ est une sortie définitive de l’emploi d’ici 2030 : retraite ou fin de carrière, invalidité, décès. Changer d’employeur n’est pas un départ. Les nombres de départs sont des estimations, arrondies à l’entier pour la lecture ; la part de salariés susceptibles de partir est calculée parmi les salariés de la catégorie affichée. <b>Secret statistique.</b> Certains résultats ne sont pas affichés parce qu’ils concernent trop peu de salariés ou d’entreprises, ou qu’une seule entreprise y pèserait trop ; ces chiffres ne figurent ni dans cette page ni dans ses données. Gris = résultat non diffusé ; blanc pointillé = aucun salarié observé ; un résultat nul est affiché comme tout autre. <b>Source.</b> table test — calculs propres. Fond de carte : IGN Admin Express (COG 2018) via france-geojson, licence ouverte.</footer>
+<footer><b>Qui est concerné ?</b> Ces résultats concernent les salariés des entreprises retenues dans le périmètre Base. Ils portent sur les salariés âgés de 45 ans ou plus en 2024, appartenant aux catégories professionnelles couvertes par le modèle : cadres, professions intermédiaires, employés, ouvriers. Certaines professions qui ne peuvent pas être rattachées à ces catégories (agriculteurs exploitants, artisans, commerçants et chefs d’entreprise, profession non renseignée) ne sont pas incluses dans les estimations. Un départ est une sortie définitive de l’emploi d’ici 2030 : retraite ou fin de carrière, invalidité, décès. Changer d’employeur n’est pas un départ. Les nombres de départs sont des estimations, arrondies à l’entier pour la lecture ; la part de salariés susceptibles de partir est calculée parmi les salariés de la catégorie affichée. <b>Secret statistique.</b> Certains résultats ne sont pas affichés parce qu’ils concernent trop peu de salariés ou d’entreprises, ou qu’une seule entreprise y pèserait trop ; ces chiffres ne figurent ni dans cette page ni dans ses données. Gris = résultat non diffusé, y compris lorsqu’aucun salarié n’est observé ; un résultat nul d’une cellule diffusable est affiché comme tout autre. <b>Source.</b> table test — calculs propres. Fond de carte : IGN Admin Express (COG 2018) via france-geojson, licence ouverte.</footer>
 </div></body></html>

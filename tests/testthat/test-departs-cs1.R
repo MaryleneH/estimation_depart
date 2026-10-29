@@ -108,7 +108,13 @@ test_that("H. secret : MÊME implémentation que departs_pcs (règle Insee prima
   r <- E$regles_secret()
   for (n in names(D)) {
     d <- D[[n]]; a <- A[[n]]
-    expect_identical(d, E$appliquer_secret_pcs(a, n, r, dimension = "cs1"), label = n)   # la fonction du 08c, dimension cs1
+    U <- { old <- setwd(RACINE); on.exit(setwd(old), add = TRUE); if (n == "france") NULL else E$univers_territoires(n) }
+    expect_identical(d, E$appliquer_secret_pcs(a, n, r, dimension = "cs1", univers = U, categories = A$france |> dplyr::distinct(cs1)), label = n)   # la fonction du 08c, dimension cs1
+    for (bloc in E$blocs_secret(n, d, "cs1")) {                       # aucun bloc avec UNE seule cellule masquée (table complète, cellules à zéro comprises)
+      k <- d |> dplyr::group_by(dplyr::across(dplyr::all_of(bloc))) |> dplyr::summarise(m = sum(masque), t = dplyr::n(), .groups = "drop")
+      expect_false(any(k$m == 1 & k$t > 2), label = paste(n, paste(bloc, collapse = "x")))
+    }
+    cles <- c(E$cles_niveau_pcs(n, E$base_cs1), "cs1"); d <- dplyr::inner_join(a |> dplyr::select(dplyr::all_of(cles)), d, by = cles)   # cellules observées (la diffusion porte aussi les cellules à zéro de l'univers)
     prim <- E$secret_primaire(a$effectif_champ, a$n_entreprises, a$part_dominante_pct, r)
     expect_identical(d$motif_masque %in% "primaire", prim, label = n)
     expect_false(any(!d$masque & prim), label = n)
@@ -117,10 +123,6 @@ test_that("H. secret : MÊME implémentation que departs_pcs (règle Insee prima
     expect_true(all(d$motif_masque[d$masque] %in% c("primaire", "secondaire")) && all(is.na(d$motif_masque[!d$masque])))
     expect_false(anyNA(a$effectif_champ)); expect_false(anyNA(a$departs_central))      # interne complète
     expect_false(any(c("n_entreprises", "part_dominante_pct") %in% names(d)))
-    for (bloc in E$blocs_secret(n, d, "cs1")) {                       # aucun bloc avec UNE seule cellule masquée
-      k <- d |> dplyr::group_by(dplyr::across(dplyr::all_of(bloc))) |> dplyr::summarise(m = sum(masque), t = dplyr::n(), .groups = "drop")
-      expect_false(any(k$m == 1 & k$t > 2), label = paste(n, paste(bloc, collapse = "x")))
-    }
   }
   # blocs de la dimension pcs STRICTEMENT inchangés
   expect_identical(E$blocs_secret("france", P$france, "pcs"), list(c("cs1")))
@@ -165,4 +167,12 @@ test_that("fichiers : interne/ toujours, diffusion/ selon DEPARTS_CS1_SECRET ; 0
   ez <- lancer_cs1("ze")
   expect_identical(ez$departs_cs1$niveaux, "france")
   expect_equal(sum(ez$departs_cs1$analytique$france$effectif_champ), nrow(ez$bts_projete))
+})
+
+test_that("SPEC-SEC-035 — univers : département x cs1 et région x cs1 complets (référentiel x grandes CS observées en France), lignes ajoutées masquées et vides", {
+  U <- E$univers_territoires("departement"); cs <- A$france |> dplyr::distinct(cs1); dd <- D$departement; dr <- D$region
+  expect_equal(nrow(dd), 101L * nrow(cs) + sum(dd$geo_code == "inconnu")); expect_equal(nrow(dr), 18L * nrow(cs))
+  aj <- dplyr::anti_join(dd, A$departement, by = c("geo_code", "cs1")); expect_gt(nrow(aj), 0)
+  expect_true(all(aj$masque) && all(aj$motif_masque == "primaire") && all(is.na(aj$departs_central)) && all(is.na(aj$effectif_champ)))
+  expect_true(all(dd$cs1 %in% cs$cs1)); expect_equal(as.vector(table(dd$geo_code[dd$geo_code != "inconnu"])), rep(nrow(cs), 101L))   # chaque département : toutes les grandes CS
 })

@@ -35,8 +35,9 @@ test_that("fichier : créé dans DIR_SORTIES, suffixé par le zonage, colonnes a
   ok <- !lu$masque
   expect_true(all(lu$effectif_tous_ages[ok] >= lu$effectif_champ[ok]))
   # part calculée sur les départs EXACTS (brut), pas sur les départs arrondis du CSV (convention 00g)
-  brut_lu <- ENV$calculer_departs_geo_cs(ENV$base_geo_cs, stock = ENV$stock_tous_ages)$brut            # même ordre que le CSV (territoire, ordre métier des CS)
-  expect_equal(lu$part_a_remplacer_pct[ok], round(100 * brut_lu$departs_2030[ok] / brut_lu$effectif_tous_ages[ok], 1), tolerance = 0.06)
+  brut_lu <- ENV$calculer_departs_geo_cs(ENV$base_geo_cs, stock = ENV$stock_tous_ages)$brut            # cellules observées ; le CSV porte aussi les cellules à zéro de l'univers (SPEC-SEC-035)
+  jl <- dplyr::inner_join(lu[ok, c("geo_code", "cs1", "part_a_remplacer_pct")], brut_lu |> dplyr::select(geo_code, cs1, departs_2030, effectif_tous_ages), by = c("geo_code", "cs1")); expect_equal(nrow(jl), sum(ok))
+  expect_equal(jl$part_a_remplacer_pct, round(100 * jl$departs_2030 / jl$effectif_tous_ages, 1), tolerance = 0.06)
   expect_true(all(lu$departs_2030[ok] == round(lu$departs_2030[ok])))                 # personnes : entiers dans le CSV
   expect_true(all(is.na(lu$effectif_tous_ages[!ok])))
   expect_type(lu$geo_code, "character")
@@ -75,13 +76,25 @@ test_that("2. totaux cohérents avec 04 (p_central), 08 (effectifs par cellule) 
   # formule du taux : celle du 05 (part_departs_pct)
   expect_equal(brut$part_departs_pct, 100 * brut$departs_2030 / brut$effectif_champ)
   # le CSV diffusé = brut arrondi à 0,1 hors cellules masquées
-  expect_equal(D$departs_2030[!D$masque], ENV$arrondir_nombre_personnes(brut$departs_2030[!D$masque]))   # personnes -> entier (00g)
-  expect_equal(D$part_departs_pct[!D$masque], round(brut$part_departs_pct[!D$masque], 1))             # taux -> 1 décimale, calculé sur l'exact
+  jb <- dplyr::inner_join(D[!D$masque, c("geo_code", "cs1", "departs_2030", "part_departs_pct")], brut |> dplyr::select(geo_code, cs1, d_b = departs_2030, p_b = part_departs_pct), by = c("geo_code", "cs1"))
+  expect_equal(nrow(jb), sum(!D$masque))                                                        # toute cellule visible est une cellule observée
+  expect_equal(jb$departs_2030, ENV$arrondir_nombre_personnes(jb$d_b))                           # personnes -> entier (00g)
+  expect_equal(jb$part_departs_pct, round(jb$p_b, 1))                                            # taux -> 1 décimale, calculé sur l'exact
 })
 
 test_that("3. tous les territoires du périmètre ; 4. aucune CS inattendue", {
-  expect_setequal(unique(D$geo_code), unique(ENV$base_geo_cs$geo_code))
-  expect_setequal(unique(D$geo_code), unique(ENV$synthese_geo$geo_code))
+  expect_true(all(unique(ENV$base_geo_cs$geo_code) %in% D$geo_code)); expect_true(all(unique(ENV$synthese_geo$geo_code) %in% D$geo_code))
+  # SPEC-SEC-035 : la table diffusée porte tout l'univers (référentiel x grandes CS) ; les ajouts sont masqués et vides
+  U <- { old <- setwd(RACINE); on.exit(setwd(old), add = TRUE); ENV$univers_territoires("departement") }; expect_setequal(setdiff(D$geo_code, "inconnu"), U$geo_code)
+  brut_u <- ENV$calculer_departs_geo_cs(ENV$base_geo_cs)$brut; obs_k <- paste(brut_u$geo_code, brut_u$cs1)
+  aj <- D[!paste(D$geo_code, D$cs1) %in% obs_k, ]
+  expect_gt(nrow(aj), 0); expect_true(all(aj$masque) && all(is.na(aj$effectif_champ)) && all(is.na(aj$departs_2030)))
+  crit <- read.csv2(ENV$sortie("criticite_55plus_%s_cs.csv"), colClasses = c(geo_code = "character"), fileEncoding = "UTF-8-BOM")
+  expect_setequal(setdiff(crit$geo_code, "inconnu"), U$geo_code); expect_true(all(crit$masque[!paste(crit$geo_code, crit$cs1) %in% obs_k])); expect_true(all(is.na(crit$effectif_champ[crit$masque])))
+  expect_setequal(paste(crit$geo_code, crit$cs1), paste(D$geo_code, D$cs1))                                   # 08 et 08b : même grille
+  # aucun territoire dont les seules cellules masquées seraient des cellules à zéro (SPEC-SEC-010) : la somme des masquées, déductible du total publié, vaudrait zéro
+  for (g in unique(D$geo_code)) { m <- D$masque[D$geo_code == g]; z <- !paste(g, D$cs1[D$geo_code == g]) %in% obs_k
+    expect_false(any(m) && all(z[m]) && sum(!m) > 1, label = g) }
   expect_true(all(D$cs1 %in% unname(ENV$PCS_VERS_CS1)))
   base_bidon <- ENV$base_geo_cs; base_bidon$cs1[1] <- "Agriculteurs"
   expect_error(ENV$calculer_departs_geo_cs(base_bidon), "hors nomenclature")
@@ -107,7 +120,8 @@ test_that("5. secret statistique : règle Insee (salariés, entreprises, dominan
   b0 <- ENV$calculer_departs_geo_cs(ENV$base_geo_cs)$brut
   expect_true(all(c("n_entreprises", "part_dominante_pct") %in% names(b0)))
   expect_false(any(c("n_entreprises", "part_dominante_pct") %in% names(D)))
-  expect_false(any(!D$masque & ENV$secret_primaire(b0$effectif_champ, b0$n_entreprises, b0$part_dominante_pct)))
+  j0 <- dplyr::inner_join(b0 |> dplyr::select(geo_code, cs1, effectif_champ, n_entreprises, part_dominante_pct), D |> dplyr::select(geo_code, cs1, masque), by = c("geo_code", "cs1"))   # cellules observées (D porte aussi les cellules à zéro)
+  expect_equal(nrow(j0), nrow(b0)); expect_false(any(!j0$masque & ENV$secret_primaire(j0$effectif_champ, j0$n_entreprises, j0$part_dominante_pct)))
   expect_false(any(!is.na(D$effectif_champ) & D$effectif_champ < ENV$SECRET_MIN_SALARIES))
   # une cellule dominée par une entreprise est masquée même avec beaucoup de salariés
   base_dom <- ENV$base_geo_cs |> dplyr::mutate(siren = ifelse(geo_code == "33" & cs1 == "Ouvriers", "UNIQUE", siren))
@@ -168,7 +182,7 @@ test_that("8. sourcer 08b ne modifie, ne supprime ni ne regroupe aucun objet exi
   expect_identical(disparus, character(0))                         # rien supprimé (ex. `brut` du 02c)
   expect_identical(modifies, character(0))                         # rien modifié (bts_projete, synthese_geo, ...)
   expect_setequal(setdiff(names(apres), names(avant)),             # seuls des objets NOUVEAUX
-                  c("ZON_08B", "base_geo_cs", "calculer_departs_geo_cs", "departs_geo_cs", "fichier_08b"))
+                  c("ZON_08B", "base_geo_cs", "calculer_departs_geo_cs", "departs_geo_cs", "fichier_08b", "univers_08b"))
   expect_true("stock_tous_ages" %in% names(avant))                 # le 01c a tourné avant, intact
   expect_identical(indicateurs(env), avant_ind)                    # mêmes comptages, aucun grouping résiduel
   expect_identical(dplyr::group_vars(env$bts_projete), character(0))

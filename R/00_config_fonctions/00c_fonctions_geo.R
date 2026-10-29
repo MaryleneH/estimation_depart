@@ -371,3 +371,34 @@ normaliser_geo <- function(df, geo_source, geo_analyse, largeur = NA,
   df$geo_type <- geo_analyse
   df
 }
+
+# --- Univers des territoires d'un niveau (SPEC-SEC-035) -------------------------
+# Tous les territoires que les tables de DIFFUSION doivent porter, qu'ils aient ou
+# non des salariés observés : un territoire sans salarié est une cellule à zéro,
+# c'est-à-dire sous le seuil du secret primaire ; son absence de la table serait
+# la même information qu'un zéro affiché. Source : le référentiel local du niveau
+# (GEO_REFERENTIELS, code;nom) ; pour la région, la table de passage
+# departement->region (code_cible ; nom_cible). Restreint à GEO_INTERET quand il
+# est renseigné (périmètre de restitution). NULL si aucune source : les tables ne
+# sont alors pas complétées, et l'appelant le dit en console.
+univers_territoires <- function(niveau = GEO_ANALYSE, geo_interet = get0("GEO_INTERET", ifnotfound = NULL),
+                                referentiels = get0("GEO_REFERENTIELS", ifnotfound = list()), passages = get0("GEO_PASSAGES", ifnotfound = list())) {
+  codes <- codes_geo_interet(geo_interet)
+  ch_pass <- passages[["departement->region"]]
+  passage <- if (!is.null(ch_pass) && !is.na(ch_pass) && file.exists(ch_pass)) lire_passage_geo(ch_pass, "departement->region", nom_requis = TRUE) else NULL
+  if (identical(niveau, "region")) {
+    if (is.null(passage)) return(NULL)
+    p <- if (is.null(codes)) passage else passage[passage$code_source %in% codes, ]
+    u <- p |> distinct(geo_code = code_cible, geo_nom = nom_cible) |> arrange(geo_code)
+    return(u |> mutate(across(everything(), as.character)))
+  }
+  ref <- lire_referentiel_geo(referentiels[[niveau]])
+  if (is.null(ref)) return(NULL)
+  u <- tibble::tibble(geo_code = as.character(ref$code), geo_nom = as.character(ref$nom))
+  if (!is.null(codes)) u <- u[u$geo_code %in% codes, ]
+  if (identical(niveau, "departement") && !is.null(passage)) {
+    i <- match(u$geo_code, passage$code_source)
+    u$region_code <- as.character(passage$code_cible[i]); u$region_nom <- as.character(passage$nom_cible[i])
+  }
+  u |> arrange(geo_code)
+}

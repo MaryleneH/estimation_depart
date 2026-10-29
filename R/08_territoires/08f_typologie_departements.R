@@ -60,7 +60,7 @@ if (!isTRUE(get0("GENERER_TYPOLOGIE", ifnotfound = FALSE))) {
       message("08f : TYPO_SECRET = TRUE mais le 08d n'a pas produit de table de diffusion (DEPARTS_CS1_SECRET = FALSE) -> aucun fichier diffusion/.")
     } else {
       base_dep_08f <- bts_projete |> mutate(geo_code = ifelse(is.na(geo_code), "inconnu", as.character(geo_code)))
-      diffusion_08f <- appliquer_secret_typologie(typo_08f, departs_cs1$diffusion$departement, base_dep_08f, regles_secret())
+      diffusion_08f <- appliquer_secret_typologie(typo_08f, departs_cs1$diffusion$departement, base_dep_08f, regles_secret(), univers = univers_territoires("departement", geo_interet = NULL))   # SPEC-SEC-035 ; même périmètre que le 08d (tous les départements)
       if (any(c("n_entreprises", "part_dominante_pct") %in% names(diffusion_08f))) stop("08f : indicateurs de secret présents dans la diffusion.")
       dir_dif <- file.path(dir_typo, "diffusion"); dir.create(dir_dif, showWarnings = FALSE, recursive = TRUE)
       write.csv2(restituer_08f(diffusion_08f), file.path(dir_dif, "typologie_departements.csv"), row.names = FALSE)

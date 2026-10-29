@@ -208,7 +208,7 @@ controler_parts_secret <- function(base, cles, dif_pcs, regles) {
     group_by(across(all_of(cles))) |> summarise(bloque_difference = any(n_masquees == 1), .groups = "drop")
   full_join(bloq_p, diffe, by = cles) |> mutate(bloque_primaire = coalesce(bloque_primaire, FALSE), bloque_difference = coalesce(bloque_difference, FALSE))
 }
-appliquer_secret_exposition <- function(expo, metiers, base, dif_pcs_dep, typo_dif = NULL, dif_pcs_fr = NULL, regles = regles_secret(), params = expo$params, territoire = "département") {
+appliquer_secret_exposition <- function(expo, metiers, base, dif_pcs_dep, typo_dif = NULL, dif_pcs_fr = NULL, regles = regles_secret(), params = expo$params, territoire = "département", univers = NULL) {
   partie <- function(pcs_n) ifelse(pcs_n %in% metiers$pcs[metiers$en_tension %in% TRUE], "A", ifelse(pcs_n %in% metiers$pcs[metiers$en_tension %in% FALSE], "B", "C"))
   b <- base |> mutate(geo_code = ifelse(is.na(geo_code), "inconnu", as.character(geo_code)), part = partie(normaliser_code_pcs(pcs)))
   if (!"masque" %in% names(dif_pcs_dep)) stop("appliquer_secret_exposition : table de diffusion du 08c requise (colonne masque).")
@@ -240,6 +240,8 @@ appliquer_secret_exposition <- function(expo, metiers, base, dif_pcs_dep, typo_d
                 tension_departs_min = d$departs_strategiques_tension, tension_departs_min_bas = d$departs_tension_bas, tension_departs_min_haut = d$departs_tension_haut,
                 tension_part_departs_min_pct = d$part_departs_tension_pct)
   for (v in setdiff(names(out), c("geo_code", "geo_nom", "tension_diffusee"))) out[[v]][!out$tension_diffusee] <- NA
+  # univers des territoires (SPEC-SEC-035) : territoire sans salarié observé = ligne non diffusée, sans valeur
+  if (!is.null(univers)) out <- completer_univers_diffusion(out, univers, col_masque = "tension_diffusee", valeur_masque = FALSE) |> arrange(geo_code)
   out
 }
 

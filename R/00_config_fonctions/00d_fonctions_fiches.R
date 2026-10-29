@@ -114,8 +114,14 @@ secret_primaire <- function(n, n_entreprises, part_dominante_pct, regles = regle
 # marge du bloc est publiée, elle se retrouve par différence : on masque aussi
 # la plus petite cellule restante (en salariés). Si deux cellules ou plus sont
 # déjà masquées, rien n'est déductible : on n'en masque pas davantage.
+# Même raisonnement quand TOUTES les cellules masquées du bloc sont à zéro
+# (territoire ou catégorie sans salarié observé, SPEC-SEC-035) : leur somme,
+# déductible de la marge, vaut zéro et les révèle toutes ; une cellule visible
+# est alors masquée en plus. Une cellule observée a toujours n >= 1 : cette
+# clause ne change rien aux tables sans cellule à zéro.
 secret_secondaire <- function(masque, n) {
-  if (sum(masque) == 1 && sum(!masque) > 1) {
+  deductible <- sum(masque) == 1 || (sum(masque) >= 1 && all(n[masque] == 0, na.rm = TRUE))
+  if (deductible && sum(!masque) > 1) {
     cand <- which(!masque)
     masque[cand[which.min(n[cand])]] <- TRUE
   }
@@ -221,6 +227,19 @@ calculer_indicateurs_territoire <- function(base, code, contexte,
               seniors_central = sum(d$p_central[d$senior]),
               seniors_bas = sum(d$p_bas[d$senior]), seniors_haut = sum(d$p_haut[d$senior]))
   dep$taux_seniors <- if (n55 > 0) 100 * dep$seniors_central / n55 else NA_real_
+  # Secret du bloc « seniors » (SPEC-PUB-021) : la cellule des salariés de age_senior ans et + (n55, part, départs
+  # attendus et taux des seniors) suit la règle primaire (salariés, entreprises, dominance) comme toute cellule ;
+  # masquée, aucun de ses chiffres n'est publié et la fiche le dit, sans jamais écrire « aucun » (un zéro est une
+  # valeur protégée). Publiée, n55 est une marge : les tranches senior reçoivent entre elles le secret secondaire,
+  # de même que les tranches non senior (marge n_champ - n55).
+  secret <- !is.null(regles)
+  sec_s <- if (n55 > 0) indicateurs_secret(d |> filter(senior)) else tibble::tibble(n_entreprises = 0L, part_dominante_pct = 100)
+  seniors_masques <- secret && secret_primaire(n55, sec_s$n_entreprises[1], sec_s$part_dominante_pct[1], regles)
+  if (secret && !seniors_masques) {
+    sen <- ages$senior %in% TRUE
+    ages$masque[sen] <- secret_secondaire(ages$masque[sen], ages$n[sen]); ages$masque[!sen] <- secret_secondaire(ages$masque[!sen], ages$n[!sen])
+  }
+  if (seniors_masques) { n55 <- NA_integer_; dep$taux_seniors <- NA_real_; dep$seniors_central <- dep$seniors_bas <- dep$seniors_haut <- NA_real_ }
 
   # Causes (sur l'ensemble des départs attendus du territoire)
   tot <- max(dep$central, 1e-12)
@@ -270,7 +289,7 @@ calculer_indicateurs_territoire <- function(base, code, contexte,
        population = list(n_champ = n_champ, n55 = n55, part55 = part55,
                          n_tous_ages = n_tous_ages,
                          n_entreprises = if (!secret || n_ent >= regles$min_entreprises) n_ent else NA_integer_),
-       stock_disponible = stock_disponible,
+       stock_disponible = stock_disponible, seniors_masques = seniors_masques,
        ages = ages, departs = dep, causes = causes, cs = cs, cs_masquee = cs_masquee,
        position = pos, entreprises = entreprises)
 }
@@ -281,12 +300,16 @@ calculer_indicateurs_territoire <- function(base, code, contexte,
 # tête de fiche : chaque donnée n'apparaît qu'une fois).
 phrases_a_retenir <- function(ind, contexte = NULL) {
   p <- ind$population; dep <- ind$departs; s <- ind$age_senior; a <- ind$age_min
-  ph <- sprintf("%s des salariés de %d ans et + ont %d ans ou plus.", fmt_pct(p$part55), a, s)
-  if (is.finite(dep$taux_seniors))
-    ph <- c(ph, sprintf("%s des salariés de %d ans et + devraient avoir quitté l’emploi d’ici 2030.",
-                        fmt_pct(dep$taux_seniors), s))
-  else
-    ph <- c(ph, sprintf("Le territoire ne compte aucun salarié de %d ans et + dans le champ.", s))
+  if (isTRUE(ind$seniors_masques))                      # SPEC-PUB-021 : bloc seniors sous secret, jamais « aucun »
+    ph <- sprintf("Les chiffres des salariés de %d ans et + ne sont pas diffusés (secret statistique : trop peu de salariés ou d’entreprises, ou une entreprise trop dominante).", s)
+  else {
+    ph <- sprintf("%s des salariés de %d ans et + ont %d ans ou plus.", fmt_pct(p$part55), a, s)
+    if (is.finite(dep$taux_seniors))
+      ph <- c(ph, sprintf("%s des salariés de %d ans et + devraient avoir quitté l’emploi d’ici 2030.",
+                          fmt_pct(dep$taux_seniors), s))
+    else
+      ph <- c(ph, sprintf("Le territoire ne compte aucun salarié de %d ans et + dans le champ.", s))
+  }
   # Troisième phrase : la part des effectifs ACTUELS à remplacer (stock tous
   # âges, 01c). La précision par catégorie n'est donnée que si aucune CS n'est
   # masquée (sinon le maximum n'est pas certain).
@@ -472,10 +495,10 @@ generer_html_fiche <- function(ind, contexte, zonage, seuil_proche = NULL,
   }
   bloc_pos <- paste0(
     ligne_pos(sprintf("Part des salariés de %d ans et +", s), p$part55, ind$position$part,
-              contexte$med_part, contexte$etendue$part, "non calculable"),
+              contexte$med_part, contexte$etendue$part, if (isTRUE(ind$seniors_masques)) "non diffusé (secret statistique)" else "non calculable"),
     ligne_pos(sprintf("Part des salariés de %d ans et + qui devraient avoir quitté l’emploi d’ici 2030", s),
               dep$taux_seniors, ind$position$taux, contexte$med_taux, contexte$etendue$taux,
-              sprintf("non calculable : aucun salarié de %d ans et +", s)))
+              if (isTRUE(ind$seniors_masques)) "non diffusé (secret statistique)" else sprintf("non calculable : aucun salarié de %d ans et +", s)))
   regle_proche <- if (!is.null(seuil_proche))
     sprintf(" « Proche de la médiane » : écart inférieur ou égal à %s points.", format(seuil_proche)) else ""
 
@@ -512,9 +535,9 @@ generer_html_fiche <- function(ind, contexte, zonage, seuil_proche = NULL,
       sprintf('<p class="an-txt">Retraite ou fin de carrière : %s · Invalidité : %s · Décès : %s.</p>',
               fmt_pct(ca$pct[1]), fmt_pct(ca$pct[2]), fmt_pct(ca$pct[3])),
       '<h3>Scénarios</h3>',
-      sprintf('<p class="an-txt">Central : %s départs · hypothèse réglementaire basse : %s · haute : %s. Parmi les %d ans et + : %s (fourchette %s – %s).</p>',
+      sprintf('<p class="an-txt">Central : %s départs · hypothèse réglementaire basse : %s · haute : %s. Parmi les %d ans et + : %s.</p>',
               fmt_n(dep$central), fmt_n(dep$bas), fmt_n(dep$haut), s,
-              fmt_n(dep$seniors_central), fmt_n(dep$seniors_bas), fmt_n(dep$seniors_haut)),
+              if (isTRUE(ind$seniors_masques)) "non diffusé (secret statistique)" else sprintf("%s (fourchette %s – %s)", fmt_n(dep$seniors_central), fmt_n(dep$seniors_bas), fmt_n(dep$seniors_haut))),
       '<h3>Comparaison détaillée</h3>',
       sprintf('<p class="an-txt">Part des %d ans et + : %s (médiane %s, écart %s). Part des %d ans et + ayant quitté l’emploi d’ici 2030 : %s (médiane %s, écart %s).</p>',
               s, fmt_pct(p$part55), fmt_pct(contexte$med_part),
@@ -548,6 +571,7 @@ generer_html_fiche <- function(ind, contexte, zonage, seuil_proche = NULL,
     sprintf('<div><div class="ctx-n">%s</div><div class="ctx-l">salariés de %d ans et +%s</div></div>',
             fmt_n(p$n_champ), a,
             if (is.finite(p$n_entreprises)) sprintf(" dans %s entreprises", fmt_n(p$n_entreprises)) else ""),
+    if (isTRUE(ind$seniors_masques)) sprintf('<div><div class="ctx-n">n.d.</div><div class="ctx-l">ont %d ans et + · <b>non diffusé (secret statistique)</b></div></div>', s) else
     sprintf('<div><div class="ctx-n">%s</div><div class="ctx-l">ont %d ans et +, soit <b>%s</b></div></div>',
             fmt_n(p$n55), s, fmt_pct(p$part55)),
     '</div></section>',

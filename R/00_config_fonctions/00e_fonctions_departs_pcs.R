@@ -222,11 +222,25 @@ blocs_secret <- function(niveau, table, dimension = c("pcs", "cs1")) {
 # Enveloppe historique (tests) : blocs de la dimension pcs.
 blocs_secret_pcs <- function(niveau, table) blocs_secret(niveau, table, "pcs")
 
+# univers / categories (SPEC-SEC-035) : AVANT le secret, la table reçoit une cellule à zéro
+# (effectif 0, aucune entreprise) pour chaque territoire de l'univers x catégorie absente ;
+# la règle primaire la masque, et elle compte dans les blocs du secret secondaire (un bloc
+# dont toutes les cellules masquées sont à zéro reçoit un masque de plus). Un zéro est une
+# valeur protégée ; la table interne (analytique) n'est jamais touchée.
 appliquer_secret_pcs <- function(table, niveau, regles = regles_secret(), max_iter = 20,
-                                 dimension = c("pcs", "cs1")) {
+                                 dimension = c("pcs", "cs1"), univers = NULL, categories = NULL) {
   niveau <- match.arg(niveau, NIVEAUX_DEPARTS_PCS); dimension <- match.arg(dimension)
   if (!all(c("n_entreprises", "part_dominante_pct") %in% names(table)))
     stop("appliquer_secret_pcs : indicateurs de secret absents (table issue de calculer_departs ?).")
+  n_aj <- 0L
+  if (niveau != "france" && !is.null(univers)) {
+    u <- if (niveau == "region") univers |> transmute(region_code = geo_code, region_nom = geo_nom) else univers   # la table région porte region_code
+    zeros <- c(list(effectif_champ = 0L, n_entreprises = 0L, part_dominante_pct = 100, taux_depart_central_pct = NA_real_),
+               setNames(as.list(rep(0, length(MESURES_DEPARTS_PCS))), MESURES_DEPARTS_PCS))
+    n0 <- nrow(table)
+    table <- completer_univers_diffusion(table, u, categories, col_masque = NULL, cle_geo = if (niveau == "region") "region_code" else "geo_code", valeurs = zeros)
+    n_aj <- nrow(table) - n0
+  }
   t <- table |> mutate(masque = secret_primaire(effectif_champ, n_entreprises, part_dominante_pct, regles),
                        motif_masque = ifelse(masque, "primaire", NA_character_))
   for (bloc in blocs_secret(niveau, t, dimension)) {
@@ -246,11 +260,14 @@ appliquer_secret_pcs <- function(table, niveau, regles = regles_secret(), max_it
         mutate(masque = secret_secondaire(masque, effectif_champ)) |> ungroup()
     if (identical(avant, t$masque)) break
   }
-  t |>
+  t <- t |>
     mutate(motif_masque = ifelse(masque & is.na(motif_masque), "secondaire", motif_masque),
            across(all_of(c(MESURES_DEPARTS_PCS, "taux_depart_central_pct")), ~ ifelse(masque, NA_real_, .x)),
            effectif_champ = as.integer(effectif_champ)) |>
     select(-n_entreprises, -part_dominante_pct)
+  if (n_aj > 0) { cles <- c(cles_niveau_pcs(niveau, t), dimension); t <- t |> arrange(across(all_of(cles))) }
+  attr(t, "n_completees") <- n_aj
+  t
 }
 
 # --- Export : convention de restitution (00g) — personnes -> entier, causes

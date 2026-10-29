@@ -21,14 +21,14 @@ select,input[type=search]{width:100%;font:inherit;font-size:15px;padding:9px 10p
 .radios{display:flex;gap:8px;margin:0}.radios label{flex:1;border:1px solid #AEB7C2;border-radius:8px;padding:9px 8px;text-align:center;cursor:pointer;font-size:15px;font-weight:500;color:var(--encre);min-height:42px;display:flex;align-items:center;justify-content:center}.radios input{position:absolute;opacity:0;width:0;height:0}.radios label.on{background:var(--bleu);color:#fff;border-color:var(--bleu)}.radios label:focus-within{outline:2px solid var(--bleu);outline-offset:1px}
 .tabs{display:flex;flex-wrap:wrap;gap:8px;margin:0}.tabs button{font:inherit;font-size:15px;font-weight:600;padding:10px 16px;border-radius:999px;border:1px solid #AEB7C2;background:#fff;color:var(--encre);cursor:pointer;min-height:42px}.tabs button.on{background:var(--bleu);border-color:var(--bleu);color:#fff}.tabs button:focus-visible{outline:2px solid var(--bleu);outline-offset:2px}
 .legend-title{font-size:15px;font-weight:700;margin:16px 0 6px;color:var(--encre)}.map-legend{list-style:none;margin:0;padding:0}.map-legend li{display:flex;align-items:center;gap:10px;font-size:15px;margin:6px 0;color:var(--encre)}.map-legend li.sep{border-top:1px solid var(--filet);margin-top:10px;padding-top:10px}
-.map-legend .sw{width:26px;height:16px;border-radius:3px;border:1px solid #5B6470;flex:none}.map-legend .sw.sans{border:1.5px dashed #7B8794}
+.map-legend .sw{width:26px;height:16px;border-radius:3px;border:1px solid #5B6470;flex:none}
 .compte{font-size:15px;color:var(--encre);margin:10px 0 0}.compte b{font-weight:700}.note{font-size:13.5px;color:var(--texte);margin:10px 0 0;line-height:1.45}
 .sans-js{margin:12px 0 0;padding:10px 14px;border:1px solid #e0b96a;border-left-width:4px;background:#fff8e6;color:#5b4300;font-size:15px;border-radius:0 8px 8px 0}
 .carte{position:relative;min-width:0}.carte svg{width:100%;height:auto;display:block}
-path.t{stroke:#5B6470;stroke-width:1;vector-effect:non-scaling-stroke;cursor:pointer;outline:none}path.t.sans{stroke:#7B8794;stroke-width:0.8;stroke-dasharray:3 2}
+path.t{stroke:#5B6470;stroke-width:1;vector-effect:non-scaling-stroke;cursor:pointer;outline:none}
 .limites-reg path{fill:none;stroke:#2F3945;stroke-width:1.5;vector-effect:non-scaling-stroke;stroke-linejoin:round;pointer-events:none}
 #survol{fill:none;stroke:#111827;stroke-width:2.4;vector-effect:non-scaling-stroke;stroke-linejoin:round;pointer-events:none;display:none}#survol.on{display:inline}
-@media (max-width:640px){path.t{stroke-width:0.7}path.t.sans{stroke-width:0.56}.limites-reg path{stroke-width:1.05}#survol{stroke-width:1.68}}
+@media (max-width:640px){path.t{stroke-width:0.7}.limites-reg path{stroke-width:1.05}#survol{stroke-width:1.68}}
 .encart{fill:none;stroke:#c9ced6;stroke-width:1.2}.encart-lib{font-size:17px;font-weight:600;fill:#3E4C59}
 .bulle{position:absolute;pointer-events:none;background:#1F2933;color:#fff;border-radius:10px;padding:14px 16px;font-size:15px;line-height:1.5;min-width:240px;max-width:320px;box-shadow:0 8px 24px rgba(0,0,0,.22);display:none;z-index:2}
 .tooltip-title{font-size:17px;font-weight:700;margin:0 0 2px}.tooltip-cat{color:#cfd6df;margin:0 0 8px;font-weight:500}.tooltip-rows{border-top:1px solid rgba(255,255,255,.25);padding-top:8px}.tooltip-rows .tooltip-value{font-weight:700;padding:3px 0}.tooltip-rows .tooltip-small{color:#cfd6df;font-size:13.5px;padding:0 0 4px}.tooltip-secret{color:#ffd7a8;font-weight:700;margin-top:8px}.tooltip-secret small{display:block;color:#f3f4f6;font-weight:400}.tooltip-sans{color:#e5e7eb;font-weight:600;margin-top:8px}
@@ -59,7 +59,7 @@ footer{margin-top:28px;color:var(--texte);font-size:13.5px;line-height:1.55;bord
 <details><summary>ⓘ Qui est concerné ?</summary></details>
 <div class="study-scope-detail" id="scope-detail" hidden><p>Ces résultats concernent les salariés des entreprises retenues dans le périmètre Base.</p><p>Ils portent sur les salariés âgés de 45 ans ou plus en 2024, appartenant aux catégories professionnelles couvertes par le modèle : cadres, professions intermédiaires, employés, ouvriers.</p><p>Certaines professions qui ne peuvent pas être rattachées à ces catégories (agriculteurs exploitants, artisans, commerçants et chefs d’entreprise, profession non renseignée) ne sont pas incluses dans les estimations.</p><p>Un départ est une sortie définitive de l’emploi d’ici 2030 : retraite ou fin de carrière, invalidité, décès. Changer d’employeur n’est pas un départ.</p><p>Les nombres de départs sont des estimations, arrondies à l’entier pour la lecture ; la part de salariés susceptibles de partir est calculée parmi les salariés de la catégorie affichée.</p></div>
 </div>
-<p class="context">Choisissez une catégorie pour comparer les territoires. Les zones grisées correspondent à des résultats non diffusés (secret statistique) ; les zones blanches n’ont aucun salarié observé.</p>
+<p class="context">Choisissez une catégorie pour comparer les territoires. Les zones grisées correspondent à des résultats non diffusés (secret statistique), y compris lorsqu’aucun salarié n’y est observé.</p>
 </header>
 <div class="courriel">
 <input type="radio" name="cat" id="cat-1" checked>
@@ -99,55 +99,52 @@ footer{margin-top:28px;color:var(--texte);font-size:13.5px;line-height:1.55;bord
 <div class="carte">
 <section class="vue vue-1">
 <p class="vue-titre">Cadres</p><p class="vue-qui">Salariés de 45 ans ou plus · Part des salariés susceptibles de partir d’ici 2030</p>
-<div class="legend-title">Part des salariés susceptibles de partir d’ici 2030</div><ul class="map-legend"><li><span class="sw" style="background:#deebf7"></span><span>Moins de 23 %</span></li><li><span class="sw" style="background:#9ecae1"></span><span>23 % à 25 %</span></li><li><span class="sw" style="background:#4292c6"></span><span>25 % à 28 %</span></li><li><span class="sw" style="background:#2171b5"></span><span>28 % à 30 %</span></li><li><span class="sw" style="background:#08306b"></span><span>30 % et plus</span></li><li class="sep"><span class="sw" style="background:#b3b3b3"></span><span>Résultat non diffusé — secret statistique</span></li><li><span class="sw sans" style="background:#ffffff"></span><span>Aucun salarié observé</span></li></ul><p class="compte"><b>10</b> régions avec un résultat · <b>0</b> avec un résultat non diffusé (secret statistique) · <b>8</b> sans salarié observé</p>
+<div class="legend-title">Part des salariés susceptibles de partir d’ici 2030</div><ul class="map-legend"><li><span class="sw" style="background:#deebf7"></span><span>Moins de 23 %</span></li><li><span class="sw" style="background:#9ecae1"></span><span>23 % à 25 %</span></li><li><span class="sw" style="background:#4292c6"></span><span>25 % à 28 %</span></li><li><span class="sw" style="background:#2171b5"></span><span>28 % à 30 %</span></li><li><span class="sw" style="background:#08306b"></span><span>30 % et plus</span></li><li class="sep"><span class="sw" style="background:#b3b3b3"></span><span>Résultat non diffusé — secret statistique</span></li></ul><p class="compte"><b>9</b> régions avec un résultat · <b>9</b> avec un résultat non diffusé (secret statistique)</p>
 <svg viewBox="0 0 1000 1230" role="img" aria-label="Départs attendus d’ici 2030 — par région — grande catégorie socioprofessionnelle — Cadres">
 <rect fill="none" stroke="#c9ced6" x="1.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="10.0" y="1024.0">Guadeloupe</text>
 <rect fill="none" stroke="#c9ced6" x="201.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="210.0" y="1024.0">Martinique</text>
 <rect fill="none" stroke="#c9ced6" x="401.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="410.0" y="1024.0">Guyane</text>
 <rect fill="none" stroke="#c9ced6" x="601.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="610.0" y="1024.0">La Réunion</text>
 <rect fill="none" stroke="#c9ced6" x="801.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="810.0" y="1024.0">Mayotte</text>
-<use href="#g-01" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Guadeloupe · 01
+<use href="#g-01" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Guadeloupe · 01
 Cadres
-Aucun salarié observé</title></use>
-<use href="#g-02" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Martinique · 02
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-02" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Martinique · 02
 Cadres
-Aucun salarié observé</title></use>
-<use href="#g-03" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Guyane · 03
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-03" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Guyane · 03
 Cadres
-Aucun salarié observé</title></use>
-<use href="#g-04" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>La Réunion · 04
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-04" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>La Réunion · 04
 Cadres
-Aucun salarié observé</title></use>
-<use href="#g-06" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Mayotte · 06
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-06" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Mayotte · 06
 Cadres
-Aucun salarié observé</title></use>
+Résultat non diffusé — secret statistique</title></use>
 <use href="#g-11" fill="#9ecae1" stroke="#5B6470" stroke-width="1"><title>Île-de-France · 11
 Cadres
 246 salariés de 45 ans ou plus
 59 départs estimés d’ici 2030
 entre 55 et 62 selon l’hypothèse
 23,9 % pourraient partir d’ici 2030</title></use>
-<use href="#g-24" fill="#4292c6" stroke="#5B6470" stroke-width="1"><title>Centre-Val de Loire · 24
+<use href="#g-24" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Centre-Val de Loire · 24
 Cadres
-72 salariés de 45 ans ou plus
-20 départs estimés d’ici 2030
-entre 18 et 21 selon l’hypothèse
-27,2 % pourraient partir d’ici 2030</title></use>
-<use href="#g-27" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Bourgogne-Franche-Comté · 27
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-27" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Bourgogne-Franche-Comté · 27
 Cadres
-Aucun salarié observé</title></use>
-<use href="#g-28" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Normandie · 28
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-28" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Normandie · 28
 Cadres
-Aucun salarié observé</title></use>
+Résultat non diffusé — secret statistique</title></use>
 <use href="#g-32" fill="#9ecae1" stroke="#5B6470" stroke-width="1"><title>Hauts-de-France · 32
 Cadres
 77 salariés de 45 ans ou plus
 19 départs estimés d’ici 2030
 entre 18 et 21 selon l’hypothèse
 24,9 % pourraient partir d’ici 2030</title></use>
-<use href="#g-44" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Grand Est · 44
+<use href="#g-44" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Grand Est · 44
 Cadres
-Aucun salarié observé</title></use>
+Résultat non diffusé — secret statistique</title></use>
 <use href="#g-52" fill="#2171b5" stroke="#5B6470" stroke-width="1"><title>Pays de la Loire · 52
 Cadres
 78 salariés de 45 ans ou plus
@@ -196,61 +193,55 @@ entre 34 et 39 selon l’hypothèse
 </section>
 <section class="vue vue-2">
 <p class="vue-titre">Employés</p><p class="vue-qui">Salariés de 45 ans ou plus · Part des salariés susceptibles de partir d’ici 2030</p>
-<div class="legend-title">Part des salariés susceptibles de partir d’ici 2030</div><ul class="map-legend"><li><span class="sw" style="background:#deebf7"></span><span>Moins de 40 %</span></li><li><span class="sw" style="background:#4292c6"></span><span>40 % à 50 %</span></li><li><span class="sw" style="background:#08306b"></span><span>50 % et plus</span></li><li class="sep"><span class="sw" style="background:#b3b3b3"></span><span>Résultat non diffusé — secret statistique</span></li><li><span class="sw sans" style="background:#ffffff"></span><span>Aucun salarié observé</span></li></ul><p class="compte"><b>10</b> régions avec un résultat · <b>0</b> avec un résultat non diffusé (secret statistique) · <b>8</b> sans salarié observé</p>
+<div class="legend-title">Part des salariés susceptibles de partir d’ici 2030</div><ul class="map-legend"><li><span class="sw" style="background:#deebf7"></span><span>Moins de 40 %</span></li><li><span class="sw" style="background:#4292c6"></span><span>40 % à 50 %</span></li><li><span class="sw" style="background:#08306b"></span><span>50 % et plus</span></li><li class="sep"><span class="sw" style="background:#b3b3b3"></span><span>Résultat non diffusé — secret statistique</span></li></ul><p class="compte"><b>8</b> régions avec un résultat · <b>10</b> avec un résultat non diffusé (secret statistique)</p>
 <svg viewBox="0 0 1000 1230" role="img" aria-label="Départs attendus d’ici 2030 — par région — grande catégorie socioprofessionnelle — Employés">
 <rect fill="none" stroke="#c9ced6" x="1.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="10.0" y="1024.0">Guadeloupe</text>
 <rect fill="none" stroke="#c9ced6" x="201.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="210.0" y="1024.0">Martinique</text>
 <rect fill="none" stroke="#c9ced6" x="401.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="410.0" y="1024.0">Guyane</text>
 <rect fill="none" stroke="#c9ced6" x="601.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="610.0" y="1024.0">La Réunion</text>
 <rect fill="none" stroke="#c9ced6" x="801.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="810.0" y="1024.0">Mayotte</text>
-<use href="#g-01" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Guadeloupe · 01
+<use href="#g-01" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Guadeloupe · 01
 Employés
-Aucun salarié observé</title></use>
-<use href="#g-02" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Martinique · 02
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-02" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Martinique · 02
 Employés
-Aucun salarié observé</title></use>
-<use href="#g-03" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Guyane · 03
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-03" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Guyane · 03
 Employés
-Aucun salarié observé</title></use>
-<use href="#g-04" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>La Réunion · 04
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-04" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>La Réunion · 04
 Employés
-Aucun salarié observé</title></use>
-<use href="#g-06" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Mayotte · 06
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-06" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Mayotte · 06
 Employés
-Aucun salarié observé</title></use>
+Résultat non diffusé — secret statistique</title></use>
 <use href="#g-11" fill="#4292c6" stroke="#5B6470" stroke-width="1"><title>Île-de-France · 11
 Employés
 197 salariés de 45 ans ou plus
 79 départs estimés d’ici 2030
 entre 74 et 84 selon l’hypothèse
 40,2 % pourraient partir d’ici 2030</title></use>
-<use href="#g-24" fill="#4292c6" stroke="#5B6470" stroke-width="1"><title>Centre-Val de Loire · 24
+<use href="#g-24" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Centre-Val de Loire · 24
 Employés
-46 salariés de 45 ans ou plus
-19 départs estimés d’ici 2030
-entre 18 et 20 selon l’hypothèse
-41,1 % pourraient partir d’ici 2030</title></use>
-<use href="#g-27" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Bourgogne-Franche-Comté · 27
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-27" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Bourgogne-Franche-Comté · 27
 Employés
-Aucun salarié observé</title></use>
-<use href="#g-28" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Normandie · 28
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-28" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Normandie · 28
 Employés
-Aucun salarié observé</title></use>
+Résultat non diffusé — secret statistique</title></use>
 <use href="#g-32" fill="#08306b" stroke="#5B6470" stroke-width="1"><title>Hauts-de-France · 32
 Employés
 64 salariés de 45 ans ou plus
 36 départs estimés d’ici 2030
 entre 34 et 37 selon l’hypothèse
 55,9 % pourraient partir d’ici 2030</title></use>
-<use href="#g-44" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Grand Est · 44
+<use href="#g-44" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Grand Est · 44
 Employés
-Aucun salarié observé</title></use>
-<use href="#g-52" fill="#deebf7" stroke="#5B6470" stroke-width="1"><title>Pays de la Loire · 52
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-52" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Pays de la Loire · 52
 Employés
-70 salariés de 45 ans ou plus
-24 départs estimés d’ici 2030
-entre 23 et 26 selon l’hypothèse
-34,7 % pourraient partir d’ici 2030</title></use>
+Résultat non diffusé — secret statistique</title></use>
 <use href="#g-53" fill="#deebf7" stroke="#5B6470" stroke-width="1"><title>Bretagne · 53
 Employés
 98 salariés de 45 ans ou plus
@@ -293,55 +284,52 @@ entre 51 et 56 selon l’hypothèse
 </section>
 <section class="vue vue-3">
 <p class="vue-titre">Ouvriers</p><p class="vue-qui">Salariés de 45 ans ou plus · Part des salariés susceptibles de partir d’ici 2030</p>
-<div class="legend-title">Part des salariés susceptibles de partir d’ici 2030</div><ul class="map-legend"><li><span class="sw" style="background:#deebf7"></span><span>Moins de 45 %</span></li><li><span class="sw" style="background:#9ecae1"></span><span>45 % à 50 %</span></li><li><span class="sw" style="background:#2171b5"></span><span>50 % à 55 %</span></li><li><span class="sw" style="background:#08306b"></span><span>55 % et plus</span></li><li class="sep"><span class="sw" style="background:#b3b3b3"></span><span>Résultat non diffusé — secret statistique</span></li><li><span class="sw sans" style="background:#ffffff"></span><span>Aucun salarié observé</span></li></ul><p class="compte"><b>10</b> régions avec un résultat · <b>0</b> avec un résultat non diffusé (secret statistique) · <b>8</b> sans salarié observé</p>
+<div class="legend-title">Part des salariés susceptibles de partir d’ici 2030</div><ul class="map-legend"><li><span class="sw" style="background:#deebf7"></span><span>Moins de 45 %</span></li><li><span class="sw" style="background:#9ecae1"></span><span>45 % à 50 %</span></li><li><span class="sw" style="background:#2171b5"></span><span>50 % à 55 %</span></li><li><span class="sw" style="background:#08306b"></span><span>55 % et plus</span></li><li class="sep"><span class="sw" style="background:#b3b3b3"></span><span>Résultat non diffusé — secret statistique</span></li></ul><p class="compte"><b>9</b> régions avec un résultat · <b>9</b> avec un résultat non diffusé (secret statistique)</p>
 <svg viewBox="0 0 1000 1230" role="img" aria-label="Départs attendus d’ici 2030 — par région — grande catégorie socioprofessionnelle — Ouvriers">
 <rect fill="none" stroke="#c9ced6" x="1.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="10.0" y="1024.0">Guadeloupe</text>
 <rect fill="none" stroke="#c9ced6" x="201.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="210.0" y="1024.0">Martinique</text>
 <rect fill="none" stroke="#c9ced6" x="401.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="410.0" y="1024.0">Guyane</text>
 <rect fill="none" stroke="#c9ced6" x="601.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="610.0" y="1024.0">La Réunion</text>
 <rect fill="none" stroke="#c9ced6" x="801.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="810.0" y="1024.0">Mayotte</text>
-<use href="#g-01" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Guadeloupe · 01
+<use href="#g-01" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Guadeloupe · 01
 Ouvriers
-Aucun salarié observé</title></use>
-<use href="#g-02" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Martinique · 02
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-02" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Martinique · 02
 Ouvriers
-Aucun salarié observé</title></use>
-<use href="#g-03" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Guyane · 03
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-03" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Guyane · 03
 Ouvriers
-Aucun salarié observé</title></use>
-<use href="#g-04" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>La Réunion · 04
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-04" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>La Réunion · 04
 Ouvriers
-Aucun salarié observé</title></use>
-<use href="#g-06" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Mayotte · 06
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-06" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Mayotte · 06
 Ouvriers
-Aucun salarié observé</title></use>
+Résultat non diffusé — secret statistique</title></use>
 <use href="#g-11" fill="#deebf7" stroke="#5B6470" stroke-width="1"><title>Île-de-France · 11
 Ouvriers
 299 salariés de 45 ans ou plus
 122 départs estimés d’ici 2030
 entre 115 et 129 selon l’hypothèse
 40,6 % pourraient partir d’ici 2030</title></use>
-<use href="#g-24" fill="#2171b5" stroke="#5B6470" stroke-width="1"><title>Centre-Val de Loire · 24
+<use href="#g-24" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Centre-Val de Loire · 24
 Ouvriers
-77 salariés de 45 ans ou plus
-40 départs estimés d’ici 2030
-entre 38 et 42 selon l’hypothèse
-51,9 % pourraient partir d’ici 2030</title></use>
-<use href="#g-27" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Bourgogne-Franche-Comté · 27
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-27" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Bourgogne-Franche-Comté · 27
 Ouvriers
-Aucun salarié observé</title></use>
-<use href="#g-28" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Normandie · 28
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-28" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Normandie · 28
 Ouvriers
-Aucun salarié observé</title></use>
+Résultat non diffusé — secret statistique</title></use>
 <use href="#g-32" fill="#9ecae1" stroke="#5B6470" stroke-width="1"><title>Hauts-de-France · 32
 Ouvriers
 111 salariés de 45 ans ou plus
 54 départs estimés d’ici 2030
 entre 52 et 57 selon l’hypothèse
 49,1 % pourraient partir d’ici 2030</title></use>
-<use href="#g-44" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Grand Est · 44
+<use href="#g-44" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Grand Est · 44
 Ouvriers
-Aucun salarié observé</title></use>
+Résultat non diffusé — secret statistique</title></use>
 <use href="#g-52" fill="#08306b" stroke="#5B6470" stroke-width="1"><title>Pays de la Loire · 52
 Ouvriers
 88 salariés de 45 ans ou plus
@@ -390,28 +378,28 @@ entre 63 et 70 selon l’hypothèse
 </section>
 <section class="vue vue-4">
 <p class="vue-titre">Professions intermédiaires</p><p class="vue-qui">Salariés de 45 ans ou plus · Part des salariés susceptibles de partir d’ici 2030</p>
-<div class="legend-title">Part des salariés susceptibles de partir d’ici 2030</div><ul class="map-legend"><li><span class="sw" style="background:#deebf7"></span><span>Moins de 30 %</span></li><li><span class="sw" style="background:#9ecae1"></span><span>30 % à 35 %</span></li><li><span class="sw" style="background:#2171b5"></span><span>35 % à 40 %</span></li><li><span class="sw" style="background:#08306b"></span><span>40 % et plus</span></li><li class="sep"><span class="sw" style="background:#b3b3b3"></span><span>Résultat non diffusé — secret statistique</span></li><li><span class="sw sans" style="background:#ffffff"></span><span>Aucun salarié observé</span></li></ul><p class="compte"><b>10</b> régions avec un résultat · <b>0</b> avec un résultat non diffusé (secret statistique) · <b>8</b> sans salarié observé</p>
+<div class="legend-title">Part des salariés susceptibles de partir d’ici 2030</div><ul class="map-legend"><li><span class="sw" style="background:#deebf7"></span><span>Moins de 30 %</span></li><li><span class="sw" style="background:#9ecae1"></span><span>30 % à 35 %</span></li><li><span class="sw" style="background:#2171b5"></span><span>35 % à 40 %</span></li><li><span class="sw" style="background:#08306b"></span><span>40 % et plus</span></li><li class="sep"><span class="sw" style="background:#b3b3b3"></span><span>Résultat non diffusé — secret statistique</span></li></ul><p class="compte"><b>9</b> régions avec un résultat · <b>9</b> avec un résultat non diffusé (secret statistique)</p>
 <svg viewBox="0 0 1000 1230" role="img" aria-label="Départs attendus d’ici 2030 — par région — grande catégorie socioprofessionnelle — Professions intermédiaires">
 <rect fill="none" stroke="#c9ced6" x="1.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="10.0" y="1024.0">Guadeloupe</text>
 <rect fill="none" stroke="#c9ced6" x="201.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="210.0" y="1024.0">Martinique</text>
 <rect fill="none" stroke="#c9ced6" x="401.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="410.0" y="1024.0">Guyane</text>
 <rect fill="none" stroke="#c9ced6" x="601.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="610.0" y="1024.0">La Réunion</text>
 <rect fill="none" stroke="#c9ced6" x="801.0" y="1001.0" width="198.0" height="228.0" rx="6"></rect><text class="encart-lib" fill="#3E4C59" x="810.0" y="1024.0">Mayotte</text>
-<use href="#g-01" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Guadeloupe · 01
+<use href="#g-01" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Guadeloupe · 01
 Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-02" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Martinique · 02
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-02" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Martinique · 02
 Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-03" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Guyane · 03
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-03" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Guyane · 03
 Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-04" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>La Réunion · 04
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-04" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>La Réunion · 04
 Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-06" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Mayotte · 06
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-06" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Mayotte · 06
 Professions intermédiaires
-Aucun salarié observé</title></use>
+Résultat non diffusé — secret statistique</title></use>
 <use href="#g-11" fill="#deebf7" stroke="#5B6470" stroke-width="1"><title>Île-de-France · 11
 Professions intermédiaires
 278 salariés de 45 ans ou plus
@@ -424,27 +412,24 @@ Professions intermédiaires
 34 départs estimés d’ici 2030
 entre 32 et 35 selon l’hypothèse
 40,4 % pourraient partir d’ici 2030</title></use>
-<use href="#g-27" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Bourgogne-Franche-Comté · 27
+<use href="#g-27" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Bourgogne-Franche-Comté · 27
 Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-28" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Normandie · 28
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-28" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Normandie · 28
 Professions intermédiaires
-Aucun salarié observé</title></use>
+Résultat non diffusé — secret statistique</title></use>
 <use href="#g-32" fill="#2171b5" stroke="#5B6470" stroke-width="1"><title>Hauts-de-France · 32
 Professions intermédiaires
 82 salariés de 45 ans ou plus
 30 départs estimés d’ici 2030
 entre 29 et 32 selon l’hypothèse
 37,2 % pourraient partir d’ici 2030</title></use>
-<use href="#g-44" fill="#ffffff" stroke="#7B8794" stroke-width="0.8" stroke-dasharray="3 2"><title>Grand Est · 44
+<use href="#g-44" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Grand Est · 44
 Professions intermédiaires
-Aucun salarié observé</title></use>
-<use href="#g-52" fill="#2171b5" stroke="#5B6470" stroke-width="1"><title>Pays de la Loire · 52
+Résultat non diffusé — secret statistique</title></use>
+<use href="#g-52" fill="#b3b3b3" stroke="#5B6470" stroke-width="1"><title>Pays de la Loire · 52
 Professions intermédiaires
-70 salariés de 45 ans ou plus
-26 départs estimés d’ici 2030
-entre 24 et 27 selon l’hypothèse
-36,7 % pourraient partir d’ici 2030</title></use>
+Résultat non diffusé — secret statistique</title></use>
 <use href="#g-53" fill="#2171b5" stroke="#5B6470" stroke-width="1"><title>Bretagne · 53
 Professions intermédiaires
 130 salariés de 45 ans ou plus
@@ -486,5 +471,5 @@ entre 51 et 57 selon l’hypothèse
 <p class="note">Part calculée parmi les salariés de 45 ans ou plus de la catégorie affichée. Même échelle pour tous les territoires ; elle est recalculée quand vous changez de catégorie ou d’indicateur. Survolez un territoire pour lire ses chiffres.</p>
 </section>
 </div></div></div>
-<footer><b>Qui est concerné ?</b> Ces résultats concernent les salariés des entreprises retenues dans le périmètre Base. Ils portent sur les salariés âgés de 45 ans ou plus en 2024, appartenant aux catégories professionnelles couvertes par le modèle : cadres, professions intermédiaires, employés, ouvriers. Certaines professions qui ne peuvent pas être rattachées à ces catégories (agriculteurs exploitants, artisans, commerçants et chefs d’entreprise, profession non renseignée) ne sont pas incluses dans les estimations. Un départ est une sortie définitive de l’emploi d’ici 2030 : retraite ou fin de carrière, invalidité, décès. Changer d’employeur n’est pas un départ. Les nombres de départs sont des estimations, arrondies à l’entier pour la lecture ; la part de salariés susceptibles de partir est calculée parmi les salariés de la catégorie affichée. <b>Secret statistique.</b> Certains résultats ne sont pas affichés parce qu’ils concernent trop peu de salariés ou d’entreprises, ou qu’une seule entreprise y pèserait trop ; ces chiffres ne figurent ni dans cette page ni dans ses données. Gris = résultat non diffusé ; blanc pointillé = aucun salarié observé ; un résultat nul est affiché comme tout autre. <b>Source.</b> table test — calculs propres. Fond de carte : IGN Admin Express (COG 2018) via france-geojson, licence ouverte.</footer>
+<footer><b>Qui est concerné ?</b> Ces résultats concernent les salariés des entreprises retenues dans le périmètre Base. Ils portent sur les salariés âgés de 45 ans ou plus en 2024, appartenant aux catégories professionnelles couvertes par le modèle : cadres, professions intermédiaires, employés, ouvriers. Certaines professions qui ne peuvent pas être rattachées à ces catégories (agriculteurs exploitants, artisans, commerçants et chefs d’entreprise, profession non renseignée) ne sont pas incluses dans les estimations. Un départ est une sortie définitive de l’emploi d’ici 2030 : retraite ou fin de carrière, invalidité, décès. Changer d’employeur n’est pas un départ. Les nombres de départs sont des estimations, arrondies à l’entier pour la lecture ; la part de salariés susceptibles de partir est calculée parmi les salariés de la catégorie affichée. <b>Secret statistique.</b> Certains résultats ne sont pas affichés parce qu’ils concernent trop peu de salariés ou d’entreprises, ou qu’une seule entreprise y pèserait trop ; ces chiffres ne figurent ni dans cette page ni dans ses données. Gris = résultat non diffusé, y compris lorsqu’aucun salarié n’est observé ; un résultat nul d’une cellule diffusable est affiché comme tout autre. <b>Source.</b> table test — calculs propres. Fond de carte : IGN Admin Express (COG 2018) via france-geojson, licence ouverte.</footer>
 </div></body></html>

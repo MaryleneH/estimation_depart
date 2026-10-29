@@ -106,12 +106,16 @@ if (!isTRUE(get0("GENERER_DEPARTS_CS1", ifnotfound = FALSE))) {
   if (isTRUE(get0("DEPARTS_CS1_SECRET", ifnotfound = TRUE))) {
     dir_dif <- file.path(dir_cs1, "diffusion"); dir.create(dir_dif, showWarnings = FALSE, recursive = TRUE)
     regles_08d <- regles_secret()
-    diffusion_cs1 <- lapply(niveaux_08d, function(n) appliquer_secret_pcs(analytique_cs1[[n]], n, regles_08d, dimension = "cs1"))
+    univers_08d <- list(region = univers_territoires("region", geo_interet = NULL), departement = univers_territoires("departement", geo_interet = NULL))   # SPEC-SEC-035 ; le 08d ignore GEO_INTERET
+    categories_08d <- analytique_cs1$france |> distinct(cs1)
+    diffusion_cs1 <- lapply(niveaux_08d, function(n) appliquer_secret_pcs(analytique_cs1[[n]], n, regles_08d, dimension = "cs1", univers = univers_08d[[n]], categories = categories_08d))
     names(diffusion_cs1) <- niveaux_08d
     for (n in niveaux_08d) {
-      d <- diffusion_cs1[[n]]; a <- analytique_cs1[[n]]
-      if (any(!d$masque & secret_primaire(a$effectif_champ, a$n_entreprises, a$part_dominante_pct, regles_08d)))
+      d <- diffusion_cs1[[n]]; a <- analytique_cs1[[n]]; cles_n <- c(cles_niveau_pcs(n, base_cs1), "cs1")
+      chk <- a |> select(all_of(cles_n), n_entreprises, part_dominante_pct, eff_a = effectif_champ) |> inner_join(d |> select(all_of(cles_n), masque), by = cles_n)
+      if (nrow(chk) != nrow(a) || any(!chk$masque & secret_primaire(chk$eff_a, chk$n_entreprises, chk$part_dominante_pct, regles_08d)))
         stop("08d : une cellule contraire à la règle de secret statistique resterait visible (", n, ").")
+      if (n != "france" && !is.null(univers_08d[[n]])) cat(sprintf("  08d : %s x cs1 : %d ligne(s) ajoutée(s) pour les territoires et CS sans salarié observé (masquées, SPEC-SEC-035)\n", n, attr(d, "n_completees") %||% 0L))
       if (any(c("n_entreprises", "part_dominante_pct") %in% names(d)))
         stop("08d : indicateurs de secret présents dans la table de diffusion (", n, ").")
       write.csv2(arrondir_departs_pcs(d), file.path(dir_dif, sprintf("departs_cs1_%s.csv", n)), row.names = FALSE)

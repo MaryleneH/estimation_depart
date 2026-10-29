@@ -72,12 +72,18 @@ if (!isTRUE(get0("GENERER_DEPARTS_PCS", ifnotfound = FALSE))) {
   if (isTRUE(get0("DEPARTS_PCS_SECRET", ifnotfound = TRUE))) {
     dir_dif <- file.path(dir_pcs, "diffusion"); dir.create(dir_dif, showWarnings = FALSE, recursive = TRUE)
     regles_08c <- regles_secret()
-    diffusion <- lapply(niveaux, function(n) appliquer_secret_pcs(analytique[[n]], n, regles_08c))
+    # univers des territoires (SPEC-SEC-035) : région et département complétés par une ligne masquée par territoire x PCS absent
+    univers_08c <- list(region = univers_territoires("region", geo_interet = NULL), departement = univers_territoires("departement", geo_interet = NULL))   # le 08c ignore GEO_INTERET : univers complet
+    categories_08c <- analytique$france |> distinct(pcs, cs1)
+    diffusion <- lapply(niveaux, function(n) appliquer_secret_pcs(analytique[[n]], n, regles_08c, univers = univers_08c[[n]], categories = categories_08c))
     names(diffusion) <- niveaux
     for (n in niveaux) {
-      d <- diffusion[[n]]; a <- analytique[[n]]
-      if (any(!d$masque & secret_primaire(a$effectif_champ, a$n_entreprises, a$part_dominante_pct, regles_08c)))
+      d <- diffusion[[n]]; a <- analytique[[n]]; cles_n <- c(cles_niveau_pcs(n, base_pcs), "pcs")
+      chk <- a |> select(all_of(cles_n), n_entreprises, part_dominante_pct, eff_a = effectif_champ) |> inner_join(d |> select(all_of(cles_n), masque), by = cles_n)
+      if (nrow(chk) != nrow(a) || any(!chk$masque & secret_primaire(chk$eff_a, chk$n_entreprises, chk$part_dominante_pct, regles_08c)))
         stop("08c : une cellule contraire à la règle de secret statistique resterait visible (", n, ").")
+      if (n != "france") { if (is.null(univers_08c[[n]])) message("08c : aucun référentiel pour le niveau ", n, " (GEO_REFERENTIELS / table de passage) : table de diffusion non complétée sur l'univers des territoires.")
+        else cat(sprintf("  08c : %s x pcs : %d ligne(s) ajoutée(s) pour les territoires et PCS sans salarié observé (masquées, SPEC-SEC-035)\n", n, attr(d, "n_completees") %||% 0L)) }
       if (any(c("n_entreprises", "part_dominante_pct") %in% names(d)))
         stop("08c : indicateurs de secret présents dans la table de diffusion (", n, ").")
       write.csv2(arrondir_departs_pcs(d), file.path(dir_dif, sprintf("departs_pcs_%s.csv", n)), row.names = FALSE)

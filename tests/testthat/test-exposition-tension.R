@@ -282,7 +282,8 @@ test_that("SPEC-TYPO-107 — 08i sur la chaîne de test : sorties, objets amont 
   expect_true(all(dd$tension_part_departs_min_pct[dd$tension_diffusee] <= dd$tension_couverture_pct[dd$tension_diffusee] + 0.1))   # A / total <= (A + B) / total
   dif <- utils::read.csv2(file.path(dt, "diffusion", "exposition_tension_departements.csv"), colClasses = c(geo_code = "character"))
   expect_false(any(grepl("^departs_|^effectif_|n_entreprises|part_dominante", names(dif))))
-  expect_setequal(dif$geo_code, unique(env$departs_pcs$analytique$departement$geo_code))
+  expect_setequal(dif$geo_code, env$univers_territoires("departement")$geo_code); expect_true(all(unique(env$departs_pcs$analytique$departement$geo_code) %in% dif$geo_code))   # SPEC-SEC-035
+  expect_true(all(!dif$tension_diffusee[!dif$geo_code %in% env$departs_pcs$analytique$departement$geo_code])); expect_setequal(dr$geo_code, env$univers_territoires("region")$geo_code)
   h <- paste(readLines(file.path(dt, "diffusion", "fiche_exposition_tension.html"), encoding = "UTF-8"), collapse = "\n")
   expect_false(grepl("<script", h, fixed = TRUE)); expect_false(grepl("data:image/png", h, fixed = TRUE)); expect_true(grepl('<svg class="mat"', h, fixed = TRUE))
   E <- env$exposition_tension; expect_equal(nrow(E$metiers), 12L); expect_true(all(E$metiers$present_base))
