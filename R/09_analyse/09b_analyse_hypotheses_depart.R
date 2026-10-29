@@ -30,11 +30,12 @@ if (!isTRUE(get0("GENERER_ANALYSE", ifnotfound = TRUE))) {
   # --- 1. Hypothèses --------------------------------------------------------------------------
   hyp_09 <- table_hypotheses_analyse(deltas_09, par_09, champ_09)
   # --- 2. Volume ------------------------------------------------------------------------------
-  tot_09 <- table_volume_total(bts_projete, regles_09, par_09); total_09 <- attr(tot_09, "total_central")
+  stock_09 <- if (exists("stock_tous_ages") && !is.null(stock_tous_ages)) stock_tous_ages else NULL
+  tot_09 <- table_volume_total(bts_projete, regles_09, par_09, stock_09); total_09 <- attr(tot_09, "total_central")
   tranche_09 <- as.character(cut(bts_projete$age_2024, breaks = BREAKS_TRANCHES, labels = LABELS_TRANCHES))
   age_09 <- table_volume_groupe(bts_projete, tranche_09, "Tranche d’âge", LABELS_TRANCHES, regles_09, total_09)
   lib_sen_09 <- sprintf("%d ans et plus", par_09$age_senior); lib_jeu_09 <- sprintf("moins de %d ans", par_09$age_senior)
-  sen_09 <- table_volume_groupe(bts_projete, ifelse(bts_projete$age_2024 >= par_09$age_senior, lib_sen_09, lib_jeu_09), "Salariés", c(lib_jeu_09, lib_sen_09), regles_09, total_09)
+  sen_09 <- table_volume_groupe(bts_projete, ifelse(bts_projete$age_2024 >= par_09$age_senior, lib_sen_09, lib_jeu_09), "Groupe d’âge", c(lib_jeu_09, lib_sen_09), regles_09, total_09)
   cs_09 <- table_volume_cs1(departs_cs1$diffusion$france, total_09)
   # --- 3. Métiers -----------------------------------------------------------------------------
   pcs_fr_09 <- if (exists("departs_pcs") && !is.null(departs_pcs$diffusion) && !is.null(departs_pcs$diffusion$france)) departs_pcs$diffusion$france else NULL
@@ -66,6 +67,8 @@ if (!isTRUE(get0("GENERER_ANALYSE", ifnotfound = TRUE))) {
   presents_09 <- !vapply(tables_09, is.null, TRUE)
   if (exists("tables_texte_liste")) tables_09[presents_09] <- tables_texte_liste(tables_09[presents_09])
   controler_tables_analyse(tables_09)
+  lectures_09 <- setNames(lapply(names(tables_09), function(n) lecture_feuille_analyse(n, tables_09[[n]], par_09)), names(tables_09))
+  faits_09 <- tables_texte_liste(list(table_faits_analyse(tables_09, par_09)))[[1]]; controler_tables_analyse(list(Faits = faits_09))
   r_pcs <- "diffusion France par métier (08c) absente"; r_liste <- "liste de métiers absente (08i non exécuté ou classeur PCS -> FAP absent)"
   raisons_09 <- list("3a Métiers volume" = r_pcs, "3b Métiers part" = r_pcs, "3c Métiers de la liste" = r_liste, "3d Noyau dur" = r_liste, "5 Priorités" = r_liste,
                      "4a Régions" = "diffusion par région (08d) absente : niveau non produit pour ce zonage", "4b Départements" = "diffusion par département (08d) absente : niveau non produit pour ce zonage",
@@ -88,7 +91,7 @@ if (!isTRUE(get0("GENERER_ANALYSE", ifnotfound = TRUE))) {
     "4d Liste x régions" = c(sprintf("Où les %s partent plus vite qu’en France", lib_liste_09), sprintf("Couples métier x région dont la part susceptible de partir dépasse celle de la France d’au moins %s points, par écart décroissant.", .f1_ana(get0("TENSION_ECART_POINTS", ifnotfound = NA_real_)))),
     "4e Seniors par territoire" = c(sprintf("Seniors par %s, %s", tryCatch(GEO_ZONAGES[[zon_09]]$libelle, error = function(e) NULL) %||% zon_09, plage_09), sprintf("Part des %s dans les salariés du champ et leurs départs attendus, par territoire du zonage d’analyse.", lib_sen_09)),
     "5 Priorités" = c("Priorités : métier, territoire, levier", sprintf("Pour chaque métier du noyau dur : le levier dominant et ses %d premières régions diffusées par part susceptible de partir.", par_09$n_regions)))
-  feuilles_09 <- lapply(names(tables_09), function(nom) list(titre = titres_09[[nom]][1], note = paste(titres_09[[nom]][2], "Définition des colonnes : feuille « Définitions »."), table = tables_09[[nom]], raison = if (is.null(tables_09[[nom]])) paste0("Non produit : ", raisons_09[[nom]], ".") else NULL))
+  feuilles_09 <- lapply(names(tables_09), function(nom) list(titre = titres_09[[nom]][1], note = paste(titres_09[[nom]][2], "Définition des colonnes : feuille « Définitions »."), table = tables_09[[nom]], lecture = lectures_09[[nom]], raison = if (is.null(tables_09[[nom]])) paste0("Non produit : ", raisons_09[[nom]], ".") else NULL))
   names(feuilles_09) <- names(tables_09)
   # CSV (référence)
   fichiers_09 <- c("1 Hypothèses" = "01_hypotheses", "2a Volume" = "02a_volume", "2b Par âge" = "02b_par_age", "2c Seniors" = "02c_seniors", "2d Par catégorie" = "02d_par_categorie",
@@ -110,7 +113,7 @@ if (!isTRUE(get0("GENERER_ANALYSE", ifnotfound = TRUE))) {
     sprintf("La tension d’un métier est celle de sa famille professionnelle en France (France Travail) ; elle ne mesure jamais la tension d’un territoire. Seuls les %s sont observés sur cette dimension.", lib_liste_09), "",
     gras("Les feuilles"),
     paste0(names(tables_09), " : ", vapply(names(tables_09), function(n) titres_09[[n]][1], ""), ifelse(presents_09, "", " (non produit, voir la feuille)")),
-    "Définitions : le sens de chaque colonne (à lire en premier).", "Paramètres : valeurs de configuration utilisées.")
+    "Définitions : le sens de chaque colonne (à lire en premier).", "Faits : une quinzaine de phrases vraies, écrites par la chaîne à partir des tableaux, à reprendre telles quelles dans la rédaction ; chaque feuille porte aussi, en ligne 3, une phrase « Lecture : » qui lit sa première cellule.", "Paramètres : valeurs de configuration utilisées.")
   gras_09 <- unlist(lapply(lignes_09, function(x) rep(isTRUE(attr(x, "gras")), length(x)))); lignes_09 <- unlist(lapply(lignes_09, as.character))
   lisez_09 <- data.frame(texte = lignes_09, stringsAsFactors = FALSE); attr(lisez_09, "gras") <- gras_09
   param_09 <- data.frame(parametre = c("annee_bts", "horizon", "plage", "age_min", "age_senior", "scenario", "zonage", "top_n", "effectif_min_part", "n_regions_priorites", "secret_min_salaries", "secret_min_entreprises", "secret_dominance_pct", "libelle_liste", "ecart_points"),
@@ -119,13 +122,14 @@ if (!isTRUE(get0("GENERER_ANALYSE", ifnotfound = TRUE))) {
   write.csv2(param_09, file.path(dir_09, "parametres.csv"), row.names = FALSE)
   # Classeur : jamais d'arrêt
   defs_09 <- tables_texte_liste(list(table_definitions_analyse(par_09)))[[1]]; write.csv2(defs_09, file.path(dir_09, "definitions.csv"), row.names = FALSE, na = "")
-  xlsx_09 <- tryCatch(ecrire_classeur_analyse(feuilles_09, file.path(dir_09, "analyse_hypotheses_depart.xlsx"), lisez_09, param_09, definitions = defs_09),
+  write.csv2(faits_09, file.path(dir_09, "faits.csv"), row.names = FALSE, na = "")
+  xlsx_09 <- tryCatch(ecrire_classeur_analyse(feuilles_09, file.path(dir_09, "analyse_hypotheses_depart.xlsx"), lisez_09, param_09, definitions = defs_09, faits = faits_09),
                       error = function(e) { message("09b : classeur Excel non produit (", conditionMessage(e), ") — les CSV restent la référence."); NA_character_ })
-  analyse_hypotheses_depart <- list(tables = tables_09, classeur = xlsx_09, dossier = dir_09)
+  analyse_hypotheses_depart <- list(tables = tables_09, faits = faits_09, lectures = lectures_09, classeur = xlsx_09, dossier = dir_09)
   cat(sprintf("\n09b OK -> analyse « hypothèses de départ » %s : %d tableau(x) produit(s) sur %d (%s)\n", plage_09, sum(presents_09), length(tables_09),
               if (all(presents_09)) "tous" else paste("non produits :", paste(names(tables_09)[!presents_09], collapse = ", "))))
   cat(sprintf("  dossier : %s ; classeur : %s\n", dir_09, if (is.na(xlsx_09)) "non produit" else basename(xlsx_09)))
   rm(par_09, regles_09, champ_09, zon_09, dir_09, source_09, plage_09, deltas_09, hyp_09, tot_09, total_09, tranche_09, age_09, lib_sen_09, lib_jeu_09, sen_09, cs_09, pcs_fr_09, lib_pcs_09,
      met_vol_09, met_part_09, mat_09, liste_09, noyau_09, typo_09, expo_dep_09, expo_reg_09, reg_09, dep_09, expo_r_09, tab_08j_09, liste_reg_09, s55_09, prior_09,
-     tables_09, presents_09, r_pcs, r_liste, raisons_09, lib_liste_09, titres_09, feuilles_09, fichiers_09, P_09, gras, lignes_09, gras_09, lisez_09, param_09, defs_09, xlsx_09)
+     tables_09, presents_09, r_pcs, r_liste, raisons_09, lib_liste_09, titres_09, feuilles_09, fichiers_09, P_09, gras, lignes_09, gras_09, lisez_09, param_09, defs_09, faits_09, lectures_09, stock_09, xlsx_09)
 }

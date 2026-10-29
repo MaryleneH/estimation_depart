@@ -29,6 +29,7 @@ Fonctionnalité: Produire l'analyse « hypothèses de départ » en un classeur 
   Scénario: [SPEC-ANA-003] Volume : total, par tranche d'âge, seniors, catégorie sociale
     Quand les feuilles « 2a Volume », « 2b Par âge », « 2c Seniors », « 2d Par catégorie » sont construites
     Alors le total donne, pour les scénarios central, bas et haut : salariés du champ, départs attendus sur la plage, part susceptible de partir, départs par an en moyenne (total / HORIZON), et, au central, la décomposition retraite ou fin de carrière, invalidité, décès (mêmes mathématiques que 06 et 08)
+    Et, quand le stock tous âges (01c) existe, l'emploi actuel tous âges du périmètre et l'intensité du renouvellement (départs attendus / emploi tous âges, en %, pour les trois scénarios), la mesure de la typologie, pour relier les deux notes ; sans stock, ces deux lignes sont vides
     Et chaque ligne de tranche d'âge (BREAKS_TRANCHES), de seniors (AGE_SENIOR) et de catégorie sociale (diffusion 08d France) porte salariés, départs (central, basse, haute), part susceptible de partir, décomposition par cause, part des départs du champ
     Et chaque cellule suit la règle de secret (primaire puis secondaire, masquer_cellules) : masquée = NA et « non diffusé (secret statistique) », jamais zéro ; une tranche sans salarié est masquée comme une autre (SPEC-PUB-007)
 
@@ -55,11 +56,18 @@ Fonctionnalité: Produire l'analyse « hypothèses de départ » en un classeur 
 
   Scénario: [SPEC-ANA-007] Classeur prêt à coller dans Word
     Quand le classeur est écrit avec openxlsx
-    Alors chaque feuille porte en ligne 1 le titre du tableau, en ligne 2 sa note de lecture, et le tableau à partir de la ligne 4 : en-tête colorée, volets figés, largeurs adaptées, sans quadrillage ; les colonnes « (%) » à une décimale, les personnes en entiers avec séparateur
+    Alors chaque feuille porte en ligne 1 le titre du tableau, en ligne 2 sa note de lecture, en ligne 3 une phrase « Lecture : » générée (SPEC-ANA-010), et le tableau à partir de la ligne 4 : en-tête colorée, volets figés, largeurs adaptées, sans quadrillage ; les colonnes « (%) » à une décimale, les personnes en entiers avec séparateur
     Et la feuille « Lisez-moi » rappelle la plage, le champ, la règle de secret, la liste des feuilles et la façon de coller un tableau dans Word
     Et une feuille « Définitions », placée juste après, définit chaque colonne du classeur (terme, définition, feuilles où il apparaît), les intitulés des colonnes étant explicites (« Hypothèse basse (départs retardés) », « Poids dans l'ensemble des départs (%) », « Rang par nombre de départs », « Départs attendus dans les métiers suivis en tension (minimum) »…) ; chaque note de feuille y renvoie
     Et une feuille « Paramètres » trace les paramètres utilisés
     Et sans openxlsx, writexl écrit les tableaux sans mise en forme (message) ; sans les deux, message et les CSV restent la référence
+
+  Scénario: [SPEC-ANA-010] Faits et lectures : des phrases vraies, à gabarit fixe, écrites par la chaîne
+    Étant donné les tableaux assemblés
+    Quand le classeur est écrit
+    Alors une feuille « Faits », placée après « Définitions », porte une quinzaine de phrases (rubrique, fait, feuille source) remplies par la chaîne à partir des seules valeurs des tableaux : volume national avec fourchette et minimum, départs par an, causes, seniors, catégories (part la plus élevée, la plus faible, poids le plus fort), métiers par volume et par part, noyau dur et ses dimensions de tension, régions par nombre de départs et par part contre la France, régions en exposition forte avec robustesse, départements diffusés et non diffusés, département à la part la plus forte avec profil et exposition, couple métier x région à l'écart le plus fort, priorités
+    Et chaque feuille porte en ligne 3 une phrase « Lecture : » qui lit sa première ligne diffusée (ou dit qu'aucune ligne n'est diffusée) ; les gabarits sont fixes, aucun texte n'est généré hors gabarit
+    Et une cellule non diffusée ne produit jamais de valeur dans un fait (phrase de secret à la place) ; le libellé public de la liste et le contrôle « aucun effectif sous le seuil » s'appliquent aux faits ; faits.csv est écrit
 
   Scénario: [SPEC-ANA-008] Garanties de diffusion
     Quand les tableaux sont assemblés
@@ -82,7 +90,7 @@ Fonctionnalité: Produire l'analyse « hypothèses de départ » en un classeur 
 `02a_volume.csv`, `02b_par_age.csv`, `02c_seniors.csv`, `02d_par_categorie.csv`, `03a_metiers_volume.csv`,
 `03b_metiers_part.csv`, `03c_metiers_liste.csv`, `03d_noyau_dur.csv`, `04a_regions.csv`, `04b_departements.csv`,
 `04c_exposition_regions.csv`, `04d_liste_regions.csv`, `04e_seniors_territoires.csv`, `05_priorites.csv`,
-`parametres.csv`, `definitions.csv` ; `cartes/carte_profils_note.png`, `cartes/carte_intensite_note.png` (09c).
+`parametres.csv`, `definitions.csv`, `faits.csv` ; `cartes/carte_profils_note.png`, `cartes/carte_intensite_note.png` (09c).
 
 Document d'accompagnement (docs/, rédigé à la main, hors chaîne) : `guide_commentaires_analyse_hypotheses.docx`
 (suggestions de commentaires selon les phénomènes observés, feuille par feuille). Les exemples d'analyse rédigée
@@ -94,7 +102,8 @@ Code : `R/09_analyse/09a_fonctions_analyse_hypotheses.R` (fonctions pures : `par
 `table_hypotheses_analyse()`, `table_volume_total()`, `table_volume_groupe()`, `table_volume_cs1()`,
 `table_metiers_classement()`, `table_metiers_liste_analyse()`, `table_noyau_dur_analyse()`,
 `table_territoires_cs1()`, `enrichir_territoires_analyse()`, `table_liste_regions_analyse()`,
-`table_priorites_analyse()`, `table_synthese_seniors_analyse()`, `table_definitions_analyse()`, `controler_tables_analyse()`,
+`table_priorites_analyse()`, `table_synthese_seniors_analyse()`, `table_definitions_analyse()`, `lecture_feuille_analyse()`,
+`table_faits_analyse()`, `controler_tables_analyse()`,
 `ecrire_classeur_analyse()`), `R/09_analyse/09b_analyse_hypotheses_depart.R` (script de la chaîne, après
 le 08j) ; `R/09_analyse/09c_cartes_typologie_note.R` (`preparer_cartes_note()`, `dessiner_carte_note()`,
 `cartes_note_typologie()`, exécution en fin de script, relançable seul). Paramètres : `GENERER_ANALYSE`, `ANALYSE_TOP_N`, `ANALYSE_EFFECTIF_MIN_PART`,

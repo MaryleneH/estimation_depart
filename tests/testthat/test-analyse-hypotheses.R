@@ -33,7 +33,13 @@ test_that("SPEC-ANA-003 — volume total : salariés, départs par scénario, ca
   expect_equal(t[[2]][4], EA$arrondir_nombre_personnes(sum(BTS_A$p_central) / PAR_A$horizon)); expect_true(abs(sum(t[[2]][5:7]) - t[[2]][2]) <= 2)
   expect_true(all(is.na(t[[3]][5:7]))); expect_false(attr(t, "masque")); expect_equal(attr(t, "total_central"), sum(BTS_A$p_central))
   tm <- EA$table_volume_total(BTS_A, EA$regles_secret(min_entreprises = 100), PAR_A); expect_true(attr(tm, "masque")); expect_true(all(is.na(unlist(tm[, 2:4]))))
+  # intensité du renouvellement : avec le stock tous âges (01c), emploi et intensité pour les trois scénarios ; sans stock, lignes vides
+  expect_identical(t$Indicateur[8:9], c("Emploi actuel, tous âges", "Intensité du renouvellement (%)")); expect_true(all(is.na(unlist(t[8:9, 2:4]))))
+  st <- data.frame(geo_code = c("33", "64"), cs1 = "Cadres", effectif_tous_ages = c(500L, 700L))
+  ts <- EA$table_volume_total(BTS_A, REG_A, PAR_A, st); expect_equal(unname(unlist(ts[8, 2:4])), rep(1200, 3))
+  expect_equal(ts[[2]][9], round(100 * sum(BTS_A$p_central) / 1200, 1)); expect_equal(ts[[4]][9], round(100 * sum(BTS_A$p_haut) / 1200, 1)); expect_equal(attr(ts, "emploi_tous_ages"), 1200)
 })
+
 
 test_that("SPEC-ANA-003 — volume par groupe : ordre des niveaux, niveau absent = cellule à zéro masquée, petit groupe masqué (NA, jamais zéro), part des départs du champ", {
   g <- ifelse(BTS_A$age_2024 < 50, "45-49 ans", ifelse(BTS_A$age_2024 < 60, "50-59 ans", "60 ans et plus")); g[1:3] <- "65 ans et plus"
@@ -121,16 +127,43 @@ test_that("SPEC-ANA-007 / 008 — classeur : titre, note, tableau en ligne 4, fe
   lisez <- data.frame(texte = c("Titre", "ligne"), stringsAsFactors = FALSE); attr(lisez, "gras") <- c(TRUE, FALSE)
   param <- data.frame(parametre = "horizon", valeur = "6", stringsAsFactors = FALSE)
   defs <- EA$table_definitions_analyse(PAR_A); expect_identical(names(defs), c("Terme", "Définition", "Feuilles")); expect_true(nrow(defs) >= 20); expect_false(any(grepl("stratégique", unlist(defs))))
-  expect_identical(EA$ecrire_classeur_analyse(feuilles, f, lisez, param, definitions = defs), f)
-  expect_identical(readxl::excel_sheets(f), c("Lisez-moi", "Définitions", "2a Volume", "3a Métiers volume", "3c Métiers de la liste", "Paramètres"))
+  feuilles[["2a Volume"]]$lecture <- "Lecture : phrase de test."; faits <- data.frame(Rubrique = "2 Volume", Fait = "Un fait.", Feuille = "2a Volume", stringsAsFactors = FALSE)
+  expect_identical(EA$ecrire_classeur_analyse(feuilles, f, lisez, param, definitions = defs, faits = faits), f)
+  expect_identical(readxl::excel_sheets(f), c("Lisez-moi", "Définitions", "Faits", "2a Volume", "3a Métiers volume", "3c Métiers de la liste", "Paramètres"))
+  t3 <- readxl::read_excel(f, sheet = "2a Volume", col_names = FALSE, n_max = 3); expect_identical(as.character(t3[[1]])[3], "Lecture : phrase de test.")
+  xf <- readxl::read_excel(f, sheet = "Faits"); expect_identical(names(xf), c("Rubrique", "Fait", "Feuille")); expect_equal(nrow(xf), 1L)
   xd <- readxl::read_excel(f, sheet = "Définitions"); expect_equal(nrow(xd), nrow(defs)); expect_true(any(grepl("Dimension principale", xd$Terme)))
   x <- readxl::read_excel(f, sheet = "2a Volume", skip = 3); expect_identical(names(x), c("Indicateur", "Scénario central", "Hypothèse basse (départs retardés)", "Hypothèse haute (départs avancés)")); expect_equal(x[[2]][1], N_A)
   t1 <- readxl::read_excel(f, sheet = "2a Volume", col_names = FALSE, n_max = 2); expect_identical(as.character(t1[[1]]), c("Volume", "note du volume"))
   xa <- readxl::read_excel(f, sheet = "3a Métiers volume", skip = 3); expect_identical(names(xa), "Note"); expect_identical(xa$Note[1], "Non produit : diffusion absente.")
   f2 <- file.path(tempdir(), "analyse_test_writexl.xlsx"); expect_message(EA$ecrire_classeur_analyse(feuilles, f2, lisez, param, moteur = "writexl", definitions = defs), "sans mise en forme"); expect_true(file.exists(f2))
-  expect_identical(readxl::excel_sheets(f2), c("Lisez-moi", "Définitions", "2a Volume", "3a Métiers volume", "3c Métiers de la liste", "Paramètres"))
+  expect_identical(readxl::excel_sheets(f2), c("Lisez-moi", "Définitions", "2a Volume", "3a Métiers volume", "3c Métiers de la liste", "Paramètres"))   # sans faits : pas de feuille Faits
   # contrôles : effectif visible sous le seuil ; chaîne non publique
   ok <- list(a = data.frame(`Salariés` = c(10L, NA, 0L), check.names = FALSE)); expect_true(EA$controler_tables_analyse(ok, 5L))
   expect_error(EA$controler_tables_analyse(list(a = data.frame(`Salariés` = c(10L, 3L), check.names = FALSE)), 5L), "sous le seuil")
   expect_error(EA$controler_tables_analyse(list(a = data.frame(x = "métiers stratégiques", stringsAsFactors = FALSE))), "stratégique")
+})
+
+test_that("SPEC-ANA-010 — lectures par feuille et feuille Faits : gabarits fixes remplis depuis les tableaux, secret respecté, libellé public", {
+  tot <- EA$table_volume_total(BTS_A, REG_A, PAR_A, data.frame(effectif_tous_ages = 2000L))
+  sen <- EA$table_volume_groupe(BTS_A, ifelse(BTS_A$age_2024 >= 55, "55 ans et plus", "moins de 55 ans"), "Groupe d’âge", c("moins de 55 ans", "55 ans et plus"), REG_A, sum(BTS_A$p_central))
+  cs <- EA$table_volume_cs1(tibble::tibble(cs1 = c("Ouvriers", "Cadres"), effectif_champ = c(200L, 150L), departs_central = c(80, 45), departs_bas = c(70, 40), departs_haut = c(90, 50), taux_depart_central_pct = c(40, 30), masque = FALSE), 125)
+  vol <- EA$table_metiers_classement(DIF_PCS_A, "volume", c("1a1a" = "Métier un", "2b2b" = "Métier deux"), 3L, 50L, 200); part <- EA$table_metiers_classement(DIF_PCS_A, "part", NULL, 3L, 50L, 200)
+  liste <- EA$table_metiers_liste_analyse(MAT_A); noyau <- EA$table_noyau_dur_analyse(liste); prio <- EA$table_priorites_analyse(MAT_A, TAB_08J_A, 2L)
+  dep <- EA$table_territoires_cs1(DIF_DEP_A, "département"); lr <- EA$table_liste_regions_analyse(TAB_08J_A, 15L)
+  tabs <- list("1 Hypothèses" = EA$table_hypotheses_analyse(NULL, PAR_A), "2a Volume" = tot, "2c Seniors" = sen, "2d Par catégorie" = cs, "3a Métiers volume" = vol, "3b Métiers part" = part,
+               "3c Métiers de la liste" = liste, "3d Noyau dur" = noyau, "4b Départements" = dep, "4d Liste x régions" = lr, "5 Priorités" = prio, "4a Régions" = NULL)
+  l <- sapply(names(tabs), function(n) EA$lecture_feuille_analyse(n, tabs[[n]], PAR_A))
+  expect_true(all(startsWith(l[names(tabs) != "4a Régions"], "Lecture :"))); expect_identical(unname(l["4a Régions"]), "")
+  expect_true(grepl(sprintf("%s salariés devraient", formatC(EA$arrondir_nombre_personnes(sum(BTS_A$p_central)), format = "d", big.mark = " ")), l["2a Volume"]))
+  expect_true(grepl("Métier deux \\(PCS 2B2B\\) porte le plus de départs attendus : 90", l["3a Métiers volume"])); expect_true(grepl("Pyrénées-Atlantiques \\(64\\) a la part susceptible de partir la plus forte parmi les départements diffusés : 40,0 %", l["4b Départements"]))
+  expect_true(grepl("PCS 3C3C : 45,0 % susceptibles de partir, 30 départs attendus ; tension due à dim trois ; levier d’action : recruter", l["3d Noyau dur"])); expect_true(grepl("première région : Région 75 \\(50,0 %\\)", l["5 Priorités"]))
+  f <- EA$table_faits_analyse(tabs, PAR_A)
+  expect_identical(names(f), c("Rubrique", "Fait", "Feuille")); expect_true(nrow(f) >= 10); expect_false(any(grepl("stratégique", f$Fait)))
+  expect_true(any(grepl("ces volumes sont des minimums", f$Fait))); expect_true(any(grepl("intensité de renouvellement de", f$Fait))); expect_true(any(grepl("^Les 55 ans et plus représentent", f$Fait)))
+  expect_true(any(grepl("Les ouvriers ont la part susceptible de partir la plus élevée \\(40,0 %\\) et les cadres la plus faible \\(30,0 %\\)", f$Fait)))
+  expect_true(any(grepl("2 métiers de la liste forment le noyau dur", f$Fait))); expect_true(any(grepl("Dimension principale de la tension du noyau dur : dim deux \\(1\\), dim trois \\(1\\)", f$Fait)))
+  expect_true(any(grepl("2 départements sur 3 sont diffusés ; 1 ne l’est pas \\(secret statistique\\)", f$Fait))); expect_true(any(grepl("PCS 3C3C en Région 75 \\(75\\) : 50,0 % susceptibles de partir contre 45,0 % en France \\(\\+5,0 points\\)", f$Fait)))
+  expect_false(any(grepl("33,3|Corse-du-Sud", f$Fait)))   # aucune valeur d'une cellule masquée
+  expect_equal(nrow(EA$table_faits_analyse(list(), PAR_A)), 0L)
 })

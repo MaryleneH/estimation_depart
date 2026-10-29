@@ -79,19 +79,24 @@ table_hypotheses_analyse <- function(deltas = NULL, params = parametres_analyse(
 
 # --- 2. Volume (SPEC-ANA-003) ---------------------------------------------------------------
 # Total national : une seule cellule, passée par la règle de secret (règle Insee sur n, entreprises, dominance).
-table_volume_total <- function(bts_projete, regles = regles_secret(), params = parametres_analyse()) {
+# `stock` = stock_tous_ages (01c) : emploi actuel tous âges, dénominateur de l'intensité du renouvellement (même définition que la typologie)
+table_volume_total <- function(bts_projete, regles = regles_secret(), params = parametres_analyse(), stock = NULL) {
   d <- ajouter_parts_causes(bts_projete); n <- nrow(d)
+  emploi <- if (!is.null(stock) && "effectif_tous_ages" %in% names(stock)) sum(stock$effectif_tous_ages, na.rm = TRUE) else NA_real_
+  if (!is.na(emploi) && emploi <= 0) emploi <- NA_real_
   ind <- indicateurs_secret(d)
   masque <- isTRUE(masquer_cellules(n, ind$n_entreprises, ind$part_dominante_pct, regles))
   v <- function(x) if (masque) rep(NA_real_, length(x)) else x
   tot <- c(central = sum(d$p_central), bas = sum(d$p_bas), haut = sum(d$p_haut))
   out <- .df_ana(
     Indicateur = c("Salariés du champ", sprintf("Départs attendus entre %d et %d", params$annee_bts, params$fin), "Part susceptible de partir (%)",
-                   "Départs par an en moyenne", "dont retraite ou fin de carrière", "dont invalidité", "dont décès"),
-    `Scénario central` = v(c(n, .n_ana(tot[["central"]]), .t_ana(100 * tot[["central"]] / n), .n_ana(tot[["central"]] / params$horizon), .n_ana(sum(d$part_ret)), .n_ana(sum(d$part_inv)), .n_ana(sum(d$part_dec)))),
-    `Hypothèse basse (départs retardés)` = v(c(n, .n_ana(tot[["bas"]]), .t_ana(100 * tot[["bas"]] / n), .n_ana(tot[["bas"]] / params$horizon), NA, NA, NA)),
-    `Hypothèse haute (départs avancés)` = v(c(n, .n_ana(tot[["haut"]]), .t_ana(100 * tot[["haut"]] / n), .n_ana(tot[["haut"]] / params$horizon), NA, NA, NA)))
-  attr(out, "masque") <- masque; attr(out, "total_central") <- if (masque) NA_real_ else tot[["central"]]
+                   "Départs par an en moyenne", "dont retraite ou fin de carrière", "dont invalidité", "dont décès",
+                   "Emploi actuel, tous âges", "Intensité du renouvellement (%)"),
+    `Scénario central` = v(c(n, .n_ana(tot[["central"]]), .t_ana(100 * tot[["central"]] / n), .n_ana(tot[["central"]] / params$horizon), .n_ana(sum(d$part_ret)), .n_ana(sum(d$part_inv)), .n_ana(sum(d$part_dec)),
+                            emploi, .t_ana(100 * tot[["central"]] / emploi))),
+    `Hypothèse basse (départs retardés)` = v(c(n, .n_ana(tot[["bas"]]), .t_ana(100 * tot[["bas"]] / n), .n_ana(tot[["bas"]] / params$horizon), NA, NA, NA, emploi, .t_ana(100 * tot[["bas"]] / emploi))),
+    `Hypothèse haute (départs avancés)` = v(c(n, .n_ana(tot[["haut"]]), .t_ana(100 * tot[["haut"]] / n), .n_ana(tot[["haut"]] / params$horizon), NA, NA, NA, emploi, .t_ana(100 * tot[["haut"]] / emploi))))
+  attr(out, "masque") <- masque; attr(out, "total_central") <- if (masque) NA_real_ else tot[["central"]]; attr(out, "emploi_tous_ages") <- if (masque) NA_real_ else emploi
   out
 }
 
@@ -266,6 +271,7 @@ table_definitions_analyse <- function(params = parametres_analyse()) {
     d("Départs attendus (central)", sprintf("Nombre de salariés qui devraient avoir quitté définitivement l’emploi entre %d et %d (retraite ou fin de carrière, invalidité, décès). C’est une espérance : la somme des probabilités individuelles de départ, pas un décompte de personnes identifiées. Les mobilités vers un autre employeur ne sont pas comptées : le nombre est un minimum.", params$annee_bts, params$fin), "2, 3, 4"),
     d("Hypothèse basse (départs retardés) / Hypothèse haute (départs avancés)", "Même nombre de départs sous deux hypothèses de calendrier : la basse décale les âges de départ plus tard (moins de départs), la haute plus tôt (plus de départs). Le scénario central est entre les deux. Elles encadrent le résultat, elles ne sont pas des bornes d’erreur statistiques.", "2, 3, 4"),
     d("Part susceptible de partir (%)", "Départs attendus divisés par les salariés du groupe (métier, catégorie, territoire), en %. Elle mesure la vitesse d’érosion d’un groupe, indépendamment de sa taille.", "2, 3, 4, 5"),
+    d("Emploi actuel, tous âges / Intensité du renouvellement (%)", "Emploi actuel tous âges = salariés de tous âges des établissements du périmètre à la date de la photo BTS (stock 01c). Intensité du renouvellement = départs attendus rapportés à cet emploi, en % : la même mesure que la typologie des départements, qui permet de relier les deux notes. Elle est plus faible que la part susceptible de partir, dont le dénominateur se limite aux salariés de l’âge minimum et plus.", "2a"),
     d("Départs par an en moyenne", sprintf("Départs attendus divisés par la durée de la plage (%d ans). Un ordre de grandeur à comparer à la capacité annuelle de recrutement.", params$horizon), "2a"),
     d("dont retraite ou fin de carrière / dont invalidité / dont décès", "Répartition des départs attendus entre les trois causes de sortie, au scénario central. La répartition est additive : la somme des trois redonne les départs attendus.", "2"),
     d("Poids dans l’ensemble des départs (%)", "Part des départs attendus du groupe dans tous les départs attendus du champ. Mesure ce que pèse le groupe dans l’effort de remplacement, indépendamment de sa vitesse d’érosion.", "2, 3"),
@@ -290,6 +296,108 @@ table_definitions_analyse <- function(params = parametres_analyse()) {
     d("Région 1, 2, 3 (part %)", "Pour un métier du noyau dur, ses premières régions diffusées classées par part susceptible de partir décroissante, avec cette part entre parenthèses.", "5"))
 }
 
+# --- Lectures et faits (SPEC-ANA-010) : phrases à gabarit FIXE remplies par la chaîne ---------------------------
+.n0_ana <- function(x) ifelse(is.na(x), "n.d.", formatC(x, format = "d", big.mark = " "))
+.p_ana <- function(x) ifelse(is.na(x), "n.d.", formatC(x, format = "f", digits = 1, decimal.mark = ","))
+.vis_ana <- function(t) if ("Diffusé" %in% names(t)) t[t$`Diffusé` == "oui", , drop = FALSE] else t
+.lib_pcs_ana <- function(r) if (!is.na(r[["Code PCS"]]) && !startsWith(as.character(r[["Métier"]]), "PCS ")) sprintf("%s (PCS %s)", r[["Métier"]], r[["Code PCS"]]) else as.character(r[["Métier"]])
+
+# Une phrase « Lecture : » par feuille, qui lit UNE cellule (la première ligne diffusée) ; "" si rien à lire
+lecture_feuille_analyse <- function(nom, t, params = parametres_analyse()) {
+  if (is.null(t) || !is.data.frame(t) || nrow(t) == 0) return("")
+  n0 <- .n0_ana; p <- .p_ana; s <- sprintf("%d ans et plus", params$age_senior)
+  if (nom == "1 Hypothèses") return("Lecture : chaque ligne donne une hypothèse, la valeur retenue, sa source, le sens dans lequel elle tire le résultat et ce qui la fait varier.")
+  if (nom == "2a Volume") { if (is.na(t[[2]][2])) return("Lecture : le total national n’est pas diffusé (secret statistique).")
+    return(sprintf("Lecture : au scénario central, %s salariés devraient avoir quitté définitivement l’emploi entre %d et %d, soit %s %% des %s salariés du champ ; entre %s et %s selon le calendrier des fins de carrière.",
+                   n0(t[[2]][2]), params$annee_bts, params$fin, p(t[[2]][3]), n0(t[[2]][1]), n0(t[[3]][2]), n0(t[[4]][2]))) }
+  v <- .vis_ana(t); if (nrow(v) == 0) return("Lecture : aucune ligne diffusée (secret statistique).")
+  r <- v[1, , drop = FALSE]; g <- function(col) r[[col]]
+  if (nom %in% c("2b Par âge", "2c Seniors", "2d Par catégorie"))
+    return(sprintf("Lecture : %s salariés (%s) ; %s départs attendus au scénario central, soit %s %% d’entre eux et %s %% de l’ensemble des départs.",
+                   n0(g("Salariés")), tolower(as.character(r[[1]])), n0(g("Départs attendus (central)")), p(g("Part susceptible de partir (%)")), p(g("Poids dans l’ensemble des départs (%)"))))
+  if (nom == "3a Métiers volume") return(sprintf("Lecture : %s porte le plus de départs attendus : %s, soit %s %% de ses %s salariés et %s %% de l’ensemble des départs.",
+                                                 .lib_pcs_ana(r), n0(g("Départs attendus (central)")), p(g("Part susceptible de partir (%)")), n0(g("Salariés")), p(g("Poids dans l’ensemble des départs (%)"))))
+  if (nom == "3b Métiers part") return(sprintf("Lecture : %s a la part susceptible de partir la plus élevée parmi les métiers d’au moins %d salariés : %s %% de ses %s salariés, soit %s départs attendus.",
+                                               .lib_pcs_ana(r), params$effectif_min_part, p(g("Part susceptible de partir (%)")), n0(g("Salariés")), n0(g("Départs attendus (central)"))))
+  if (nom == "3c Métiers de la liste") return(sprintf("Lecture : %s est en situation « %s » ; en tension en France : %s%s.", .lib_pcs_ana(r), g("Situation"), g("En tension en France"),
+                                                      if (!is.na(g("Dimension principale de la tension"))) sprintf(", tension due à %s (levier d’action : %s)", g("Dimension principale de la tension"), g("Levier d’action")) else ""))
+  if (nom == "3d Noyau dur") return(sprintf("Lecture : %s : %s %% susceptibles de partir, %s départs attendus ; tension due à %s ; levier d’action : %s.",
+                                            .lib_pcs_ana(r), p(g("Part susceptible de partir (%)")), n0(g("Départs attendus (central)")), g("Dimension principale de la tension"), g("Levier d’action")))
+  if (nom %in% c("4a Régions", "4b Départements")) return(sprintf("Lecture : %s (%s) a la part susceptible de partir la plus forte parmi les %s diffusés : %s %% de ses %s salariés, soit %s départs attendus (%s à %s selon l’hypothèse).",
+                                                                  r[[2]], g("Code"), if (nom == "4a Régions") "régions" else "départements", p(g("Part susceptible de partir (%)")), n0(g("Salariés")), n0(g("Départs attendus (central)")),
+                                                                  n0(g("Hypothèse basse (départs retardés)")), n0(g("Hypothèse haute (départs avancés)"))))
+  if (nom == "4c Exposition régions") return(sprintf("Lecture : en %s, %s %% des départs attendus dans les métiers suivis concernent des métiers en tension en France (France : %s %%) : exposition %s, %s.",
+                                                     r[[2]], p(g("Part des remplacements difficiles (%)")), p(g("France (%)")), tolower(as.character(g("Classe d’exposition aux remplacements difficiles"))), g("Robustesse de la classe")))
+  if (nom == "4d Liste x régions") return(sprintf("Lecture : %s en %s : %s %% susceptibles de partir contre %s %% en France, soit %s points de plus.",
+                                                  .lib_pcs_ana(r), g("Région"), p(g("Part susceptible de partir (%)")), p(g("France (%)")), p(g("Écart à la France (points)"))))
+  if (nom == "4e Seniors par territoire") { cs <- grep("^Salariés de ", names(t), value = TRUE)[1]; cp <- grep("^Part des ", names(t), value = TRUE)[1]; cd <- grep("^Départs des ", names(t), value = TRUE)[1]; ct <- grep("^Part susceptible", names(t), value = TRUE)[1]
+    return(sprintf("Lecture : %s compte %s salariés de %s, soit %s %% de ses salariés du champ ; %s départs attendus parmi eux (%s %%).", r[[2]], n0(g(cs)), s, p(g(cp)), n0(g(cd)), p(g(ct)))) }
+  if (nom == "5 Priorités") return(sprintf("Lecture : %s : %s %% susceptibles de partir en France (%s départs attendus) ; tension due à %s ; levier d’action : %s ; première région : %s.",
+                                           .lib_pcs_ana(r), p(g("Part susceptible de partir en France (%)")), n0(g("Départs attendus en France (central)")), g("Dimension principale de la tension"), g("Levier d’action"),
+                                           if (is.na(g("Région 1 (part %)"))) "aucune région diffusable" else g("Région 1 (part %)")))
+  ""
+}
+
+# La feuille « Faits » : une quinzaine de phrases vraies, par rubrique, prêtes à être reprises par la rédaction
+table_faits_analyse <- function(tables, params = parametres_analyse()) {
+  f <- list(); add <- function(rub, txt, feuille) f[[length(f) + 1]] <<- .df_ana(Rubrique = rub, Fait = txt, Feuille = feuille)
+  n0 <- .n0_ana; p <- .p_ana; g <- function(nom) tables[[nom]]; s <- sprintf("%d ans et plus", params$age_senior)
+  lst <- function(x, n = 6) { x <- x[!is.na(x)]; if (length(x) > n) paste0(paste(x[1:n], collapse = ", "), "…") else paste(x, collapse = ", ") }
+  t <- g("2a Volume")
+  if (!is.null(t)) { ind <- function(nom) { i <- which(startsWith(as.character(t$Indicateur), nom))[1]; if (is.na(i)) NA_real_ else t[[2]][i] }; indb <- function(nom) { i <- which(startsWith(as.character(t$Indicateur), nom))[1]; c(t[[3]][i], t[[4]][i]) }
+    dep <- ind("Départs attendus"); n <- ind("Salariés du champ")
+    if (is.na(dep)) add("2 Volume", "Le total national n’est pas diffusé (secret statistique).", "2a Volume") else {
+      add("2 Volume", sprintf("Entre %d et %d, %s des %s salariés du champ devraient avoir quitté définitivement l’emploi, soit %s %% ; entre %s (hypothèse basse, départs retardés) et %s (hypothèse haute, départs avancés) selon le calendrier des fins de carrière. Les mobilités vers un autre employeur ne sont pas comptées : ces volumes sont des minimums.",
+                               params$annee_bts, params$fin, n0(dep), n0(n), p(ind("Part susceptible")), n0(indb("Départs attendus")[1]), n0(indb("Départs attendus")[2])), "2a Volume")
+      add("2 Volume", sprintf("Cela représente %s départs par an en moyenne sur %d ans.", n0(ind("Départs par an")), params$horizon), "2a Volume")
+      ret <- ind("dont retraite"); add("2 Volume", sprintf("Les fins de carrière expliquent %s départs sur %s (%s %%) ; l’invalidité en ajoute %s et le décès %s.", n0(ret), n0(dep), p(100 * ret / dep), n0(ind("dont invalidité")), n0(ind("dont décès"))), "2a Volume")
+      em <- ind("Emploi actuel"); if (!is.na(em)) add("2 Volume", sprintf("Rapportés à l’emploi actuel tous âges du périmètre (%s salariés), les départs attendus représentent une intensité de renouvellement de %s %%, la mesure utilisée par la typologie des départements.", n0(em), p(ind("Intensité"))), "2a Volume") } }
+  t <- g("2c Seniors"); t2a <- g("2a Volume")
+  if (!is.null(t)) { r <- t[grepl("ans et plus", t[[1]]) & t$`Diffusé` == "oui", , drop = FALSE]; n <- if (!is.null(t2a)) t2a[[2]][1] else NA
+    if (nrow(r) == 1 && !is.na(n)) add("2 Volume", sprintf("Les %s représentent %s %% des salariés du champ et %s %% des départs attendus ; %s %% d’entre eux sont susceptibles de partir.", s, p(100 * r$`Salariés`[1] / n), p(r$`Poids dans l’ensemble des départs (%)`[1]), p(r$`Part susceptible de partir (%)`[1])), "2c Seniors")
+    else add("2 Volume", sprintf("La ligne des %s n’est pas diffusée (secret statistique).", s), "2c Seniors") }
+  t <- g("2d Par catégorie")
+  if (!is.null(t)) { v <- .vis_ana(t); if (nrow(v) >= 2) { pa <- v$`Part susceptible de partir (%)`; po <- v$`Poids dans l’ensemble des départs (%)`
+    add("2 Volume", sprintf("Les %s ont la part susceptible de partir la plus élevée (%s %%) et les %s la plus faible (%s %%) ; les %s pèsent le plus dans l’ensemble des départs (%s %%).",
+                            tolower(v[[1]][which.max(pa)]), p(max(pa, na.rm = TRUE)), tolower(v[[1]][which.min(pa)]), p(min(pa, na.rm = TRUE)), tolower(v[[1]][which.max(po)]), p(max(po, na.rm = TRUE))), "2d Par catégorie") } }
+  t <- g("3a Métiers volume")
+  if (!is.null(t) && nrow(t) >= 1) { k <- seq_len(min(3, nrow(t))); add("3 Métiers", sprintf("Les métiers portant le plus de départs attendus sont %s ; ensemble, %s %% de l’ensemble des départs.",
+                                                                    paste(sprintf("%s (%s)", vapply(k, function(i) .lib_pcs_ana(t[i, ]), ""), n0(t$`Départs attendus (central)`[k])), collapse = ", "), p(sum(t$`Poids dans l’ensemble des départs (%)`[k]))), "3a Métiers volume") }
+  t <- g("3b Métiers part")
+  if (!is.null(t) && nrow(t) >= 1) { k <- seq_len(min(3, nrow(t))); add("3 Métiers", sprintf("Les métiers qui s’érodent le plus vite (au moins %d salariés) sont %s.", params$effectif_min_part,
+                                                                    paste(sprintf("%s (%s %% de %s salariés)", vapply(k, function(i) .lib_pcs_ana(t[i, ]), ""), p(t$`Part susceptible de partir (%)`[k]), n0(t$`Salariés`[k])), collapse = ", ")), "3b Métiers part") }
+  t <- g("3d Noyau dur")
+  if (!is.null(t)) { if (nrow(t) == 0) add("3 Métiers", "Aucun métier de la liste n’est en situation « départs rapides et métier en tension » (noyau dur vide).", "3d Noyau dur") else {
+    add("3 Métiers", sprintf("%d métier%s de la liste forme%s le noyau dur (départs rapides et tension en France) : %s ; %s départs attendus au total.", nrow(t), if (nrow(t) > 1) "s" else "", if (nrow(t) > 1) "nt" else "",
+                             lst(vapply(seq_len(nrow(t)), function(i) .lib_pcs_ana(t[i, ]), "")), n0(sum(t$`Départs attendus (central)`, na.rm = TRUE))), "3d Noyau dur")
+    dims <- table(t$`Dimension principale de la tension`); add("3 Métiers", sprintf("Dimension principale de la tension du noyau dur : %s. Leviers d’action : %s.", paste(sprintf("%s (%d)", names(dims), as.integer(dims)), collapse = ", "), lst(unique(t$`Levier d’action`))), "3d Noyau dur") } }
+  t <- g("4a Régions"); fr <- if (!is.null(t2a)) t2a[[2]][3] else NA
+  if (!is.null(t)) { v <- .vis_ana(t); nd <- nrow(t) - nrow(v)
+    if (nrow(v) >= 1) { kv <- order(v$`Rang par nombre de départs`)[seq_len(min(3, nrow(v)))]; kp <- order(v$`Rang par part susceptible de partir`)[seq_len(min(3, nrow(v)))]
+      add("4 Territoires", sprintf("Par nombre de départs attendus, les premières régions sont %s.", paste(sprintf("%s (%s)", v[[2]][kv], n0(v$`Départs attendus (central)`[kv])), collapse = ", ")), "4a Régions")
+      add("4 Territoires", sprintf("Par part susceptible de partir, les premières régions sont %s%s.", paste(sprintf("%s (%s %%)", v[[2]][kp], p(v$`Part susceptible de partir (%)`[kp])), collapse = ", "), if (is.na(fr)) "" else sprintf(", contre %s %% en France", p(fr))), "4a Régions") }
+    if (nd > 0) add("4 Territoires", sprintf("%d région%s sur %d n’%s pas diffusée%s (secret statistique).", nd, if (nd > 1) "s" else "", nrow(t), if (nd > 1) "sont" else "est", if (nd > 1) "s" else ""), "4a Régions") }
+  t <- g("4c Exposition régions")
+  if (!is.null(t)) { v <- .vis_ana(t); fo <- v[v$`Classe d’exposition aux remplacements difficiles` == "Forte", , drop = FALSE]
+    if (nrow(fo)) add("4 Territoires", sprintf("%d région%s %s en exposition forte aux remplacements difficiles : %s (France : %s %%).", nrow(fo), if (nrow(fo) > 1) "s" else "", if (nrow(fo) > 1) "sont" else "est",
+                                               paste(sprintf("%s (%s %%, %s)", fo[[2]], p(fo$`Part des remplacements difficiles (%)`), fo$`Robustesse de la classe`), collapse = ", "), p(v$`France (%)`[1])), "4c Exposition régions")
+    else add("4 Territoires", "Aucune région diffusée n’est en exposition forte aux remplacements difficiles.", "4c Exposition régions") }
+  t <- g("4b Départements")
+  if (!is.null(t)) { v <- .vis_ana(t); nd <- nrow(t) - nrow(v)
+    add("4 Territoires", sprintf("%d département%s sur %d %s diffusé%s ; %d ne %s pas (secret statistique) et ne %s pas pour autant sans départ.", nrow(v), if (nrow(v) > 1) "s" else "", nrow(t), if (nrow(v) > 1) "sont" else "est", if (nrow(v) > 1) "s" else "", nd, if (nd > 1) "le sont" else "l’est", if (nd > 1) "sont" else "est"), "4b Départements")
+    if (nrow(v) >= 1) { r <- v[1, ]; extra <- c(if ("Profil (typologie)" %in% names(v) && !is.na(r$`Profil (typologie)`)) sprintf("profil « %s »", r$`Profil (typologie)`),
+                                               if ("Classe d’exposition aux remplacements difficiles" %in% names(v) && !is.na(r$`Classe d’exposition aux remplacements difficiles`)) sprintf("exposition aux remplacements difficiles %s", tolower(r$`Classe d’exposition aux remplacements difficiles`)))
+      add("4 Territoires", sprintf("Le département diffusé à la part susceptible de partir la plus forte est %s : %s %% de ses %s salariés, %s départs attendus%s.", r[[2]], p(r$`Part susceptible de partir (%)`), n0(r$`Salariés`), n0(r$`Départs attendus (central)`), if (length(extra)) paste0(" ; ", paste(extra, collapse = " ; ")) else ""), "4b Départements") } }
+  t <- g("4d Liste x régions")
+  if (!is.null(t)) { if (nrow(t) == 0) add("4 Territoires", "Aucun couple métier × région n’a une part susceptible de partir plus forte qu’en France au seuil retenu.", "4d Liste x régions") else { r <- t[1, ]
+    add("4 Territoires", sprintf("Le couple métier × région à l’écart le plus fort est %s en %s : %s %% susceptibles de partir contre %s %% en France (+%s points) ; %d couple%s au total dépasse%s la France au seuil retenu.",
+                                 .lib_pcs_ana(r), r$`Région`, p(r$`Part susceptible de partir (%)`), p(r$`France (%)`), p(r$`Écart à la France (points)`), nrow(t), if (nrow(t) > 1) "s" else "", if (nrow(t) > 1) "nt" else ""), "4d Liste x régions") } }
+  t <- g("5 Priorités")
+  if (!is.null(t) && nrow(t) >= 1) add("5 Priorités", sprintf("Priorités (noyau dur, par part susceptible de partir en France) : %s.", lst(vapply(seq_len(nrow(t)), function(i) sprintf("%s, levier %s, première région %s", .lib_pcs_ana(t[i, ]), t$`Levier d’action`[i], if (is.na(t$`Région 1 (part %)`[i])) "non diffusable" else t$`Région 1 (part %)`[i]), ""), 4)), "5 Priorités")
+  if (length(f) == 0) return(.df_ana(Rubrique = character(0), Fait = character(0), Feuille = character(0)))
+  do.call(rbind, f)
+}
+
 # --- Contrôles (SPEC-ANA-008) : aucun effectif visible sous le seuil ; aucune chaîne « stratégique » -------------
 controler_tables_analyse <- function(tables, min_salaries = SECRET_MIN_SALARIES) {
   for (nom in names(tables)) { t <- tables[[nom]]; if (is.null(t) || !is.data.frame(t)) next
@@ -301,7 +409,7 @@ controler_tables_analyse <- function(tables, min_salaries = SECRET_MIN_SALARIES)
 
 # --- Classeur (SPEC-ANA-007) : une feuille par tableau, titre, note, prêt à coller dans Word ---------------------
 # feuilles : liste nommée (nom de feuille <= 31 caractères) de list(titre, note, table) ; lisez_moi : data.frame(texte) + attr gras
-ecrire_classeur_analyse <- function(feuilles, fichier, lisez_moi = NULL, parametres = NULL, moteur = c("auto", "openxlsx", "writexl"), definitions = NULL) {
+ecrire_classeur_analyse <- function(feuilles, fichier, lisez_moi = NULL, parametres = NULL, moteur = c("auto", "openxlsx", "writexl"), definitions = NULL, faits = NULL) {
   moteur <- match.arg(moteur); dir.create(dirname(fichier), showWarnings = FALSE, recursive = TRUE)
   tab_de <- function(f) if (is.null(f$table) || !is.data.frame(f$table) || nrow(f$table) == 0) .df_ana(Note = if (!is.null(f$raison)) f$raison else "Aucune ligne.") else f$table
   if (moteur != "writexl" && requireNamespace("openxlsx", quietly = TRUE)) {
@@ -310,7 +418,7 @@ ecrire_classeur_analyse <- function(feuilles, fichier, lisez_moi = NULL, paramet
     st_cell <- openxlsx::createStyle(border = "TopBottomLeftRight", borderColour = "#D9DEE5", valign = "top", wrapText = TRUE)
     st_titre <- openxlsx::createStyle(fontSize = 14, textDecoration = "bold", fontColour = "#1D4E89"); st_note <- openxlsx::createStyle(fontSize = 10, textDecoration = "italic", fontColour = "#52606D")
     st_pct <- openxlsx::createStyle(numFmt = "0.0", halign = "right"); st_pers <- openxlsx::createStyle(numFmt = "#,##0", halign = "right"); st_gras <- openxlsx::createStyle(fontSize = 12, textDecoration = "bold")
-    st_wrap <- openxlsx::createStyle(wrapText = TRUE, valign = "top")
+    st_wrap <- openxlsx::createStyle(wrapText = TRUE, valign = "top"); st_lect <- openxlsx::createStyle(fontSize = 10, fontColour = "#1F2933")
     largeur <- function(t) pmin(55, pmax(9, vapply(seq_along(t), function(j) max(nchar(c(names(t)[j], as.character(t[[j]]))), na.rm = TRUE) * 0.85 + 2, 0)))
     if (!is.null(lisez_moi)) {
       openxlsx::addWorksheet(wb, "Lisez-moi", gridLines = FALSE); openxlsx::writeData(wb, "Lisez-moi", lisez_moi, colNames = FALSE); openxlsx::setColWidths(wb, "Lisez-moi", 1, 120)
@@ -322,10 +430,15 @@ ecrire_classeur_analyse <- function(feuilles, fichier, lisez_moi = NULL, paramet
       openxlsx::addWorksheet(wb, "Définitions", gridLines = FALSE); openxlsx::writeData(wb, "Définitions", definitions, headerStyle = st_ent); openxlsx::freezePane(wb, "Définitions", firstRow = TRUE)
       openxlsx::setColWidths(wb, "Définitions", seq_along(definitions), c(38, 100, 30)[seq_along(definitions)]); openxlsx::addStyle(wb, "Définitions", st_wrap, rows = 1 + seq_len(nrow(definitions)), cols = seq_along(definitions), gridExpand = TRUE)
     }
+    if (!is.null(faits)) {
+      openxlsx::addWorksheet(wb, "Faits", gridLines = FALSE); openxlsx::writeData(wb, "Faits", faits, headerStyle = st_ent); openxlsx::freezePane(wb, "Faits", firstRow = TRUE)
+      openxlsx::setColWidths(wb, "Faits", seq_along(faits), c(16, 125, 24)[seq_along(faits)]); openxlsx::addStyle(wb, "Faits", st_wrap, rows = 1 + seq_len(nrow(faits)), cols = seq_along(faits), gridExpand = TRUE)
+    }
     for (nom in names(feuilles)) {
       f <- feuilles[[nom]]; t <- tab_de(f); openxlsx::addWorksheet(wb, nom, gridLines = FALSE)
       openxlsx::writeData(wb, nom, f$titre, startRow = 1, colNames = FALSE); openxlsx::addStyle(wb, nom, st_titre, rows = 1, cols = 1)
       openxlsx::writeData(wb, nom, if (is.null(f$note)) "" else f$note, startRow = 2, colNames = FALSE); openxlsx::addStyle(wb, nom, st_note, rows = 2, cols = 1)
+      openxlsx::writeData(wb, nom, if (is.null(f$lecture)) "" else f$lecture, startRow = 3, colNames = FALSE); openxlsx::addStyle(wb, nom, st_lect, rows = 3, cols = 1)
       openxlsx::writeData(wb, nom, t, startRow = 4, headerStyle = st_ent)
       openxlsx::freezePane(wb, nom, firstActiveRow = 5); openxlsx::setRowHeights(wb, nom, 4, 36)
       l <- largeur(t); l[grepl("^Hypothèse$|^Valeur retenue|^Effet|^Métier$|^Territoire|^Région$|^Département$|^Famille", names(t))] <- pmax(l[grepl("^Hypothèse$|^Valeur retenue|^Effet|^Métier$|^Territoire|^Région$|^Département$|^Famille", names(t))], 26)
@@ -333,7 +446,7 @@ ecrire_classeur_analyse <- function(feuilles, fichier, lisez_moi = NULL, paramet
       lignes <- 4 + seq_len(nrow(t)); openxlsx::addStyle(wb, nom, st_cell, rows = lignes, cols = seq_along(t), gridExpand = TRUE)
       j <- grep("\\(%\\)|\\(points\\)$", names(t)); if (length(j)) openxlsx::addStyle(wb, nom, st_pct, rows = lignes, cols = j, gridExpand = TRUE, stack = TRUE)
       j <- grep("^Salariés|^Départs|^Hypothèse basse|^Hypothèse haute|^dont |minimum\\)$|^Rang", names(t)); if (length(j)) openxlsx::addStyle(wb, nom, st_pers, rows = lignes, cols = j, gridExpand = TRUE, stack = TRUE)
-      if (nom == "2a Volume" && ncol(t) >= 4) { j <- which(t$Indicateur == "Part susceptible de partir (%)"); if (length(j)) openxlsx::addStyle(wb, nom, st_pct, rows = 4 + j, cols = 2:4, gridExpand = TRUE, stack = TRUE) }
+      if (nom == "2a Volume" && ncol(t) >= 4) { j <- grep("\\(%\\)$", t$Indicateur); if (length(j)) openxlsx::addStyle(wb, nom, st_pct, rows = 4 + j, cols = 2:4, gridExpand = TRUE, stack = TRUE) }
       if ("Situation" %in% names(t) && exists("COULEURS_SITUATIONS") && exists("QUADRANTS_TENSION")) {
         teinte <- unname(COULEURS_SITUATIONS[names(QUADRANTS_TENSION)[match(t$Situation, QUADRANTS_TENSION)]])
         for (coul in unique(teinte[!is.na(teinte)])) openxlsx::addStyle(wb, nom, openxlsx::createStyle(fgFill = coul), rows = lignes[teinte %in% coul], cols = seq_along(t), gridExpand = TRUE, stack = TRUE) }
@@ -346,6 +459,7 @@ ecrire_classeur_analyse <- function(feuilles, fichier, lisez_moi = NULL, paramet
   } else if (moteur != "openxlsx" && requireNamespace("writexl", quietly = TRUE)) {
     message("ecrire_classeur_analyse : classeur écrit sans mise en forme (writexl", if (moteur == "auto") ", paquet openxlsx absent" else "", ").")
     t <- lapply(feuilles, function(f) as.data.frame(tab_de(f), stringsAsFactors = FALSE))
+    if (!is.null(faits)) t <- c(list("Faits" = as.data.frame(faits, stringsAsFactors = FALSE)), t)
     if (!is.null(definitions)) t <- c(list("Définitions" = as.data.frame(definitions, stringsAsFactors = FALSE)), t)
     if (!is.null(lisez_moi)) t <- c(list("Lisez-moi" = .df_ana(texte = as.character(lisez_moi[[1]]))), t)
     if (!is.null(parametres)) t[["Paramètres"]] <- as.data.frame(parametres, stringsAsFactors = FALSE)
