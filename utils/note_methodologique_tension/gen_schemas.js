@@ -28,7 +28,7 @@ const out = {};
 
 // ---------------------------------------------------------------- 1. De la PCS à la tension : le pont par la FAP
 { const w = 760, h = 330; let b = "";
-  b += T(20, 24, "1. La liste des PCS stratégiques", 12, { fill: GRIS, bold: true });
+  b += T(20, 24, "1. La liste des PCS (première sous-liste)", 12, { fill: GRIS, bold: true });
   b += T(290, 24, "2. Le classeur : une FAP par PCS", 12, { fill: GRIS, bold: true });
   b += T(540, 24, "3. Rangs de tension de la FAP", 12, { fill: GRIS, bold: true });
   const rows = [["Technicienne de maintenance", "Maintenance industrielle", 5.2, 5], ["Soudeur", "Travail des métaux", 4, 4], ["Comptable", "Comptabilité", 2, 2], ["Agent logistique", "Logistique", 3, 3]];
@@ -48,13 +48,13 @@ const out = {};
 { const w = 760, h = 330; let b = "";
   b += T(20, 24, "Départs attendus d’ici 2030 dans un département fictif : 200 départs", 13, { bold: true, fill: NAVY });
   // barre des 200 départs
-  const x0 = 20, W = 720, y0 = 44, H = 44, tot = 200, parts = [["A", 60, ROUGE_CLAIR, ROUGE, "stratégiques en tension"], ["B", 70, BLEU_CLAIR, NAVY, "stratégiques hors tension"], ["C", 70, FOND, GRIS, "autres métiers (et tension inconnue)"]];
+  const x0 = 20, W = 720, y0 = 44, H = 44, tot = 200, parts = [["A", 60, ROUGE_CLAIR, ROUGE, "de la liste, en tension"], ["B", 70, BLEU_CLAIR, NAVY, "de la liste, hors tension"], ["C", 70, FOND, GRIS, "autres métiers (et tension inconnue)"]];
   let x = x0; parts.forEach(p => { const wd = W * p[1] / tot; b += box(x, y0, wd, H, { fill: p[2], stroke: p[3] }) + T(x + wd / 2, y0 + 19, p[0] + " = " + p[1], 14, { anchor: "middle", bold: true, fill: p[3] }) + T(x + wd / 2, y0 + 36, p[4], 10.5, { anchor: "middle", fill: p[3] }); x += wd; });
   // formules
   b += box(20, 118, 350, 82, { fill: ROUGE_CLAIR, stroke: ROUGE }) + T(36, 142, "Exposition", 13, { bold: true, fill: ROUGE }) + T(36, 164, "= A / (A + B) = 60 / 130 = 46 %", 13.5, { bold: true });
-  b += T(36, 186, "sur 100 départs des métiers stratégiques, 46 concernent", 10.5) ;
+  b += T(36, 186, "sur 100 départs des métiers de la première sous-liste, 46 concernent", 10.5) ;
   b += box(390, 118, 350, 82, { fill: BLEU_CLAIR, stroke: NAVY }) + T(406, 142, "Couverture", 13, { bold: true, fill: NAVY }) + T(406, 164, "= (A + B) / total = 130 / 200 = 65 %", 13.5, { bold: true });
-  b += T(406, 186, "les métiers stratégiques portent 65 % des départs", 10.5);
+  b += T(406, 186, "les métiers de la liste portent 65 % des départs", 10.5);
   b += T(36, 198, "des métiers en tension en France", 10.5);
   b += T(406, 198, "au-dessus du minimum de 30 % : exposition interprétée", 10.5);
   // repère France et classe

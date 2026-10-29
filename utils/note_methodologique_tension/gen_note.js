@@ -14,8 +14,9 @@ const NONE = { style: BorderStyle.NONE, size: 0, color: BLANC }, SANS = { top: N
 const LARGEUR = 9638;
 const PAGE = { size: { width: 11906, height: 16838 }, margin: { top: 1134, bottom: 1000, left: 1134, right: 1134, header: 500, footer: 500 } };
 
-const PERIMETRE = process.env.PERIMETRE || "Base";   // nom du périmètre dans le texte (en interne : PERIMETRE=BITD node …) ; « Base Tous salariés » jamais touché
-const run = (t, o = {}) => new TextRun({ text: t.replace(/\bBase\b(?! Tous)/g, PERIMETRE), font: FONT, size: o.size || 20, color: o.color || ENCRE, bold: o.bold, italics: o.italics, characterSpacing: o.spacing });
+const PERIMETRE = process.env.PERIMETRE || "Base";
+const LISTE = process.env.LISTE_METIERS || "métiers de la première sous-liste";   // libellé public de la liste de métiers (00_config TENSION_LIBELLE_LISTE)   // nom du périmètre dans le texte (en interne : PERIMETRE=BITD node …) ; « Base Tous salariés » jamais touché
+const run = (t, o = {}) => new TextRun({ text: t.replace(/\bBase\b(?! Tous)/g, PERIMETRE).replace(/métiers stratégiques( suivis| de la liste)?/g, LISTE).replace(/métier stratégique/g, LISTE.replace(/^métiers /, "métier ")).replace(/PCS stratégiques?/g, LISTE.replace(/^métiers? /, "PCS ")), font: FONT, size: o.size || 20, color: o.color || ENCRE, bold: o.bold, italics: o.italics, characterSpacing: o.spacing });
 const rich = (t, o = {}) => t.split(/(\*\*[^*]+\*\*|`[^`]+`)/).filter(Boolean).map(s => s.startsWith("**") ? run(s.slice(2, -2), { ...o, bold: true }) : s.startsWith("`") ? new TextRun({ text: s.slice(1, -1), font: "Consolas", size: (o.size || 20) - 2, color: NAVY }) : run(s, o));
 const par = (runs, o = {}) => new Paragraph({ spacing: { before: o.before || 0, after: o.after === undefined ? 100 : o.after, line: o.line || 258 }, alignment: o.align, keepNext: o.keepNext, keepLines: o.keepLines, children: Array.isArray(runs) ? runs : [runs] });
 const texte = (t, o = {}) => par(rich(t, o), o);
@@ -184,7 +185,7 @@ const p8 = [
   texte("La typologie attribue à chaque département un profil, d’après son poids dans l’emploi, le volume et l’intensité de ses départs. L’exposition ne modifie **ni les profils, ni les règles, ni les couleurs** de la carte : elle s’y superpose."),
   ...puces(["Sur la carte des profils, les départements d’exposition **forte** sont **hachurés** ; la couleur reste celle du profil. Un département masqué par le secret n’est jamais hachuré.",
     "Le panneau de détail d’un département ajoute une rubrique « Recrutement » : exposition et repère France, classe et robustesse, couverture, levier, métiers en tension les plus concernés, et le nombre de départs attendus dans les métiers suivis en tension (un minimum, avec sa part dans tous les départs du département).",
-    "Une **fiche des territoires** (`fiche_territoires_tension.html`) classe les régions puis les départements par ce nombre de départs (plancher, fourchette basse – haute), en rappelant le profil de la typologie de chaque département et, pour une région, le nombre de ses départements à renouvellement rapide ; les territoires non diffusés figurent en fin de tableau sans valeur.",
+    "Une **fiche des métiers** (`fiche_metiers_liste.html`, 08j) répond à la question opérationnelle : pour chaque métier de la liste, quelle part de ses salariés est susceptible de partir d’ici 2030 dans chaque région et chaque département, et cette part est-elle plus forte, proche ou plus faible qu’en France (écart en points, seuil `TENSION_ECART_POINTS`) ; une vue par territoire classe les métiers d’un département. Le même contenu existe en classeur (`metiers_liste_territoires.xlsx`).",
     "Un département qui cumule un **renouvellement rapide** (profils « Pôle majeur à renouveler rapidement » et « Renouvellement rapide à surveiller ») et une **exposition forte** est signalé comme tel (`tension_cumul`). Le premier message de la fiche compte ces départements et la part des départs qu’ils concentrent."]),
   ...retenir("Lire dans cet ordre : la couleur (combien partent, à quel rythme), puis les hachures (sur quels métiers), puis le tableau des métiers et le levier (quelle nature de difficulté). Un département à renouvellement rapide et hachuré cumule les deux difficultés ; il mérite d’être regardé en premier, sans que cela constitue un classement.")];
 
@@ -250,7 +251,8 @@ const annexes = [
     ["diffusion/fiche_exposition_tension.html", "Fiche d’une page : trois messages, tableau des métiers par situation, lecture, méthode ; en annexe repliée, la matrice des métiers (un point par métier diffusable, libellé lu au survol de la souris) ; sans script."],
     ["diffusion/matrice_metiers_tension.png", "Représentation graphique des situations de métier (image à part)."],
     ["diffusion/exposition_tension_regions.csv", "Mêmes indicateurs au niveau région (table région × PCS du 08c), même secret."],
-    ["diffusion/fiche_territoires_tension.html", "Classement des régions puis des départements par départs attendus dans les métiers suivis en tension (minimums), profil de la typologie rappelé ; sans script. Un script de contrôle (99d) vérifie la cohérence hachures / cumul / fiche après la chaîne."],
+    ["diffusion/fiche_metiers_liste.html", "Un bloc par métier de la liste : part susceptible de partir par région et département face à la France, écart en points et lecture ; puis une vue par territoire ; sans script (08j). Un script de contrôle (99d) vérifie la cohérence hachures / cumul / fiche après la chaîne."],
+    ["diffusion/metiers_liste_territoires.csv / .xlsx", "La même table en long (métier x territoire), et le classeur à deux vues (par métier, par territoire)."],
     ["diffusion/exposition_tension.xlsx", "Classeur à quatre feuilles (Lisez-moi, Départements, Métiers, Paramètres) : le contenu de la fiche, issu des seules tables de diffusion, pour être repris, trié et transmis."]], { size: 17 })];
 
 const doc = new Document({
