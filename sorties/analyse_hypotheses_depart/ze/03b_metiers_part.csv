@@ -1,0 +1,16 @@
+﻿"Rang";"Code PCS";"Métier";"Catégorie sociale";"Salariés";"Départs attendus (central)";"Hypothèse basse";"Hypothèse haute";"Part susceptible de partir (%)";"Part des départs du champ (%)"
+1;"6821";"PCS 6821";"Ouvriers";316;152;146;160;48,2;7,3
+2;"6210";"PCS 6210";"Ouvriers";308;148;141;156;48,2;7,1
+3;"6543";"PCS 6543";"Ouvriers";336;152;146;159;45,3;7,3
+4;"6234";"PCS 6234";"Ouvriers";362;164;156;172;45,2;7,9
+5;"6712";"PCS 6712";"Ouvriers";333;148;141;156;44,5;7,1
+6;"5311";"PCS 5311";"Employés";209;93;88;97;44,3;4,5
+7;"5511";"PCS 5511";"Employés";230;99;94;104;43,1;4,8
+8;"5411";"PCS 5411";"Employés";200;82;78;87;41,1;4
+9;"5422";"PCS 5422";"Employés";233;95;91;100;40,8;4,6
+10;"5621";"PCS 5621";"Employés";211;79;74;84;37,4;3,8
+11;"4611";"PCS 4611";"Professions intermédiaires";314;115;108;121;36,5;5,5
+12;"4631";"PCS 4631";"Professions intermédiaires";289;103;98;109;35,6;5
+13;"4620";"PCS 4620";"Professions intermédiaires";307;104;98;111;34;5
+14;"4642";"PCS 4642";"Professions intermédiaires";269;91;85;97;33,8;4,4
+15;"4652";"PCS 4652";"Professions intermédiaires";309;103;97;109;33,2;4,9

@@ -338,6 +338,14 @@ TENSION_ECART_POINTS <- 3            # fiche des métiers par territoire (08j) :
 TENSION_CLASSEUR_EXCEL <- TRUE       # TRUE = diffusion/exposition_tension.xlsx (Lisez-moi, Départements, Métiers, Paramètres), même contenu
                                      # que la fiche HTML, issu des seules tables de diffusion ; openxlsx (mise en forme) ou writexl ;
                                      # échec ou paquet absent = message, jamais d'arrêt. FALSE = pas de classeur.
+
+# --- Analyse « hypothèses de départ » (R/09_analyse, specs/11) --------------------------------
+GENERER_ANALYSE <- TRUE              # FALSE = étape 09b ignorée. Classeur Excel prêt à coller dans Word, construit sur les
+                                     # seules tables de diffusion ; écrit dans sorties/analyse_hypotheses_depart/<zonage>/.
+ANALYSE_TOP_N <- 15L                 # nombre de métiers (et de couples métier x région) dans les classements
+ANALYSE_EFFECTIF_MIN_PART <- 50L     # classement par part susceptible de partir : métiers d'au moins ce nombre de salariés
+                                     # (évite qu'un très petit métier domine un classement en intensité)
+ANALYSE_N_REGIONS_PRIORITES <- 3L    # feuille « Priorités » : nombre de régions citées par métier du noyau dur
 FICHES_SECRET    <- TRUE          # TRUE  = secret statistique appliqué (version DIFFUSABLE).
                                   # FALSE = USAGE INTERNE : aucun masquage, tous les
                                   # territoires, bloc des entreprises (SIREN) ; écrit dans
