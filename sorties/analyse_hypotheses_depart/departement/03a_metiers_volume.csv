@@ -1,4 +1,4 @@
-﻿"Rang";"Code PCS";"Métier";"Catégorie sociale";"Salariés";"Départs attendus (central)";"Hypothèse basse";"Hypothèse haute";"Part susceptible de partir (%)";"Part des départs du champ (%)"
+﻿"Rang";"Code PCS";"Métier";"Catégorie sociale";"Salariés";"Départs attendus (central)";"Hypothèse basse (départs retardés)";"Hypothèse haute (départs avancés)";"Part susceptible de partir (%)";"Poids dans l’ensemble des départs (%)"
 1;"6712";"PCS 6712";"Ouvriers";339;160;153;167;47,2;7,7
 2;"6821";"PCS 6821";"Ouvriers";321;155;148;162;48,3;7,4
 3;"6210";"PCS 6210";"Ouvriers";316;154;147;162;48,8;7,4
