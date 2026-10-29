@@ -10,7 +10,8 @@ const FONT = "Calibri";
 const NONE = { style: BorderStyle.NONE, size: 0, color: BLANC }, SANS = { top: NONE, bottom: NONE, left: NONE, right: NONE };
 const LARGEUR = 8788;
 const PAGE = { size: { width: 11906, height: 16838 }, margin: { top: 1560, bottom: 1400, left: 1559, right: 1559, header: 700, footer: 700 } };
-const run = (t, o = {}) => new TextRun({ text: t, font: FONT, size: o.size || 21, color: o.color || ENCRE, bold: o.bold, italics: o.italics, characterSpacing: o.spacing });
+const PERIMETRE = process.env.PERIMETRE || "Base";   // nom du périmètre dans le texte (en interne : PERIMETRE=BITD node …)
+const run = (t, o = {}) => new TextRun({ text: t.replace(/\bBase\b(?! Tous)/g, PERIMETRE), font: FONT, size: o.size || 21, color: o.color || ENCRE, bold: o.bold, italics: o.italics, characterSpacing: o.spacing });
 const rich = (t, o = {}) => t.split(/(\*\*[^*]+\*\*)/).filter(Boolean).map(s => s.startsWith("**") ? run(s.slice(2, -2), { ...o, bold: true }) : run(s, o));
 const par = (runs, o = {}) => new Paragraph({ spacing: { before: o.before || 0, after: o.after === undefined ? 160 : o.after, line: o.line || 300 }, alignment: o.align, keepNext: o.keepNext, keepLines: o.keepLines, children: Array.isArray(runs) ? runs : [runs] });
 const texte = (t, o = {}) => par(rich(t, o), o);
@@ -57,7 +58,7 @@ const corps = [
     ["« Ce territoire est le plus touché : il a le plus de départs. »", "« Il porte le plus gros volume ; rapporté à ses effectifs, sa part est de x %. »"],
     ["« Il y aura 900 départs. »", "« Environ 900 départs sont estimés d’ici 2030, entre 850 et 950 selon l’hypothèse. » (chiffres fictifs)"]]),
   vide(160),
-  texte("**Pour aller plus loin.** Note pédagogique sur les cartes d’emploi ; note de référence sur les nomenclatures (PCS, CS, FAP, ROME) ; note courte sur l’exposition au recrutement difficile.", { after: 0 })
+  texte("**Pour aller plus loin.** Note pédagogique sur les cartes d’emploi ; note de référence sur les nomenclatures (PCS, CS, FAP, ROME) ; note courte sur les départs attendus et les remplacements difficiles.", { after: 0 })
 ];
 const doc = new Document({
   styles: { default: { document: { run: { font: FONT, size: 21, color: ENCRE } } } },

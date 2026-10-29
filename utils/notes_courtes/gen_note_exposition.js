@@ -10,7 +10,8 @@ const FONT = "Calibri";
 const NONE = { style: BorderStyle.NONE, size: 0, color: BLANC }, SANS = { top: NONE, bottom: NONE, left: NONE, right: NONE };
 const LARGEUR = 8788;
 const PAGE = { size: { width: 11906, height: 16838 }, margin: { top: 1560, bottom: 1400, left: 1559, right: 1559, header: 700, footer: 700 } };
-const run = (t, o = {}) => new TextRun({ text: t, font: FONT, size: o.size || 21, color: o.color || ENCRE, bold: o.bold, italics: o.italics, characterSpacing: o.spacing });
+const PERIMETRE = process.env.PERIMETRE || "Base";   // nom du périmètre dans le texte (en interne : PERIMETRE=BITD node …)
+const run = (t, o = {}) => new TextRun({ text: t.replace(/\bBase\b(?! Tous)/g, PERIMETRE), font: FONT, size: o.size || 21, color: o.color || ENCRE, bold: o.bold, italics: o.italics, characterSpacing: o.spacing });
 const rich = (t, o = {}) => t.split(/(\*\*[^*]+\*\*)/).filter(Boolean).map(s => s.startsWith("**") ? run(s.slice(2, -2), { ...o, bold: true }) : run(s, o));
 const par = (runs, o = {}) => new Paragraph({ spacing: { before: o.before || 0, after: o.after === undefined ? 160 : o.after, line: o.line || 300 }, alignment: o.align, keepNext: o.keepNext, keepLines: o.keepLines, children: Array.isArray(runs) ? runs : [runs] });
 const texte = (t, o = {}) => par(rich(t, o), o);
@@ -29,7 +30,7 @@ const pied = new Footer({ children: [new Paragraph({ alignment: AlignmentType.CE
 const corps = [
   par(run("Note de lecture", { size: 20, color: GRIS }), { after: 200 }),
   par(run("Départs attendus d’ici 2030 et difficultés de recrutement", { size: 32, bold: true, color: ENCRE }), { after: 120, line: 340 }),
-  par(run("Ce que mesure l’estimation des départs, ce qu’ajoute l’exposition au recrutement difficile, et comment lire les résultats.", { size: 22, color: TEXTE }), { after: 360, line: 300 }),
+  par(run("Ce que mesure l’estimation des départs, ce qu’ajoute la part des remplacements difficiles, et comment lire les résultats.", { size: 22, color: TEXTE }), { after: 360, line: 300 }),
 
   h1("Combien de salariés faudra-t-il remplacer d’ici 2030 ?"),
   texte("L’estimation des départs répond à cette question : parmi les salariés présents en 2024 dans les entreprises du périmètre, combien auront définitivement quitté l’emploi d’ici 2030, et devront donc avoir été remplacés ? Un « départ » est une **sortie définitive de l’emploi** : retraite ou fin de carrière, mais aussi invalidité ou décès. **Ce n’est pas un décompte des départs en retraite.**"),
@@ -39,12 +40,12 @@ const corps = [
 
   h1("Ce que la note apporte"),
   texte("Cette note croise ces remplacements à préparer avec la difficulté à recruter sur les métiers concernés : **les départs portent-ils sur des métiers difficiles à recruter ?** Un remplacement dans un métier où les candidats manquent pèse plus lourd qu’un remplacement dans un métier facile à pourvoir."),
-  texte("Elle répond par trois éléments : une **exposition** par département, un **levier** par département, et une **liste des métiers** à surveiller en priorité."),
+  texte("Elle répond par trois éléments : une **part des remplacements difficiles** par département, un **levier** par département, et une **liste des métiers** à surveiller en priorité."),
 
   h1("Comment c’est mesuré"),
   texte("**Une liste de métiers stratégiques.** Environ quatre-vingts métiers ont été retenus. Pour chacun, la Dares (ministère du Travail) publie chaque année un indicateur de tension sur le marché du travail français, de 1, métier qui recrute facilement, à 5, métier très difficile à recruter. Un métier est dit **en tension** à partir de 4."),
-  texte("**L’exposition d’un département.** Sur 100 départs attendus d’ici 2030 dans les métiers stratégiques du département, combien concernent des métiers en tension ? C’est l’exposition. Elle porte sur les seuls départs définitifs décrits plus haut : un métier pénible et en tension peut donc être sous-estimé, sur ses départs comme sur son exposition. Elle est comparée à la même part calculée pour la France entière, et classée faible, modérée ou forte."),
-  texte("Deux précautions. L’exposition n’est pas interprétée quand les métiers stratégiques pèsent trop peu dans les départs du département, car elle reposerait sur trop peu de cas. Elle est marquée « à confirmer » lorsqu’un petit changement d’hypothèse la ferait changer de classe ; sinon elle est « robuste »."),
+  texte("**La part des remplacements difficiles d’un département.** Sur 100 salariés à remplacer d’ici 2030 dans les métiers stratégiques du département, combien partent de métiers où l’on peine déjà à recruter en France ? C’est la part des remplacements difficiles. Elle porte sur les seuls départs définitifs décrits plus haut : un métier pénible et en tension peut donc être sous-estimé, sur ses départs comme sur cette part. Elle est comparée à la même part calculée pour la France entière, et classée faible, modérée ou forte."),
+  texte("Deux précautions. La part n’est pas interprétée quand les métiers stratégiques pèsent trop peu dans les départs du département, car elle reposerait sur trop peu de cas. Elle est marquée « à confirmer » lorsqu’un petit changement d’hypothèse la ferait changer de classe ; sinon elle est « robuste »."),
   texte("**Le levier.** La Dares décompose la tension d’un métier en sept causes possibles. Pour chaque métier en tension, la cause la plus marquée est retenue et traduite en action :"),
   grille([3300, 5488], [
     ["Manque de candidats", "attirer de nouveaux viviers de recrutement"],
@@ -59,17 +60,17 @@ const corps = [
 
   h1("Comment lire les résultats"),
   ...puces([
-    "**La carte des profils** dit combien de salariés partent et à quel rythme. Les départements hachurés sont ceux dont l’exposition est forte.",
+    "**La carte des profils** dit combien de salariés partent et à quel rythme. Les départements hachurés sont ceux dont la part des remplacements difficiles est forte.",
     "**Un département à la fois en renouvellement rapide et hachuré** cumule les deux difficultés : il remplace beaucoup de salariés, dans des métiers où il sera difficile de recruter. Ces départements sont nommés en tête de la fiche.",
     "**Le tableau des métiers** classe chaque métier stratégique selon ses départs, rapides ou modérés par rapport à la moyenne, et sa tension, en tension ou non. Les métiers « à départs rapides et en tension » sont ceux où l’anticipation compte le plus."]),
   ...encadre("Ce que la note ne dit pas", [
     "Ce n’est **pas une prévision de pénurie**. Elle signale des départs qui porteront sur des métiers difficiles à recruter.",
-    "La tension est celle du métier **en France entière**. Un département « exposé » n’est pas un département qui manque de candidats ; c’est un département dont les départs tombent sur des métiers tendus partout.",
+    "La tension est celle du métier **en France entière**. Un département à forte part de remplacements difficiles n’est pas un département qui manque de candidats ; c’est un département dont les départs tombent sur des métiers tendus partout.",
     "Les départs estimés ne comptent pas les mobilités et les reconversions : le besoin réel de remplacement peut être plus élevé, surtout dans les métiers pénibles ou mobiles.",
     "Elle n’identifie aucune personne : les nombres sont des sommes de probabilités, jamais des listes de salariés.",
     "Le secret statistique s’applique : un département dont les effectifs sont trop faibles n’a aucune valeur publiée, et seules des parts et des classes sont diffusées, jamais des effectifs."], ORANGE, ORANGE_CLAIR),
   ...encadre("Un exemple fictif", [
-    "Dans un département imaginaire, 300 départs sont attendus d’ici 2030 dans les métiers stratégiques, dont 210 dans des métiers en tension : exposition 70 %, contre 55 % en France, classe forte.",
+    "Dans un département imaginaire, 300 départs sont attendus d’ici 2030 dans les métiers stratégiques, dont 210 dans des métiers en tension : part des remplacements difficiles 70 %, contre 55 % en France, classe forte.",
     "Parmi ces 210 départs, 120 concernent des métiers dont la difficulté tient d’abord au manque de candidats : le levier du département est « attirer de nouveaux viviers ».",
     "Si ce département a aussi un profil de renouvellement rapide, il figure parmi les départements qui cumulent les deux difficultés."], VERT, VERT_CLAIR),
 
