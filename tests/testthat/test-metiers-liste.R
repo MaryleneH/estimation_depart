@@ -88,7 +88,9 @@ test_that("SPEC-TYPO-109 — page des métiers : sans script, un bloc par métie
   expect_true(grepl("3 métiers diffusables sur 3", t33, fixed = TRUE)); expect_true(grepl("Métier un<br><small>PCS 1A1A · Famille un</small>", t33, fixed = TRUE))
   t2a <- regmatches(h, regexpr('(?s)<details class="terr"><summary>Corse-du-Sud \\(2A\\).*?</details>', h, perl = TRUE))
   expect_true(grepl("2 métiers diffusables sur 3", t2a, fixed = TRUE)); expect_true(grepl("Métiers non diffusés (secret statistique), 1 : Métier un", t2a, fixed = TRUE))
-  expect_true(grepl("à partir de 3,0 points d’écart", h, fixed = TRUE)); expect_true(grepl('href="fiche_exposition_tension.html"', h, fixed = TRUE))
+  expect_true(grepl("à partir de 3,0 points d’écart", h, fixed = TRUE))
+  # SPEC-PUB-022 : la page vit seule : seules des ancres internes, aucun lien vers un autre fichier
+  expect_false(grepl('href="[^#]', h)); expect_true(grepl("Documents associés (fichiers distincts, cités sans lien)", h, fixed = TRUE))
 })
 
 test_that("SPEC-TYPO-109 — classeur : quatre feuilles, table longue = table, vue par territoire triée par territoire puis écart, non diffusés sans valeur, libellé public, relecture writexl", {

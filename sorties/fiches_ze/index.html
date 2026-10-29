@@ -52,7 +52,7 @@ footer{margin-top:8px;padding-top:14px;border-top:1px solid var(--filet);font-si
 .an-txt{font-size:14px;color:var(--texte);margin:0 0 6px}
 .recherche{width:100%;font:inherit;font-size:16px;padding:10px 12px;border:1px solid var(--filet);margin:0 0 18px;background:#fff;color:var(--encre)}
 .liste{list-style:none;margin:0;padding:0}.liste li{display:grid;grid-template-columns:52px 1fr auto;gap:14px;align-items:baseline;padding:9px 0;border-bottom:1px solid var(--filet)}
-.liste .code{color:var(--gris);font-variant-numeric:tabular-nums}.liste a{text-decoration:none;color:var(--encre);font-size:16px}.liste a:hover{text-decoration:underline}.liste .n{font-variant-numeric:tabular-nums;color:var(--texte);font-size:14px;white-space:nowrap}
+.liste .code{color:var(--gris);font-variant-numeric:tabular-nums}.liste .nom{color:var(--encre);font-size:16px}.liste .fichier{display:block;color:var(--gris);font-size:12px;font-family:ui-monospace,Menlo,Consolas,monospace}.liste .n{font-variant-numeric:tabular-nums;color:var(--texte);font-size:14px;white-space:nowrap}
 .vide{color:var(--gris);display:none}.methode{font-size:13px;color:var(--texte);line-height:1.5;margin-top:32px;padding-top:16px;border-top:1px solid var(--filet)}
 @media (max-width:640px){.page{padding:28px 18px 24px}h1{font-size:36px}.hero{grid-template-columns:1fr;gap:22px}
 .ctx{border-left:0;padding-left:0;border-top:1px solid var(--filet);padding-top:18px;flex-direction:row;gap:28px;flex-wrap:wrap}.hero-n{font-size:60px}
@@ -76,48 +76,48 @@ h1{font-size:34px;margin-bottom:8px}.titre2{font-size:15px}.perim{font-size:11.5
 <section class="zone">
 <input class="recherche" type="search" id="q" placeholder="Rechercher une zone d'emploi (nom ou code)" aria-label="Rechercher un territoire">
 <ul class="liste" id="liste">
-<li data-cle="aix-en-provence aix-en-provence"><span class="code">Aix-en-Provence</span><a href="aixenprovence_aix-en-provence.html">Aix-en-Provence</a><span class="n">64 départs attendus</span></li>
-<li data-cle="angouleme angouleme"><span class="code">Angoulême</span><a href="angoulme_angouleme.html">Angoulême</a><span class="n">44 départs attendus</span></li>
-<li data-cle="belfort belfort"><span class="code">Belfort</span><a href="belfort_belfort.html">Belfort</a><span class="n">64 départs attendus</span></li>
-<li data-cle="bordeaux bordeaux"><span class="code">Bordeaux</span><a href="bordeaux_bordeaux.html">Bordeaux</a><span class="n">52 départs attendus</span></li>
-<li data-cle="bourges bourges"><span class="code">Bourges</span><a href="bourges_bourges.html">Bourges</a><span class="n">49 départs attendus</span></li>
-<li data-cle="brest brest"><span class="code">Brest</span><a href="brest_brest.html">Brest</a><span class="n">52 départs attendus</span></li>
-<li data-cle="caen caen"><span class="code">Caen</span><a href="caen_caen.html">Caen</a><span class="n">54 départs attendus</span></li>
-<li data-cle="cherbourg-en-cotentin cherbourg-en-cotentin"><span class="code">Cherbourg-en-Cotentin</span><a href="cherbourgencotentin_cherbourg-en-cotentin.html">Cherbourg-en-Cotentin</a><span class="n">65 départs attendus</span></li>
-<li data-cle="clermont-ferrand clermont-ferrand"><span class="code">Clermont-Ferrand</span><a href="clermontferrand_clermont-ferrand.html">Clermont-Ferrand</a><span class="n">36 départs attendus</span></li>
-<li data-cle="creteil creteil"><span class="code">Créteil</span><a href="crteil_creteil.html">Créteil</a><span class="n">47 départs attendus</span></li>
-<li data-cle="dijon dijon"><span class="code">Dijon</span><a href="dijon_dijon.html">Dijon</a><span class="n">70 départs attendus</span></li>
-<li data-cle="douai douai"><span class="code">Douai</span><a href="douai_douai.html">Douai</a><span class="n">58 départs attendus</span></li>
-<li data-cle="grenoble grenoble"><span class="code">Grenoble</span><a href="grenoble_grenoble.html">Grenoble</a><span class="n">37 départs attendus</span></li>
-<li data-cle="istres istres"><span class="code">Istres</span><a href="istres_istres.html">Istres</a><span class="n">33 départs attendus</span></li>
-<li data-cle="le havre le havre"><span class="code">Le Havre</span><a href="lehavre_le-havre.html">Le Havre</a><span class="n">34 départs attendus</span></li>
-<li data-cle="le mans le mans"><span class="code">Le Mans</span><a href="lemans_le-mans.html">Le Mans</a><span class="n">32 départs attendus</span></li>
-<li data-cle="lille lille"><span class="code">Lille</span><a href="lille_lille.html">Lille</a><span class="n">69 départs attendus</span></li>
-<li data-cle="limoges limoges"><span class="code">Limoges</span><a href="limoges_limoges.html">Limoges</a><span class="n">56 départs attendus</span></li>
-<li data-cle="lorient lorient"><span class="code">Lorient</span><a href="lorient_lorient.html">Lorient</a><span class="n">68 départs attendus</span></li>
-<li data-cle="lyon lyon"><span class="code">Lyon</span><a href="lyon_lyon.html">Lyon</a><span class="n">26 départs attendus</span></li>
-<li data-cle="marseille marseille"><span class="code">Marseille</span><a href="marseille_marseille.html">Marseille</a><span class="n">44 départs attendus</span></li>
-<li data-cle="metz metz"><span class="code">Metz</span><a href="metz_metz.html">Metz</a><span class="n">27 départs attendus</span></li>
-<li data-cle="mulhouse mulhouse"><span class="code">Mulhouse</span><a href="mulhouse_mulhouse.html">Mulhouse</a><span class="n">50 départs attendus</span></li>
-<li data-cle="nancy nancy"><span class="code">Nancy</span><a href="nancy_nancy.html">Nancy</a><span class="n">69 départs attendus</span></li>
-<li data-cle="nantes nantes"><span class="code">Nantes</span><a href="nantes_nantes.html">Nantes</a><span class="n">34 départs attendus</span></li>
-<li data-cle="nice nice"><span class="code">Nice</span><a href="nice_nice.html">Nice</a><span class="n">63 départs attendus</span></li>
-<li data-cle="orleans orleans"><span class="code">Orléans</span><a href="orlans_orleans.html">Orléans</a><span class="n">18 départs attendus</span></li>
-<li data-cle="paris paris"><span class="code">Paris</span><a href="paris_paris.html">Paris</a><span class="n">68 départs attendus</span></li>
-<li data-cle="pau pau"><span class="code">Pau</span><a href="pau_pau.html">Pau</a><span class="n">45 départs attendus</span></li>
-<li data-cle="poitiers poitiers"><span class="code">Poitiers</span><a href="poitiers_poitiers.html">Poitiers</a><span class="n">60 départs attendus</span></li>
-<li data-cle="rennes rennes"><span class="code">Rennes</span><a href="rennes_rennes.html">Rennes</a><span class="n">49 départs attendus</span></li>
-<li data-cle="rouen rouen"><span class="code">Rouen</span><a href="rouen_rouen.html">Rouen</a><span class="n">34 départs attendus</span></li>
-<li data-cle="saint-nazaire saint-nazaire"><span class="code">Saint-Nazaire</span><a href="saintnazaire_saint-nazaire.html">Saint-Nazaire</a><span class="n">37 départs attendus</span></li>
-<li data-cle="strasbourg strasbourg"><span class="code">Strasbourg</span><a href="strasbourg_strasbourg.html">Strasbourg</a><span class="n">26 départs attendus</span></li>
-<li data-cle="tarbes tarbes"><span class="code">Tarbes</span><a href="tarbes_tarbes.html">Tarbes</a><span class="n">68 départs attendus</span></li>
-<li data-cle="toulon toulon"><span class="code">Toulon</span><a href="toulon_toulon.html">Toulon</a><span class="n">51 départs attendus</span></li>
-<li data-cle="toulouse toulouse"><span class="code">Toulouse</span><a href="toulouse_toulouse.html">Toulouse</a><span class="n">56 départs attendus</span></li>
-<li data-cle="tours tours"><span class="code">Tours</span><a href="tours_tours.html">Tours</a><span class="n">51 départs attendus</span></li>
-<li data-cle="valence valence"><span class="code">Valence</span><a href="valence_valence.html">Valence</a><span class="n">34 départs attendus</span></li>
-<li data-cle="valenciennes valenciennes"><span class="code">Valenciennes</span><a href="valenciennes_valenciennes.html">Valenciennes</a><span class="n">50 départs attendus</span></li>
-<li data-cle="versailles versailles"><span class="code">Versailles</span><a href="versailles_versailles.html">Versailles</a><span class="n">74 départs attendus</span></li>
-<li data-cle="evry evry"><span class="code">Évry</span><a href="vry_evry.html">Évry</a><span class="n">60 départs attendus</span></li>
+<li data-cle="aix-en-provence aix-en-provence"><span class="code">Aix-en-Provence</span><span class="nom">Aix-en-Provence<small class="fichier">aixenprovence_aix-en-provence.html</small></span><span class="n">64 départs attendus</span></li>
+<li data-cle="angouleme angouleme"><span class="code">Angoulême</span><span class="nom">Angoulême<small class="fichier">angoulme_angouleme.html</small></span><span class="n">44 départs attendus</span></li>
+<li data-cle="belfort belfort"><span class="code">Belfort</span><span class="nom">Belfort<small class="fichier">belfort_belfort.html</small></span><span class="n">64 départs attendus</span></li>
+<li data-cle="bordeaux bordeaux"><span class="code">Bordeaux</span><span class="nom">Bordeaux<small class="fichier">bordeaux_bordeaux.html</small></span><span class="n">52 départs attendus</span></li>
+<li data-cle="bourges bourges"><span class="code">Bourges</span><span class="nom">Bourges<small class="fichier">bourges_bourges.html</small></span><span class="n">49 départs attendus</span></li>
+<li data-cle="brest brest"><span class="code">Brest</span><span class="nom">Brest<small class="fichier">brest_brest.html</small></span><span class="n">52 départs attendus</span></li>
+<li data-cle="caen caen"><span class="code">Caen</span><span class="nom">Caen<small class="fichier">caen_caen.html</small></span><span class="n">54 départs attendus</span></li>
+<li data-cle="cherbourg-en-cotentin cherbourg-en-cotentin"><span class="code">Cherbourg-en-Cotentin</span><span class="nom">Cherbourg-en-Cotentin<small class="fichier">cherbourgencotentin_cherbourg-en-cotentin.html</small></span><span class="n">65 départs attendus</span></li>
+<li data-cle="clermont-ferrand clermont-ferrand"><span class="code">Clermont-Ferrand</span><span class="nom">Clermont-Ferrand<small class="fichier">clermontferrand_clermont-ferrand.html</small></span><span class="n">36 départs attendus</span></li>
+<li data-cle="creteil creteil"><span class="code">Créteil</span><span class="nom">Créteil<small class="fichier">crteil_creteil.html</small></span><span class="n">47 départs attendus</span></li>
+<li data-cle="dijon dijon"><span class="code">Dijon</span><span class="nom">Dijon<small class="fichier">dijon_dijon.html</small></span><span class="n">70 départs attendus</span></li>
+<li data-cle="douai douai"><span class="code">Douai</span><span class="nom">Douai<small class="fichier">douai_douai.html</small></span><span class="n">58 départs attendus</span></li>
+<li data-cle="grenoble grenoble"><span class="code">Grenoble</span><span class="nom">Grenoble<small class="fichier">grenoble_grenoble.html</small></span><span class="n">37 départs attendus</span></li>
+<li data-cle="istres istres"><span class="code">Istres</span><span class="nom">Istres<small class="fichier">istres_istres.html</small></span><span class="n">33 départs attendus</span></li>
+<li data-cle="le havre le havre"><span class="code">Le Havre</span><span class="nom">Le Havre<small class="fichier">lehavre_le-havre.html</small></span><span class="n">34 départs attendus</span></li>
+<li data-cle="le mans le mans"><span class="code">Le Mans</span><span class="nom">Le Mans<small class="fichier">lemans_le-mans.html</small></span><span class="n">32 départs attendus</span></li>
+<li data-cle="lille lille"><span class="code">Lille</span><span class="nom">Lille<small class="fichier">lille_lille.html</small></span><span class="n">69 départs attendus</span></li>
+<li data-cle="limoges limoges"><span class="code">Limoges</span><span class="nom">Limoges<small class="fichier">limoges_limoges.html</small></span><span class="n">56 départs attendus</span></li>
+<li data-cle="lorient lorient"><span class="code">Lorient</span><span class="nom">Lorient<small class="fichier">lorient_lorient.html</small></span><span class="n">68 départs attendus</span></li>
+<li data-cle="lyon lyon"><span class="code">Lyon</span><span class="nom">Lyon<small class="fichier">lyon_lyon.html</small></span><span class="n">26 départs attendus</span></li>
+<li data-cle="marseille marseille"><span class="code">Marseille</span><span class="nom">Marseille<small class="fichier">marseille_marseille.html</small></span><span class="n">44 départs attendus</span></li>
+<li data-cle="metz metz"><span class="code">Metz</span><span class="nom">Metz<small class="fichier">metz_metz.html</small></span><span class="n">27 départs attendus</span></li>
+<li data-cle="mulhouse mulhouse"><span class="code">Mulhouse</span><span class="nom">Mulhouse<small class="fichier">mulhouse_mulhouse.html</small></span><span class="n">50 départs attendus</span></li>
+<li data-cle="nancy nancy"><span class="code">Nancy</span><span class="nom">Nancy<small class="fichier">nancy_nancy.html</small></span><span class="n">69 départs attendus</span></li>
+<li data-cle="nantes nantes"><span class="code">Nantes</span><span class="nom">Nantes<small class="fichier">nantes_nantes.html</small></span><span class="n">34 départs attendus</span></li>
+<li data-cle="nice nice"><span class="code">Nice</span><span class="nom">Nice<small class="fichier">nice_nice.html</small></span><span class="n">63 départs attendus</span></li>
+<li data-cle="orleans orleans"><span class="code">Orléans</span><span class="nom">Orléans<small class="fichier">orlans_orleans.html</small></span><span class="n">18 départs attendus</span></li>
+<li data-cle="paris paris"><span class="code">Paris</span><span class="nom">Paris<small class="fichier">paris_paris.html</small></span><span class="n">68 départs attendus</span></li>
+<li data-cle="pau pau"><span class="code">Pau</span><span class="nom">Pau<small class="fichier">pau_pau.html</small></span><span class="n">45 départs attendus</span></li>
+<li data-cle="poitiers poitiers"><span class="code">Poitiers</span><span class="nom">Poitiers<small class="fichier">poitiers_poitiers.html</small></span><span class="n">60 départs attendus</span></li>
+<li data-cle="rennes rennes"><span class="code">Rennes</span><span class="nom">Rennes<small class="fichier">rennes_rennes.html</small></span><span class="n">49 départs attendus</span></li>
+<li data-cle="rouen rouen"><span class="code">Rouen</span><span class="nom">Rouen<small class="fichier">rouen_rouen.html</small></span><span class="n">34 départs attendus</span></li>
+<li data-cle="saint-nazaire saint-nazaire"><span class="code">Saint-Nazaire</span><span class="nom">Saint-Nazaire<small class="fichier">saintnazaire_saint-nazaire.html</small></span><span class="n">37 départs attendus</span></li>
+<li data-cle="strasbourg strasbourg"><span class="code">Strasbourg</span><span class="nom">Strasbourg<small class="fichier">strasbourg_strasbourg.html</small></span><span class="n">26 départs attendus</span></li>
+<li data-cle="tarbes tarbes"><span class="code">Tarbes</span><span class="nom">Tarbes<small class="fichier">tarbes_tarbes.html</small></span><span class="n">68 départs attendus</span></li>
+<li data-cle="toulon toulon"><span class="code">Toulon</span><span class="nom">Toulon<small class="fichier">toulon_toulon.html</small></span><span class="n">51 départs attendus</span></li>
+<li data-cle="toulouse toulouse"><span class="code">Toulouse</span><span class="nom">Toulouse<small class="fichier">toulouse_toulouse.html</small></span><span class="n">56 départs attendus</span></li>
+<li data-cle="tours tours"><span class="code">Tours</span><span class="nom">Tours<small class="fichier">tours_tours.html</small></span><span class="n">51 départs attendus</span></li>
+<li data-cle="valence valence"><span class="code">Valence</span><span class="nom">Valence<small class="fichier">valence_valence.html</small></span><span class="n">34 départs attendus</span></li>
+<li data-cle="valenciennes valenciennes"><span class="code">Valenciennes</span><span class="nom">Valenciennes<small class="fichier">valenciennes_valenciennes.html</small></span><span class="n">50 départs attendus</span></li>
+<li data-cle="versailles versailles"><span class="code">Versailles</span><span class="nom">Versailles<small class="fichier">versailles_versailles.html</small></span><span class="n">74 départs attendus</span></li>
+<li data-cle="evry evry"><span class="code">Évry</span><span class="nom">Évry<small class="fichier">vry_evry.html</small></span><span class="n">60 départs attendus</span></li>
 </ul>
 <p class="vide" id="vide">Aucun territoire ne correspond.</p>
 

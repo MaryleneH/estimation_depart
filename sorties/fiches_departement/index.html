@@ -52,7 +52,7 @@ footer{margin-top:8px;padding-top:14px;border-top:1px solid var(--filet);font-si
 .an-txt{font-size:14px;color:var(--texte);margin:0 0 6px}
 .recherche{width:100%;font:inherit;font-size:16px;padding:10px 12px;border:1px solid var(--filet);margin:0 0 18px;background:#fff;color:var(--encre)}
 .liste{list-style:none;margin:0;padding:0}.liste li{display:grid;grid-template-columns:52px 1fr auto;gap:14px;align-items:baseline;padding:9px 0;border-bottom:1px solid var(--filet)}
-.liste .code{color:var(--gris);font-variant-numeric:tabular-nums}.liste a{text-decoration:none;color:var(--encre);font-size:16px}.liste a:hover{text-decoration:underline}.liste .n{font-variant-numeric:tabular-nums;color:var(--texte);font-size:14px;white-space:nowrap}
+.liste .code{color:var(--gris);font-variant-numeric:tabular-nums}.liste .nom{color:var(--encre);font-size:16px}.liste .fichier{display:block;color:var(--gris);font-size:12px;font-family:ui-monospace,Menlo,Consolas,monospace}.liste .n{font-variant-numeric:tabular-nums;color:var(--texte);font-size:14px;white-space:nowrap}
 .vide{color:var(--gris);display:none}.methode{font-size:13px;color:var(--texte);line-height:1.5;margin-top:32px;padding-top:16px;border-top:1px solid var(--filet)}
 @media (max-width:640px){.page{padding:28px 18px 24px}h1{font-size:36px}.hero{grid-template-columns:1fr;gap:22px}
 .ctx{border-left:0;padding-left:0;border-top:1px solid var(--filet);padding-top:18px;flex-direction:row;gap:28px;flex-wrap:wrap}.hero-n{font-size:60px}
@@ -76,26 +76,26 @@ h1{font-size:34px;margin-bottom:8px}.titre2{font-size:15px}.perim{font-size:11.5
 <section class="zone">
 <input class="recherche" type="search" id="q" placeholder="Rechercher un département (nom ou code)" aria-label="Rechercher un territoire">
 <ul class="liste" id="liste">
-<li data-cle="01 ain"><span class="code">01</span><a href="01_ain.html">Ain</a><span class="n">131 départs attendus</span></li>
-<li data-cle="03 allier"><span class="code">03</span><a href="03_allier.html">Allier</a><span class="n">87 départs attendus</span></li>
-<li data-cle="09 ariege"><span class="code">09</span><a href="09_ariege.html">Ariège</a><span class="n">111 départs attendus</span></li>
-<li data-cle="18 cher"><span class="code">18</span><a href="18_cher.html">Cher</a><span class="n">112 départs attendus</span></li>
-<li data-cle="2a corse-du-sud"><span class="code">2A</span><a href="2a_corse-du-sud.html">Corse-du-Sud</a><span class="n">86 départs attendus</span></li>
-<li data-cle="2b haute-corse"><span class="code">2B</span><a href="2b_haute-corse.html">Haute-Corse</a><span class="n">124 départs attendus</span></li>
-<li data-cle="33 gironde"><span class="code">33</span><a href="33_gironde.html">Gironde</a><span class="n">102 départs attendus</span></li>
-<li data-cle="35 ille-et-vilaine"><span class="code">35</span><a href="35_ille-et-vilaine.html">Ille-et-Vilaine</a><span class="n">89 départs attendus</span></li>
-<li data-cle="44 loire-atlantique"><span class="code">44</span><a href="44_loire-atlantique.html">Loire-Atlantique</a><span class="n">123 départs attendus</span></li>
-<li data-cle="56 morbihan"><span class="code">56</span><a href="56_morbihan.html">Morbihan</a><span class="n">74 départs attendus</span></li>
-<li data-cle="59 nord"><span class="code">59</span><a href="59_nord.html">Nord</a><span class="n">140 départs attendus</span></li>
-<li data-cle="64 pyrenees-atlantiques"><span class="code">64</span><a href="64_pyrenees-atlantiques.html">Pyrénées-Atlantiques</a><span class="n">139 départs attendus</span></li>
-<li data-cle="69 rhone"><span class="code">69</span><a href="69_rhone.html">Rhône</a><span class="n">108 départs attendus</span></li>
-<li data-cle="75 paris"><span class="code">75</span><a href="75_paris.html">Paris</a><span class="n">104 départs attendus</span></li>
-<li data-cle="78 yvelines"><span class="code">78</span><a href="78_yvelines.html">Yvelines</a><span class="n">97 départs attendus</span></li>
-<li data-cle="83 var"><span class="code">83</span><a href="83_var.html">Var</a><span class="n">130 départs attendus</span></li>
-<li data-cle="86 vienne"><span class="code">86</span><a href="86_vienne.html">Vienne</a><span class="n">58 départs attendus</span></li>
-<li data-cle="87 haute-vienne"><span class="code">87</span><a href="87_haute-vienne.html">Haute-Vienne</a><span class="n">124 départs attendus</span></li>
-<li data-cle="91 essonne"><span class="code">91</span><a href="91_essonne.html">Essonne</a><span class="n">65 départs attendus</span></li>
-<li data-cle="93 seine-saint-denis"><span class="code">93</span><a href="93_seine-saint-denis.html">Seine-Saint-Denis</a><span class="n">75 départs attendus</span></li>
+<li data-cle="01 ain"><span class="code">01</span><span class="nom">Ain<small class="fichier">01_ain.html</small></span><span class="n">131 départs attendus</span></li>
+<li data-cle="03 allier"><span class="code">03</span><span class="nom">Allier<small class="fichier">03_allier.html</small></span><span class="n">87 départs attendus</span></li>
+<li data-cle="09 ariege"><span class="code">09</span><span class="nom">Ariège<small class="fichier">09_ariege.html</small></span><span class="n">111 départs attendus</span></li>
+<li data-cle="18 cher"><span class="code">18</span><span class="nom">Cher<small class="fichier">18_cher.html</small></span><span class="n">112 départs attendus</span></li>
+<li data-cle="2a corse-du-sud"><span class="code">2A</span><span class="nom">Corse-du-Sud<small class="fichier">2a_corse-du-sud.html</small></span><span class="n">86 départs attendus</span></li>
+<li data-cle="2b haute-corse"><span class="code">2B</span><span class="nom">Haute-Corse<small class="fichier">2b_haute-corse.html</small></span><span class="n">124 départs attendus</span></li>
+<li data-cle="33 gironde"><span class="code">33</span><span class="nom">Gironde<small class="fichier">33_gironde.html</small></span><span class="n">102 départs attendus</span></li>
+<li data-cle="35 ille-et-vilaine"><span class="code">35</span><span class="nom">Ille-et-Vilaine<small class="fichier">35_ille-et-vilaine.html</small></span><span class="n">89 départs attendus</span></li>
+<li data-cle="44 loire-atlantique"><span class="code">44</span><span class="nom">Loire-Atlantique<small class="fichier">44_loire-atlantique.html</small></span><span class="n">123 départs attendus</span></li>
+<li data-cle="56 morbihan"><span class="code">56</span><span class="nom">Morbihan<small class="fichier">56_morbihan.html</small></span><span class="n">74 départs attendus</span></li>
+<li data-cle="59 nord"><span class="code">59</span><span class="nom">Nord<small class="fichier">59_nord.html</small></span><span class="n">140 départs attendus</span></li>
+<li data-cle="64 pyrenees-atlantiques"><span class="code">64</span><span class="nom">Pyrénées-Atlantiques<small class="fichier">64_pyrenees-atlantiques.html</small></span><span class="n">139 départs attendus</span></li>
+<li data-cle="69 rhone"><span class="code">69</span><span class="nom">Rhône<small class="fichier">69_rhone.html</small></span><span class="n">108 départs attendus</span></li>
+<li data-cle="75 paris"><span class="code">75</span><span class="nom">Paris<small class="fichier">75_paris.html</small></span><span class="n">104 départs attendus</span></li>
+<li data-cle="78 yvelines"><span class="code">78</span><span class="nom">Yvelines<small class="fichier">78_yvelines.html</small></span><span class="n">97 départs attendus</span></li>
+<li data-cle="83 var"><span class="code">83</span><span class="nom">Var<small class="fichier">83_var.html</small></span><span class="n">130 départs attendus</span></li>
+<li data-cle="86 vienne"><span class="code">86</span><span class="nom">Vienne<small class="fichier">86_vienne.html</small></span><span class="n">58 départs attendus</span></li>
+<li data-cle="87 haute-vienne"><span class="code">87</span><span class="nom">Haute-Vienne<small class="fichier">87_haute-vienne.html</small></span><span class="n">124 départs attendus</span></li>
+<li data-cle="91 essonne"><span class="code">91</span><span class="nom">Essonne<small class="fichier">91_essonne.html</small></span><span class="n">65 départs attendus</span></li>
+<li data-cle="93 seine-saint-denis"><span class="code">93</span><span class="nom">Seine-Saint-Denis<small class="fichier">93_seine-saint-denis.html</small></span><span class="n">75 départs attendus</span></li>
 </ul>
 <p class="vide" id="vide">Aucun territoire ne correspond.</p>
 

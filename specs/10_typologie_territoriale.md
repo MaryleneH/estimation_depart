@@ -896,7 +896,7 @@ Fonctionnalité: Lire, avec la typologie, si les départs portent sur des métie
     Quand le 08j est exécuté
     Alors il écrit diffusion/metiers_liste_territoires.csv : une ligne par métier de la liste et par territoire (régions puis départements) avec salariés du métier, départs attendus d'ici 2030 (centrale, basse, haute), part susceptible de partir, repère France, écart en points et lecture, rien n'étant recalculé
     Et la lecture vaut « plus forte qu'en France » à partir de TENSION_ECART_POINTS points d'écart, « plus faible qu'en France » en deçà de son opposé, « proche de la France » entre les deux ; « non diffusé (secret statistique) » pour une cellule masquée (aucune valeur), « repère France non diffusé » quand la cellule France est masquée
-    Et il écrit diffusion/fiche_metiers_liste.html, sans script : sommaire, puis un bloc par métier dans l'ordre de la liste (famille, tension, levier, repère France, tableau régions puis départements triés par part décroissante, non diffusés nommés sur une ligne sans valeur), puis une vue par territoire (un bloc dépliable par région et par département : métiers classés par écart décroissant)
+    Et il écrit diffusion/fiche_metiers_liste.html, sans script ni lien vers un autre fichier (SPEC-PUB-022) : sommaire, puis un bloc par métier dans l'ordre de la liste (famille, tension, levier, repère France, tableau régions puis départements triés par part décroissante, non diffusés nommés sur une ligne sans valeur), puis une vue par territoire (un bloc dépliable par région et par département : métiers classés par écart décroissant)
     Et il écrit diffusion/metiers_liste_territoires.xlsx (si TENSION_CLASSEUR_EXCEL) : Lisez-moi, Métiers x territoires (table longue triée par métier), Par territoire (mêmes lignes triées par territoire puis écart), Paramètres ; même moteur et mêmes garanties que SPEC-TYPO-108
     Et chaque cellule visible existe telle quelle dans la diffusion du 08c (contrôle bloquant) ; liste ou tables de diffusion absentes = message, jamais un arrêt
     Et le libellé public de la liste est TENSION_LIBELLE_LISTE (00_config, « métiers de la première sous-liste » par défaut) : texte_liste() le substitue à « métiers stratégiques » (pluriel, singulier, « PCS … ») dans toutes les restitutions de la tension (fiches, classeurs, cartes, console), et un script de contrôle (99d) vérifie hachures, cumul, premier message de la fiche et horodatages
@@ -907,7 +907,7 @@ Sorties (08i) :
   `interne/parametres_exposition_tension.csv` ;
 - `diffusion/exposition_tension_departements.csv`, `diffusion/metiers_strategiques_tension.csv`,
   `diffusion/matrice_metiers_tension.png` ;
-- `diffusion/fiche_exposition_tension.html` : une page, sans script, pour une lecture en une minute
+- `diffusion/fiche_exposition_tension.html` : une page, sans script ni lien vers un autre fichier (SPEC-PUB-022), pour une lecture en une minute
   (matrice SVG en annexe repliée, libellés au survol) ;
 - `diffusion/exposition_tension.xlsx` : classeur à quatre feuilles (SPEC-TYPO-108), si
   `TENSION_CLASSEUR_EXCEL`.
