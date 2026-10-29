@@ -242,8 +242,17 @@ test_that("SPEC-TYPO-107 — 08i sur la chaîne de test : sorties, objets amont 
               "diffusion/fiche_exposition_tension.html", "interne/exposition_tension_regions.csv", "diffusion/exposition_tension_regions.csv")) expect_true(file.exists(file.path(dt, f)), label = f)
   # 08j (SPEC-TYPO-109) : métiers de la liste territoire par territoire, sur les tables de diffusion du 08c ; libellé public sans « stratégique »
   sourcer_scripts("08j_metiers_liste_territoires.R", env); expect_true(exists("metiers_liste_territoires", envir = env, inherits = FALSE))
-  for (f in c("diffusion/metiers_liste_territoires.csv", "diffusion/fiche_metiers_liste.html", "diffusion/metiers_liste_territoires.xlsx")) expect_true(file.exists(file.path(dt, f)), label = f)
+  for (f in c("diffusion/metiers_liste_territoires.csv", "diffusion/fiche_metiers_liste.html", "diffusion/tableau_metiers_liste.html", "diffusion/metiers_liste_territoires.xlsx")) expect_true(file.exists(file.path(dt, f)), label = f)
   tl <- utils::read.csv2(file.path(dt, "diffusion", "metiers_liste_territoires.csv"), colClasses = c(pcs = "character", geo_code = "character"), fileEncoding = "UTF-8-BOM")
+  expect_false(any(c("region_code", "region_nom") %in% names(tl)))
+  # tableau en un écran (SPEC-TYPO-110) : une case par métier x région, données embarquées = cellules diffusées de la table, aucune valeur masquée, libellé public, autonome
+  ht <- paste(readLines(file.path(dt, "diffusion", "tableau_metiers_liste.html"), encoding = "UTF-8"), collapse = "\n")
+  nR <- dplyr::n_distinct(tl$geo_code[tl$niveau == "région"]); expect_equal(lengths(regmatches(ht, gregexpr('<td class="c ', ht))), dplyr::n_distinct(tl$pcs) * nR)
+  expect_false(grepl("stratégique", ht)); expect_false(grepl(" on[a-z]+=", ht)); expect_false(grepl('href="[^#]', ht))
+  Dt <- jsonlite::fromJSON(sub('(?s).*<script type="application/json" id="donnees">(.*?)</script>.*', "\\1", ht, perl = TRUE), simplifyVector = FALSE)
+  for (i in seq_len(nrow(tl))) { k <- paste0(if (tl$niveau[i] == "région") "r" else "d", tl$geo_code[i]); cc <- Dt$cel[[tl$pcs[i]]][[k]]
+    if (tl$diffuse[i]) expect_equal(cc$t, tl$taux_pct[i], label = k) else expect_null(cc, label = k) }
+  expect_equal(length(Dt$metiers), dplyr::n_distinct(tl$pcs)); expect_equal(length(Dt$cols), nR)
   nT <- dplyr::n_distinct(paste(tl$niveau, tl$geo_code)); expect_equal(nrow(tl), dplyr::n_distinct(tl$pcs) * nT); expect_equal(dplyr::n_distinct(tl$pcs), sum(env$exposition_tension$metiers$present_base))
   expect_true(all(is.na(tl$taux_pct[!tl$diffuse])) && all(!is.na(tl$taux_pct[tl$diffuse]))); expect_true(all(tl$lecture[!tl$diffuse] == "non diffusé (secret statistique)"))
   dd8 <- env$departs_pcs$diffusion$departement |> dplyr::mutate(pcs_n = env$normaliser_code_pcs(pcs), geo_code = as.character(geo_code))

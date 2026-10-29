@@ -93,6 +93,42 @@ test_that("SPEC-TYPO-109 — page des métiers : sans script, un bloc par métie
   expect_false(grepl('href="[^#]', h)); expect_true(grepl("Documents associés (fichiers distincts, cités sans lien)", h, fixed = TRUE))
 })
 
+test_that("SPEC-TYPO-110 — tableau en un écran : grille métiers x régions (ordre de la liste, codes), France en repère, classes par lecture, non diffusé hachuré sans valeur, title sans script, données embarquées sans valeur masquée, panneau par gabarits, autonome", {
+  f <- file.path(tempdir(), "tableau_metiers_liste.html")
+  EL$generer_tableau_metiers_liste(TAB_L, METIERS_L, f, EL$construire_libelle_champ(), PAR_L, "source fictive")
+  h <- paste(readLines(f, encoding = "UTF-8"), collapse = "\n")
+  # autonome : script natif embarqué, aucun attribut on*, aucun javascript:, aucun lien vers un autre fichier, aucune ressource réseau, libellé public
+  expect_true(grepl('<script type="application/json" id="donnees">', h, fixed = TRUE)); expect_false(grepl(" on[a-z]+=", h)); expect_false(grepl("javascript:", h, fixed = TRUE))
+  expect_false(grepl('href="[^#]', h)); expect_false(grepl("src=\"http|<link ", h)); expect_false(grepl("stratégique", h)); expect_true(grepl("<noscript>", h, fixed = TRUE))
+  expect_true(grepl("<h1>Métiers de la première sous-liste : où les départs sont-ils les plus forts ?</h1>", h, fixed = TRUE)); expect_true(grepl("les 3 métiers de la première sous-liste", h, fixed = TRUE))
+  # grille : en-tête France puis régions par code ; une ligne par métier dans l'ordre de la liste ; 3 x 3 cases
+  expect_true(grepl('<th class="fr" scope="col" title="Repère : part susceptible de partir en France (%)">France</th><th class="reg" scope="col" id="g-75" data-g="75">', h, fixed = TRUE))
+  expect_identical(regmatches(h, gregexpr('<th class="reg" scope="col" id="g-[^"]+"', h))[[1]], sprintf('<th class="reg" scope="col" id="g-%s"', c("75", "84", "94")))
+  expect_identical(regmatches(h, gregexpr('<button type="button" class="hm" id="m-[^"]+"', h))[[1]], sprintf('<button type="button" class="hm" id="m-%s"', c("1A1A", "2B2B", "3C3C")))
+  expect_equal(lengths(regmatches(h, gregexpr('<td class="c ', h))), 9L)
+  expect_true(grepl('<td class="c proche" id="c-1A1A-75" data-m="1A1A" data-g="75" tabindex="0" role="button" title="Région 75 (75) · Métier un · 35,7 % susceptibles de partir · proche de la France (France 36,2 %)">35,7</td>', h, fixed = TRUE))
+  expect_true(grepl('<td class="c nd" id="c-1A1A-94" data-m="1A1A" data-g="94" tabindex="0" role="button" title="Région 94 (94) · Métier un · non diffusé (secret statistique)"><span>n.d.</span></td>', h, fixed = TRUE))
+  expect_true(grepl('<td class="c sansrep" id="c-3C3C-75" data-m="3C3C" data-g="75" tabindex="0" role="button" title="Région 75 (75) · PCS 3C3C · 40,0 % susceptibles de partir · repère France non diffusé">40,0</td>', h, fixed = TRUE))
+  expect_true(grepl('<td class="fr num" title="France : 36,2 %">36,2</td>', h, fixed = TRUE)); expect_true(grepl('<td class="fr num" title="France : non diffusé (secret statistique)">n.d.</td>', h, fixed = TRUE))
+  expect_true(grepl("plus forte qu’en France (écart ≥ 3,0 pts)", h, fixed = TRUE)); expect_true(grepl("<b>plus forte qu’en France</b> à partir de 3,0 points", h, fixed = TRUE))
+  # données embarquées : seules les cellules diffusées portent des valeurs ; 2A x 1A1A et 94 x 1A1A = null ; France de 3C3C = null ; départements rattachés à leur région
+  j <- sub('(?s).*<script type="application/json" id="donnees">(.*?)</script>.*', "\\1", h, perl = TRUE); D <- jsonlite::fromJSON(j, simplifyVector = FALSE)
+  expect_identical(D$nivcol, "r"); expect_identical(vapply(D$metiers, function(m) m$pcs, ""), c("1A1A", "2B2B", "3C3C")); expect_identical(vapply(D$cols, function(c) c$code, ""), c("75", "84", "94"))
+  expect_null(D$cel[["1A1A"]][["r94"]]); expect_null(D$cel[["1A1A"]][["d2A"]]); expect_null(D$cel[["2B2B"]][["d01"]]); expect_null(D$metiers[[3]]$fr)
+  c33 <- D$cel[["1A1A"]][["d33"]]; expect_equal(c33$t, 40); expect_identical(c33$ts, "40,0"); expect_identical(c33$ec, "+3,8 pts"); expect_identical(c33$k, "forte"); expect_identical(c33$l, "plus forte qu’en France")
+  expect_identical(D$metiers[[1]]$fr$ts, "36,2"); expect_identical(D$metiers[[1]]$fr$d, "45"); expect_identical(D$metiers[[1]]$lev, "former tôt"); expect_null(D$metiers[[2]]$lev)   # levier seulement en tension
+  expect_identical(unlist(D$deps[["75"]]), c("33", "64")); expect_identical(unlist(D$deps[["94"]]), "2A"); expect_identical(D$dep[["2A"]]$nom, "Corse-du-Sud")
+  expect_false(grepl("33,3", j, fixed = TRUE)); expect_false(grepl("37,5", j, fixed = TRUE))                                      # aucune valeur masquée dans les données
+  expect_true(grepl("Dans \"+t+\", \"+c.ts+\" % des salariés « \"+m.lib+\" » sont susceptibles de partir d’ici 2030 : part \"+c.l+\" (\"+m.fr.ts+\" % en France, \"+c.ec+\").", h, fixed = TRUE))   # gabarit fixe
+  # sans table région : les colonnes sont les départements, aucun rattachement
+  f2 <- file.path(tempdir(), "tableau_metiers_liste_dep.html")
+  EL$generer_tableau_metiers_liste(EL$table_metiers_territoires(METIERS_L, DEP_L, NULL, FR_L, PAR_L), METIERS_L, f2, EL$construire_libelle_champ(), PAR_L, "source fictive")
+  h2 <- paste(readLines(f2, encoding = "UTF-8"), collapse = "\n"); expect_equal(lengths(regmatches(h2, gregexpr('<td class="c ', h2))), 12L); expect_true(grepl("départements en colonnes", h2, fixed = TRUE))
+  D2 <- jsonlite::fromJSON(sub('(?s).*<script type="application/json" id="donnees">(.*?)</script>.*', "\\1", h2, perl = TRUE), simplifyVector = FALSE); expect_identical(D2$nivcol, "d"); expect_equal(length(D2$deps), 0L)
+  # la table porte la région de rattachement des départements (NA pour les régions) et le CSV du 08j ne l'écrit pas
+  expect_identical(TAB_L$region_code[TAB_L$niveau == "département" & TAB_L$geo_code == "33"][1], "75"); expect_true(all(is.na(TAB_L$region_code[TAB_L$niveau == "région"])))
+})
+
 test_that("SPEC-TYPO-109 — classeur : quatre feuilles, table longue = table, vue par territoire triée par territoire puis écart, non diffusés sans valeur, libellé public, relecture writexl", {
   tb <- EL$tables_classeur_metiers_liste(TAB_L, PAR_L, EL$construire_libelle_champ(), "source fictive", as.Date("2030-01-01"))
   expect_identical(names(tb), c("Lisez-moi", "Métiers x territoires", "Par territoire", "Paramètres"))

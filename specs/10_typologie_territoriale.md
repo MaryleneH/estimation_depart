@@ -898,6 +898,16 @@ Fonctionnalité: Lire, avec la typologie, si les départs portent sur des métie
     Et la lecture vaut « plus forte qu'en France » à partir de TENSION_ECART_POINTS points d'écart, « plus faible qu'en France » en deçà de son opposé, « proche de la France » entre les deux ; « non diffusé (secret statistique) » pour une cellule masquée (aucune valeur), « repère France non diffusé » quand la cellule France est masquée
     Et il écrit diffusion/fiche_metiers_liste.html, sans script ni lien vers un autre fichier (SPEC-PUB-022) : sommaire, puis un bloc par métier dans l'ordre de la liste (famille, tension, levier, repère France, tableau régions puis départements triés par part décroissante, non diffusés nommés sur une ligne sans valeur), puis une vue par territoire (un bloc dépliable par région et par département : métiers classés par écart décroissant)
     Et il écrit diffusion/metiers_liste_territoires.xlsx (si TENSION_CLASSEUR_EXCEL) : Lisez-moi, Métiers x territoires (table longue triée par métier), Par territoire (mêmes lignes triées par territoire puis écart), Paramètres ; même moteur et mêmes garanties que SPEC-TYPO-108
+    Et il écrit diffusion/tableau_metiers_liste.html, la lecture en un écran (SPEC-TYPO-110)
+
+  Scénario: [SPEC-TYPO-110] Lire les métiers de la liste en un écran : grille métiers x régions et panneau de détail
+    Étant donné la table métier x territoire du 08j (SPEC-TYPO-109)
+    Quand le 08j écrit diffusion/tableau_metiers_liste.html
+    Alors la page tient dans la fenêtre sans défilement sur un écran de portable : en-tête d'une ligne, « Comment lire » replié, une grille avec une ligne par métier de la liste (ordre de la liste) et une colonne par région (ordre des codes), la colonne France en repère, puis une légende et un pied d'une ligne ; sans table région, les colonnes sont les départements
+    Et chaque case porte la part susceptible de partir et une couleur selon la lecture (plus forte qu'en France, proche, plus faible) ; une cellule non diffusée est hachurée, sans valeur ; une cellule dont le repère France est masqué garde sa part sans couleur de lecture ; chaque case porte un title lisible sans script (territoire, métier, part, lecture)
+    Et un panneau à droite se remplit au clic, sans quitter la page, par gabarits fixes : sur une case, la phrase de lecture (« Dans <territoire>, <part> % des salariés « <métier> » sont susceptibles de partir d'ici 2030 : part <lecture> (<France> % en France, <écart>). ») puis le détail de la cellule (salariés, départs attendus et fourchette, part, France, écart) et les départements de la région pour ce métier, classés par part décroissante, les non diffusés nommés sans valeur ; sur un nom de métier, sa carte d'identité (famille, tension en France, levier, repère France) et ses régions classées ; sur une région, ses métiers classés par écart décroissant ; les cases sont accessibles au clavier
+    Et la page est autonome : HTML, CSS, JavaScript natif et données embarqués, sans bibliothèque, sans réseau, sans attribut on*, sans lien vers un autre fichier (SPEC-PUB-022) ; les données embarquées ne contiennent aucune valeur d'une cellule non diffusée (null) ; sans JavaScript, la grille et ses title restent lisibles et une note le dit
+    Et le libellé public de la liste (TENSION_LIBELLE_LISTE) est appliqué ; la fiche longue (imprimable), le CSV et le classeur restent produits et inchangés
     Et chaque cellule visible existe telle quelle dans la diffusion du 08c (contrôle bloquant) ; liste ou tables de diffusion absentes = message, jamais un arrêt
     Et l'ancien fichier diffusion/fiche_territoires_tension.html (produit par le 08i avant le 08j), s'il subsiste d'une exécution antérieure, est retiré par le 08i avec un message, pour qu'aucune sortie obsolète ne reste à côté de la fiche des métiers
     Et le libellé public de la liste est TENSION_LIBELLE_LISTE (00_config, « métiers de la première sous-liste » par défaut) : texte_liste() le substitue à « métiers stratégiques » (pluriel, singulier, « PCS … ») dans toutes les restitutions de la tension (fiches, classeurs, cartes, console), et un script de contrôle (99d) vérifie hachures, cumul, premier message de la fiche et horodatages
@@ -916,7 +926,9 @@ Sorties (08i) :
   le 08c produit ce niveau.
 
 Sorties (08j, SPEC-TYPO-109) : `diffusion/metiers_liste_territoires.csv`, `diffusion/fiche_metiers_liste.html`
-(sans script), `diffusion/metiers_liste_territoires.xlsx` (si `TENSION_CLASSEUR_EXCEL`). L'ancienne
+(sans script, imprimable), `diffusion/metiers_liste_territoires.xlsx` (si `TENSION_CLASSEUR_EXCEL`),
+`diffusion/tableau_metiers_liste.html` (SPEC-TYPO-110 : un écran, grille métiers x régions, panneau de
+détail en JavaScript natif embarqué). L'ancienne
 `diffusion/fiche_territoires_tension.html` n'est plus produite : le 08i la retire si elle subsiste.
 
 Contrôle : `R/99_controles/99d_controler_tension_cartes.R` (cohérence hachures / cumul / fiche /
