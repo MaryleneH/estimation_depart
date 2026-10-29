@@ -13,6 +13,8 @@ node utils/note_nomenclatures/gen_note.js docs/assets/nomenclatures docs/note_co
 
 Prérequis et contrôle visuel : identiques à `utils/note_pedagogique/README.md` (modules `docx` et `playwright-core`, Chromium, police manuscrite Happy Monkey pour les images ; corps en Calibri ; PDF de contrôle non versionné).
 
+En interne, pour que le texte dise « BITD » au lieu de « Base » : `PERIMETRE=BITD node …` (variable d'environnement lue par le générateur ; « Base Tous salariés » n'est jamais touché), puis re-rendre les PNG s'il y a des schémas.
+
 ## Ce qui a été vérifié dans le dépôt (sans ouvrir de données)
 
 - Source : colonne `pcs` de la BTS, code à 4 caractères conservé en texte, supposé PCS-ESE ; aucun contrôle du millésime dans le code → « version source à confirmer » dans la note.

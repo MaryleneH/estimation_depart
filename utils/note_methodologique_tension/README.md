@@ -14,3 +14,5 @@ node utils/note_methodologique_tension/gen_note.js docs/assets/methodologie_tens
 Prérequis et contrôle visuel : identiques à `utils/note_pedagogique/README.md` (modules `docx` et `playwright-core`, Chromium, police manuscrite Happy Monkey pour les images ; corps en Calibri ; PDF de contrôle non versionné).
 
 À mettre à jour si la méthode change : les paramètres (`TENSION_*`), la règle du levier (`tension_metiers()` et `exposition_departements()` dans `00k_fonctions_tension.R`), les règles de secret (`appliquer_secret_exposition()`).
+
+En interne, pour que le texte dise « BITD » au lieu de « Base » : `PERIMETRE=BITD node …` (variable d'environnement lue par le générateur ; « Base Tous salariés » n'est jamais touché), puis re-rendre les PNG s'il y a des schémas.

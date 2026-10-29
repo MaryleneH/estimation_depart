@@ -23,7 +23,8 @@ const NONE = { style: BorderStyle.NONE, size: 0, color: "FFFFFF" };
 const SANS = { top: NONE, bottom: NONE, left: NONE, right: NONE };
 
 // --- Briques --------------------------------------------------------------------
-const run = (t, o = {}) => new TextRun({ text: t, font: FONT, size: o.size || 19, color: o.color || ENCRE, bold: o.bold, italics: o.italics, characterSpacing: o.spacing });
+const PERIMETRE = process.env.PERIMETRE || "Base";   // nom du périmètre dans le texte (en interne : PERIMETRE=BITD node …) ; « Base Tous salariés » jamais touché
+const run = (t, o = {}) => new TextRun({ text: t.replace(/\bBase\b(?! Tous)/g, PERIMETRE), font: FONT, size: o.size || 19, color: o.color || ENCRE, bold: o.bold, italics: o.italics, characterSpacing: o.spacing });
 const par = (runs, o = {}) => new Paragraph({ spacing: { before: o.before || 0, after: o.after === undefined ? 60 : o.after, line: o.line || 250 },
   alignment: o.align, children: Array.isArray(runs) ? runs : [runs] });
 const etiquette = (t, col = NAVY) => par(run(t.toUpperCase(), { size: 17, bold: true, color: col, spacing: 16 }), { after: 50, before: 60 });

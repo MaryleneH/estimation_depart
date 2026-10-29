@@ -14,6 +14,16 @@ FICHIER_DREES  <- file.path(DIR_DATA, "departretraite_parcsp.csv")
 SOURCE_BTS   <- "test"
 FICHIER_BTS  <- file.path(DIR_DATA, "bts_2024.parquet")   # extraction BTS
 FICHIER_SIREN<- file.path(DIR_DATA, "liste_entreprises_fictives.txt") # périmètre Base (1 SIREN/ligne)
+# --- Nom du périmètre d'entreprises dans TOUTES les restitutions ---------------
+# « Base » dans le dépôt partagé. En interne, en bout de course : LIBELLE_PERIMETRE <- "BITD"
+# puis relancer main.R : HTML, textes des CSV, PNG, classeur Excel, console le reprennent.
+# Ne touche ni le code, ni les specs, ni « Base Tous salariés » (nom de la source Insee).
+# Notes Word : PERIMETRE=BITD node utils/<note>/gen_note.js (voir les README de utils/).
+LIBELLE_PERIMETRE <- "Base"
+if (!is.character(LIBELLE_PERIMETRE) || length(LIBELLE_PERIMETRE) != 1 || is.na(LIBELLE_PERIMETRE) || !nzchar(trimws(LIBELLE_PERIMETRE)))
+  stop("LIBELLE_PERIMETRE doit être un texte non vide (ex. \"Base\" ou \"BITD\").")
+lib_perimetre   <- function() get0("LIBELLE_PERIMETRE", ifnotfound = "Base")
+texte_perimetre <- function(x) gsub("\\bBase\\b(?! Tous [Ss]alari)", lib_perimetre(), x, perl = TRUE)   # textes de restitution écrits avec « Base »
 # --- Âge minimal du champ étudié : SEULE SOURCE DE VÉRITÉ -----------------------
 # Toute la chaîne et toutes les restitutions en dépendent : filtre Arrow poussé
 # au disque (01), table test (01), tranches d'âge, dénominateurs (part des

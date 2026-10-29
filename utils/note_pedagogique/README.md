@@ -14,3 +14,5 @@ node utils/note_pedagogique/gen_note.js docs/assets/note_pedagogique docs/note_p
 Prérequis : Node.js avec les modules `docx` et `playwright-core` (variable `NODE_PATH` si installés ailleurs), un Chromium (chemin dans `render_png.js`), et une police manuscrite pour les schémas (`Happy Monkey`, repli `Comic Neue` puis `Humor Sans` ; sans elle, le navigateur substitue une police standard). Le corps du Word est en Calibri ; les polices manuscrites ne sont utilisées que dans les images, pour que le document s’affiche à l’identique sur tout poste.
 
 Contrôle visuel : convertir le `.docx` en PDF (LibreOffice `--headless --convert-to pdf`) puis `pdftoppm -png -r 100` ; vérifier tableaux, encadrés (lignes insécables), schémas, numérotation. Le PDF n’est pas versionné.
+
+En interne, pour que le texte dise « BITD » au lieu de « Base » : `PERIMETRE=BITD node …` (variable d'environnement lue par le générateur ; « Base Tous salariés » n'est jamais touché), puis re-rendre les PNG s'il y a des schémas.

@@ -25,9 +25,9 @@ COULEURS_PROFILS <- c(enjeu = "#b2182b", emergent = "#ef8a62", majeur_modere = "
                       stable = "#74c476", diffus = "#dfe6ee", expertiser = "#f2c744")
 LIBELLE_NON_DIFFUSE_TYPO <- "Non diffusé (secret statistique)"
 LIBELLES_CARTE_TYPO <- list(
-  kicker = "Typologie des territoires Base · résultats diffusables",
+  kicker = texte_perimetre("Typologie des territoires Base · résultats diffusables"),
   titre = "Profils de renouvellement par département",
-  sous_titre = "Chaque département est classé par des règles simples (poids dans l’emploi Base, volume et intensité des départs attendus d’ici 2030, concentration sur une catégorie).",
+  sous_titre = texte_perimetre("Chaque département est classé par des règles simples (poids dans l’emploi Base, volume et intensité des départs attendus d’ici 2030, concentration sur une catégorie)."),
   profil_non_diffuse = "Profil non diffusé (secret statistique)",
   absent = "Département absent de la typologie",
   detail_initial = "Survolez un département pour lire sa situation ; cliquez pour la garder affichée.",
@@ -120,7 +120,7 @@ lignes_detail_typologie <- function(r, indicateur = NULL) {
   f0 <- function(x) fmt_fr_carte(x, 0); f1 <- function(x) fmt_fr_carte(x, 1)
   ind <- if (!is.null(indicateur)) indicateur else r$indicateur_intensite
   l <- c(if (r$statut == "profil_masque") LIBELLES_CARTE_TYPO$profil_non_diffuse else NULL,
-         if (!is.na(r$part_emploi_base_national_pct)) sprintf("%s %% de l’emploi Base national · %s salariés", f1(r$part_emploi_base_national_pct), f0(r$effectif_base_total)) else NULL,
+         if (!is.na(r$part_emploi_base_national_pct)) sprintf(texte_perimetre("%s %% de l’emploi Base national · %s salariés"), f1(r$part_emploi_base_national_pct), f0(r$effectif_base_total)) else NULL,
          if (!is.na(r$departs_central)) sprintf("%s départs estimés d’ici 2030 (entre %s et %s)", f0(r$departs_central), f0(r$departs_bas), f0(r$departs_haut)) else NULL,
          if (!is.na(r$intensite_renouvellement_pct)) sprintf("%s %% %s", f1(r$intensite_renouvellement_pct), libelle_intensite_typo(ind)) else NULL,
          if (!is.na(r$classe_poids_base)) sprintf("Poids %s · volume %s · intensité %s", tolower(r$classe_poids_base), tolower(r$classe_volume_departs), tolower(r$classe_intensite)) else NULL,
@@ -174,12 +174,12 @@ puces_pyramide_typo <- function(r) {
 puces_tension_typo <- function(r) {
   dif <- r[["tension_diffusee"]]; if (is.null(dif)) return(NULL)
   dif <- as.logical(dif); if (is.na(dif)) return(NULL)
-  if (!dif) return("Exposition au recrutement difficile non diffusée (secret statistique)")
+  if (!dif) return("Part des remplacements difficiles non diffusée (secret statistique)")
   f0 <- function(x) fmt_fr_carte(x, 0)
   if (is.na(r$tension_exposition_pct) || is.na(r$tension_classe))
-    return(if (!is.na(r$tension_couverture_pct)) sprintf("Les métiers stratégiques portent %s %% des départs : exposition au recrutement difficile non interprétée", f0(r$tension_couverture_pct)) else NULL)
+    return(if (!is.na(r$tension_couverture_pct)) sprintf("Les métiers stratégiques portent %s %% des départs : part des remplacements difficiles non interprétée", f0(r$tension_couverture_pct)) else NULL)
   c(sprintf("Sur 100 départs des métiers stratégiques, %s concernent des métiers en tension en France (France : %s)", f0(r$tension_exposition_pct), f0(r$tension_exposition_france_pct)),
-    sprintf("Exposition %s, %s", tolower(r$tension_classe), if (identical(r$tension_robustesse, "robuste")) "résultat robuste" else paste0("résultat à confirmer", if (!is.na(r$tension_causes)) paste0(" (sensible : ", r$tension_causes, ")") else "")),
+    sprintf("Part des remplacements difficiles %s, %s", tolower(r$tension_classe), if (identical(r$tension_robustesse, "robuste")) "résultat robuste" else paste0("résultat à confirmer", if (!is.na(r$tension_causes)) paste0(" (sensible : ", r$tension_causes, ")") else "")),
     if (!is.na(r$tension_couverture_pct)) sprintf("Les métiers stratégiques portent %s %% des départs du département", f0(r$tension_couverture_pct)),
     if (!is.na(r$tension_levier)) sprintf("Levier le plus fréquent : %s (%s)", r$tension_levier, r$tension_composante),
     if (!is.na(r$tension_metiers)) paste0("Métiers en tension les plus concernés : ", r$tension_metiers))
@@ -194,8 +194,8 @@ blocs_detail_typologie <- function(r, indicateur = NULL) {
   bloc <- function(titre, puces, bulle = TRUE, n_bulle = NULL) { puces <- puces[!is.na(puces) & nzchar(puces)]; if (!length(puces)) return(NULL)
     x <- list(t = titre, p = as.list(unname(puces)), b = bulle); if (!is.null(n_bulle) && length(puces) > n_bulle) x$pb <- as.list(unname(puces[seq_len(n_bulle)])); x }
   defs <- DEFINITIONS_PROFILS; cle <- r[["cle"]]
-  poids <- bloc("Poids dans l’emploi Base", c(
-    if (!is.na(r$part_emploi_base_national_pct)) sprintf("%s %% de l’emploi Base national, soit %s salariés", f1(r$part_emploi_base_national_pct), f0(r$effectif_base_total)),
+  poids <- bloc(texte_perimetre("Poids dans l’emploi Base"), c(
+    if (!is.na(r$part_emploi_base_national_pct)) sprintf(texte_perimetre("%s %% de l’emploi Base national, soit %s salariés"), f1(r$part_emploi_base_national_pct), f0(r$effectif_base_total)),
     if (!is.na(r$classe_poids_base)) sprintf("Poids %s", tolower(r$classe_poids_base))))
   departs <- bloc("Départs attendus d’ici 2030", c(
     if (!is.na(r$departs_central)) sprintf("%s départs estimés (entre %s et %s selon l’hypothèse de départ en retraite)", f0(r$departs_central), f0(r$departs_bas), f0(r$departs_haut)),
@@ -220,11 +220,11 @@ blocs_detail_typologie <- function(r, indicateur = NULL) {
 ligne_tension_typologie <- function(r) {
   dif <- r[["tension_diffusee"]]; if (is.null(dif)) return(NULL)
   dif <- as.logical(dif); if (is.na(dif)) return(NULL)
-  if (!dif) return("Exposition au recrutement difficile non diffusée (secret statistique)")
+  if (!dif) return("Part des remplacements difficiles non diffusée (secret statistique)")
   f0 <- function(x) fmt_fr_carte(x, 0)
   if (is.na(r$tension_exposition_pct) || is.na(r$tension_classe))
-    return(if (!is.na(r$tension_couverture_pct)) sprintf("Métiers stratégiques : %s %% des départs — exposition au recrutement difficile non interprétée", f0(r$tension_couverture_pct)) else NULL)
-  c(sprintf("Métiers en tension : %s %% des départs des métiers stratégiques (France : %s %%) · exposition %s · %s", f0(r$tension_exposition_pct),
+    return(if (!is.na(r$tension_couverture_pct)) sprintf("Métiers stratégiques : %s %% des départs — part des remplacements difficiles non interprétée", f0(r$tension_couverture_pct)) else NULL)
+  c(sprintf("Remplacements difficiles : %s %% des départs des métiers stratégiques (France : %s %%) · part %s · %s", f0(r$tension_exposition_pct),
             f0(r$tension_exposition_france_pct), tolower(r$tension_classe), if (identical(r$tension_robustesse, "robuste")) "robuste" else "à confirmer"),
     if (!is.na(r$tension_metiers)) paste0("Métiers en tension les plus concernés : ", r$tension_metiers) else NULL)
 }
@@ -338,14 +338,14 @@ js_carte_typologie <- function() paste(
 # compact = TRUE (page interactive, premier écran) : titre seul, présentation dans « À propos de cette carte » (fermé)
 html_entete_typologie <- function(prep, champ, bandeau = TRUE, sous_qui = NULL, compact = FALSE) {
   P <- construire_libelles_public(champ); LT <- LIBELLES_CARTE_TYPO
-  base <- if (identical(prep$base_poids, "effectif_champ")) paste0("aux ", P$salaries_age_min, " des entreprises du périmètre Base") else "à l’emploi actuel, tous âges, des entreprises du périmètre Base"
+  base <- if (identical(prep$base_poids, "effectif_champ")) paste0("aux ", P$salaries_age_min, texte_perimetre(" des entreprises du périmètre Base")) else texte_perimetre("à l’emploi actuel, tous âges, des entreprises du périmètre Base")
   c('<header class="page-header">', sprintf('<p class="kicker">%s</p>', echap_html_carte(LT$kicker)),
     sprintf('<h1 class="page-title" id="titre">%s<small>Départs attendus d’ici 2030 · par département</small></h1>', echap_html_carte(LT$titre)),
     if (bandeau) html_bandeau_sans_js() else "",
     if (compact) sprintf('<details class="apropos"><summary>%s</summary>', LIBELLES_CARTE_TYPO$apropos) else "",
     sprintf('<p class="page-subtitle"><span class="cat-qui">%s</span></p>', echap_html_carte(if (is.null(sous_qui)) LT$sous_titre else sous_qui)),
     '<div class="study-scope" role="note" aria-label="Qui est concerné">',
-    sprintf('<span class="scope-text"><b>%s</b> · entreprises du périmètre Base</span>', echap_html_carte(P$salaries_age)),
+    sprintf(texte_perimetre('<span class="scope-text"><b>%s</b> · entreprises du périmètre Base</span>'), echap_html_carte(P$salaries_age)),
     sprintf('<span class="scope-text">Poids et intensité rapportés %s.</span>', echap_html_carte(base)),
     '</div>',
     '<p class="context">Les couleurs donnent le profil ; les zones grisées correspondent à un profil ou un département non diffusé (secret statistique) ; les zones blanches sont absentes de la typologie.</p>',
@@ -379,7 +379,7 @@ svg_hachures_typo <- function(prep, lay) {
 }
 html_legende_hachures <- function(prep) {
   n <- prep$comptes[["hachures"]]; if (is.null(n) || is.na(n) || n == 0) return("")
-  sprintf('<ul class="typo-legende legende-hachures"><li><span class="item"><span class="sw sw-hachures"></span><span><span class="lib">Départs portés par des métiers en tension (exposition forte)<span class="n">%d</span></span><span class="sig">Hachures : une grande part des départs des métiers stratégiques concerne des métiers difficiles à recruter en France. La tension est celle du métier, pas celle du département.</span></span></span></li></ul>', n)
+  sprintf('<ul class="typo-legende legende-hachures"><li><span class="item"><span class="sw sw-hachures"></span><span><span class="lib">Forte part de remplacements difficiles (métiers en tension)<span class="n">%d</span></span><span class="sig">Hachures : une grande part des départs des métiers stratégiques concerne des métiers difficiles à recruter en France. La tension est celle du métier, pas celle du département.</span></span></span></li></ul>', n)
 }
 html_definitions_profils <- function(prep, ouvert = FALSE) {
   defs <- DEFINITIONS_PROFILS

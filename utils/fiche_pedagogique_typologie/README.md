@@ -24,6 +24,8 @@ node gen_fiche.js images ../../sorties/typologie_territoriale/fiche_pedagogique_
 Les PNG sont versionnés : l'étape Chromium n'est nécessaire que si un
 diagramme change. Aperçu PDF (facultatif) : `soffice --headless --convert-to pdf <docx>`.
 
+En interne, pour que le texte dise « BITD » au lieu de « Base » : `PERIMETRE=BITD node …` (variable d'environnement lue par le générateur ; « Base Tous salariés » n'est jamais touché), puis re-rendre les PNG s'il y a des schémas.
+
 ## Contenu
 
 Une idée par page, corps de texte 11 à 12 points :

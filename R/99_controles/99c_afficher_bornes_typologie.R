@@ -19,6 +19,7 @@
 # ==============================================================================
 
 # --- Lecture : parametre ; valeur (write.csv2, avec ou sans BOM) -------------------
+if (!exists("texte_perimetre")) texte_perimetre <- function(x) gsub("\\bBase\\b(?! Tous [Ss]alari)", get0("LIBELLE_PERIMETRE", ifnotfound = "Base"), x, perl = TRUE)   # session vierge sans 00_config
 lire_parametres_typologie <- function(fichier) {
   if (!file.exists(fichier)) return(NULL)
   d <- utils::read.csv2(fichier, fileEncoding = "UTF-8-BOM", stringsAsFactors = FALSE, colClasses = "character", na.strings = c("NA", ""))
@@ -68,12 +69,12 @@ formater_bornes_typologie <- function(params, classes = NULL) {
   n_ret <- if (!is.null(params[["n_departements_retenus_seuils"]]) && !is.null(params[["n_departements"]]))
     sprintf("          (%s départements, dont %s au-dessus du plancher pour fixer les bornes)", nb_fr(params[["n_departements"]]), nb_fr(params[["n_departements_retenus_seuils"]])) else NULL
   intensite_lecture <- if (identical(indicateur, "part_a_remplacer_pct"))
-    c("   Lecture : sur 100 salariés actuellement en poste (tous âges)", "   dans la Base du département, combien correspondent aux", "   départs estimés d'ici 2030.")
+    c("   Lecture : sur 100 salariés actuellement en poste (tous âges)", texte_perimetre("   dans la Base du département, combien correspondent aux"), "   départs estimés d'ici 2030.")
   else c("   Lecture : ATTENTION, repli : le stock tous âges n'était pas", "   disponible ; l'intensité rapporte les départs aux seuls", "   salariés du champ (âge minimal et plus), pas à l'emploi actuel.", "   Elle n'est pas comparable à une part de l'emploi à remplacer.")
-  poids_base <- if (identical(base, "effectif_tous_ages")) "   Lecture : part de l'emploi Base français (tous âges) située" else "   Lecture : part des salariés du champ Base français située"
-  l <- c(trait, "  TYPOLOGIE Base — BORNES DE CLASSEMENT", trait, "",
+  poids_base <- if (identical(base, "effectif_tous_ages")) texte_perimetre("   Lecture : part de l'emploi Base français (tous âges) située") else texte_perimetre("   Lecture : part des salariés du champ Base français située")
+  l <- c(trait, texte_perimetre("  TYPOLOGIE Base — BORNES DE CLASSEMENT"), trait, "",
     paste0("MÉTHODE : ", methode_txt), n_ret, "",
-    "1. POIDS DANS L'EMPLOI Base NATIONAL", tiret,
+    texte_perimetre("1. POIDS DANS L'EMPLOI Base NATIONAL"), tiret,
     sprintf("   Faible : moins de %s", pct_fr(po$bas, po$d)),
     sprintf("   Moyen  : de %s à moins de %s", pct_fr(po$bas, po$d), pct_fr(po$haut, po$d)),
     sprintf("   Fort   : %s ou plus", pct_fr(po$haut, po$d)), "",
