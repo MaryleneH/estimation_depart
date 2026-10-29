@@ -417,7 +417,7 @@ css_fiches <- function() paste(
   # index
   '.recherche{width:100%;font:inherit;font-size:16px;padding:10px 12px;border:1px solid var(--filet);margin:0 0 18px;background:#fff;color:var(--encre)}',
   '.liste{list-style:none;margin:0;padding:0}.liste li{display:grid;grid-template-columns:52px 1fr auto;gap:14px;align-items:baseline;padding:9px 0;border-bottom:1px solid var(--filet)}',
-  '.liste .code{color:var(--gris);font-variant-numeric:tabular-nums}.liste a{text-decoration:none;color:var(--encre);font-size:16px}.liste a:hover{text-decoration:underline}.liste .n{font-variant-numeric:tabular-nums;color:var(--texte);font-size:14px;white-space:nowrap}',
+  '.liste .code{color:var(--gris);font-variant-numeric:tabular-nums}.liste .nom{color:var(--encre);font-size:16px}.liste .fichier{display:block;color:var(--gris);font-size:12px;font-family:ui-monospace,Menlo,Consolas,monospace}.liste .n{font-variant-numeric:tabular-nums;color:var(--texte);font-size:14px;white-space:nowrap}',
   '.vide{color:var(--gris);display:none}.methode{font-size:13px;color:var(--texte);line-height:1.5;margin-top:32px;padding-top:16px;border-top:1px solid var(--filet)}',
   # petits écrans
   '@media (max-width:640px){.page{padding:28px 18px 24px}h1{font-size:36px}.hero{grid-template-columns:1fr;gap:22px}',
@@ -666,8 +666,9 @@ generer_html_index <- function(journal, zonage, age_min = AGE_MIN_BTS, regles = 
   j <- journal |> filter(statut == "ok") |> arrange(code)
   zl <- echap_html(zonage$libelle); zp <- echap_html(zonage$pluriel)
   cle <- tolower(iconv(paste(j$code, j$nom), from = "UTF-8", to = "ASCII//TRANSLIT", sub = ""))
-  lignes <- sprintf('<li data-cle="%s"><span class="code">%s</span><a href="%s">%s</a><span class="n">%s départs attendus</span></li>',
-                    echap_html(cle), echap_html(j$code), j$fichier, echap_html(j$nom), fmt_n(j$departs))
+  # SPEC-PUB-022 : aucun hyperlien vers une autre page ; le nom du fichier est cité en texte
+  lignes <- sprintf('<li data-cle="%s"><span class="code">%s</span><span class="nom">%s<small class="fichier">%s</small></span><span class="n">%s départs attendus</span></li>',
+                    echap_html(cle), echap_html(j$code), echap_html(j$nom), echap_html(j$fichier), fmt_n(j$departs))
   ecartes <- journal |> filter(statut != "ok")
   note_ecartes <- if (nrow(ecartes) > 0)
     sprintf('<p class="note">%d territoire(s) sans fiche : %s.</p>', nrow(ecartes),

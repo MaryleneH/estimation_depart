@@ -133,7 +133,7 @@ Fonctionnalité: Produire des fiches territoriales diffusables
     Étant donné FICHES_MODE "tous"
     Quand le script 09 est exécuté
     Alors chaque territoire diffusable doit avoir une fiche HTML au nom de fichier stable (<code>_<nom>.html)
-    Et un index avec recherche native, une ligne par fiche et la méthode complète
+    Et un index avec recherche native, une ligne par fiche (code, nom, départs, nom du fichier en texte, sans hyperlien : SPEC-PUB-022) et la méthode complète
     Et un journal listant les territoires écartés avec leur motif
 
   Scénario: [SPEC-PUB-015] Restreindre les fiches à une sélection
@@ -178,6 +178,13 @@ Fonctionnalité: Produire des fiches territoriales diffusables
     Alors leur nombre, leur part, leurs départs attendus et leur taux ne sont pas publiés : NA dans les indicateurs et le journal, « non diffusé (secret statistique) » dans l'en-tête, la position et l'annexe, et le bloc « À retenir » le dit sans jamais écrire « aucun salarié de … ans et + »
     Et quand ils sont publiés, les tranches d'âge senior (dont ce nombre est la marge) et les tranches non senior reçoivent entre elles le secret secondaire
     Et sans règle de secret (usage interne), le comportement reste celui de SPEC-PUB-017 (« n.d. », « aucun salarié »)
+
+  Scénario: [SPEC-PUB-022] Faire vivre chaque page HTML seule
+    Étant donné une page HTML produite par la chaîne (fiche territoriale, index, carte, fiche d'exposition, fiche des métiers, carte courriel)
+    Quand elle est ouverte isolément (copiée, envoyée, déplacée hors de l'arborescence sorties/)
+    Alors elle ne porte aucun hyperlien vers un autre fichier : les seuls liens sont des ancres internes à la page (href="#…") ; une page voisine est au plus citée par son nom, en texte
+    Et l'index des fiches reste une table des matières lisible : une ligne par fiche avec code, nom, départs attendus et nom du fichier en texte
+    Et un garde-fou sur R/ interdit tout href qui ne commence pas par « # »
 ```
 
 ## Traçabilité

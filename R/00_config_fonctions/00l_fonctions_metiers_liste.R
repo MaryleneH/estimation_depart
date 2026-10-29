@@ -147,7 +147,7 @@ generer_fiche_metiers_liste <- function(tab, metiers, fichier, champ = construir
             sommaire, blocs,
             '<h2 id="par-territoire">Vue par territoire</h2><p class="note">Pour chaque région puis chaque département : les métiers de la liste diffusables, classés par écart à la France décroissant ; les métiers non diffusés sont nommés sans valeur.</p>',
             par_terr,
-            sprintf('<p class="note">Départs : estimation centrale et fourchette basse – haute (hypothèses d’âge de départ). Secret statistique : règle Insee (salariés, entreprises, dominance) puis secret secondaire, appliqués par le 08c ; un territoire ou un métier non diffusé n’embarque aucune valeur. Pages associées : <a href="fiche_exposition_tension.html">fiche d’exposition</a>, <a href="../cartes/carte_typologie.html">carte des profils</a>.</p>'),
+            sprintf('<p class="note">Départs : estimation centrale et fourchette basse – haute (hypothèses d’âge de départ). Secret statistique : règle Insee (salariés, entreprises, dominance) puis secret secondaire, appliqués par le 08c ; un territoire ou un métier non diffusé n’embarque aucune valeur. Documents associés (fichiers distincts, cités sans lien) : la fiche d’exposition et la carte des profils.</p>'),
             sprintf('<p class="note">Sources : %s ; tension par famille professionnelle (FAP) en France, rattachée aux PCS de la liste.</p>', e(source_note)), '</div></body></html>')
   html <- texte_liste(html)
   if (any(grepl("<script", html, fixed = TRUE)) || any(grepl(" on[a-z]+=", html)) || any(grepl("javascript:", html, fixed = TRUE))) stop("generer_fiche_metiers_liste : contenu actif détecté.")

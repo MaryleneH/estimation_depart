@@ -207,6 +207,22 @@ test_that("index : recherche native, une ligne par fiche, méthode complète, ch
   expect_match(idx, "1 territoire\\(s\\) sans fiche : 48")
 })
 
+test_that("SPEC-PUB-022 — chaque page HTML vit seule : index sans hyperlien (nom de fichier en texte), fiches sans lien vers un autre fichier ; garde-fou sur R/", {
+  dir <- file.path(tempdir(), "fiches_pub022"); unlink(dir, recursive = TRUE)
+  j <- suppressMessages(generer_fiches(BASE_FICHES, dir, mode = "tous", zonage = ZONAGE_DEP))
+  pages <- list.files(dir, pattern = "\\.html$", full.names = TRUE)
+  expect_true(length(pages) > 1)
+  for (p in pages) { h <- paste(readLines(p, warn = FALSE, encoding = "UTF-8"), collapse = "\n")
+    expect_false(grepl('href="[^#]', h), label = basename(p)); expect_false(grepl("href='[^#]", h), label = basename(p)) }
+  idx <- paste(readLines(file.path(dir, "index.html"), warn = FALSE, encoding = "UTF-8"), collapse = "\n")
+  for (f in j$fichier[j$statut == "ok"]) expect_true(grepl(sprintf('<small class="fichier">%s</small>', f), idx, fixed = TRUE), label = f)
+  expect_false(grepl("<a ", idx, fixed = TRUE))
+  # garde-fou : dans le code des restitutions, tout href est une ancre interne (lignes de code, commentaires exclus)
+  fichiers <- list.files(file.path(RACINE, "R"), pattern = "\\.R$", recursive = TRUE, full.names = TRUE)
+  for (fr in fichiers) { l <- readLines(fr, encoding = "UTF-8", warn = FALSE); l <- l[!grepl("^\\s*#", l)]
+    expect_false(any(grepl("href=[\"'][^#]|href=\\\\\"[^#]", l)), label = basename(fr)) }
+})
+
 test_that("cohérence avec le 08 sur la chaîne (mode test département)", {
   env <- new.env()
   old <- setwd(RACINE); on.exit(setwd(old), add = TRUE)
