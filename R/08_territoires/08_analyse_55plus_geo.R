@@ -4,7 +4,8 @@
 # PRÉREQUIS : objet `bts_projete` avec le contrat geo_code / geo_nom / geo_type
 #             (scripts 01-04) ; AGE_SENIOR, SECRET_* (règle Insee), GEO_ANALYSE,
 #             GEO_INTERET, GEO_ZONAGES (00) ; fonctions 00c et 00d (secret).
-# PRODUIT   : objets `synthese_geo`, `criticite_geo_cs`, `tableau_55plus_geo` ;
+# PRODUIT   : objets `synthese_geo` (exact, interne : contrôles, fiches, instantané),
+#             `synthese_geo_diffusable` (secret appliqué), `criticite_geo_cs`, `tableau_55plus_geo` ;
 #             fichiers SUFFIXÉS par le zonage (GEO_ZONAGES[[GEO_ANALYSE]]$suffixe),
 #             ex. pour "ze" / "departement" :
 #             sorties/analyse_55plus_par_<suffixe>.csv    (synthèse par territoire)
@@ -22,6 +23,11 @@
 #             Insee de la Base Tous salariés (00_config SECRET_*, fonctions 00d) :
 #             < 5 salariés, < 3 entreprises ou une entreprise > 85 %, puis
 #             secret secondaire par territoire. Même décision que le 08b.
+#             Synthèse par territoire, tableau 55+ et quadrant (SPEC-GEO-012) : le
+#             territoire est une cellule (bloc = tous les territoires de l'univers,
+#             marge = total du périmètre), le bloc des AGE_SENIOR+ une cellule à part
+#             (marge = total des seniors) ; territoires du référentiel sans salarié
+#             à zéro (SPEC-SEC-035). L'objet synthese_geo reste exact.
 # GÉNÉRIQUE : ce script ne connaît AUCUN nom de zonage ni de colonne source.
 #             Identifiant = geo_code ; affichage = geo_nom, jamais geo_code.
 # ==============================================================================
@@ -98,6 +104,43 @@ print(formater_restitution(synthese_geo) |>
 cat(sprintf("Médianes du quadrant : part 55+ = %.1f %% | taux de départ 55+ = %.1f %%\n",
             med_part, med_taux))
 
+# --- B'. Version DIFFUSABLE de la synthèse (SPEC-GEO-012) ----------------------
+# Le territoire est une cellule : règle Insee (salariés, entreprises, dominance) puis
+# secret secondaire, bloc = tous les territoires (marge : total du périmètre, publié) ;
+# même décision que la typologie (08f). Le bloc des AGE_SENIOR ans et + de chaque
+# territoire suit sa propre règle (cellule des seniors, zéro compris ; marge : total des
+# seniors, publié par le tableau). Les territoires du référentiel sans salarié observé
+# (univers, SPEC-SEC-035) entrent à zéro : masqués en primaire, comptés dans les blocs.
+univers_08 <- univers_territoires(GEO_ANALYSE)
+if (is.null(univers_08)) message("08 : aucun référentiel pour le zonage « ", GEO_ANALYSE, " » (GEO_REFERENTIELS) : tables non complétées sur l'univers des territoires.")
+sec_terr_08 <- indicateurs_secret(base_geo, "geo_code")
+sec_sen_08 <- if (any(base_geo$senior)) indicateurs_secret(base_geo |> filter(senior), "geo_code") else
+  tibble::tibble(geo_code = character(0), n_entreprises = integer(0), part_dominante_pct = numeric(0))
+grille_08 <- synthese_geo |> select(geo_code, geo_nom, effectif_champ, effectif_55plus) |>
+  left_join(sec_terr_08, by = "geo_code") |>
+  left_join(sec_sen_08 |> rename(n_ent_55 = n_entreprises, dom_55 = part_dominante_pct), by = "geo_code") |>
+  mutate(n_ent_55 = coalesce(n_ent_55, 0L), dom_55 = coalesce(dom_55, 100))
+if (!is.null(univers_08))
+  grille_08 <- completer_univers_diffusion(grille_08, univers_08, col_masque = NULL,
+                                           valeurs = list(effectif_champ = 0L, effectif_55plus = 0L, n_entreprises = 0L, part_dominante_pct = 100, n_ent_55 = 0L, dom_55 = 100))
+grille_08 <- grille_08 |>
+  mutate(masque = masquer_cellules(effectif_champ, n_entreprises, part_dominante_pct, regles_secret()),
+         masque_55plus = masque | masquer_cellules(effectif_55plus, n_ent_55, dom_55, regles_secret()))
+synthese_geo_diffusable <- grille_08 |> select(geo_code, geo_nom, masque, masque_55plus) |>
+  left_join(synthese_geo |> select(-geo_nom), by = "geo_code")
+cols_55_08 <- intersect(c("effectif_55plus", "part_55plus_pct", "departs_55plus", "departs_55plus_bas", "departs_55plus_haut", "dep_55_retraite", "dep_55_invalidite", "dep_55_deces",
+                          "taux_depart_55plus_pct", "taux_55plus_bas_pct", "taux_55plus_haut_pct"), names(synthese_geo_diffusable))
+for (v in setdiff(names(synthese_geo), c("geo_code", "geo_nom"))) synthese_geo_diffusable[[v]][synthese_geo_diffusable$masque] <- NA
+for (v in cols_55_08) synthese_geo_diffusable[[v]][synthese_geo_diffusable$masque_55plus] <- NA
+synthese_geo_diffusable <- synthese_geo_diffusable |> arrange(desc(part_55plus_pct), geo_code)       # NA (masqués) en fin
+if (any(!synthese_geo_diffusable$masque & synthese_geo_diffusable$effectif_champ < SECRET_MIN_SALARIES, na.rm = TRUE) ||
+    any(!synthese_geo_diffusable$masque_55plus & synthese_geo_diffusable$effectif_55plus < SECRET_MIN_SALARIES, na.rm = TRUE))
+  stop("08 : une cellule territoriale contraire à la règle de secret statistique resterait visible.")
+message("08 : synthèse par ", tolower(ZON$libelle), " — ", sum(synthese_geo_diffusable$masque), " territoire(s) non diffusé(s) (dont ",
+        nrow(synthese_geo_diffusable) - nrow(synthese_geo), " sans salarié observé), ", sum(synthese_geo_diffusable$masque_55plus & !synthese_geo_diffusable$masque),
+        " bloc(s) ", AGE_SENIOR, "+ non diffusé(s) en plus.")
+rm(grille_08, sec_terr_08, sec_sen_08)
+
 # --- C. Détail territoire x CS : où une catégorie entière s'éteint-elle ? ----
 criticite_geo_cs <- base_geo |>
   group_by(geo_code, geo_nom, cs1) |>
@@ -142,7 +185,7 @@ if (nrow(cellules_critiques) > 0) {
 # --- D. Exports tableur FR, secret statistique appliqué ----------------------
 # Convention 00g : personnes -> entier (causes cohérentes avec departs_55plus,
 # plus forts restes), taux -> 1 décimale ; l'objet synthese_geo reste exact.
-write.csv2(formater_restitution(synthese_geo), sortie("analyse_55plus_par_%s.csv"), row.names = FALSE)
+write.csv2(formater_restitution(synthese_geo_diffusable), sortie("analyse_55plus_par_%s.csv"), row.names = FALSE)   # version diffusable (SPEC-GEO-012)
 # Masquage : cellule contraire à la règle Insee (ou masquée au titre du secret
 # secondaire) -> valeurs retirées (NA) mais la LIGNE reste, flaguée `masque` —
 # l'absence se voit, ne se devine pas.
@@ -168,13 +211,15 @@ ALERTE <- "#A63D2F"                      # cadran critique uniquement
 
 # Territoires TRAÇABLES : au moins un senior (taux défini). Un territoire sans
 # aucun 55+ n'a pas de position sur le quadrant ; il reste dans les tableaux.
-quadrant_geo <- synthese_geo |>
-  filter(is.finite(taux_depart_55plus_pct)) |>
+# Territoires TRACÉS : bloc des seniors diffusé (SPEC-GEO-012) et taux défini. Un territoire non diffusé
+# (secret, zéro senior compris) n'a pas de position sur le quadrant ; il reste dans les tableaux, sans valeur.
+quadrant_geo <- synthese_geo_diffusable |>
+  filter(!masque_55plus, is.finite(taux_depart_55plus_pct)) |>
   mutate(critique = part_55plus_pct >= med_part & taux_depart_55plus_pct >= med_taux)
-n_hors_quadrant <- nrow(synthese_geo) - nrow(quadrant_geo)
+n_hors_quadrant <- nrow(synthese_geo_diffusable) - nrow(quadrant_geo)
 if (n_hors_quadrant > 0)
-  message("08 : ", n_hors_quadrant, " ", tolower(ZON$libelle), "(s) sans salarié de ",
-          AGE_SENIOR, " ans et + — hors quadrant, conservé(s) dans les tableaux.")
+  message("08 : ", n_hors_quadrant, " ", tolower(ZON$libelle), "(s) non diffusé(s) (secret statistique, bloc des ",
+          AGE_SENIOR, " ans et +) — hors quadrant, conservé(s) dans les tableaux sans valeur.")
 
 # Placement des étiquettes SANS ggrepel : algorithme glouton déterministe.
 # Chaque étiquette (boîte approchée par nchar x hauteur de police, en unités
@@ -286,10 +331,9 @@ g <- quadrant_geo |>
                               "À droite : part des %d ans et + supérieure à la médiane.\n",
                               "En haut : taux de départ des %d+ supérieur à la médiane. ",
                               "En rouge : les deux à la fois."),
-                       ZON$un, nrow(synthese_geo), ZON$pluriel,
+                       ZON$un, nrow(synthese_geo_diffusable), ZON$pluriel,
                        if (n_hors_quadrant > 0)
-                         sprintf(", dont %d sans aucun %d+, non tracé(s)",
-                                 n_hors_quadrant, AGE_SENIOR) else "",
+                         sprintf(", dont %d non diffusé(s) (secret statistique), non tracé(s)", n_hors_quadrant) else "",
                        AGE_SENIOR, AGE_SENIOR),
     caption = sprintf(paste0("Lecture : le classement est RELATIF aux médianes du périmètre — dans tous les territoires, la plupart des %d+ de 2024 ",
                              "seront partis d'ici 2030 (taux de %.0f à %.0f %%).\n",
@@ -333,8 +377,8 @@ ggsave(sortie("quadrant_55plus_%s.png"),
 # --- F. Tableau des départs des 55+ par territoire, avec ligne de total ------
 # Champ STRICT : les AGE_SENIOR ans et + (le tableau ne contient qu'eux).
 # Colonne géographique : code + libellé du zonage (GEO_ZONAGES).
-tableau_55plus_geo <- synthese_geo |>
-  arrange(desc(departs_55plus)) |>
+tableau_55plus_geo <- synthese_geo_diffusable |>                      # version diffusable (SPEC-GEO-012) ; total = marge exacte
+  arrange(desc(departs_55plus), geo_code) |>
   transmute(code            = geo_code,
             territoire      = geo_nom,
             effectif        = effectif_55plus,
