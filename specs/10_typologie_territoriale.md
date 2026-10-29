@@ -772,6 +772,9 @@ sous-classes, **5.1 et 5.2** (5.2 la plus forte). Règle de lecture :
 | `robustesse` | `robuste` si la classe reste la même pour les cinq variantes ; sinon `à confirmer`, avec les causes |
 | levier du département | composante dominante la plus fréquente dans A, pondérée par les départs |
 | `tension_cumul` | profil « Pôle majeur à renouveler rapidement » ou « Renouvellement rapide à surveiller » ET exposition Forte |
+| `departs_tension_min` (+ `_bas`, `_haut`) | départs attendus (08c, exacts) des métiers stratégiques suivis **en tension** = A, hypothèses centrale, basse, haute : **plancher** du nombre de départs dans des métiers en tension (les métiers non suivis ne sont pas comptés) |
+| `part_departs_tension_min_pct` | 100 × A / (A + B + C) : sur 100 départs du territoire, au moins combien concernent des métiers stratégiques suivis en tension ; **plancher**, sans condition de couverture ; fiche des territoires et panneau de la carte |
+| niveau région | mêmes indicateurs et même secret sur la table région × PCS du 08c (`exposition_tension_regions.csv`) ; textes « de la région » ; fiche des territoires |
 
 Les cinq variantes de robustesse appliquent les **mêmes bornes** que le calcul
 central :
@@ -861,7 +864,7 @@ Fonctionnalité: Lire, avec la typologie, si les départs portent sur des métie
     Alors l'exposition n'est publiée que si chaque part non vide satisfait la règle Insee (salariés, entreprises, dominance), sinon rien de l'exposition n'est publié pour ce département
     Et elle n'est pas publiée si une part contient exactement une cellule PCS masquée dans la diffusion du 08c (différenciation)
     Et un département masqué dans la diffusion de la typologie n'a aucune valeur
-    Et la diffusion ne contient que des pourcentages, des classes et des textes, jamais un effectif ; les métiers cités sont des cellules PCS diffusables
+    Et la diffusion ne contient que des pourcentages, des classes, des textes et les départs attendus de la part A (estimations, planchers de la carte), jamais un effectif de salariés ; les métiers cités sont des cellules PCS diffusables
 
   Scénario: [SPEC-TYPO-107] Montrer l'exposition sur la carte des profils, sans rien changer sans elle
     Étant donné diffusion/exposition_tension_departements.csv à côté de la table de diffusion de la typologie
@@ -880,6 +883,16 @@ Fonctionnalité: Lire, avec la typologie, si les départs portent sur des métie
     Et avec openxlsx, les en-têtes sont en gras, les volets figés, les filtres posés, les lignes teintées par classe (Départements) ou par situation (Métiers), la classe et la situation restant lisibles en texte
     Et sans openxlsx, writexl écrit le même contenu sans mise en forme, avec un message ; sans les deux, message et pas de classeur
     Et un échec d'écriture du classeur est un message, jamais un arrêt ; TENSION_CLASSEUR_EXCEL = FALSE ne produit pas de classeur
+
+  Scénario: [SPEC-TYPO-109] Classer les territoires selon les métiers suivis en tension, en rappelant leur profil (fiche des territoires)
+    Étant donné diffusion/exposition_tension_departements.csv, diffusion/exposition_tension_regions.csv (si le 08c produit le niveau région) et la typologie de diffusion
+    Quand le 08i écrit diffusion/fiche_territoires_tension.html
+    Alors la fiche, sans script, porte deux tableaux, régions puis départements, triés par départs attendus dans les métiers suivis en tension décroissants (plancher tension_departs_min, avec sa fourchette), puis par code
+    Et chaque département rappelle son PROFIL de renouvellement (couleur et libellé de la typologie, « non diffusé » s'il est masqué) ; chaque région, le nombre de ses départements diffusés à renouvellement rapide (profils « Pôle majeur à renouveler rapidement » et « Renouvellement rapide à surveiller ») sur ses départements diffusés
+    Et chaque ligne donne la part de ces départs dans tous les départs du territoire (plancher), la part des remplacements difficiles parmi les métiers suivis avec sa classe, sa robustesse et sa couverture (ou « non interprétée »), les métiers en tension les plus concernés et le levier
+    Et les territoires non diffusés figurent en fin de tableau avec la seule mention du secret ; aucune valeur masquée n'est embarquée
+    Et l'en-tête nomme les N métiers suivis et dit que chaque chiffre est un minimum ; la fiche renvoie à la carte des profils (hachures) et à la fiche d'exposition
+    Et un script de contrôle (99d) vérifie, à partir des seuls fichiers de diffusion et des pages, que les départements hachurés sont exactement les diffusés de classe Forte, que tension_cumul est l'intersection avec les profils à renouvellement rapide, que le premier message de la fiche compte le même nombre, et que les fichiers ne sont pas plus anciens que leurs sources
 ```
 
 Sorties (08i) :
@@ -891,6 +904,14 @@ Sorties (08i) :
   (matrice SVG en annexe repliée, libellés au survol) ;
 - `diffusion/exposition_tension.xlsx` : classeur à quatre feuilles (SPEC-TYPO-108), si
   `TENSION_CLASSEUR_EXCEL`.
+- `diffusion/exposition_tension_regions.csv` (et `interne/`) : mêmes indicateurs au niveau région, si
+  le 08c produit ce niveau.
+
+- `diffusion/fiche_territoires_tension.html` : classement des régions et des départements selon les
+  métiers suivis en tension, profil de la typologie rappelé (SPEC-TYPO-109) ; sans script.
+
+Contrôle : `R/99_controles/99d_controler_tension_cartes.R` (cohérence hachures / cumul / fiche /
+horodatages, à lancer seul après la chaîne).
 
 
 ## Limites
@@ -939,6 +960,8 @@ Code :
   `html_tableau_metiers_tension()`, `generer_fiche_exposition_tension()`,
   `tables_classeur_tension()`, `ecrire_classeur_tension()`
   (SPEC-TYPO-100 à 108) ; `R/08_territoires/08i_exposition_tension.R`
+- `R/00_config_fonctions/00k_fonctions_tension.R` — `html_tableau_territoires_tension()`,
+  `generer_fiche_territoires_tension()` (SPEC-TYPO-109) ; `R/99_controles/99d_controler_tension_cartes.R`
 - `R/00_config_fonctions/00_config.R` — section typologie, `GENERER_CARTE_TYPOLOGIE`
 - `data/templates/tensions_fap_territoires_template.csv`
 

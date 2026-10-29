@@ -62,6 +62,7 @@ const corps = [
   ...puces([
     "**La carte des profils** dit combien de salariés partent et à quel rythme. Les départements hachurés sont ceux dont la part des remplacements difficiles est forte.",
     "**Un département à la fois en renouvellement rapide et hachuré** cumule les deux difficultés : il remplace beaucoup de salariés, dans des métiers où il sera difficile de recruter. Ces départements sont nommés en tête de la fiche.",
+    "**La fiche des territoires** classe les régions puis les départements par nombre de départs attendus dans les métiers suivis en tension, en rappelant le profil de chacun. Chaque chiffre est un minimum : les métiers dont la tension n’est pas connue ne sont pas comptés.",
     "**Le tableau des métiers** classe chaque métier stratégique selon ses départs, rapides ou modérés par rapport à la moyenne, et sa tension, en tension ou non. Les métiers « à départs rapides et en tension » sont ceux où l’anticipation compte le plus."]),
   ...encadre("Ce que la note ne dit pas", [
     "**L’information est partielle.** La tension n’est connue que pour les métiers stratégiques de la liste. D’autres métiers peuvent être en tension sans que nous le sachions ; la couverture, affichée pour chaque département, dit quelle part des départs est observée.",

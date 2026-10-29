@@ -9,11 +9,13 @@
 #               interne/exposition_tension_departements.csv   complet (parts, variantes)
 #               interne/metiers_strategiques_tension.csv       une ligne par PCS de la liste
 #               interne/parametres_exposition_tension.csv      seuils et bornes effectifs
-#               diffusion/exposition_tension_departements.csv  secret appliqué (lu par 08g / 08h)
+#               diffusion/exposition_tension_departements.csv  secret appliqué (lu par 08g / 08h / 08j)
+#               {interne,diffusion}/exposition_tension_regions.csv  même chose au niveau région (si le 08c le produit ; lu par 08j)
 #               diffusion/metiers_strategiques_tension.csv     matrice nationale (cellules diffusables)
 #               diffusion/matrice_metiers_tension.png          image de la matrice (fichier à part)
 #               diffusion/fiche_exposition_tension.html        une page, sans script (matrice SVG en annexe, libellés au survol)
 #               diffusion/exposition_tension.xlsx              classeur à quatre feuilles (si TENSION_CLASSEUR_EXCEL)
+#               diffusion/fiche_territoires_tension.html       classement régions / départements, profil rappelé (sans script)
 # RÈGLES    : la tension est une propriété NATIONALE du métier, jamais du
 #             département ; aucun départ recalculé ; classeur absent = message.
 # ==============================================================================
@@ -50,7 +52,7 @@ if (!isTRUE(get0("GENERER_EXPOSITION_TENSION", ifnotfound = FALSE))) {
 
   dir_typo_08i <- file.path(DIR_SORTIES, "typologie_territoriale")
   dir_int_08i <- file.path(dir_typo_08i, "interne"); dir.create(dir_int_08i, showWarnings = FALSE, recursive = TRUE)
-  restituer_08i <- function(x) formater_restitution(x, personnes = c(COLONNES_PERSONNES, grep("^(departs|effectif)_", names(x), value = TRUE)))
+  restituer_08i <- function(x) formater_restitution(x, personnes = c(COLONNES_PERSONNES, grep("^(departs|effectif)_|^tension_departs_", names(x), value = TRUE)))
   write.csv2(restituer_08i(expo_08i$departements), file.path(dir_int_08i, "exposition_tension_departements.csv"), row.names = FALSE)
   write.csv2(restituer_08i(mat_int_08i$metiers), file.path(dir_int_08i, "metiers_strategiques_tension.csv"), row.names = FALSE)
   param_08i <- tibble(parametre = c("fichier", "feuille", "rang_max", "seuil_rang", "seuil_confiance_applique", "methode_classes", "exposition_bas_pct", "exposition_haut_pct",
@@ -63,6 +65,14 @@ if (!isTRUE(get0("GENERER_EXPOSITION_TENSION", ifnotfound = FALSE))) {
                                               if (length(par_08i$sous_niveaux)) paste(par_08i$rang_max + par_08i$sous_niveaux / 10, collapse = ", ") else "aucun")))
   write.csv2(param_08i, file.path(dir_int_08i, "parametres_exposition_tension.csv"), row.names = FALSE)
 
+  # niveau RÉGION (SPEC-TYPO-109) : mêmes calculs sur la table région x PCS du 08c ; secret sur la base rattachée à la région
+  expo_reg_08i <- NULL
+  if ("region" %in% departs_pcs$niveaux && all(c("region_code", "region_nom") %in% names(departs_pcs$analytique$region))) {
+    reg_08i <- departs_pcs$analytique$region |> rename(geo_code = region_code, geo_nom = region_nom) |> mutate(geo_code = as.character(geo_code))
+    expo_reg_08i <- exposition_departements(reg_08i, met_08i, par_08i)
+    expo_reg_08i$departements$texte <- rediger_exposition_departement(expo_reg_08i$departements, par_08i, "région")
+    write.csv2(restituer_08i(expo_reg_08i$departements), file.path(dir_int_08i, "exposition_tension_regions.csv"), row.names = FALSE)
+  }
   dif_08i <- NULL; fiche_08i <- NA_character_
   if (!isTRUE(get0("TYPO_SECRET", ifnotfound = TRUE)) || is.null(departs_pcs$diffusion)) {
     message("08i : pas de table de diffusion du 08c (DEPARTS_PCS_SECRET = FALSE) ou TYPO_SECRET = FALSE -> aucun fichier diffusion/.")
@@ -74,6 +84,15 @@ if (!isTRUE(get0("GENERER_EXPOSITION_TENSION", ifnotfound = FALSE))) {
     mat_08i <- matrice_metiers_tension(met_08i, departs_pcs$analytique$france, departs_pcs$diffusion$france, par_08i)
     dir_dif_08i <- file.path(dir_typo_08i, "diffusion"); dir.create(dir_dif_08i, showWarnings = FALSE, recursive = TRUE)
     write.csv2(restituer_08i(dif_08i), file.path(dir_dif_08i, "exposition_tension_departements.csv"), row.names = FALSE)
+    if (!is.null(expo_reg_08i) && !is.null(departs_pcs$diffusion$region)) {
+      base_reg_08i <- ajouter_region(bts_projete, GEO_PASSAGES[["departement->region"]], prefixe = "08i") |> mutate(geo_code = as.character(region_code))
+      dif_reg_08i <- appliquer_secret_exposition(expo_reg_08i, met_08i, base_reg_08i,
+                                                 departs_pcs$diffusion$region |> rename(geo_code = region_code, geo_nom = region_nom) |> mutate(geo_code = as.character(geo_code)),
+                                                 NULL, departs_pcs$diffusion$france, regles_secret(), par_08i, territoire = "région")
+      if (any(grepl("^departs_|^effectif_|n_entreprises|part_dominante", names(dif_reg_08i)))) stop("08i : effectif ou indicateur de secret présent dans la diffusion région.")
+      write.csv2(restituer_08i(dif_reg_08i), file.path(dir_dif_08i, "exposition_tension_regions.csv"), row.names = FALSE)
+      rm(base_reg_08i)
+    }
     write.csv2(restituer_08i(mat_08i$metiers |> select(pcs = pcs_source, pcs_libelle, fap_code, fap_libelle, rang_tension, rang_tension_fin, en_tension, composante_dominante = composante_libelle,
                                                       levier, faible_confiance, statut, taux_depart_central_pct, departs_central, quadrant)),
                file.path(dir_dif_08i, "metiers_strategiques_tension.csv"), row.names = FALSE)
@@ -86,6 +105,9 @@ if (!isTRUE(get0("GENERER_EXPOSITION_TENSION", ifnotfound = FALSE))) {
     source_08i <- if (identical(get0("SOURCE_BTS", ifnotfound = ""), "parquet")) "BTS 2024, DREES, EACR, Insee — calculs propres" else "table test — calculs propres"
     generer_fiche_exposition_tension(msg_08i, fiche_08i, png_08i, construire_libelle_champ(), par_08i, expo_08i$bornes,
                                      sum(dif_08i$tension_classe %in% "Forte"), source_08i, mat = mat_08i)
+    # fiche des territoires (SPEC-TYPO-109) : classement régions / départements, profil rappelé ; sans script
+    terr_08i <- file.path(dir_dif_08i, "fiche_territoires_tension.html")
+    generer_fiche_territoires_tension(dif_08i, get0("dif_reg_08i", ifnotfound = NULL), typo_dif_08i, terr_08i, construire_libelle_champ(), par_08i, source_08i)
     # classeur Excel (SPEC-TYPO-108) : mêmes tables de diffusion ; jamais d'arrêt
     if (isTRUE(par_08i$classeur_excel)) {
       xlsx_08i <- tryCatch(ecrire_classeur_tension(tables_classeur_tension(dif_08i, mat_08i, msg_08i, param_08i, par_08i, expo_08i$bornes, sum(dif_08i$tension_classe %in% "Forte"),
@@ -101,8 +123,9 @@ if (!isTRUE(get0("GENERER_EXPOSITION_TENSION", ifnotfound = FALSE))) {
   cl_08i <- table(factor(expo_08i$departements$classe_exposition, levels = CLASSES_EXPOSITION), useNA = "no")
   cat(sprintf("  Départements : Faible %d | Modérée %d | Forte %d | non interprétés %d ; à confirmer %d\n", cl_08i[[1]], cl_08i[[2]], cl_08i[[3]],
               sum(is.na(expo_08i$departements$classe_exposition)), sum(expo_08i$departements$robustesse %in% "à confirmer")))
-  if (!is.null(dif_08i)) cat(sprintf("  Diffusion : %d département(s) diffusé(s), %d non diffusé(s) (secret) ; fiche : %s ; classeur : %s\n", sum(dif_08i$tension_diffusee), sum(!dif_08i$tension_diffusee), fiche_08i,
+  if (!is.null(dif_08i)) cat(sprintf("  Diffusion : %d département(s) diffusé(s), %d non diffusé(s) (secret) ; fiche : %s ; territoires : %s ; classeur : %s\n", sum(dif_08i$tension_diffusee), sum(!dif_08i$tension_diffusee), fiche_08i, terr_08i,
                                      if (exists("xlsx_08i") && !is.na(xlsx_08i)) xlsx_08i else "non produit"))
-  rm(par_08i, src_08i, met_08i, dep_08i, expo_08i, typo_int_08i, mat_int_08i, dir_typo_08i, dir_int_08i, restituer_08i, param_08i, dif_08i, fiche_08i, cl_08i)
-  suppressWarnings(rm(typo_dif_08i, mat_08i, dir_dif_08i, png_08i, typo_pour_msg, msg_08i, source_08i, xlsx_08i))
+  rm(par_08i, src_08i, met_08i, dep_08i, expo_08i, typo_int_08i, mat_int_08i, dir_typo_08i, dir_int_08i, restituer_08i, param_08i, dif_08i, fiche_08i, cl_08i, expo_reg_08i)
+  suppressWarnings(rm(reg_08i))
+  suppressWarnings(rm(typo_dif_08i, mat_08i, dir_dif_08i, png_08i, typo_pour_msg, msg_08i, source_08i, xlsx_08i, dif_reg_08i, terr_08i))
 }

@@ -39,7 +39,8 @@ COLONNES_NUM_TYPO <- c("effectif_base_total", "effectif_champ_total", "effectif_
                        "part_emploi_base_national_pct", "intensite_renouvellement_pct", "taux_depart_central_pct", "part_a_remplacer_pct",
                        "part_cs_principale_pct", "part_departs_cs_max_pct",
                        "pyramide_jeunes_pct", "pyramide_milieu_pct", "pyramide_vague_pct", "pyramide_seniors_pct", "ratio_releve", "ratio_vague_seniors",
-                       "tension_exposition_pct", "tension_exposition_france_pct", "tension_couverture_pct")
+                       "tension_exposition_pct", "tension_exposition_france_pct", "tension_couverture_pct",
+                       "tension_departs_min", "tension_departs_min_bas", "tension_departs_min_haut", "tension_part_departs_min_pct")
 COLONNES_TEXTE_TYPO <- c("profil_typologie", "classe_poids_base", "classe_intensite", "classe_volume_departs", "structure_emploi", "cs_principale",
                          "cs_volume_departs_max", "cs_taux_renouvellement_max", "type_concentration", "motif_expertise", "points_attention",
                          "situation_texte", "justification_profil", "indicateur_intensite", "base_poids",
@@ -181,6 +182,7 @@ puces_tension_typo <- function(r) {
   c(sprintf("Sur 100 départs des métiers stratégiques, %s concernent des métiers en tension en France (France : %s)", f0(r$tension_exposition_pct), f0(r$tension_exposition_france_pct)),
     sprintf("Part des remplacements difficiles %s, %s", tolower(r$tension_classe), if (identical(r$tension_robustesse, "robuste")) "résultat robuste" else paste0("résultat à confirmer", if (!is.na(r$tension_causes)) paste0(" (sensible : ", r$tension_causes, ")") else "")),
     if (!is.na(r$tension_couverture_pct)) sprintf("Les métiers stratégiques suivis portent %s %% des départs du département ; tension des autres métiers non observée", f0(r$tension_couverture_pct)),
+    ligne_plancher_tension_typo(r, "des départs du département"),
     if (!is.na(r$tension_levier)) sprintf("Levier le plus fréquent : %s (%s)", r$tension_levier, r$tension_composante),
     if (!is.na(r$tension_metiers)) paste0("Métiers en tension les plus concernés : ", r$tension_metiers))
 }
@@ -227,7 +229,14 @@ ligne_tension_typologie <- function(r) {
   c(sprintf("Remplacements difficiles : %s %% des départs des métiers stratégiques (France : %s %%) · part %s · %s", f0(r$tension_exposition_pct),
             f0(r$tension_exposition_france_pct), tolower(r$tension_classe), if (identical(r$tension_robustesse, "robuste")) "robuste" else "à confirmer"),
     if (!is.na(r$tension_couverture_pct)) sprintf("Métiers suivis : %s %% des départs ; tension des autres métiers non observée", f0(r$tension_couverture_pct)),
+    ligne_plancher_tension_typo(r, "des départs"),
     if (!is.na(r$tension_metiers)) paste0("Métiers en tension les plus concernés : ", r$tension_metiers) else NULL)
+}
+# Planchers (SPEC-TYPO-109) : départs attendus dans les métiers suivis en tension et leur part dans TOUS les départs ; NULL si absents
+ligne_plancher_tension_typo <- function(r, de = "des départs du département") {
+  v <- r[["tension_departs_min"]]; if (is.null(v) || is.na(v)) return(NULL)
+  f0 <- function(x) fmt_fr_carte(x, 0); f1 <- function(x) fmt_fr_carte(x, 1)
+  sprintf("Au moins %s départs attendus dans des métiers suivis en tension (de %s à %s), soit au moins %s %% %s", f0(v), f0(r[["tension_departs_min_bas"]]), f0(r[["tension_departs_min_haut"]]), f1(r[["tension_part_departs_min_pct"]]), de)
 }
 titre_profil_typo <- function(r, prep) if (!is.na(r$cle)) prep$profils[[r$cle]] else if (r$statut == "sans") LIBELLES_CARTE_TYPO$absent else LIBELLE_NON_DIFFUSE_TYPO
 couleur_territoire_typo <- function(r) if (!is.na(r$cle)) COULEURS_PROFILS[[r$cle]] else if (r$statut == "sans") COULEURS_CARTE$sans_donnee else COULEURS_CARTE$secret

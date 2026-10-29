@@ -346,7 +346,7 @@ Fonctionnalité: Appliquer le secret au bon moment
     Quand une part de ces départs (exposition, couverture) est diffusée
     Alors chaque part non vide doit satisfaire la règle primaire (salariés, entreprises, dominance en effectif ou en départs attendus), sinon rien n'est diffusé pour ce territoire
     Et aucune part ne doit contenir exactement une cellule PCS masquée dans la diffusion du 08c, sinon rien n'est diffusé (la cellule se retrouverait par différence)
-    Et seuls des pourcentages et des classes sont diffusés, jamais les effectifs des parts
+    Et seuls des pourcentages, des classes et les départs attendus de la part A (estimations, sous la même règle tout ou rien) sont diffusés, jamais les effectifs de salariés des parts
 ```
 
 ## 7. Exemple d'acceptation complet

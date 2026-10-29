@@ -213,6 +213,38 @@ test_that("SPEC-TYPO-107 — carte des profils : hachures pour l'exposition fort
   expect_false(grepl("<script", hc, fixed = TRUE)); expect_true(grepl('fill="url(#hachures)"', hc, fixed = TRUE)); expect_false(grepl("FUITE-MASQUE", hc, fixed = TRUE))
 })
 
+test_that("SPEC-TYPO-109 — fiche des territoires : tri par départs plancher, non diffusés en fin sans valeur, profil rappelé (masqué = non diffusé), comptes région, sans script ; planchers dans le panneau de la carte", {
+  typo <- tibble::tibble(geo_code = c("A", "B", "C", "D"), region_code = c("R1", "R1", "R2", "R2"), masque = c(FALSE, FALSE, TRUE, FALSE),
+                         profil_typologie = c(ET2$PROFILS_TYPOLOGIE[["enjeu"]], ET2$PROFILS_TYPOLOGIE[["stable"]], NA, ET2$PROFILS_TYPOLOGIE[["emergent"]]))
+  dep <- tibble::tibble(geo_code = c("A", "B", "C", "D"), geo_nom = c("Alpha", "Bêta", "Gamma", "Delta"), tension_diffusee = c(TRUE, TRUE, TRUE, FALSE),
+                        tension_exposition_pct = c(60, 20, 55, NA), tension_exposition_france_pct = 40, tension_couverture_pct = c(70, 20, 65, NA), tension_classe = c("Forte", NA, "Forte", NA),
+                        tension_robustesse = c("robuste", NA, "à confirmer", NA), tension_causes = NA, tension_levier = c("anticiper les recrutements", NA, "former", NA), tension_composante = NA,
+                        tension_metiers = c("Métier X ; Métier Y", NA, "Métier Z", NA), tension_cumul = c(TRUE, FALSE, FALSE, FALSE), tension_texte = c("A.", "B.", "C.", NA),
+                        tension_departs_min = c(120, 300, 50, NA), tension_departs_min_bas = c(110, 280, 45, NA), tension_departs_min_haut = c(130, 320, 55, NA), tension_part_departs_min_pct = c(40.4, 10, 30.1, NA))
+  reg <- dep[1:2, ]; reg$geo_code <- c("R1", "R2"); reg$geo_nom <- c("Région Un", "Région Deux")
+  t <- ET2$html_tableau_territoires_tension(dep, "departement", typo, PAR_T); tx <- paste(t, collapse = "\n")
+  ordre <- sub("^<tr[^>]*><td>", "", regmatches(tx, gregexpr("<tr(?: class=\"nd\")?><td>[^·]+", tx, perl = TRUE))[[1]])
+  expect_identical(trimws(ordre), c("Bêta", "Alpha", "Gamma", "Delta"))                                    # 300 > 120 > 50, non diffusé en fin
+  expect_true(grepl("Delta · D</td><td>", tx, fixed = TRUE)); expect_true(grepl('<tr class="nd"><td>Delta · D</td><td><span class="pf" style="background:#ef8a62', tx, fixed = TRUE))
+  expect_true(grepl('colspan="5">Non diffusé (secret statistique)', tx, fixed = TRUE)); expect_false(grepl("n.d.</td>", strsplit(tx, "Delta")[[1]][2], fixed = TRUE))
+  expect_true(grepl("Profil non diffusé", tx, fixed = TRUE)); expect_true(grepl(">Pôle majeur à renouveler rapidement<", tx, fixed = TRUE))
+  expect_true(grepl("120<br><small>110 à 130</small></td><td class=\"num\">40,4 %</td><td>60 % · part forte · robuste", tx, fixed = TRUE))
+  expect_true(grepl("non interprétée (métiers suivis : 20,0 % des départs)", tx, fixed = TRUE)); expect_true(grepl("Métier X ; Métier Y", tx, fixed = TRUE))
+  tr <- paste(ET2$html_tableau_territoires_tension(reg, "region", typo, PAR_T), collapse = "\n")
+  expect_true(grepl("1 département à renouvellement rapide sur 2 diffusés", tr, fixed = TRUE)); expect_true(grepl("1 département à renouvellement rapide sur 1 diffusé", tr, fixed = TRUE))
+  expect_true(grepl("tous les départs de la région", tr, fixed = TRUE))
+  f <- file.path(tempdir(), "fiche_terr.html"); ET2$generer_fiche_territoires_tension(dep, reg, typo, f, params = PAR_T, source_note = "source fictive")
+  h <- paste(readLines(f, encoding = "UTF-8"), collapse = "\n")
+  expect_false(grepl("<script", h, fixed = TRUE)); expect_true(grepl("les 9 métiers stratégiques suivis", h, fixed = TRUE)); expect_true(grepl("chaque chiffre est un minimum", h, fixed = TRUE))
+  expect_true(grepl("<h2>Régions</h2>", h, fixed = TRUE)); expect_true(grepl("<h2>Départements</h2>", h, fixed = TRUE)); expect_true(grepl("carte_typologie.html", h, fixed = TRUE)); expect_true(grepl("fiche_exposition_tension.html", h, fixed = TRUE))
+  expect_false(grepl("exposition", gsub("<[^>]+>", " ", gsub("fiche_exposition_tension.html|fiche d’exposition", "", h))))
+  ET2$generer_fiche_territoires_tension(dep, NULL, typo, f, params = PAR_T); expect_true(grepl("Niveau région non disponible", paste(readLines(f, encoding = "UTF-8"), collapse = ""), fixed = TRUE))
+  # panneau et infobulle de la carte des profils : ligne des planchers, absente si la colonne manque ou si NA
+  r <- as.list(dep[1, ]); expect_identical(ET2$ligne_plancher_tension_typo(r), "Au moins 120 départs attendus dans des métiers suivis en tension (de 110 à 130), soit au moins 40,4 % des départs du département")
+  expect_null(ET2$ligne_plancher_tension_typo(as.list(dep[4, ]))); expect_null(ET2$ligne_plancher_tension_typo(list(tension_classe = "Forte")))
+  expect_true(all(c("tension_departs_min", "tension_part_departs_min_pct") %in% ET2$COLONNES_NUM_TYPO))
+})
+
 test_that("SPEC-TYPO-107 — 08i sur la chaîne de test : sorties, objets amont inchangés, diffusion sans effectif ; classeur absent = message", {
   env <- new.env(); old <- setwd(RACINE); on.exit(setwd(old), add = TRUE)
   sys.source(chemin_script("00_config.R"), envir = env)
@@ -236,7 +268,18 @@ test_that("SPEC-TYPO-107 — 08i sur la chaîne de test : sorties, objets amont 
   dt <- file.path(env$DIR_SORTIES, "typologie_territoriale")
   for (f in c("interne/exposition_tension_departements.csv", "interne/metiers_strategiques_tension.csv", "interne/parametres_exposition_tension.csv",
               "diffusion/exposition_tension_departements.csv", "diffusion/metiers_strategiques_tension.csv", "diffusion/matrice_metiers_tension.png",
-              "diffusion/fiche_exposition_tension.html")) expect_true(file.exists(file.path(dt, f)), label = f)
+              "diffusion/fiche_exposition_tension.html", "interne/exposition_tension_regions.csv", "diffusion/exposition_tension_regions.csv",
+              "diffusion/fiche_territoires_tension.html")) expect_true(file.exists(file.path(dt, f)), label = f)
+  ht <- paste(readLines(file.path(dt, "diffusion", "fiche_territoires_tension.html"), encoding = "UTF-8"), collapse = "\n")
+  expect_false(grepl("<script", ht, fixed = TRUE)); expect_true(grepl("<h2>Régions</h2>", ht, fixed = TRUE)); expect_true(grepl("Non diffusé (secret statistique)", ht, fixed = TRUE) || all(dr$tension_diffusee))
+  # planchers de la carte (SPEC-TYPO-109) : présents, entiers, jamais une valeur pour un territoire non diffusé ; région cohérente (somme des départements de la région, à l'arrondi près)
+  dr <- utils::read.csv2(file.path(dt, "diffusion", "exposition_tension_regions.csv"), colClasses = c(geo_code = "character"), fileEncoding = "UTF-8-BOM")
+  expect_true(all(c("tension_departs_min", "tension_departs_min_bas", "tension_departs_min_haut", "tension_part_departs_min_pct") %in% names(dr)))
+  expect_true(all(is.na(dr$tension_departs_min[!dr$tension_diffusee]))); expect_true(all(dr$tension_departs_min[dr$tension_diffusee] == round(dr$tension_departs_min[dr$tension_diffusee])))
+  expect_true(any(grepl("des départs de la région", dr$tension_texte)))
+  dd <- utils::read.csv2(file.path(dt, "diffusion", "exposition_tension_departements.csv"), colClasses = c(geo_code = "character"), fileEncoding = "UTF-8-BOM")
+  expect_true(all(dd$tension_departs_min_bas[dd$tension_diffusee] <= dd$tension_departs_min[dd$tension_diffusee] & dd$tension_departs_min[dd$tension_diffusee] <= dd$tension_departs_min_haut[dd$tension_diffusee]))
+  expect_true(all(dd$tension_part_departs_min_pct[dd$tension_diffusee] <= dd$tension_couverture_pct[dd$tension_diffusee] + 0.1))   # A / total <= (A + B) / total
   dif <- utils::read.csv2(file.path(dt, "diffusion", "exposition_tension_departements.csv"), colClasses = c(geo_code = "character"))
   expect_false(any(grepl("^departs_|^effectif_|n_entreprises|part_dominante", names(dif))))
   expect_setequal(dif$geo_code, unique(env$departs_pcs$analytique$departement$geo_code))
@@ -269,7 +312,9 @@ test_that("SPEC-TYPO-108 — classeur Excel : quatre feuilles issues des tables 
   expect_identical(names(tb), c("Lisez-moi", "Départements", "Métiers", "Paramètres"))
   d <- tb$Départements
   expect_identical(names(d), c("Code", "Département", "Diffusé", "Part des remplacements difficiles (%)", "Repère France (%)", "Couverture (%)", "Classe", "Robustesse", "Sensible à", "Levier", "Composante",
-                               "Métiers en tension les plus concernés", "Renouvellement rapide et forte part de remplacements difficiles", "Texte"))
+                               "Métiers en tension les plus concernés", "Renouvellement rapide et forte part de remplacements difficiles",
+                               "Départs dans les métiers suivis en tension (au moins)", "Part de ces départs dans tous les départs (%, au moins)", "Texte"))
+  expect_true(all(is.na(d$`Départs dans les métiers suivis en tension (au moins)`)))                       # colonnes absentes de la table d'entrée : NA, jamais 0
   expect_identical(d$Code, c("D1", "D2", "D3", "D6")); expect_identical(d$Diffusé, c("oui", "oui", "oui", "non diffusé (secret statistique)"))
   expect_equal(d$`Part des remplacements difficiles (%)`, c(30, NA, 60, NA)); expect_equal(d$`Repère France (%)`, c(40.3, 40.3, 40.3, NA)); expect_equal(d$`Couverture (%)`[2], 9.5)
   expect_identical(d$Classe, c("Modérée", "non interprétée (couverture insuffisante)", "Forte", NA)); expect_identical(d$`Renouvellement rapide et forte part de remplacements difficiles`, c("non", NA, "oui", NA))
