@@ -9,11 +9,13 @@
 #                                                  départements) : salariés, départs attendus,
 #                                                  part susceptible de partir, repère France,
 #                                                  écart en points, lecture ; secret du 08c
-#               fiche_metiers_liste.html          page sans script : un bloc par métier (régions
-#                                                  puis départements), puis la vue par territoire
+#               fiche_metiers_liste.html          page sans script (imprimable) : un bloc par métier
+#                                                  (régions puis départements), puis la vue par territoire
+#               tableau_metiers_liste.html        la lecture en UN ÉCRAN (SPEC-TYPO-110) : grille métiers x
+#                                                  régions colorée par lecture, panneau de détail au clic
 #               metiers_liste_territoires.xlsx    classeur : Lisez-moi, Métiers x territoires,
 #                                                  Par territoire, Paramètres (si TENSION_CLASSEUR_EXCEL)
-#             Objet `metiers_liste_territoires` (table, fiche, classeur).
+#             Objet `metiers_liste_territoires` (table, fiche, tableau, classeur).
 # RÈGLE     : rien n'est recalculé ; aucune valeur masquée n'est écrite ; la liste absente
 #             (08i non exécuté, classeur absent) ou les tables de diffusion absentes = message,
 #             jamais un arrêt (SPEC-TYPO-109).
@@ -37,20 +39,23 @@ if (!exists("exposition_tension") || is.null(exposition_tension$metiers)) {
     inner_join(departs_pcs$diffusion$departement |> mutate(pcs_n = normaliser_code_pcs(pcs), geo_code = as.character(geo_code)) |> select(pcs_n, geo_code, m = masque, t = taux_depart_central_pct), by = c("pcs_n", "geo_code"))
   if (any(chk_08j$m %in% TRUE) || !isTRUE(all.equal(chk_08j$t, chk_08j$taux_pct))) stop("08j : une cellule visible ne correspond pas à la diffusion du 08c.")
   rm(chk_08j)
-  write.csv2(formater_restitution(tab_08j |> select(-ordre_liste, -effectif_france, -departs_france, -departs_france_bas, -departs_france_haut),
+  write.csv2(formater_restitution(tab_08j |> select(-ordre_liste, -effectif_france, -departs_france, -departs_france_bas, -departs_france_haut, -region_code, -region_nom),
                                   taux = c("taux_pct", "taux_france_pct", "ecart_pts")),
              file.path(dir_08j, "metiers_liste_territoires.csv"), row.names = FALSE)
   fiche_08j <- file.path(dir_08j, "fiche_metiers_liste.html")
   generer_fiche_metiers_liste(tab_08j, exposition_tension$metiers, fiche_08j, construire_libelle_champ(), par_08j, source_08j)
+  # la lecture en un écran (SPEC-TYPO-110) : grille métiers x régions + panneau de détail ; mêmes cellules, aucune valeur masquée
+  tableau_08j <- file.path(dir_08j, "tableau_metiers_liste.html")
+  generer_tableau_metiers_liste(tab_08j, exposition_tension$metiers, tableau_08j, construire_libelle_champ(), par_08j, source_08j)
   xlsx_08j <- NA_character_
   if (isTRUE(par_08j$classeur_excel))
     xlsx_08j <- tryCatch(ecrire_classeur_tension(tables_classeur_metiers_liste(tab_08j, par_08j, construire_libelle_champ(), source_08j), file.path(dir_08j, "metiers_liste_territoires.xlsx")),
                          error = function(e) { message("08j : classeur Excel non produit (", conditionMessage(e), ") — le CSV reste la référence."); NA_character_ })
-  metiers_liste_territoires <- list(table = tab_08j, fiche = fiche_08j, classeur = xlsx_08j)
+  metiers_liste_territoires <- list(table = tab_08j, fiche = fiche_08j, tableau = tableau_08j, classeur = xlsx_08j)
   cat(sprintf("\n08j OK -> %s : %d métiers x %d territoires (%d régions, %d départements) ; %d cellule(s) diffusée(s) sur %d ; %d « plus forte qu’en France »\n",
               texte_liste("métiers stratégiques de la liste, territoire par territoire"), length(unique(tab_08j$pcs)), nrow(distinct(tab_08j, niveau, geo_code)),
               sum(tab_08j$niveau[!duplicated(paste(tab_08j$niveau, tab_08j$geo_code))] == "région"), sum(tab_08j$niveau[!duplicated(paste(tab_08j$niveau, tab_08j$geo_code))] == "département"),
               sum(tab_08j$diffuse), nrow(tab_08j), sum(tab_08j$lecture %in% "plus forte qu’en France")))
-  cat(sprintf("  fiche : %s ; classeur : %s\n", fiche_08j, if (is.na(xlsx_08j)) "non produit" else xlsx_08j))
-  rm(par_08j, dir_08j, source_08j, dif_reg_08j, tab_08j, fiche_08j, xlsx_08j)
+  cat(sprintf("  fiche : %s ; tableau (un écran) : %s ; classeur : %s\n", fiche_08j, tableau_08j, if (is.na(xlsx_08j)) "non produit" else xlsx_08j))
+  rm(par_08j, dir_08j, source_08j, dif_reg_08j, tab_08j, fiche_08j, tableau_08j, xlsx_08j)
 }
