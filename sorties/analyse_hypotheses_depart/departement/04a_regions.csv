@@ -1,4 +1,4 @@
-﻿"Code";"Région";"Salariés";"Départs attendus (central)";"Hypothèse basse";"Hypothèse haute";"Part susceptible de partir (%)";"Rang par volume";"Rang par part";"Diffusé"
+﻿"Code";"Région";"Salariés";"Départs attendus (central)";"Hypothèse basse (départs retardés)";"Hypothèse haute (départs avancés)";"Part susceptible de partir (%)";"Rang par nombre de départs";"Rang par part susceptible de partir";"Diffusé"
 "32";"Hauts-de-France";334;140;133;147;41,9;6;1;"oui"
 "93";"Provence-Alpes-Côte d'Azur";313;130;124;138;41,7;7;2;"oui"
 "84";"Auvergne-Rhône-Alpes";860;326;308;345;37,9;3;3;"oui"

@@ -1,4 +1,4 @@
-﻿"Code";"Département";"Salariés";"Départs attendus (central)";"Hypothèse basse";"Hypothèse haute";"Part susceptible de partir (%)";"Rang par volume";"Rang par part";"Diffusé";"Profil (typologie)"
+﻿"Code";"Département";"Salariés";"Départs attendus (central)";"Hypothèse basse (départs retardés)";"Hypothèse haute (départs avancés)";"Part susceptible de partir (%)";"Rang par nombre de départs";"Rang par part susceptible de partir";"Diffusé";"Profil (typologie)"
 "64";"Pyrénées-Atlantiques";314;139;132;146;44,2;2;1;"oui";"Pôle majeur à renouveler rapidement"
 "01";"Ain";307;131;124;138;42,6;3;2;"oui";"Pôle majeur à renouveler rapidement"
 "59";"Nord";334;140;133;147;41,9;1;3;"oui";"Pôle majeur au renouvellement modéré"
