@@ -230,10 +230,13 @@ test_that("SPEC-TYPO-107 — 08i sur la chaîne de test : sorties, objets amont 
                                                                     comps = list(main_oeuvre = (i %% 5) + 1, condition_travail = 5 - (i %% 5)))))
   assign("FICHIER_PCS_FAP_TENSION", classeur_t(lignes), envir = env)
   avant <- lapply(c("departs_pcs", "departs_cs1", "typologie_departements", "bts_projete"), function(o) get(o, envir = env))
-  sourcer_scripts("08i_exposition_tension.R", env)
+  # SPEC-TYPO-109 : une ancienne fiche des territoires laissée par une exécution antérieure est retirée, avec un message
+  dt <- file.path(env$DIR_SORTIES, "typologie_territoriale"); dir.create(file.path(dt, "diffusion"), showWarnings = FALSE, recursive = TRUE)
+  obsolete <- file.path(dt, "diffusion", "fiche_territoires_tension.html"); writeLines("<html>ancienne fiche</html>", obsolete)
+  expect_message(invisible(capture.output(sys.source(chemin_script("08i_exposition_tension.R"), envir = env))), "fichier obsolète retiré")
+  expect_false(file.exists(obsolete))
   apres <- lapply(c("departs_pcs", "departs_cs1", "typologie_departements", "bts_projete"), function(o) get(o, envir = env))
   expect_identical(avant, apres)
-  dt <- file.path(env$DIR_SORTIES, "typologie_territoriale")
   for (f in c("interne/exposition_tension_departements.csv", "interne/metiers_strategiques_tension.csv", "interne/parametres_exposition_tension.csv",
               "diffusion/exposition_tension_departements.csv", "diffusion/metiers_strategiques_tension.csv", "diffusion/matrice_metiers_tension.png",
               "diffusion/fiche_exposition_tension.html", "interne/exposition_tension_regions.csv", "diffusion/exposition_tension_regions.csv")) expect_true(file.exists(file.path(dt, f)), label = f)

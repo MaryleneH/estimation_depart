@@ -105,6 +105,9 @@ if (!isTRUE(get0("GENERER_EXPOSITION_TENSION", ifnotfound = FALSE))) {
     source_08i <- if (identical(get0("SOURCE_BTS", ifnotfound = ""), "parquet")) "BTS 2024, DREES, EACR, Insee — calculs propres" else "table test — calculs propres"
     generer_fiche_exposition_tension(msg_08i, fiche_08i, png_08i, construire_libelle_champ(), par_08i, expo_08i$bornes,
                                      sum(dif_08i$tension_classe %in% "Forte"), source_08i, mat = mat_08i)
+    # sortie obsolète (SPEC-TYPO-109) : la fiche des territoires, produite ici avant le 08j, est retirée si elle subsiste d'une exécution antérieure
+    obsolete_08i <- file.path(dir_dif_08i, "fiche_territoires_tension.html")
+    if (file.exists(obsolete_08i)) { unlink(obsolete_08i); message("08i : fichier obsolète retiré : ", obsolete_08i, " (remplacé par diffusion/fiche_metiers_liste.html, 08j).") }
     # classeur Excel (SPEC-TYPO-108) : mêmes tables de diffusion ; jamais d'arrêt
     if (isTRUE(par_08i$classeur_excel)) {
       xlsx_08i <- tryCatch(ecrire_classeur_tension(tables_classeur_tension(dif_08i, mat_08i, msg_08i, param_08i, par_08i, expo_08i$bornes, sum(dif_08i$tension_classe %in% "Forte"),
@@ -124,5 +127,5 @@ if (!isTRUE(get0("GENERER_EXPOSITION_TENSION", ifnotfound = FALSE))) {
                                      if (exists("xlsx_08i") && !is.na(xlsx_08i)) xlsx_08i else "non produit"))
   rm(par_08i, src_08i, met_08i, dep_08i, expo_08i, typo_int_08i, mat_int_08i, dir_typo_08i, dir_int_08i, restituer_08i, param_08i, dif_08i, fiche_08i, cl_08i, expo_reg_08i)
   suppressWarnings(rm(reg_08i))
-  suppressWarnings(rm(typo_dif_08i, mat_08i, dir_dif_08i, png_08i, typo_pour_msg, msg_08i, source_08i, xlsx_08i, dif_reg_08i))
+  suppressWarnings(rm(typo_dif_08i, mat_08i, dir_dif_08i, png_08i, typo_pour_msg, msg_08i, source_08i, xlsx_08i, dif_reg_08i, obsolete_08i))
 }

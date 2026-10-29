@@ -899,6 +899,7 @@ Fonctionnalité: Lire, avec la typologie, si les départs portent sur des métie
     Et il écrit diffusion/fiche_metiers_liste.html, sans script ni lien vers un autre fichier (SPEC-PUB-022) : sommaire, puis un bloc par métier dans l'ordre de la liste (famille, tension, levier, repère France, tableau régions puis départements triés par part décroissante, non diffusés nommés sur une ligne sans valeur), puis une vue par territoire (un bloc dépliable par région et par département : métiers classés par écart décroissant)
     Et il écrit diffusion/metiers_liste_territoires.xlsx (si TENSION_CLASSEUR_EXCEL) : Lisez-moi, Métiers x territoires (table longue triée par métier), Par territoire (mêmes lignes triées par territoire puis écart), Paramètres ; même moteur et mêmes garanties que SPEC-TYPO-108
     Et chaque cellule visible existe telle quelle dans la diffusion du 08c (contrôle bloquant) ; liste ou tables de diffusion absentes = message, jamais un arrêt
+    Et l'ancien fichier diffusion/fiche_territoires_tension.html (produit par le 08i avant le 08j), s'il subsiste d'une exécution antérieure, est retiré par le 08i avec un message, pour qu'aucune sortie obsolète ne reste à côté de la fiche des métiers
     Et le libellé public de la liste est TENSION_LIBELLE_LISTE (00_config, « métiers de la première sous-liste » par défaut) : texte_liste() le substitue à « métiers stratégiques » (pluriel, singulier, « PCS … ») dans toutes les restitutions de la tension (fiches, classeurs, cartes, console), et un script de contrôle (99d) vérifie hachures, cumul, premier message de la fiche et horodatages
 ```
 
@@ -915,7 +916,8 @@ Sorties (08i) :
   le 08c produit ce niveau.
 
 Sorties (08j, SPEC-TYPO-109) : `diffusion/metiers_liste_territoires.csv`, `diffusion/fiche_metiers_liste.html`
-(sans script), `diffusion/metiers_liste_territoires.xlsx` (si `TENSION_CLASSEUR_EXCEL`).
+(sans script), `diffusion/metiers_liste_territoires.xlsx` (si `TENSION_CLASSEUR_EXCEL`). L'ancienne
+`diffusion/fiche_territoires_tension.html` n'est plus produite : le 08i la retire si elle subsiste.
 
 Contrôle : `R/99_controles/99d_controler_tension_cartes.R` (cohérence hachures / cumul / fiche /
 horodatages, à lancer seul après la chaîne).
