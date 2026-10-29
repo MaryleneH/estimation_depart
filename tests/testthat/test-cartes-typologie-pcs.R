@@ -47,9 +47,10 @@ PCS_FR_P <- dplyr::bind_rows(cel("", "", "", "382a", "Cadres", 920), cel("", "",
                              cel("", "", "", "624d", "Ouvriers", 40), cel("", "", "", "386d", "Cadres", 30), cel("", "", "", "388a", "Cadres", 15), cel("", "", "", "676e", "Ouvriers", 15)) |> dplyr::select(-geo_code, -geo_nom, -region_code, -region_nom)
 CS1_FR_P <- tibble::tibble(cs1 = c("Cadres", "Ouvriers", "Prof. intermediaires", "Employes"), effectif_champ = 1000, departs_central = c(965, 725, 600, 160), departs_bas = 1, departs_haut = 1, masque = FALSE)
 LIB_P <- c("382a" = "Ingénieurs et cadres d’étude", "623a" = "Chaudronniers-tôliers qualifiés", "473b" = "Techniciens de fabrication")
-preparer_p <- function(typo = TYPO_P, pcs_dep = PCS_DEP_P, top_n = 5, cs1 = CS1_FR_P, libelles = LIB_P, pcs_fr = PCS_FR_P) {
+PASSAGE_P <- utils::read.csv2(file.path(RACINE, "data", "passage_departement_region.csv"), colClasses = "character", fileEncoding = "UTF-8-BOM")   # région des départements absents de la table (SPEC-PUB-007)
+preparer_p <- function(typo = TYPO_P, pcs_dep = PCS_DEP_P, top_n = 5, cs1 = CS1_FR_P, libelles = LIB_P, pcs_fr = PCS_FR_P, passage = PASSAGE_P) {
   tp <- EP$preparer_carte_typologie(typo, FOND_DEP_P)
-  EP$preparer_cartes_typologie_pcs(tp, typo, pcs_dep, PCS_REG_P, pcs_fr, FOND_DEP_P, FOND_REG_P, libelles = libelles, cs1_fr = cs1, top_n = top_n)
+  EP$preparer_cartes_typologie_pcs(tp, typo, pcs_dep, PCS_REG_P, pcs_fr, FOND_DEP_P, FOND_REG_P, libelles = libelles, cs1_fr = cs1, top_n = top_n, passage_regions = passage)
 }
 FUITES <- c("7654321", "7 654 321", "8000002", "8 000 002", "8000001", "8 000 001", "8000003", "7000001", "77,7", "SECRET-FUITE", "388a", "676e")   # valeurs masquées (33 : PCS 388a / 676e ; 64 ; 24 : 543a reste dans le top de 33)
 
@@ -88,32 +89,37 @@ test_that("SPEC-TYPO-081 — différenciation : exactement une cellule masquée 
   expect_error(preparer_p(pcs_dep = PCS_DEP_P |> dplyr::mutate(geo_code = replace(geo_code, 1, "999"))), "999")
 })
 
-test_that("SPEC-TYPO-082 — régions : profil le plus fréquent des départements, égalité, comptes et non diffusés, total NA dès qu'un département est masqué, top régional ; clic câblé", {
+test_that("SPEC-TYPO-082 — régions : profil le plus fréquent des départements, égalité, comptes et non diffusés (absents de la table compris), total régional (départements, sinon table régionale, sinon n.d.), top régional ; clic câblé", {
   p <- preparer_p(); r75 <- p$regions[["75"]]; r84 <- p$regions[["84"]]; r94 <- p$regions[["94"]]; r11 <- p$regions[["11"]]
-  expect_true(is.na(r75$cle)); expect_true(r75$egalite); expect_equal(r75$n_departements, 3L); expect_equal(r75$n_non_diffuses, 1L)   # 1 enjeu, 1 stable, 1 masqué
-  expect_equal(r75$comptes$enjeu, 1L); expect_equal(r75$comptes$stable, 1L); expect_identical(r75$departements, c("24", "33", "64")); expect_true(is.na(r75$total))
+  expect_true(is.na(r75$cle)); expect_true(r75$egalite); expect_equal(r75$n_departements, 12L); expect_equal(r75$n_non_diffuses, 10L)   # 1 enjeu, 1 stable, 1 masqué + 9 absents de la table (SPEC-PUB-007)
+  expect_equal(r75$comptes$enjeu, 1L); expect_equal(r75$comptes$stable, 1L); expect_true(all(c("24", "33", "64") %in% r75$departements)); expect_length(r75$departements, 12L)
+  expect_equal(r75$total, 990)                                                                                                         # départements non tous diffusés -> somme des cellules région x PCS (aucune masquée)
+  pr_m <- PCS_REG_P; pr_m$masque[pr_m$region_code == "75"][1] <- TRUE
+  expect_true(is.na(EP$preparer_cartes_typologie_pcs(EP$preparer_carte_typologie(TYPO_P, FOND_DEP_P), TYPO_P, PCS_DEP_P, pr_m, PCS_FR_P, FOND_DEP_P, FOND_REG_P, libelles = LIB_P, cs1_fr = CS1_FR_P, passage_regions = PASSAGE_P)$regions[["75"]]$total))   # une cellule régionale masquée -> n.d.
   expect_identical(EP$titre_region_typo(r75), "Profils à égalité"); expect_identical(EP$couleur_region_typo(r75), EP$COULEUR_EGALITE)
   expect_true(is.na(r84$cle)); expect_true(r84$egalite); expect_equal(r84$total, 1200)                                                # 1 stable, 1 enjeu ; total = somme publiée
   expect_identical(r94$cle, "expertiser"); expect_equal(r94$total, 50); expect_identical(EP$couleur_region_typo(r94), EP$COULEURS_PROFILS[["expertiser"]])
-  expect_true(is.na(r11$cle)); expect_false(r11$egalite); expect_equal(r11$n_departements, 0L); expect_identical(EP$titre_region_typo(r11), EP$LIBELLES_TYPO_PCS$absent)
+  expect_true(is.na(r11$cle)); expect_false(r11$egalite); expect_identical(EP$titre_region_typo(r11), EP$LIBELLES_TYPO_PCS$non_diffuse); expect_identical(EP$couleur_region_typo(r11), EP$COULEURS_CARTE$secret)
+  expect_equal(r11$n_departements, 8L); expect_equal(r11$n_non_diffuses, 8L)                                                         # Île-de-France : 8 départements absents de la table = 8 non diffusés (SPEC-PUB-007)
   expect_identical(r84$top_pcs$top$pcs, c("382a", "473b", "623a", "543a")); expect_equal(r84$top_pcs$top$part_pct[1], 500 / 12)
-  expect_true(all(is.na(r75$top_pcs$top$part_pct)))                                                                                   # région avec un masqué : parts n.d.
+  expect_equal(r75$top_pcs$top$part_pct[1], 100 * 420 / 990)                                                                           # parts sur le total régional publié (table régionale)
   expect_identical(r11$top_pcs$statut, "vide"); expect_equal(p$n_sans_region, 0L)
+  expect_equal(preparer_p(passage = NULL)$n_sans_region, 101L - 6L)                                                                  # sans table de passage : absents non rattachés, comptés
   # région majoritaire franche : 2 enjeu + 1 stable
   typo2 <- TYPO_P; typo2$profil_typologie[typo2$geo_code == "64"] <- P_P[["enjeu"]]; typo2$masque[typo2$geo_code == "64"] <- FALSE
-  r <- preparer_p(typo = typo2)$regions[["75"]]; expect_identical(r$cle, "enjeu"); expect_equal(r$n_non_diffuses, 0L)
+  r <- preparer_p(typo = typo2)$regions[["75"]]; expect_identical(r$cle, "enjeu"); expect_equal(r$n_non_diffuses, 9L)                 # les 9 départements absents de la table restent non diffusés
   # page : région colorée, comptes, clic région -> niveau département, départements hors région estompés
   fi <- file.path(tempdir(), "typo_pcs_reg.html"); EP$generer_cartes_typologie_pcs(p, FOND_DEP_P, FOND_REG_P, fi); html <- lire_html(fi)
   sans <- gsub("<script\\b.*?</script>", "", html, perl = TRUE)
   expect_true(grepl(sprintf('<path class="r" id="r-94" data-code="94" fill="%s"', EP$COULEURS_PROFILS[["expertiser"]]), sans, fixed = TRUE))
   expect_true(grepl(sprintf('<path class="r" id="r-75" data-code="75" fill="%s"', EP$COULEUR_EGALITE), sans, fixed = TRUE))
-  expect_true(grepl('<path class="r sans" id="r-11" data-code="11"', sans, fixed = TRUE))
+  expect_true(grepl(sprintf('<path class="r" id="r-11" data-code="11" fill="%s"', EP$COULEURS_CARTE$secret), sans, fixed = TRUE)); expect_false(grepl('class="[rt] sans"|stroke-dasharray', sans))
   expect_equal(lengths(regmatches(sans, gregexpr('<path class="r', sans))), 18L); expect_equal(lengths(regmatches(sans, gregexpr('<path class="t', sans))), 101L)
   leg <- regmatches(sans, regexpr('(?s)<ul class="typo-legende" id="legende">.*?</ul>', sans, perl = TRUE))
   expect_true(grepl('Profils à égalité<span class="n">2</span>', leg, fixed = TRUE)); expect_true(grepl(sprintf('%s<span class="n">1</span>', P_P[["expertiser"]]), leg, fixed = TRUE))
-  expect_true(grepl('Aucun département renseigné<span class="n">15</span>', leg, fixed = TRUE))
-  j <- json_de(html); expect_identical(j$regions[["75"]]$titre, "Profils à égalité"); expect_equal(j$regions[["75"]]$n_non_diffuses, 1L); expect_equal(j$regions[["75"]]$comptes$enjeu, 1L)
-  expect_match(j$regions[["75"]]$resume, "1 non diffusé"); expect_identical(j$departements[["33"]]$region, "75"); expect_equal(j$comptes$regions_egalite, 2L)
+  expect_true(grepl('Non diffusé (secret statistique)<span class="n">15</span>', leg, fixed = TRUE)); expect_false(grepl("renseigné|absent|Aucun salarié", leg))
+  j <- json_de(html); expect_identical(j$regions[["75"]]$titre, "Profils à égalité"); expect_equal(j$regions[["75"]]$n_non_diffuses, 10L); expect_equal(j$regions[["75"]]$comptes$enjeu, 1L)
+  expect_match(j$regions[["75"]]$resume, "10 non diffusé"); expect_identical(j$departements[["33"]]$region, "75"); expect_equal(j$comptes$regions_egalite, 2L)
   js <- regmatches(html, regexpr("(?s)<script>\\s*\\(function\\(\\)\\{.*?</script>", html, perl = TRUE))
   for (s in c('brancher("path.r","region")', 'if(niveau==="region"){etat.region=code;etat.dep=null;etat.niveau="departement"}', 'classList.toggle("hors"', 'body.niveau-region #g-deps{display:none}'))
     expect_true(grepl(s, html, fixed = TRUE), label = s)
@@ -141,7 +147,7 @@ test_that("SPEC-TYPO-083 — département : profil, chiffres, top en barres, sp�
   expect_identical(j$couleurs$classes, EP$COULEURS_CARTE$classes)
   js <- regmatches(html, regexpr("(?s)<script>\\s*\\(function\\(\\)\\{.*?</script>", html, perl = TRUE))
   for (s in c("function classesRondes(vals)", "function pasRond(x)", 'etat.pcs=(etat.pcs===r.pcs)?null:r.pcs', "function specificite(t,cont)", 'el("ul","top")', 'el("ul","spec")',
-              'q.setAttribute("fill",D.couleurs.secret)', 'q.setAttribute("fill",D.couleurs.sans_donnee)', "L.retour_profils", "if(Date.now()-tScroll<150)return;", '.bulle{position:fixed;'))
+              'q.setAttribute("fill",D.couleurs.secret)', "L.retour_profils", "if(Date.now()-tScroll<150)return;", '.bulle{position:fixed;'))
     expect_true(grepl(s, html, fixed = TRUE), label = s)
   expect_true(grepl("Colorer la carte par cette PCS", html, fixed = TRUE)); expect_true(grepl("Revenir aux profils", html, fixed = TRUE))
   for (v in c("insee.fr", "http://", "https://")) expect_false(grepl(v, html, fixed = TRUE), label = v)      # page autonome
@@ -155,9 +161,9 @@ test_that("SPEC-TYPO-084 — version courriel : aucun contenu actif ni bloc de d
   expect_true(grepl("1. Ingénieurs et cadres d’étude : 300 départs (299 à 301) · 30,0 % des départs\n2. Techniciens de fabrication : 250 départs", html, fixed = TRUE))
   expect_true(grepl("<title>Pyrénées-Atlantiques · 64\nNon diffusé (secret statistique)\nRésultat non diffusé — secret statistique</title>", html, fixed = TRUE))
   expect_true(grepl("<title>Dordogne · 24\n", html, fixed = TRUE)); expect_true(grepl(paste0("\n", EP$LIBELLES_TYPO_PCS$top_retenu, "</title>"), html, fixed = TRUE))
-  expect_true(grepl("<title>Nouvelle-Aquitaine\nProfils à égalité\n3 département(s)\n", html, fixed = TRUE))
+  expect_true(grepl("<title>Nouvelle-Aquitaine\nProfils à égalité\n12 département(s)\n", html, fixed = TRUE))
   expect_true(grepl('<details class="bloc-typo" open><summary>Le détail par région</summary>', html, fixed = TRUE)); expect_true(grepl('<summary>Le détail par département</summary>', html, fixed = TRUE))
-  expect_equal(lengths(regmatches(html, gregexpr('<details class="terr">', html))), 18L + 6L)                   # 18 régions + 6 départements renseignés (le masqué 64 inclus, sans top)
+  expect_equal(lengths(regmatches(html, gregexpr('<details class="terr">', html))), 18L + 101L)                 # 18 régions + tous les départements du fond (absents = non diffusés, SPEC-PUB-007)
   expect_true(grepl("Pyrénées-Atlantiques · 64 — Non diffusé (secret statistique)</summary>", html, fixed = TRUE))
   expect_true(grepl('<th>Part des départs en France</th>', html, fixed = TRUE)); expect_true(grepl("réservée à la page interactive", html, fixed = TRUE))
   expect_true(grepl('<path class="r" data-code="94" fill="', html, fixed = TRUE)); expect_true(grepl("path:hover", html, fixed = TRUE))

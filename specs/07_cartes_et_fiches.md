@@ -15,7 +15,7 @@ factuelles.
 | « Salariés de 45 ans ou plus · entreprises du périmètre Base » (le nom du périmètre est `LIBELLE_PERIMETRE`, « Base » par défaut ; en interne « BITD », par `texte_perimetre()`, sans toucher « Base Tous salariés ») | « champ », « effectif », noms de colonnes R |
 | « départs estimés d'ici 2030 », « pourraient partir d'ici 2030 » | « taux de départ estimé » (hors légende et sélecteur) |
 | « Résultat non diffusé — secret statistique » | un chiffre masqué, même approché |
-| « Aucun salarié observé » | « 0 » pour une absence de donnée |
+| « Résultat non diffusé — secret statistique », aussi pour un territoire ou une cellule sans salarié observé | « Aucun salarié observé », « absent », un blanc ou un pointillé : un zéro de salariés est une valeur, couverte par le secret primaire |
 | « Qui est concerné ? » | « diffusabilité » |
 
 Les libellés viennent d'une seule table (`LIBELLES_UI`) ; les phrases
@@ -69,12 +69,13 @@ Fonctionnalité: Produire des cartes diffusables
     Alors elles doivent afficher « Salariés de 50 ans ou plus » et jamais « 45 ans »
     Et les catégories citées doivent suivre PCS_VERS_CS1, les exclusions PCS_HORS_CHAMP, l'horizon HORIZON
 
-  Scénario: [SPEC-PUB-007] Distinguer secret et absence de donnée
-    Étant donné un territoire masqué et un territoire sans salarié observé
-    Quand la carte est rendue
-    Alors le masqué doit être gris (COULEURS_CARTE$secret) avec le libellé du secret
-    Et l'absence doit être blanche à contour pointillé avec « Aucun salarié observé »
-    Et ces deux statuts doivent être distincts dans la légende, l'infobulle et le comptage
+  Scénario: [SPEC-PUB-007] Traiter l'absence de donnée comme un secret
+    Étant donné un territoire masqué et un territoire du fond absent de la table de diffusion (aucun salarié observé), ou une cellule territoire x catégorie absente
+    Quand la carte est rendue (page interactive, version courriel, PNG, tableau de bord national)
+    Alors les deux doivent être indiscernables : même gris (COULEURS_CARTE$secret), même contour, même libellé du secret, dans la carte, la légende, l'infobulle, le panneau, le tableau et le comptage
+    Et aucune restitution ne doit porter « Aucun salarié observé », une couleur ou un contour propres à l'absence : un zéro de salariés est une valeur couverte par le secret primaire (moins de SECRET_MIN_SALARIES salariés)
+    Et un résultat réellement nul d'une cellule diffusable doit rester 0 (SPEC-SEC-009)
+    Et le nombre de territoires de la table joints au fond reste contrôlé en console (usage technique), jamais dans la page
 
   Scénario: [SPEC-PUB-008] Produire une page autonome
     Étant donné une carte générée

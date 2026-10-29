@@ -59,12 +59,12 @@ test_that("FONDAMENTAL — PCS partiellement diffusables : couverture A = 50 %, 
   expect_equal(cv$part_diff_pct[cv$code == "33"], 50); expect_equal(cv$part_diff_pct[cv$code == "64"], 0); expect_equal(cv$part_diff_pct[cv$code == "01"], 100)
   expect_identical(cv$statut, c("diffusable", "diffusable", "masque"))                 # B (64) = gris, pas « sans donnée »
   expect_identical(p$territoires$statut[p$territoires$code == "64"], "masque")
-  expect_identical(p$territoires$statut[p$territoires$code == "75"], "sans_donnee")    # Paris absent de la table : pas de donnée, jamais secret
+  expect_identical(p$territoires$statut[p$territoires$code == "75"], "masque"); expect_false(p$territoires$dans_csv[p$territoires$code == "75"])   # Paris absent de la table : masqué comme un secret (SPEC-PUB-007) ; repéré pour le seul contrôle console
   st <- function(code, cat) { r <- p$cellules[p$cellules$code == code & p$cellules$cat == cat, ]; if (nrow(r) == 0) "sans" else r$statut }
   expect_identical(c(st("33", "311D"), st("64", "311D"), st("01", "311D")), c("diffuse", "masque", "diffuse"))   # PCS 1 : A coloré, B gris, C coloré
   expect_identical(c(st("33", "622A"), st("64", "622A"), st("01", "622A")), c("masque", "masque", "diffuse"))    # PCS 2 : A gris, B gris, C coloré
   expect_identical(st("75", "311D"), "sans")
-  # valeur nulle diffusée (01 x 311D : 0 départ) : statut diffuse, valeur 0 conservée, distincte de « sans donnée »
+  # valeur nulle diffusée (01 x 311D : 0 départ) : statut diffuse, valeur 0 conservée (SPEC-SEC-009), distincte d’une cellule absente (masquée)
   r0 <- p$cellules[p$cellules$code == "01" & p$cellules$cat == "311D", ]
   expect_identical(r0$statut, "diffuse"); expect_equal(r0$departs_central, 0)
   # catégories triées avec leur grande CS
@@ -90,7 +90,7 @@ test_that("SECRET : aucune valeur masquée dans la structure, le JSON, le HTML n
   EC$generer_carte_departs(p, FOND_DEP, f)
   html <- paste(readLines(f, encoding = "UTF-8", warn = FALSE), collapse = "\n")
   for (v in c("987654", "54321", "11111", "22222", "77.77", "77,77")) expect_false(grepl(v, html, fixed = TRUE), label = v)
-  expect_true(grepl("Résultat non diffusé — secret statistique", html, fixed = TRUE)); expect_true(grepl("Aucun salarié observé", html, fixed = TRUE))
+  expect_true(grepl("Résultat non diffusé — secret statistique", html, fixed = TRUE)); expect_false(grepl("Aucun salarié observé", html, fixed = TRUE))
   expect_true(grepl("27.4", html, fixed = TRUE))                                        # la valeur diffusée, elle, y est
   expect_false(grepl("<script src=|https?://cdn|@import", html))                        # aucune ressource externe
   expect_true(grepl('data-code="64"', html, fixed = TRUE)); expect_false(grepl('data-code="975"', html, fixed = TRUE))
@@ -120,10 +120,10 @@ test_that("jointure géographique : codes texte conservés, code sans géométri
   pr <- EC$preparer_carte_departs(r, "pcs", "region", FOND_REG)
   expect_identical(pr$territoires$nom[pr$territoires$code == "01"], "Guadeloupe")
   expect_identical(pr$territoires$statut[pr$territoires$code == "01"], "masque")
-  expect_identical(pr$territoires$statut[pr$territoires$code == "11"], "sans_donnee")
-  expect_equal(sum(pr$territoires$statut != "sans_donnee"), 3)
+  expect_identical(pr$territoires$statut[pr$territoires$code == "11"], "masque")      # région absente de la table = masquée (SPEC-PUB-007)
+  expect_equal(sum(pr$territoires$dans_csv), 3)
   out <- capture.output(n <- EC$controler_carte_departs(pr))
-  expect_equal(unname(n), c(3, 3, 1, 2, 15)); expect_true(any(grepl("joints   3", out)))   # + une ligne « libellés PCS » en dimension pcs
+  expect_equal(unname(n), c(3, 3, 16, 2, 15)); expect_true(any(grepl("joints   3", out))); expect_true(any(grepl("dont absents du CSV 15", out)))   # 15 absents comptés parmi les 16 masqués   # + une ligne « libellés PCS » en dimension pcs
 })
 
 test_that("CSV de diffusion avec BOM UTF-8 : noms de colonnes propres, codes texte, décimales françaises, masque logique", {
@@ -237,7 +237,7 @@ test_that("08e sur les sorties réelles du dépôt : 6 cartes HTML (+ PNG), comp
     expect_false(grepl("<script src=|https?://cdn|@import", h), label = paste(dm, nv))
   }
   expect_true(all(b$territoires_csv == b$joints))                                        # aucun territoire perdu
-  expect_equal(b$joints[b$niveau == "departement"], c(20, 20)); expect_equal(b$sans_donnee[b$niveau == "departement"], c(81, 81))
+  expect_equal(b$joints[b$niveau == "departement"], c(20, 20)); expect_equal(b$absents_csv[b$niveau == "departement"], c(81, 81))
   expect_true(any(grepl("pcs x departement", out)))
   # cohérence avec les CSV : cellules masquées = lignes masque = TRUE ; aucun nombre d'une ligne masquée dans le HTML (table interne si présente)
   csv <- env$lire_csv_diffusion(file.path(d, "departs_pcs", "diffusion", "departs_pcs_departement.csv"))
@@ -257,9 +257,10 @@ test_that("08e sur les sorties réelles du dépôt : 6 cartes HTML (+ PNG), comp
 
 test_that("CONTOURS : source unique STYLE_CONTOURS_CARTE, trait gris (jamais blanc), limites régionales sur la carte départementale seulement, survol au-dessus des voisins, mobile", {
   S <- EC$STYLE_CONTOURS_CARTE
-  for (k in c("couleur", "largeur", "sans_couleur", "region_couleur", "region_largeur", "survol_couleur", "survol_largeur", "mobile_facteur", "png_couleur"))
+  for (k in c("couleur", "largeur", "region_couleur", "region_largeur", "survol_couleur", "survol_largeur", "mobile_facteur", "png_couleur"))
     expect_true(!is.null(S[[k]]), label = k)
   expect_false(toupper(S$couleur) %in% c("#FFF", "#FFFFFF"))                               # un contour blanc disparaît sur les classes claires
+  expect_null(S$sans_couleur); expect_null(S$sans_largeur)                                   # plus de contour propre à l’absence de donnée (SPEC-PUB-007)
   css <- EC$css_cartes()
   expect_true(grepl(sprintf("path.t{stroke:%s;stroke-width:%s;vector-effect:non-scaling-stroke", S$couleur, S$largeur), css, fixed = TRUE))
   expect_false(grepl("path.t{stroke:#fff", css, fixed = TRUE))
@@ -353,15 +354,15 @@ test_that("SANS JAVASCRIPT (pièce jointe épurée par une messagerie) : vue ini
   expect_true(all(grepl(' fill="#[0-9a-fA-F]{6}"', paths)))                 # jamais de tracé noir par défaut
   expect_true(all(grepl(' stroke="#', paths)))                                # contour même sans CSS
   couleurs <- sub('.* fill="(#[0-9a-fA-F]{6})".*', "\\1", paths)
-  expect_true(all(couleurs %in% c(EC$COULEURS_CARTE$classes, EC$COULEURS_CARTE$secret, EC$COULEURS_CARTE$sans_donnee)))
+  expect_true(all(couleurs %in% c(EC$COULEURS_CARTE$classes, EC$COULEURS_CARTE$secret)))                       # jamais de blanc « sans donnée »
   st <- function(code) sub('.*data-st="([a-z]+)".*', "\\1", paths[grepl(sprintf('data-code="%s"', code), paths)])
-  expect_identical(st("33"), "diffuse"); expect_identical(st("64"), "masque"); expect_identical(st("01"), "diffuse"); expect_identical(st("75"), "sans")
+  expect_identical(st("33"), "diffuse"); expect_identical(st("64"), "masque"); expect_identical(st("01"), "diffuse"); expect_identical(st("75"), "masque")
   expect_true(grepl(sprintf('data-code="64"[^>]*fill="%s"', EC$COULEURS_CARTE$secret), sans))     # masqué = gris, aucun chiffre
-  expect_true(grepl('class="t sans"[^>]*data-code="75"[^>]*stroke-dasharray', sans))
+  expect_true(grepl(sprintf('data-code="75"[^>]*fill="%s"', EC$COULEURS_CARTE$secret), sans)); expect_false(grepl('class="t sans"|stroke-dasharray', sans))   # absent = même gris, même contour
   expect_true(grepl('<g class="limites-reg"[^>]*>\\s*<path fill="none" stroke="', sans, perl = TRUE))   # limites régionales jamais remplies
   leg <- regmatches(sans, regexpr('<ul class="map-legend" id="legende">.*?</ul>', sans, perl = TRUE))
-  expect_true(lengths(regmatches(leg, gregexpr("<li", leg))) >= 3)                                 # classes + secret + sans donnée
-  expect_true(grepl(EC$LIBELLES_UI$secret, leg, fixed = TRUE)); expect_true(grepl(EC$LIBELLES_UI$sans_donnee, leg, fixed = TRUE))
+  expect_true(lengths(regmatches(leg, gregexpr("<li", leg))) >= 2)                                 # classes + secret, rien d'autre
+  expect_true(grepl(EC$LIBELLES_UI$secret, leg, fixed = TRUE)); expect_false(grepl("Aucun salarié observé", leg, fixed = TRUE))
   expect_true(grepl('<span class="cat-nom" id="sous-cat">PCS 311D · Cadres</span>', sans, fixed = TRUE))
   expect_true(grepl('<option value="311D" selected>311D — Cadres</option>', sans, fixed = TRUE))
   expect_true(grepl('id="sans-js"', sans, fixed = TRUE)); expect_true(grepl('Version statique', sans, fixed = TRUE))
@@ -396,7 +397,7 @@ test_that("VERSION COURRIEL : aucun contenu actif (ni <script>, ni on*=, ni java
   expect_true(grepl("#cat-1:checked~.grille .vue-1", html, fixed = TRUE))
   expect_true(grepl('<title>Gironde · 33\nPCS 311D · Cadres\n84 salariés', html, fixed = TRUE))
   expect_true(grepl('<title>Pyrénées-Atlantiques · 64\nPCS 311D · Cadres\nRésultat non diffusé — secret statistique</title>', html, fixed = TRUE))
-  expect_true(grepl('<title>Paris · 75\nPCS 311D · Cadres\nAucun salarié observé</title>', html, fixed = TRUE))
+  expect_true(grepl('<title>Paris · 75\nPCS 311D · Cadres\nRésultat non diffusé — secret statistique</title>', html, fixed = TRUE))   # absent = secret (SPEC-PUB-007)
   for (v in c("987654", "54321", "11111", "22222", "77.77", "77,77")) expect_false(grepl(v, html, fixed = TRUE), label = v)
   expect_true(grepl('<use href="#g-regions">', html, fixed = TRUE))
   tf <- TABLE_ABC |> dplyr::filter(geo_code == "33") |> dplyr::select(-region_code, -region_nom, -geo_code, -geo_nom)
@@ -406,4 +407,28 @@ test_that("VERSION COURRIEL : aucun contenu actif (ni <script>, ni on*=, ni java
   expect_equal(lengths(regmatches(hf, gregexpr('<section class="vue vue-', hf))), 2L)
   expect_true(grepl('<div class="kpi-value">27</div>', hf, fixed = TRUE))
   expect_true(grepl(EC$LIBELLES_UI$secret_court, hf, fixed = TRUE))                              # 622A masquée : bloc non diffusé
+})
+
+test_that("SPEC-PUB-007 — absence de donnée = secret : territoire absent de la table et territoire masqué indiscernables (statut, couleur, contour, libellé, légende, comptage, JSON, courriel) ; garde-fou sur R/", {
+  p <- EC$preparer_carte_departs(TABLE_ABC, "pcs", "departement", FOND_DEP)
+  v <- EC$vue_initiale_carte(p, names(FOND_DEP), cat = "311D")
+  expect_identical(v$territoires[["75"]], v$territoires[["64"]])                                  # Paris (absent) = Pyrénées-Atlantiques (masqué)
+  expect_identical(v$territoires[["75"]]$st, "masque"); expect_identical(v$territoires[["75"]]$fill, EC$COULEURS_CARTE$secret)
+  expect_false(any(vapply(v$legende, function(e) isTRUE(e$sans) || identical(e$col, "#ffffff"), TRUE)))
+  expect_match(v$compte, "^<b>2</b> départements avec un résultat · <b>99</b> avec un résultat non diffusé \\(secret statistique\\)$")   # 64 et les 98 absents comptés ensemble
+  f <- file.path(tempdir(), "carte_pub007.html"); EC$generer_carte_departs(p, FOND_DEP, f); html <- paste(readLines(f, encoding = "UTF-8", warn = FALSE), collapse = "\n")
+  j <- jsonlite::fromJSON(regmatches(html, regexpr('(?s)(?<=<script type="application/json" id="donnees">).*?(?=</script>)', html, perl = TRUE)))
+  expect_identical(names(j$couleurs), c("classes", "secret")); expect_null(j$cellules[["75"]])
+  sans_js <- gsub("<script\\b.*?</script>", "", html, perl = TRUE)
+  p75 <- regmatches(sans_js, regexpr('<path class="t" id="t-75"[^>]*>', sans_js)); p64 <- regmatches(sans_js, regexpr('<path class="t" id="t-64"[^>]*>', sans_js))
+  attr_ <- function(x, a) sub(sprintf('.* %s="([^"]*)".*', a), "\\1", x)
+  for (a in c("data-st", "fill", "stroke", "stroke-width")) expect_identical(attr_(p75, a), attr_(p64, a), label = a)
+  expect_false(grepl("Aucun salarié observé|sans salarié observé|stroke-dasharray|sans_donnee", html))
+  expect_true(grepl("y compris lorsqu’aucun salarié n’y est observé", html, fixed = TRUE))
+  fc <- file.path(tempdir(), "carte_pub007_courriel.html"); EC$generer_carte_courriel(p, FOND_DEP, fc); hc <- paste(readLines(fc, encoding = "UTF-8", warn = FALSE), collapse = "\n")
+  expect_false(grepl("Aucun salarié observé|stroke-dasharray", hc)); expect_true(grepl('<title>Paris · 75\nPCS 311D · Cadres\nRésultat non diffusé — secret statistique</title>', hc, fixed = TRUE))
+  # garde-fou : plus aucune catégorie « sans donnée » dans le code des restitutions (lignes de code, commentaires exclus)
+  fichiers <- list.files(file.path(RACINE, "R"), pattern = "\\.R$", recursive = TRUE, full.names = TRUE)
+  for (fr in fichiers) { l <- readLines(fr, encoding = "UTF-8", warn = FALSE); l <- l[!grepl("^\\s*#", l)]
+    expect_false(any(grepl("sans_donnee|Aucun salarié observé|absent de la typologie|Aucun département renseigné|sans_couleur|sans_largeur", l)), label = basename(fr)) }
 })

@@ -71,8 +71,8 @@ const fichier = process.argv[2];
     ok(nomVue + " : second clic légende = tout réaffiché", (await page.$$eval("path.t.dim", ps => ps.length)) === 0);
     // 5. légende : aucune entrée « absent » à zéro
     const leg = await page.$eval("#legende", e => e.textContent);
-    const nSans = await page.evaluate(() => JSON.parse(document.getElementById("donnees").textContent).comptes.sans);
-    ok(nomVue + " : légende sans entrée « absent » quand le compte est nul (sans=" + nSans + ")", nSans > 0 ? /absent de la typologie/.test(leg) : !/absent de la typologie/.test(leg));
+    const cptes = await page.evaluate(() => JSON.parse(document.getElementById("donnees").textContent).comptes);
+    ok(nomVue + " : légende sans entrée « absent » ni « Aucun salarié observé » (SPEC-PUB-007), aucun compte d'absents embarqué", !/absent de la typologie|Aucun salarié observé/.test(leg) && !("sans" in cptes));
     await page.close();
   }
   await browser.close();

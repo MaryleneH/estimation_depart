@@ -17,10 +17,11 @@
 # SOURCE ABSOLUE : la table de diffusion. Une cellule masquée (masque = TRUE)
 #        n'embarque que son statut ; toute valeur en est retirée AVANT
 #        sérialisation ; une table sans colonne masque est refusée.
-# Trois statuts : diffuse (couleur de classe, bornes arrondies lisibles, échelle
+# Deux statuts : diffuse (couleur de classe, bornes arrondies lisibles, échelle
 #        commune à tous les territoires de la catégorie affichée), masque (gris
-#        COULEURS_CARTE$secret « Non diffusé — secret statistique »), sans_donnee
-#        (blanc, contour pointillé « Pas de donnée observée », jamais zéro).
+#        COULEURS_CARTE$secret « Non diffusé — secret statistique »). Un territoire
+#        ou une cellule ABSENTS de la table (aucun salarié observé) sont masqués
+#        comme les autres : un zéro est une valeur protégée (SPEC-PUB-007).
 # Fond : data/cartographie/ (local, jsonlite), métropole en Lambert-93, DROM en
 #        encarts. Dépendances : jsonlite, ggplot2 (PNG), dplyr. Ni sf, ni CDN.
 # ==============================================================================
@@ -30,8 +31,6 @@ library(dplyr)
 COULEURS_CARTE <- list(
   classes      = c("#deebf7", "#9ecae1", "#4292c6", "#2171b5", "#08306b"),  # séquentielle bleue (ColorBrewer Blues)
   secret       = "#b3b3b3",   # gris RÉSERVÉ au secret statistique (catégorie cartographique)
-  sans_donnee  = "#ffffff",   # blanc + contour pointillé : pas de donnée observée
-  contour_sans = "#9a9a9a",
   encre = "#1F2933", texte = "#3E4C59", filet = "#D9DEE5", fond = "#F5F7FA", bleu = "#1e3a5f")
 # Contours des territoires : SOURCE UNIQUE pour les quatre cartes (PCS / CS1 ×
 # région / département), le SVG interactif et le PNG. Gris moyen fin pour que
@@ -41,7 +40,6 @@ COULEURS_CARTE <- list(
 # écran (vector-effect non-scaling-stroke) : identiques sur desktop et mobile.
 STYLE_CONTOURS_CARTE <- list(
   couleur = "#5B6470", largeur = 1,              # limite entre territoires : gris moyen-foncé, 1 px (lisible sur les bleus moyens et sur le gris du secret)
-  sans_couleur = "#7B8794", sans_largeur = 0.8,  # pas de donnée : pointillé plus clair, distinct du secret
   region_couleur = "#2F3945", region_largeur = 1.5,   # limites régionales sur la carte départementale (plus foncées, plus épaisses)
   survol_couleur = "#111827", survol_largeur = 2.4,   # territoire survolé / focus
   mobile_facteur = 0.7,                               # écran <= 640 px : toutes les épaisseurs × 0,7 (carte plus petite)
@@ -57,7 +55,6 @@ LIBELLES_UI <- list(
   secret      = "Résultat non diffusé — secret statistique",
   secret_court = "Résultat non diffusé", secret_sous = "Secret statistique",
   secret_explication = "Ce résultat ne peut pas être affiché : il concerne trop peu de salariés ou d’entreprises, ou une seule entreprise y pèse trop.",
-  sans_donnee = "Aucun salarié observé",
   vues        = c(resultats = "Résultats", affichables = "Résultats affichables"),
   couverture  = list(bornes = c(1, 25, 75, 100),
                      libelles = c("Peu de résultats affichables (1 à 24 %)", "Environ la moitié (25 à 74 %)",
@@ -281,7 +278,7 @@ preparer_carte_departs <- function(donnees, dimension = c("pcs", "cs1"),
     tibble(code = names(fond), nom = unname(vapply(fond, `[[`, "", "nom"))) |>
       left_join(noms, by = c(code = ".code")) |> mutate(nom = coalesce(.nom, nom)) |> select(code, nom)
   territoires <- territoires |> left_join(couverture |> select(code, statut), by = "code") |>
-    mutate(statut = coalesce(statut, "sans_donnee"))
+    mutate(dans_csv = !is.na(statut), statut = coalesce(statut, "masque"))   # absent de la table (aucun salarié observé) = masqué : un zéro est une valeur protégée (SPEC-PUB-007)
   list(dimension = dimension, niveau = niveau, mesures = mesures, categories = cats |> rename(code = .cat),
        cellules = cellules, couverture = couverture, territoires = territoires, n_non_localises = n_non_loc)
 }
@@ -289,14 +286,14 @@ preparer_carte_departs <- function(donnees, dimension = c("pcs", "cs1"),
 # --- Contrôle console d'une carte (comptages) ----------------------------------
 controler_carte_departs <- function(prep, fond = NULL, prefixe = "08e") {
   t <- prep$territoires
-  n <- c(csv = n_distinct(prep$cellules$code), joints = if (prep$niveau == "france") 1L else sum(t$statut != "sans_donnee"),
-         masques = sum(t$statut == "masque"), diffusables = sum(t$statut == "diffusable"), sans = sum(t$statut == "sans_donnee"))
+  n <- c(csv = n_distinct(prep$cellules$code), joints = if (prep$niveau == "france") 1L else sum(t$dans_csv),
+         masques = sum(t$statut == "masque"), diffusables = sum(t$statut == "diffusable"), absents = sum(!t$dans_csv))   # absents du CSV : comptés parmi les masqués
   if (prep$niveau != "france" && n[["csv"]] != n[["joints"]]) stop(prefixe, " : territoires du CSV non joints au fond.")
   m <- prep$cellules$statut == "masque"
   if (any(m) && any(!is.na(as.matrix(prep$cellules[m, unname(COLONNES_MESURES_CARTE)]))))
     stop(prefixe, " : une valeur masquée subsiste dans la structure de carte.")
-  cat(sprintf("  %s x %-12s : territoires CSV %3d | joints %3d | masqués %3d | diffusables %3d | sans donnée %3d | catégories %d%s\n",
-              prep$dimension, prep$niveau, n[["csv"]], n[["joints"]], n[["masques"]], n[["diffusables"]], n[["sans"]],
+  cat(sprintf("  %s x %-12s : territoires CSV %3d | joints %3d | masqués %3d (dont absents du CSV %d) | diffusables %3d | catégories %d%s\n",
+              prep$dimension, prep$niveau, n[["csv"]], n[["joints"]], n[["masques"]], n[["absents"]], n[["diffusables"]],
               nrow(prep$categories), if (prep$n_non_localises > 0) sprintf(" | non localisables %d", prep$n_non_localises) else ""))
   if (prep$dimension == "pcs" && "libelle" %in% names(prep$categories)) {
     n_lib <- sum(!is.na(prep$categories$libelle))
@@ -328,7 +325,7 @@ donnees_json_carte <- function(prep, champ = construire_libelle_champ()) {
   terr <- lapply(seq_len(nrow(prep$territoires)), function(i) list(code = prep$territoires$code[i], nom = prep$territoires$nom[i]))
   j <- jsonlite::toJSON(list(dimension = prep$dimension, niveau = prep$niveau,
                              categories = cats, territoires = terr, cellules = cel, couverture = cov,
-                             couleurs = COULEURS_CARTE[c("classes", "secret", "sans_donnee")],
+                             couleurs = COULEURS_CARTE[c("classes", "secret")],
                              libelles = construire_libelles_public(champ), champ = champ[c("court", "titre")],
                              libelles_cs = as.list(LIBELLES_CS_CARTE)),
                        auto_unbox = TRUE, digits = NA, na = "null", null = "null")
@@ -361,22 +358,21 @@ css_cartes <- function(S = STYLE_CONTOURS_CARTE) paste(
   '.tabs{display:flex;flex-wrap:wrap;gap:8px;margin:0}.tabs button{font:inherit;font-size:15px;font-weight:600;padding:10px 16px;border-radius:999px;border:1px solid #AEB7C2;background:#fff;color:var(--encre);cursor:pointer;min-height:42px}.tabs button.on{background:var(--bleu);border-color:var(--bleu);color:#fff}.tabs button:focus-visible{outline:2px solid var(--bleu);outline-offset:2px}',
   # légende
   '.legend-title{font-size:15px;font-weight:700;margin:16px 0 6px;color:var(--encre)}.map-legend{list-style:none;margin:0;padding:0}.map-legend li{display:flex;align-items:center;gap:10px;font-size:15px;margin:6px 0;color:var(--encre)}.map-legend li.sep{border-top:1px solid var(--filet);margin-top:10px;padding-top:10px}',
-  sprintf('.map-legend .sw{width:26px;height:16px;border-radius:3px;border:1px solid %s;flex:none}.map-legend .sw.sans{border:1.5px dashed %s}', S$couleur, S$sans_couleur),
+  sprintf('.map-legend .sw{width:26px;height:16px;border-radius:3px;border:1px solid %s;flex:none}', S$couleur),
   '.compte{font-size:15px;color:var(--encre);margin:10px 0 0}.compte b{font-weight:700}.note{font-size:13.5px;color:var(--texte);margin:10px 0 0;line-height:1.45}',
   # bandeau « version statique » : visible tant que le JavaScript ne l'a pas masqué (scripts retirés par une messagerie)
   '.sans-js{margin:12px 0 0;padding:10px 14px;border:1px solid #e0b96a;border-left-width:4px;background:#fff8e6;color:#5b4300;font-size:15px;border-radius:0 8px 8px 0}',
   # carte
   '.carte{position:relative;min-width:0}.carte svg{width:100%;height:auto;display:block}',
   # contours : STYLE_CONTOURS_CARTE (source unique) ; non-scaling-stroke = épaisseur en pixels écran, desktop comme mobile
-  sprintf('path.t{stroke:%s;stroke-width:%s;vector-effect:non-scaling-stroke;cursor:pointer;outline:none}path.t.sans{stroke:%s;stroke-width:%s;stroke-dasharray:3 2}',
-          S$couleur, S$largeur, S$sans_couleur, S$sans_largeur),
+  sprintf('path.t{stroke:%s;stroke-width:%s;vector-effect:non-scaling-stroke;cursor:pointer;outline:none}', S$couleur, S$largeur),
   sprintf('.limites-reg path{fill:none;stroke:%s;stroke-width:%s;vector-effect:non-scaling-stroke;stroke-linejoin:round;pointer-events:none}',
           S$region_couleur, S$region_largeur),
   sprintf('#survol{fill:none;stroke:%s;stroke-width:%s;vector-effect:non-scaling-stroke;stroke-linejoin:round;pointer-events:none;display:none}#survol.on{display:inline}',
           S$survol_couleur, S$survol_largeur),
   # petite carte (mobile) : mêmes couleurs, traits réduits d'un même facteur pour ne pas quadriller la carte
-  sprintf('@media (max-width:640px){path.t{stroke-width:%s}path.t.sans{stroke-width:%s}.limites-reg path{stroke-width:%s}#survol{stroke-width:%s}}',
-          S$largeur * S$mobile_facteur, S$sans_largeur * S$mobile_facteur, S$region_largeur * S$mobile_facteur, S$survol_largeur * S$mobile_facteur),
+  sprintf('@media (max-width:640px){path.t{stroke-width:%s}.limites-reg path{stroke-width:%s}#survol{stroke-width:%s}}',
+          S$largeur * S$mobile_facteur, S$region_largeur * S$mobile_facteur, S$survol_largeur * S$mobile_facteur),
   '.encart{fill:none;stroke:#c9ced6;stroke-width:1.2}.encart-lib{font-size:17px;font-weight:600;fill:#3E4C59}',
   # infobulle
   '.bulle{position:absolute;pointer-events:none;background:#1F2933;color:#fff;border-radius:10px;padding:14px 16px;font-size:15px;line-height:1.5;min-width:240px;max-width:320px;box-shadow:0 8px 24px rgba(0,0,0,.22);display:none;z-index:2}',
@@ -417,7 +413,7 @@ js_cartes <- function() paste(
   'function remplirCats(filtre){var s=$("cat");if(!s)return;var f=(filtre||"").toLowerCase();s.innerHTML="";D.categories.forEach(function(k){var lib=catOpt(k);if(f&&lib.toLowerCase().indexOf(f)<0)return;var o=document.createElement("option");o.value=k.code;o.textContent=lib;s.appendChild(o)});if(s.options.length){var ok=false;for(var i=0;i<s.options.length;i++)if(s.options[i].value===etat.cat){ok=true;break}if(!ok)etat.cat=s.options[0].value;s.value=etat.cat}}',
   'function cle(){return etat.ind==="departs"?etat.scen:(etat.ind==="effectif"?"e":"t")}',
   'var dec={t:1,c:0,b:0,h:0,e:0,r:0,i:0,d:0};',   # personnes -> entier (convention 00g), part -> 1 décimale
-  'function valeur(code){var c=D.cellules[code]&&D.cellules[code][etat.cat];if(!c)return{st:"sans"};if(c.s==="m")return{st:"masque"};var v=c[cle()];return{st:"diffuse",v:v,c:c}}',
+  'function valeur(code){var c=D.cellules[code]&&D.cellules[code][etat.cat];if(!c)return{st:"masque"};if(c.s==="m")return{st:"masque"};var v=c[cle()];return{st:"diffuse",v:v,c:c}}',
   'function plusFortsRestes(comp,total){var cible=arrondiPers(total),base=comp.map(Math.floor),reste=cible-base.reduce(function(a,b){return a+b},0);var idx=comp.map(function(v,i){return i}).sort(function(a,b){var fa=Math.round((comp[a]-base[a])*1e9),fb=Math.round((comp[b]-base[b])*1e9);return fb-fa||comp[b]-comp[a]||a-b});for(var i=0;i<reste&&i<idx.length;i++)base[idx[i]]++;var s=base.reduce(function(a,b){return a+b},0);while(s<cible){base[idx[0]]++;s++}while(s>cible){var m=base.indexOf(Math.max.apply(null,base));base[m]--;s--}return base}',
   'function fmtInd(v,legende){var k=cle();if(k==="t")return pct(v,legende?0:1);return fmt(v,legende?0:dec[k])}',
   # classes à bornes « rondes » : pas de 1, 2, 2,5, 5 x 10^k ; 3 à 5 classes ; échelle commune à la catégorie affichée
@@ -430,12 +426,12 @@ js_cartes <- function() paste(
   'function classeCouv(p){if(p<=0)return -1;var b=L.couverture.bornes;for(var i=b.length-1;i>=0;i--)if(p>=b[i])return i;return 0}',
   'var li=function(leg,col,txt,sans,sep){var e=document.createElement("li");if(sep)e.className="sep";e.innerHTML="<span class=\\"sw"+(sans?" sans":"")+"\\" style=\\"background:"+col+"\\"></span><span></span>";e.lastChild.textContent=txt;leg.appendChild(e)};',
   'function entete(titre,cat,qui){var t=$("titre");t.innerHTML="";t.appendChild(document.createTextNode(titre));t.appendChild(Object.assign(document.createElement("small"),{textContent:nivLib}));$("sous-cat").textContent=cat;$("sous-qui").textContent=qui}',
-  'function rendreCarte(){var paths=document.querySelectorAll("path.t"),leg=$("legende");if(!leg)return;leg.innerHTML="";var nD=0,nM=0,nS=0,cl=null;',
+  'function rendreCarte(){var paths=document.querySelectorAll("path.t"),leg=$("legende");if(!leg)return;leg.innerHTML="";var nD=0,nM=0,cl=null;',
   ' if(etat.vue==="resultats"){var vals=[];Object.keys(D.couverture).forEach(function(code){var r=valeur(code);if(r.st==="diffuse"&&r.v!=null)vals.push(r.v)});cl=classesRondes(vals)}',
-  ' paths.forEach(function(p){var code=p.getAttribute("data-code"),fill,st;p.classList.remove("sans");',
-  '  if(etat.vue==="affichables"){var cv=D.couverture[code];if(!cv){st="sans";fill=D.couleurs.sans_donnee}else{var k=classeCouv(cv.p);if(k<0){st="masque";fill=D.couleurs.secret}else{st="diffuse";fill=couleur(k,L.couverture.bornes.length)}}}',
-  '  else{var r2=valeur(code);st=r2.st;fill=st==="masque"?D.couleurs.secret:(st==="sans"?D.couleurs.sans_donnee:(cl?couleur(classeDe(r2.v,cl),cl.unique?cl.vals.length:cl.n):D.couleurs.classes[2]))}',
-  '  if(st==="sans")p.classList.add("sans");p.setAttribute("fill",fill);p.setAttribute("data-st",st);if(st==="diffuse")nD++;else if(st==="masque")nM++;else nS++});',
+  ' paths.forEach(function(p){var code=p.getAttribute("data-code"),fill,st;',
+  '  if(etat.vue==="affichables"){var cv=D.couverture[code];if(!cv){st="masque";fill=D.couleurs.secret}else{var k=classeCouv(cv.p);if(k<0){st="masque";fill=D.couleurs.secret}else{st="diffuse";fill=couleur(k,L.couverture.bornes.length)}}}',
+  '  else{var r2=valeur(code);st=r2.st;fill=st==="masque"?D.couleurs.secret:(cl?couleur(classeDe(r2.v,cl),cl.unique?cl.vals.length:cl.n):D.couleurs.classes[2])}',
+  '  p.setAttribute("fill",fill);p.setAttribute("data-st",st);if(st==="diffuse")nD++;else nM++});',
   ' var titreLeg=$("legende-titre");',
   ' if(etat.vue==="affichables"){titreLeg.textContent="Part des "+dimPl+" avec un résultat affichable";var LB=L.couverture.libelles;for(var i=LB.length-1;i>=0;i--)li(leg,couleur(i,LB.length),LB[i]);li(leg,D.couleurs.secret,L.couverture.aucune,false,true);$("legende-note").textContent="Pour chaque territoire : part des "+dimPl+" observées pour lesquelles un résultat peut être affiché. Cette vue ne révèle aucun chiffre non diffusé.";',
   '  entete(L.couverture.titre,"Part des "+dimPl+" pour lesquelles un résultat peut être affiché",L.salaries_age+" · "+nivLib)}',
@@ -446,22 +442,20 @@ js_cartes <- function() paste(
   '  li(leg,D.couleurs.secret,L.secret,false,true);',
   '  $("legende-note").textContent=(etat.ind==="taux"?L.note_taux+" ":"")+"Même échelle pour tous les territoires ; elle est recalculée quand vous changez de "+dimUne+" ou d’indicateur.";',
   '  entete("Départs attendus d’ici 2030",catLib(etat.cat),L.salaries_age+" · "+L.legende[etat.ind]+(etat.ind==="departs"?" ("+L.scenarios[etat.scen].toLowerCase()+")":""))}',
-  ' li(leg,D.couleurs.sans_donnee,L.sans_donnee,true);',
-  ' $("compte").innerHTML="<b>"+nD+"</b> "+nivPl+" avec un résultat · <b>"+nM+"</b> avec un résultat non diffusé (secret statistique) · <b>"+nS+"</b> sans salarié observé";',
+  ' $("compte").innerHTML="<b>"+nD+"</b> "+nivPl+" avec un résultat · <b>"+nM+"</b> avec un résultat non diffusé (secret statistique)";',
   ' var cat=etat.vue==="resultats";$("b-cat").style.display=cat?"":"none";$("b-ind").style.display=cat?"":"none";$("b-scen").style.display=(cat&&etat.ind==="departs")?"":"none";}',
   # infobulle : des phrases, pas des libellés techniques
   'function ligne(el,txt,cls){var d=document.createElement("div");if(cls)d.className=cls;d.textContent=txt;el.appendChild(d);return d}',
   'function bulle(code){var el=document.createElement("div");ligne(el,noms[code]+" · "+code,"tooltip-title");',
-  ' if(etat.vue==="affichables"){var cv=D.couverture[code];if(!cv)ligne(el,L.sans_donnee,"tooltip-sans");else{var b=document.createElement("div");b.className="tooltip-rows";ligne(b,fmt(cv.o,0)+" "+dimPl+" observées");ligne(b,fmt(cv.d,0)+(cv.d>1?" résultats affichables":" résultat affichable"));ligne(b,fmt(cv.m,0)+(cv.m>1?" résultats non diffusés":" résultat non diffusé"));el.appendChild(b);if(cv.d===0)ligne(el,L.couverture.aucune,"tooltip-secret")}}',
+  ' if(etat.vue==="affichables"){var cv=D.couverture[code];if(!cv){var s5=ligne(el,L.secret_court,"tooltip-secret");var sm5=document.createElement("small");sm5.textContent=L.secret_sous;s5.appendChild(sm5)}else{var b=document.createElement("div");b.className="tooltip-rows";ligne(b,fmt(cv.o,0)+" "+dimPl+" observées");ligne(b,fmt(cv.d,0)+(cv.d>1?" résultats affichables":" résultat affichable"));ligne(b,fmt(cv.m,0)+(cv.m>1?" résultats non diffusés":" résultat non diffusé"));el.appendChild(b);if(cv.d===0)ligne(el,L.couverture.aucune,"tooltip-secret")}}',
   ' else{ligne(el,catLib(etat.cat),"tooltip-cat");var r=valeur(code);',
-  '  if(r.st==="sans")ligne(el,L.sans_donnee,"tooltip-sans");',
-  '  else if(r.st==="masque"){var s4=ligne(el,L.secret_court,"tooltip-secret");var sm=document.createElement("small");sm.textContent=L.secret_sous;s4.appendChild(sm)}',
+  '  if(r.st==="masque"){var s4=ligne(el,L.secret_court,"tooltip-secret");var sm=document.createElement("small");sm.textContent=L.secret_sous;s4.appendChild(sm)}',
   '  else{var c=r.c,b2=document.createElement("div");b2.className="tooltip-rows";if(c.e!=null)ligne(b2,fmt(c.e,0)+" "+L.salaries_age_min,"tooltip-value");if(c.c!=null)ligne(b2,fmt(c.c,0)+" "+L.kpi.departs,"tooltip-value");if(c.b!=null&&c.h!=null)ligne(b2,"entre "+fmt(c.b,0)+" et "+fmt(c.h,0)+" selon l’hypothèse","tooltip-small");if(c.t!=null)ligne(b2,pct(c.t,1)+" "+L.kpi.taux,"tooltip-value");el.appendChild(b2)}}',
   ' return el.innerHTML}',
   # tableau de bord national
   'function rendreDash(){var c=D.cellules["FR"]&&D.cellules["FR"][etat.cat];$("sous-cat").textContent=catLib(etat.cat);$("sous-qui").textContent=L.salaries_age+" · France entière";$("cat-affichee").textContent=catLib(etat.cat);$("cat-qui").textContent=L.salaries_age;',
   ' var z=$("zone-kpi"),m=$("zone-masque");',
-  ' if(!c||c.s==="m"){z.style.display="none";m.style.display="";$("masque-cat").textContent=catLib(etat.cat);$("masque-txt").textContent=c?L.secret_explication:"Aucun salarié de cette "+dimUne+" n’est observé.";$("masque-titre").textContent=c?L.secret_court:L.sans_donnee;return}',
+  ' if(!c||c.s==="m"){z.style.display="none";m.style.display="";$("masque-cat").textContent=catLib(etat.cat);$("masque-txt").textContent=L.secret_explication;$("masque-titre").textContent=L.secret_court;return}',
   ' z.style.display="";m.style.display="none";$("kpi-e").textContent=fmt(c.e,0);$("kpi-c").textContent=fmt(c.c,0);$("kpi-t").textContent=c.t!=null?pct(c.t,1):"n.d.";',
   ' $("f-b").textContent=fmt(c.b,0);$("f-c").textContent=fmt(c.c,0);$("f-h").textContent=fmt(c.h,0);',
   ' var tot=(c.r||0)+(c.i||0)+(c.d||0),bar=$("barre"),ul=$("causes");bar.innerHTML="";ul.innerHTML="";var cols={r:D.couleurs.classes[3],i:D.couleurs.classes[1],d:"#6b7280"};var ent=plusFortsRestes([c.r||0,c.i||0,c.d||0],c.c!=null?c.c:tot);',
@@ -532,8 +526,7 @@ vue_initiale_carte <- function(prep, codes_fond, champ = construire_libelle_cham
   cl <- classes_rondes(vals)
   terr <- lapply(codes_fond, function(code) {
     r <- cel[cel$code == code, ]
-    if (nrow(r) == 0) list(st = "sans", fill = COULEURS_CARTE$sans_donnee)
-    else if (r$statut[1] == "masque") list(st = "masque", fill = COULEURS_CARTE$secret)
+    if (nrow(r) == 0 || r$statut[1] == "masque") list(st = "masque", fill = COULEURS_CARTE$secret)   # cellule absente = masquée (SPEC-PUB-007)
     else { v <- r$taux_depart_central_pct[1]
       list(st = "diffuse", fill = if (is.null(cl) || is.na(v)) COULEURS_CARTE$classes[3]
                                   else couleur_classe(classe_de(v, cl), if (cl$unique) length(cl$vals) else cl$n)) }
@@ -545,8 +538,7 @@ vue_initiale_carte <- function(prep, codes_fond, champ = construire_libelle_cham
     else if (cl$unique) lapply(seq_along(cl$vals), function(i) list(col = couleur_classe(i - 1, length(cl$vals)), txt = pct1(cl$vals[i])))
     else lapply(seq_len(cl$n), function(k) list(col = couleur_classe(k - 1, cl$n),
       txt = if (k == 1) paste0("Moins de ", pct0(cl$bornes[1])) else if (k == cl$n) paste0(pct0(cl$bornes[k - 1]), " et plus") else paste0(pct0(cl$bornes[k - 1]), " à ", pct0(cl$bornes[k]))))
-  leg <- c(leg, list(list(col = COULEURS_CARTE$secret, txt = LIBELLES_UI$secret, sep = TRUE)),
-                list(list(col = COULEURS_CARTE$sans_donnee, txt = LIBELLES_UI$sans_donnee, sans = TRUE)))
+  leg <- c(leg, list(list(col = COULEURS_CARTE$secret, txt = LIBELLES_UI$secret, sep = TRUE)))
   nivPl <- c(region = "régions", departement = "départements")[[prep$niveau]]
   list(cat = cat0, territoires = terr,
        sous_cat = if (is.na(cat0)) "" else libelle_categorie(prep, cat0, "titre"),
@@ -554,12 +546,11 @@ vue_initiale_carte <- function(prep, codes_fond, champ = construire_libelle_cham
        legende_titre = P$legende$taux, legende = leg,
        legende_note = paste0(P$note_taux, " Même échelle pour tous les territoires ; elle est recalculée quand vous changez de ",
                              if (prep$dimension == "pcs") "PCS" else "catégorie", " ou d’indicateur."),
-       compte = sprintf("<b>%d</b> %s avec un résultat · <b>%d</b> avec un résultat non diffusé (secret statistique) · <b>%d</b> sans salarié observé",
-                        sum(st == "diffuse"), nivPl, sum(st == "masque"), sum(st == "sans")))
+       compte = sprintf("<b>%d</b> %s avec un résultat · <b>%d</b> avec un résultat non diffusé (secret statistique)",
+                        sum(st == "diffuse"), nivPl, sum(st == "masque")))
 }
 html_legende_statique <- function(leg) vapply(leg, function(e)
-  sprintf('<li%s><span class="sw%s" style="background:%s"></span><span>%s</span></li>', if (isTRUE(e$sep)) ' class="sep"' else "",
-          if (isTRUE(e$sans)) " sans" else "", e$col, echap_html_carte(e$txt)), "")
+  sprintf('<li%s><span class="sw" style="background:%s"></span><span>%s</span></li>', if (isTRUE(e$sep)) ' class="sep"' else "", e$col, echap_html_carte(e$txt)), "")
 html_bandeau_sans_js <- function() sprintf('<div class="sans-js" id="sans-js" role="note">%s</div>', echap_html_carte(TEXTE_SANS_JS))
 
 # --- Briques HTML communes : en-tête « Qui est concerné ? », sélecteur, pied ----
@@ -579,7 +570,7 @@ html_entete_champ <- function(champ, niveau, dimension, sous_cat = "", sous_qui 
             paste(sprintf("<p>%s</p>", echap_html_carte(champ$detaille)), collapse = "")),
     '</div>',
     sprintf('<p class="context">%s</p>', if (niveau == "france") sprintf("Choisissez une %s pour consulter les résultats nationaux.", if (dimension == "pcs") "PCS" else "catégorie")
-            else sprintf("Choisissez une %s pour comparer les territoires. Les zones grisées correspondent à des résultats non diffusés (secret statistique) ; les zones blanches n’ont aucun salarié observé.", if (dimension == "pcs") "PCS" else "catégorie")),
+            else sprintf("Choisissez une %s pour comparer les territoires. Les zones grisées correspondent à des résultats non diffusés (secret statistique), y compris lorsqu’aucun salarié n’y est observé.", if (dimension == "pcs") "PCS" else "catégorie")),
     '</header>')
 }
 html_selecteur_categorie <- function(prep) {
@@ -605,7 +596,7 @@ html_selecteur_categorie <- function(prep) {
 html_pied <- function(champ, source_note) {
   sprintf(paste0('<footer><b>Qui est concerné ?</b> %s ',
                  '<b>Secret statistique.</b> Certains résultats ne sont pas affichés parce qu’ils concernent trop peu de salariés ou d’entreprises, ou qu’une seule entreprise y pèserait trop ; ces chiffres ne figurent ni dans cette page ni dans ses données. ',
-                 'Gris = résultat non diffusé ; blanc pointillé = aucun salarié observé ; un résultat nul est affiché comme tout autre. ',
+                 'Gris = résultat non diffusé, y compris lorsqu’aucun salarié n’est observé ; un résultat nul d’une cellule diffusable est affiché comme tout autre. ',
                  '<b>Source.</b> %s. Fond de carte : IGN Admin Express (COG 2018) via france-geojson, licence ouverte.</footer>'),
           echap_html_carte(paste(champ$detaille, collapse = " ")), echap_html_carte(source_note))
 }
@@ -655,10 +646,9 @@ html_carte_territoriale <- function(prep, fond, titre_page, fond_regions = NULL,
   # Attributs fill / stroke de la vue initiale : la carte reste lisible sans JavaScript ni CSS (pièce jointe
   # épurée par une messagerie) ; la CSS et le JS, quand ils sont présents, prennent le dessus.
   paths <- vapply(names(fond), function(code) {
-    v <- vue$territoires[[code]]; sans <- identical(v$st, "sans")
-    sprintf('<path class="t%s" id="t-%s" data-code="%s" data-st="%s" fill="%s" stroke="%s" stroke-width="%s"%s d="%s" tabindex="0" aria-label="%s"></path>',
-            if (sans) " sans" else "", echap_html_carte(code), echap_html_carte(code), v$st, v$fill,
-            if (sans) S$sans_couleur else S$couleur, if (sans) S$sans_largeur else S$largeur, if (sans) ' stroke-dasharray="3 2"' else "",
+    v <- vue$territoires[[code]]
+    sprintf('<path class="t" id="t-%s" data-code="%s" data-st="%s" fill="%s" stroke="%s" stroke-width="%s" d="%s" tabindex="0" aria-label="%s"></path>',
+            echap_html_carte(code), echap_html_carte(code), v$st, v$fill, S$couleur, S$largeur,
             lay$chemins[[code]], echap_html_carte(terr$nom[match(code, terr$code)])) }, "")
   # Carte départementale : limites régionales (métropole) dessinées au-dessus, sans interaction ;
   # les DROM ne sont pas repris (encart = un seul département = sa région).
@@ -732,8 +722,7 @@ html_bloc_dashboard <- function(prep, cat0, P, ids = TRUE) {
     '</div>',
     sprintf('<div class="masque-national"%s%s><div class="t"%s>%s</div><p><b%s>%s</b> <span%s>%s</span></p><p>Les autres catégories restent consultables ci-contre.</p></div>',
             id("zone-masque"), if (masque0) "" else ' style="display:none"', id("masque-cat"), echap_html_carte(cat_lib),
-            id("masque-titre"), if (nrow(c0) == 0) LIBELLES_UI$sans_donnee else LIBELLES_UI$secret_court,
-            id("masque-txt"), if (nrow(c0) == 0) paste0("Aucun salarié de cette ", if (prep$dimension == "pcs") "PCS" else "catégorie", " n’est observé.") else LIBELLES_UI$secret_explication))
+            id("masque-titre"), LIBELLES_UI$secret_court, id("masque-txt"), LIBELLES_UI$secret_explication))   # catégorie absente = non diffusée (SPEC-PUB-007)
 }
 
 # --- VERSION COURRIEL : aucun script, aucun contenu actif --------------------------
@@ -757,8 +746,7 @@ css_courriel <- function(n_cat) paste(
 infobulle_courriel <- function(prep, code, nom, cat, P) {
   r <- prep$cellules[prep$cellules$code == code & prep$cellules$cat == cat, ]
   tete <- paste0(nom, " · ", code, "\n", libelle_categorie(prep, cat, "titre"), "\n")
-  if (nrow(r) == 0) return(paste0(tete, LIBELLES_UI$sans_donnee))
-  if (r$statut[1] == "masque") return(paste0(tete, LIBELLES_UI$secret))
+  if (nrow(r) == 0 || r$statut[1] == "masque") return(paste0(tete, LIBELLES_UI$secret))   # cellule absente = masquée (SPEC-PUB-007)
   l <- character(0)
   if (!is.na(r$effectif_champ[1])) l <- c(l, paste(fmt_fr_carte(r$effectif_champ[1]), P$salaries_age_min))
   if (!is.na(r$departs_central[1])) l <- c(l, paste(fmt_fr_carte(r$departs_central[1]), P$kpi$departs))
@@ -785,9 +773,8 @@ html_carte_courriel <- function(prep, fond, titre_page, champ, fond_regions = NU
   radios <- html_radios_courriel(prep)
   vues <- unlist(lapply(seq_len(nrow(prep$categories)), function(i) {
     cat <- prep$categories$code[i]; v <- vue_initiale_carte(prep, names(fond), champ, cat = cat)
-    uses <- vapply(names(fond), function(code) { t <- v$territoires[[code]]; sans <- identical(t$st, "sans")
-      sprintf('<use href="#g-%s" fill="%s" stroke="%s" stroke-width="%s"%s><title>%s</title></use>', echap_html_carte(code), t$fill,
-              if (sans) S$sans_couleur else S$couleur, if (sans) S$sans_largeur else S$largeur, if (sans) ' stroke-dasharray="3 2"' else "",
+    uses <- vapply(names(fond), function(code) { t <- v$territoires[[code]]
+      sprintf('<use href="#g-%s" fill="%s" stroke="%s" stroke-width="%s"><title>%s</title></use>', echap_html_carte(code), t$fill, S$couleur, S$largeur,
               echap_html_carte(infobulle_courriel(prep, code, noms[[code]], cat, P))) }, "")
     c(sprintf('<section class="vue vue-%d">', i),
       sprintf('<p class="vue-titre">%s</p><p class="vue-qui">%s</p>', echap_html_carte(v$sous_cat), echap_html_carte(v$sous_qui)),
@@ -837,10 +824,9 @@ png_carte_departs <- function(prep, lay, fichier_png, titre = "", champ = constr
   if (!requireNamespace("ggplot2", quietly = TRUE)) stop("ggplot2 absent")
   S <- STYLE_CONTOURS_CARTE
   long <- lay$long; cv <- prep$couverture; LB <- LIBELLES_UI$couverture
-  k <- function(p) if (is.na(p)) LIBELLES_UI$sans_donnee else if (p <= 0) LB$aucune else LB$libelles[max(which(p >= LB$bornes))]
-  long$classe <- factor(vapply(cv$part_diff_pct[match(long$code, cv$code)], k, ""),
-                        levels = c(rev(LB$libelles), LB$aucune, LIBELLES_UI$sans_donnee))
-  cols <- c(rev(COULEURS_CARTE$classes[round(seq(0, 3) * 4 / 3) + 1]), COULEURS_CARTE$secret, COULEURS_CARTE$sans_donnee)
+  k <- function(p) if (is.na(p) || p <= 0) LB$aucune else LB$libelles[max(which(p >= LB$bornes))]   # territoire absent de la table = non diffusé (SPEC-PUB-007)
+  long$classe <- factor(vapply(cv$part_diff_pct[match(long$code, cv$code)], k, ""), levels = c(rev(LB$libelles), LB$aucune))
+  cols <- c(rev(COULEURS_CARTE$classes[round(seq(0, 3) * 4 / 3) + 1]), COULEURS_CARTE$secret)
   enc <- if (length(lay$encarts)) bind_rows(lapply(lay$encarts, function(e) tibble(x1 = e$cadre[1], x2 = e$cadre[3], y1 = -e$cadre[2], y2 = -e$cadre[4], lib = e$nom, xl = e$x_lib, yl = -e$y_lib))) else NULL
   g <- ggplot2::ggplot() +
     ggplot2::geom_polygon(data = long, ggplot2::aes(x = x, y = y, group = groupe, fill = classe), colour = S$png_couleur, linewidth = S$png_largeur) +
@@ -850,7 +836,7 @@ png_carte_departs <- function(prep, lay, fichier_png, titre = "", champ = constr
     ggplot2::labs(title = paste(LIBELLES_UI$couverture$titre, sub("^.*— ", "", titre)),
                   subtitle = paste0("Part des ", if (prep$dimension == "pcs") "PCS" else "catégories", " pour lesquelles un résultat peut être affiché\n",
                                     toupper(substr(champ$court, 1, 1)), substr(champ$court, 2, nchar(champ$court))),
-                  caption = "Gris : résultat non diffusé (secret statistique) · blanc : aucun salarié observé · aucun chiffre non diffusé n’est représenté. Fond IGN Admin Express via france-geojson.") +
+                  caption = "Gris : résultat non diffusé (secret statistique), y compris sans salarié observé · aucun chiffre non diffusé n’est représenté. Fond IGN Admin Express via france-geojson.") +
     ggplot2::theme(legend.position = "bottom", legend.direction = "vertical", legend.text = ggplot2::element_text(size = 11),
                    plot.title = ggplot2::element_text(face = "bold", size = 15, colour = COULEURS_CARTE$encre),
                    plot.subtitle = ggplot2::element_text(colour = COULEURS_CARTE$texte, size = 11),
