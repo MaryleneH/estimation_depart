@@ -66,6 +66,14 @@ Fonctionnalité: Produire l'analyse « hypothèses de départ » en un classeur 
     Alors aucun effectif visible n'est inférieur à SECRET_MIN_SALARIES (contrôle bloquant)
     Et le libellé public de la liste (TENSION_LIBELLE_LISTE) est appliqué à tous les textes et en-têtes ; aucune chaîne « stratégique » ne subsiste
     Et aucune entreprise n'est nommée ; aucun fichier n'est écrit sous interne/
+
+  Scénario: [SPEC-ANA-009] Deux cartes épurées pour la note sur la typologie (09c)
+    Étant donné la typologie de DIFFUSION (objet du 08f ou son CSV) et le fond local des départements (et des régions s'il existe)
+    Quand le script 09c est exécuté (dans la chaîne après le 09b, ou relancé seul)
+    Alors il écrit sorties/analyse_hypotheses_depart/cartes/carte_profils_note.png (un département = une couleur par profil, légende avec le nombre de départements par profil) et carte_intensite_note.png (intensité du renouvellement en trois classes, pôles majeurs à renouveler rapidement cernés de rouge)
+    Et le design est épuré : fond blanc, limites départementales blanches fines, limites régionales grises, outre-mer en encarts, légende à gauche, titre, sous-titre, source ; aucune valeur chiffrée d'un département n'est écrite
+    Et un département masqué ou absent de la table est « non diffusé (secret statistique) », blanc cerné de pointillés, indiscernable d'un autre (SPEC-PUB-007) ; un profil inconnu ou une table sans colonne masque arrêtent la préparation
+    Et typologie absente, ggplot2 absent ou échec d'un PNG donnent un message, jamais un arrêt ; GENERER_ANALYSE faux = ignoré
 ```
 
 ## Sorties
@@ -74,7 +82,7 @@ Fonctionnalité: Produire l'analyse « hypothèses de départ » en un classeur 
 `02a_volume.csv`, `02b_par_age.csv`, `02c_seniors.csv`, `02d_par_categorie.csv`, `03a_metiers_volume.csv`,
 `03b_metiers_part.csv`, `03c_metiers_liste.csv`, `03d_noyau_dur.csv`, `04a_regions.csv`, `04b_departements.csv`,
 `04c_exposition_regions.csv`, `04d_liste_regions.csv`, `04e_seniors_territoires.csv`, `05_priorites.csv`,
-`parametres.csv`, `definitions.csv`.
+`parametres.csv`, `definitions.csv` ; `cartes/carte_profils_note.png`, `cartes/carte_intensite_note.png` (09c).
 
 Document d'accompagnement (docs/, rédigé à la main, hors chaîne) : `guide_commentaires_analyse_hypotheses.docx`
 (suggestions de commentaires selon les phénomènes observés, feuille par feuille). Les exemples d'analyse rédigée
@@ -88,8 +96,9 @@ Code : `R/09_analyse/09a_fonctions_analyse_hypotheses.R` (fonctions pures : `par
 `table_territoires_cs1()`, `enrichir_territoires_analyse()`, `table_liste_regions_analyse()`,
 `table_priorites_analyse()`, `table_synthese_seniors_analyse()`, `table_definitions_analyse()`, `controler_tables_analyse()`,
 `ecrire_classeur_analyse()`), `R/09_analyse/09b_analyse_hypotheses_depart.R` (script de la chaîne, après
-le 08j). Paramètres : `GENERER_ANALYSE`, `ANALYSE_TOP_N`, `ANALYSE_EFFECTIF_MIN_PART`,
+le 08j) ; `R/09_analyse/09c_cartes_typologie_note.R` (`preparer_cartes_note()`, `dessiner_carte_note()`,
+`cartes_note_typologie()`, exécution en fin de script, relançable seul). Paramètres : `GENERER_ANALYSE`, `ANALYSE_TOP_N`, `ANALYSE_EFFECTIF_MIN_PART`,
 `ANALYSE_N_REGIONS_PRIORITES` (00_config).
 
-Tests : `tests/testthat/test-analyse-hypotheses.R` (fixtures synthétiques) ;
+Tests : `tests/testthat/test-analyse-hypotheses.R` (fixtures synthétiques) ; `tests/testthat/test-cartes-note.R` (typologie synthétique sur le fond réel) ;
 `tests/testthat/test-exposition-tension.R` « SPEC-TYPO-107 — 08i sur la chaîne … » (09b sur la chaîne de test).

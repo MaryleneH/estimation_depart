@@ -278,6 +278,9 @@ test_that("SPEC-TYPO-107 — 08i sur la chaîne de test : sorties, objets amont 
   x3 <- readxl::read_excel(xa, sheet = "3c Métiers de la liste", skip = 3); expect_true("Situation" %in% names(x3)); expect_false(any(grepl("stratégique", c(names(x3), unlist(x3)))))
   x1 <- readxl::read_excel(xa, sheet = "1 Hypothèses", skip = 3); expect_true(any(grepl("métiers de la première sous-liste", x1$`Valeur retenue`, fixed = TRUE)))
   env1 <- new.env(parent = env); assign("GENERER_ANALYSE", FALSE, envir = env1); expect_message(sys.source(chemin_script("09b_analyse_hypotheses_depart.R"), envir = env1), "GENERER_ANALYSE")
+  # 09c (SPEC-ANA-009) : deux cartes de la note depuis la typologie de diffusion ; GENERER_ANALYSE = FALSE : message
+  sourcer_scripts("09c_cartes_typologie_note.R", env); for (f in c("carte_profils_note.png", "carte_intensite_note.png")) expect_true(file.exists(file.path(env$DIR_SORTIES, "analyse_hypotheses_depart", "cartes", f)), label = f)
+  expect_message(sys.source(chemin_script("09c_cartes_typologie_note.R"), envir = env1), "GENERER_ANALYSE")
   # sans liste (08i non exécuté) : message, aucun arrêt
   env0 <- new.env(parent = env); assign("exposition_tension", NULL, envir = env0); expect_message(sys.source(chemin_script("08j_metiers_liste_territoires.R"), envir = env0), "liste de métiers absente")
   # planchers de la carte (SPEC-TYPO-109) : présents, entiers, jamais une valeur pour un territoire non diffusé ; région cohérente (somme des départements de la région, à l'arrondi près)

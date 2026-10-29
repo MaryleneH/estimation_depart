@@ -64,6 +64,8 @@ source("R/09_analyse/09a_fonctions_analyse_hypotheses.R")  # fonctions pures de 
 source("R/09_analyse/09b_analyse_hypotheses_depart.R")     # -> sorties/analyse_hypotheses_depart/<zonage>/ : classeur Excel prêt à
                                           #    coller dans Word (hypothèses, volume, métiers, territoires, priorités) + CSV ;
                                           #    seules tables de diffusion ; si GENERER_ANALYSE ; prérequis absents = message
+source("R/09_analyse/09c_cartes_typologie_note.R")        # -> sorties/analyse_hypotheses_depart/cartes/carte_{profils,intensite}_note.png :
+                                          #    deux cartes épurées pour la note sur la typologie (diffusion 08f) ; relançable seul
 source("R/08_territoires/08e_cartes_departs.R")          # -> sorties/cartes_departs/{pcs,cs1}/carte_<dim>_<niveau>.html (+ .png)
                                           #    (cartes des tables diffusion/ seules ; si GENERER_CARTES_DEPARTS)
 source("R/08_territoires/08g_carte_typologie.R")         # -> sorties/typologie_territoriale/cartes/carte_typologie{,_courriel}.html (+ .png)
