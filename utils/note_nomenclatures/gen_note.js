@@ -14,7 +14,8 @@ const NONE = { style: BorderStyle.NONE, size: 0, color: BLANC }, SANS = { top: N
 const LARGEUR = 9638;
 const PAGE = { size: { width: 11906, height: 16838 }, margin: { top: 1134, bottom: 1000, left: 1134, right: 1134, header: 500, footer: 500 } };
 
-const run = (t, o = {}) => new TextRun({ text: t, font: FONT, size: o.size || 20, color: o.color || ENCRE, bold: o.bold, italics: o.italics, characterSpacing: o.spacing, superScript: o.sup });
+const PERIMETRE = process.env.PERIMETRE || "Base";   // nom du périmètre dans le texte (en interne : PERIMETRE=BITD node …) ; « Base Tous salariés » jamais touché
+const run = (t, o = {}) => new TextRun({ text: t.replace(/\bBase\b(?! Tous)/g, PERIMETRE), font: FONT, size: o.size || 20, color: o.color || ENCRE, bold: o.bold, italics: o.italics, characterSpacing: o.spacing, superScript: o.sup });
 const rich = (t, o = {}) => t.split(/(\*\*[^*]+\*\*|\^\[[^\]]+\])/).filter(Boolean).map(s => s.startsWith("**") ? run(s.slice(2, -2), { ...o, bold: true }) : s.startsWith("^[") ? run(s.slice(2, -1), { ...o, sup: true, color: NAVY, size: 17, bold: true }) : run(s, o));
 const par = (runs, o = {}) => new Paragraph({ spacing: { before: o.before || 0, after: o.after === undefined ? 100 : o.after, line: o.line || 258 }, alignment: o.align, keepNext: o.keepNext, keepLines: o.keepLines, children: Array.isArray(runs) ? runs : [runs] });
 const texte = (t, o = {}) => par(rich(t, o), o);

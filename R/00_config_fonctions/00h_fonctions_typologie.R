@@ -29,7 +29,7 @@ PROFILS_TYPOLOGIE <- c(enjeu = "Pôle majeur à renouveler rapidement", emergent
 DEFINITIONS_PROFILS <- tibble::tribble(
   ~cle, ~regle, ~signification, ~attention,
   "enjeu", "poids Fort, volume de départs Élevé, intensité Élevée",
-  "un département qui pèse lourd dans l’emploi Base, où beaucoup de départs sont attendus et où ils représentent une part importante de l’emploi actuel",
+  texte_perimetre("un département qui pèse lourd dans l’emploi Base, où beaucoup de départs sont attendus et où ils représentent une part importante de l’emploi actuel"),
   "priorité de renouvellement, à anticiper par des recrutements et des transmissions de compétences sur plusieurs années",
   "emergent", "intensité Élevée, sans réunir toutes les conditions du pôle majeur à renouveler rapidement",
   "le renouvellement y est rapide au regard de l’emploi actuel, même si le volume ou le poids restent plus modestes",
@@ -44,7 +44,7 @@ DEFINITIONS_PROFILS <- tibble::tribble(
   "une implantation installée dont le renouvellement est régulier et réparti entre les catégories",
   "aucun signal particulier, suivi ordinaire",
   "diffus", "poids Faible (part nationale faible ou effectif sous le plancher)",
-  "une présence Base réduite, dont les parts et les taux sont fragiles car calculés sur de petits effectifs",
+  texte_perimetre("une présence Base réduite, dont les parts et les taux sont fragiles car calculés sur de petits effectifs"),
   "ne pas sur-interpréter un taux élevé sur un petit effectif ; les chiffres restent visibles mais ne créent pas de priorité",
   "expertiser", "signaux contradictoires ou indicateurs à la frontière d’un seuil (le motif est écrit)",
   "les règles simples ne permettent pas de trancher, et le motif précise ce qui coince",
@@ -224,7 +224,7 @@ rediger_situation_departement <- function(d, params, comparaisons, avec_cs = rep
   vapply(seq_len(nrow(d)), function(i) {
     r <- d[i, ]; nom <- paste0(r$geo_nom, " (", r$geo_code, ")")
     if (is.na(r$effectif_base_total) || is.na(r$departs_central)) return(NA_character_)
-    etat <- sprintf("%s pèse %s %% de l’emploi Base national (%s salariés), un poids %s%s.", nom, fmt1(r$part_emploi_base_national_pct), fmt0(r$effectif_base_total),
+    etat <- sprintf(texte_perimetre("%s pèse %s %% de l’emploi Base national (%s salariés), un poids %s%s."), nom, fmt1(r$part_emploi_base_national_pct), fmt0(r$effectif_base_total),
                     tolower(ifelse(is.na(r$classe_poids_base), "non classé", r$classe_poids_base)),
                     if (!is.na(r$effectif_base_total) && r$effectif_base_total < params$effectif_min) sprintf(", sous le plancher de %s salariés retenu pour l’analyse", formatC(params$effectif_min, format = "d", big.mark = " ")) else "")
     structure <- if (avec_cs[i] && !is.na(r$structure_emploi)) {
@@ -282,7 +282,7 @@ rediger_synthese_profils <- function(synthese, d, comparaisons) {
     departements = { dd <- d[d$profil_typologie == profil_typologie, ]; dd <- dd[order(-dd$departs_central), ]
       paste(head(paste0(dd$geo_nom, " (", dd$geo_code, ")"), 12), collapse = ", ") },
     texte = paste0(sprintf("%d département%s relève%s du profil « %s » : %s. ", n_departements, if (n_departements > 1) "s" else "", if (n_departements > 1) "nt" else "", profil_typologie, signification),
-                   sprintf("Ensemble, ils représentent %s %% de l’emploi Base et %s %% des départs attendus d’ici 2030 ; leur intensité de renouvellement médiane est de %s %% (ensemble des départements : %s %%). ",
+                   sprintf(texte_perimetre("Ensemble, ils représentent %s %% de l’emploi Base et %s %% des départs attendus d’ici 2030 ; leur intensité de renouvellement médiane est de %s %% (ensemble des départements : %s %%). "),
                            fmt1(poids_national_emploi_pct), fmt1(poids_national_departs_pct), fmt1(intensite_mediane_pct), fmt1(comparaisons$mediane_intensite)),
                    if (n_concentres > 0) sprintf("Dans %d cas, une seule catégorie porte au moins la moitié des départs. ", n_concentres) else "",
                    sprintf("Consigne de lecture : %s.", consigne_lecture))) |> ungroup() |> select(-cle)
@@ -296,7 +296,7 @@ construire_justification_profil <- function(d, params) {
   vapply(seq_len(nrow(d)), function(i) {
     r <- d[i, ]
     morceaux <- c(
-      sprintf("Poids Base %s (%s %% de l’emploi Base national, %s salariés)", tolower(r$classe_poids_base), fmt1(r$part_emploi_base_national_pct), fmt0(r$effectif_base_total)),
+      sprintf(texte_perimetre("Poids Base %s (%s %% de l’emploi Base national, %s salariés)"), tolower(r$classe_poids_base), fmt1(r$part_emploi_base_national_pct), fmt0(r$effectif_base_total)),
       sprintf("volume de départs %s (%s départs estimés)", tolower(r$classe_volume_departs), fmt0(r$departs_central)),
       sprintf("intensité de renouvellement %s (%s : %s %%)", tolower(r$classe_intensite), lib_int, fmt1(r$intensite_renouvellement_pct)),
       if (!is.na(r$structure_emploi)) sprintf("structure %s (%s : %s %%)", tolower(r$structure_emploi), libelle_cs_typo(r$cs_principale), fmt1(r$part_cs_principale_pct)) else NULL,
@@ -587,7 +587,7 @@ proposer_seuils_typologie <- function(departements, effectif_min = TYPO_SEUIL_EF
   if (!all(c("poids", "intensite", "volume") %in% names(pas)) || any(pas <= 0)) stop("proposer_seuils_typologie : pas = c(poids, intensite, volume) strictement positifs.")
   d <- departements[!is.na(departements$effectif_base_total) & departements$effectif_base_total >= effectif_min, ]
   if (nrow(d) < 3) stop("proposer_seuils_typologie : moins de 3 départements au-dessus du plancher (", effectif_min, ") — aucun tercile calculable.")
-  axes <- list(poids = list(col = "part_emploi_base_national_pct", bas = "TYPO_SEUIL_POIDS_FAIBLE", haut = "TYPO_SEUIL_POIDS_FORT", libs = CLASSES_TYPOLOGIE$poids, unite = "% de l'emploi Base national"),
+  axes <- list(poids = list(col = "part_emploi_base_national_pct", bas = "TYPO_SEUIL_POIDS_FAIBLE", haut = "TYPO_SEUIL_POIDS_FORT", libs = CLASSES_TYPOLOGIE$poids, unite = texte_perimetre("% de l'emploi Base national")),
                intensite = list(col = "intensite_renouvellement_pct", bas = "TYPO_SEUIL_INTENSITE_FAIBLE", haut = "TYPO_SEUIL_RENOUVELLEMENT_ELEVE", libs = CLASSES_TYPOLOGIE$intensite, unite = "%"),
                volume = list(col = "departs_central", bas = "TYPO_SEUIL_VOLUME_FAIBLE", haut = "TYPO_SEUIL_VOLUME_ELEVE", libs = CLASSES_TYPOLOGIE$volume, unite = "départs estimés"))
   tableau <- bind_rows(lapply(names(axes), function(a) {
@@ -666,7 +666,7 @@ joindre_signal_tension_localise <- function(typo_dep, tensions = NULL, passage =
 }
 
 # --- Matrice pédagogique (PNG, ggplot2, sans ggrepel) ------------------------------
-png_matrice_typologie <- function(typo, fichier, titre = "Typologie des départements Base") {
+png_matrice_typologie <- function(typo, fichier, titre = texte_perimetre("Typologie des départements Base")) {
   if (!requireNamespace("ggplot2", quietly = TRUE)) stop("ggplot2 absent")
   d <- typo$departements |> filter(is.finite(intensite_renouvellement_pct), is.finite(part_emploi_base_national_pct))
   p <- typo$parametres; val <- function(k) as.numeric(p$valeur[p$parametre == k])
@@ -682,7 +682,7 @@ png_matrice_typologie <- function(typo, fichier, titre = "Typologie des départe
     ggplot2::scale_colour_manual(values = pal, name = "Structure de l’emploi", drop = TRUE) +
     ggplot2::scale_size_area(max_size = 12, name = "Départs estimés (centrale)") +
     ggplot2::labs(title = titre, subtitle = "Lignes pointillées : seuils des classes (faible / moyen / fort) — règle de classement statistique provisoire",
-                  x = "Poids : part du département dans l’emploi Base national (%)", y = lib_y,
+                  x = texte_perimetre("Poids : part du département dans l’emploi Base national (%)"), y = lib_y,
                   caption = "Une position = un département ; la taille du point = volume de départs. Aucune tension DGA / France Travail n’est représentée (maille différente).") +
     ggplot2::theme_minimal(base_size = 11) + ggplot2::theme(legend.position = "bottom", legend.box = "vertical", panel.grid.minor = ggplot2::element_blank())
   ggplot2::ggsave(fichier, g, width = 11, height = 8.5, dpi = 130, bg = "white")

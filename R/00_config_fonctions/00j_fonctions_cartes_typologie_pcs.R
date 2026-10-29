@@ -22,7 +22,7 @@
 library(dplyr)
 
 LIBELLES_TYPO_PCS <- list(
-  kicker = "Typologie des territoires Base · métiers concernés par les départs",
+  kicker = texte_perimetre("Typologie des territoires Base · métiers concernés par les départs"),
   titre = "Profils et métiers : de la région au département",
   sous_titre = "Chaque région est colorée par le profil le plus fréquent de ses départements ; cliquez-la pour voir ses départements, puis un département pour lire son profil et les métiers (PCS) les plus concernés par les départs d’ici 2030.",
   egalite = "Profils à égalité", non_diffuse = "Non diffusé (secret statistique)", absent = "Aucun département renseigné",
@@ -294,7 +294,7 @@ html_entete_typo_pcs <- function(champ, bandeau, sous_titre, compact = FALSE) {
     sprintf('<h1 class="page-title" id="titre">%s<small>Départs attendus d’ici 2030 · régions et départements</small></h1>', echap_html_carte(LT$titre)),
     if (bandeau) html_bandeau_sans_js() else "", if (compact) sprintf('<details class="apropos"><summary>%s</summary>', LIBELLES_CARTE_TYPO$apropos) else "",
     sprintf('<p class="page-subtitle"><span class="cat-qui">%s</span></p>', echap_html_carte(sous_titre)),
-    '<div class="study-scope" role="note" aria-label="Qui est concerné">', sprintf('<span class="scope-text"><b>%s</b> · entreprises du périmètre Base</span>', echap_html_carte(P$salaries_age)),
+    '<div class="study-scope" role="note" aria-label="Qui est concerné">', sprintf(texte_perimetre('<span class="scope-text"><b>%s</b> · entreprises du périmètre Base</span>'), echap_html_carte(P$salaries_age)),
     '<span class="scope-text">Une région n’a pas de profil propre : elle est colorée par le profil le plus fréquent de ses départements.</span></div>',
     '<p class="context">Les métiers sont les PCS fines (nomenclature PCS-ESE 2017). Seules les PCS diffusables sont classées ; les PCS protégées par le secret statistique ne sont comptées qu’en nombre, jamais en valeur.</p>',
     if (compact) '</details>' else "", '</header>')

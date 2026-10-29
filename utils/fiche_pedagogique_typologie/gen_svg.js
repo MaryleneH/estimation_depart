@@ -7,7 +7,8 @@ const SYM = `<defs><symbol id="p" viewBox="0 0 10 14"><circle cx="5" cy="2.6" r=
 const person = (x, y, s, fill) => `<use href="#p" x="${x}" y="${y}" width="${s}" height="${s * 1.4}" fill="${fill}"/>`;
 const K = 3;  // facteur de rendu (PNG net)
 const svg = (w, h, body) => `<svg xmlns="http://www.w3.org/2000/svg" width="${w * K}" height="${h * K}" viewBox="0 0 ${w} ${h}" data-w="${w}" data-h="${h}" ${font}>${SYM}<rect width="${w}" height="${h}" fill="#fff"/>${body}</svg>`;
-const txt = (x, y, t, size = 12, fill = ENCRE, extra = "") => `<text x="${x}" y="${y}" font-size="${size}" fill="${fill}" ${extra}>${t}</text>`;
+const PERIMETRE = process.env.PERIMETRE || "Base";   // nom du périmètre dans le texte (en interne : PERIMETRE=BITD node …) ; « Base Tous salariés » jamais touché
+const txt = (x, y, t, size = 12, fill = ENCRE, extra = "") => `<text x="${x}" y="${y}" font-size="${size}" fill="${fill}" ${extra}>${String(t).replace(/\bBase\b(?! Tous)/g, PERIMETRE)}</text>`;
 const out = {};
 
 // 1. Poids : 100 silhouettes, 8 mises en évidence (« sur 100 salariés de la Base en France, 8 travaillent ici »)

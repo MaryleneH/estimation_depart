@@ -23,6 +23,7 @@ QUADRANTS_TENSION <- c(critique = "Départs rapides et métier en tension", rele
 COULEURS_SITUATIONS <- c(critique = "#fbe4e1", releve = "#fff1dc", difficile = "#e3eef9", controle = "#eef1f4")   # fonds (tableau, classeur)
 COULEURS_POINTS_SITUATIONS <- c(critique = "#b2182b", releve = "#ef8a62", difficile = "#67a9cf", controle = "#9aa5b1")   # points (PNG, SVG)
 COULEURS_CLASSES_EXPOSITION <- c(Faible = "#eef1f4", "Modérée" = "#fff1dc", Forte = "#fbe4e1")   # fonds de lignes du classeur
+LIBELLES_EXPOSITION <- c(long = "part des remplacements difficiles", court = "remplacements difficiles")   # libellé PUBLIC de l’indicateur « exposition » (code, CSV)
 TITRES_MESSAGES_TENSION <- c("Renouvellement rapide et métiers en tension", "Métiers à départs rapides et en tension", "Le levier")
 CAUSES_FRAGILITE <- c(hypothese_bas = "hypothèse de départ", hypothese_haut = "hypothèse de départ",
                       seuil_plus = "seuil de tension", seuil_moins = "seuil de tension", confiance = "rattachement PCS → FAP")
@@ -179,10 +180,10 @@ rediger_exposition_departement <- function(d, params = parametres_tension()) {
     r <- d[i, ]
     if (is.na(r$couverture_pct)) return(NA_character_)
     if (r$couverture_pct < params$couverture_min || is.na(r$exposition_pct))
-      return(sprintf("Les métiers stratégiques ne représentent que %s %% des départs attendus d’ici 2030 dans ce département : son exposition au recrutement difficile n’est pas interprétée.", f1(r$couverture_pct)))
+      return(sprintf("Les métiers stratégiques ne représentent que %s %% des départs attendus d’ici 2030 dans ce département : sa part des remplacements difficiles n’est pas interprétée.", f1(r$couverture_pct)))
     sprintf("Sur 100 départs attendus d’ici 2030 dans les métiers stratégiques, %s concernent des métiers en tension en France (France : %s)%s. Ces métiers représentent %s %% des départs du département.%s",
             f0(r$exposition_pct), f0(r$exposition_france_pct),
-            if (is.na(r$classe_exposition)) "" else sprintf(" : exposition %s, %s", tolower(r$classe_exposition),
+            if (is.na(r$classe_exposition)) "" else sprintf(" : %s %s, %s", LIBELLES_EXPOSITION[["long"]], tolower(r$classe_exposition),
                                                            if (identical(r$robustesse, "robuste")) "résultat robuste" else sprintf("résultat à confirmer (sensible : %s)", r$causes_fragilite)),
             f0(r$couverture_pct), if (!is.na(r$levier)) sprintf(" Levier le plus fréquent : %s (%s).", r$levier, r$composante_levier) else "")
   }, "")
@@ -241,7 +242,7 @@ matrice_metiers_tension <- function(metiers, fr_analytique, fr_diffusion = NULL,
   fr <- (if (is.null(fr_diffusion)) fr_analytique |> mutate(masque = FALSE) else fr_diffusion) |>
     mutate(pcs = normaliser_code_pcs(pcs)) |> select(pcs, masque, departs_central, any_of(c("departs_bas", "departs_haut")), taux_depart_central_pct)
   m <- metiers |> left_join(fr, by = "pcs") |>
-    mutate(statut = ifelse(is.na(masque), "absente de la Base", ifelse(masque, "non diffusé (secret statistique)", ifelse(is.na(en_tension), "tension inconnue", "diffusé"))),
+    mutate(statut = ifelse(is.na(masque), texte_perimetre("absente de la Base"), ifelse(masque, "non diffusé (secret statistique)", ifelse(is.na(en_tension), "tension inconnue", "diffusé"))),
            quadrant = ifelse(statut != "diffusé", NA_character_,
                              ifelse(taux_depart_central_pct >= ref_x, ifelse(en_tension, QUADRANTS_TENSION[["critique"]], QUADRANTS_TENSION[["releve"]]),
                                     ifelse(en_tension, QUADRANTS_TENSION[["difficile"]], QUADRANTS_TENSION[["controle"]]))))
@@ -382,8 +383,8 @@ html_tableau_metiers_tension <- function(mat, params = parametres_tension()) {
                 mapply(reglette, g$rang_tension, if ("rang_tension_fin" %in% names(g)) g$rang_tension_fin else g$rang_tension),
                 e(ifelse(is.na(g$composante_libelle), "aucune composante au-dessus du seuil", g$composante_libelle)), e(ifelse(is.na(g$levier), "—", g$levier)),
                 ifelse(g$faible_confiance, '<span class="conf">à confirmer</span>', "fiable"))) }))
-  autres <- table(factor(m$statut[m$statut != "diffusé"], levels = c("non diffusé (secret statistique)", "tension inconnue", "absente de la Base")))
-  pied <- if (sum(autres) > 0) sprintf('<p class="note">Hors tableau : %s.</p>', paste(sprintf("%d métier%s %s", autres, ifelse(autres > 1, "s", ""), c("non diffusé(s) (secret statistique)", "de tension inconnue (rang manquant)", "sans salarié du champ dans la Base"))[autres > 0], collapse = " ; ")) else ""
+  autres <- table(factor(m$statut[m$statut != "diffusé"], levels = c("non diffusé (secret statistique)", "tension inconnue", texte_perimetre("absente de la Base"))))
+  pied <- if (sum(autres) > 0) sprintf('<p class="note">Hors tableau : %s.</p>', paste(sprintf("%d métier%s %s", autres, ifelse(autres > 1, "s", ""), c("non diffusé(s) (secret statistique)", "de tension inconnue (rang manquant)", texte_perimetre("sans salarié du champ dans la Base")))[autres > 0], collapse = " ; ")) else ""
   c('<table class="tab-met">', entete, "<tbody>", corps, "</tbody></table>", pied)
 }
 
@@ -421,24 +422,24 @@ generer_fiche_exposition_tension <- function(messages, fichier, png = NULL, cham
   html <- c('<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">',
             '<title>Départs attendus et difficultés de recrutement</title><style>', css, '</style></head><body><div class="page">',
             '<h1>Départs attendus et difficultés de recrutement</h1>',
-            sprintf('<p class="sous">%s · entreprises du périmètre Base · départs attendus d’ici 2030 · métiers stratégiques</p>', e(construire_libelles_public(champ)$salaries_age)),
+            sprintf(texte_perimetre('<p class="sous">%s · entreprises du périmètre Base · départs attendus d’ici 2030 · métiers stratégiques</p>'), e(construire_libelles_public(champ)$salaries_age)),
             '<div class="msgs">', sprintf('<div class="msg"><b>%s</b>%s</div>', titres, e(messages)), '</div>',
             '<h2>Les métiers stratégiques, situation par situation</h2>',
             sprintf('<p class="note">Un métier est « à départs rapides » quand la part de ses salariés susceptibles de partir d’ici 2030 atteint celle de l’ensemble des salariés concernés en France (%s %%) ; il est « en tension » quand sa famille professionnelle atteint le rang %d sur %d en France.</p>', f1(if (is.null(mat)) NA else mat$ref_x), params$seuil_rang, params$rang_max),
             tableau,
             '<h2>Comment lire</h2><ul>',
             '<li><b>Ce que dit la carte des profils</b> : sa couleur indique combien de salariés vont partir d’ici 2030, et à quel rythme.</li>',
-            sprintf('<li><b>Ce qu’ajoute l’exposition</b> : un département hachuré a une exposition forte : une grande part des départs de ses métiers stratégiques concerne des métiers en tension en France (rang %d ou plus sur %d).</li>', params$seuil_rang, params$rang_max),
+            sprintf('<li><b>Ce qu’ajoute la part des remplacements difficiles</b> : sur 100 salariés à remplacer dans les métiers stratégiques, combien partent de métiers en tension en France (rang %d ou plus sur %d) ; un département hachuré a une part forte.</li>', params$seuil_rang, params$rang_max),
             '<li><b>Le croisement des deux</b> : un département à renouvellement rapide <i>et</i> hachuré cumule les deux difficultés ; le tableau dit quels métiers sont concernés, et le levier indique la nature de la tension.</li>',
             '<li><b>Le tableau</b> : chaque métier est classé selon ses départs (rapides ou modérés) et la tension de sa famille professionnelle en France ; la réglette donne le rang de tension, « à confirmer » signale un rattachement PCS → famille professionnelle de faible confiance.</li></ul>',
-            '<div class="cadre"><b>Ce que cette page ne dit pas.</b> Ce n’est pas une prédiction de pénurie. La tension est mesurée pour le métier en France entière, pas dans le département : « exposé » veut dire que les départs du département portent sur des métiers difficiles à recruter, pas que le département manque de candidats.</div>',
+            '<div class="cadre"><b>Ce que cette page ne dit pas.</b> Ce n’est pas une prédiction de pénurie. La tension est mesurée pour le métier en France entière, pas dans le département : une forte part de remplacements difficiles veut dire que les départs du département portent sur des métiers difficiles à recruter, pas que le département manque de candidats.</div>',
             '<h2>Méthode en bref</h2><ul>',
-            '<li>Exposition = départs attendus des métiers stratégiques en tension ÷ départs attendus des métiers stratégiques (estimation centrale) ; repère : la même part en France.</li>',
-            sprintf('<li>Classes : faible sous %s %%, forte à partir de %s %% (%s) ; %s département(s) d’exposition forte. Non interprétée si les métiers stratégiques portent moins de %s %% des départs du département.</li>',
+            '<li>Part des remplacements difficiles = départs attendus des métiers stratégiques en tension ÷ départs attendus des métiers stratégiques (estimation centrale) ; repère : la même part en France.</li>',
+            sprintf('<li>Classes : faible sous %s %%, forte à partir de %s %% (%s) ; %s département(s) à part forte. Non interprétée si les métiers stratégiques portent moins de %s %% des départs du département.</li>',
                     f1(bornes[["bas"]]), f1(bornes[["haut"]]), if (identical(params$methode, "fixes")) "seuils fixes" else "terciles, règle provisoire", if (is.na(n_forte)) "n.d." else n_forte, f1(params$couverture_min)),
             '<li>Robustesse : la classe est recalculée avec les hypothèses de départ basse et haute, un seuil de tension un cran plus strict et un cran plus large, et sans les rattachements PCS → FAP de faible confiance ; « robuste » si elle ne change jamais.</li>',
             '<li>Secret statistique : un département n’est montré que si ses parts respectent la règle Insee et ne permettent de retrouver aucune valeur masquée ; seuls des pourcentages et des classes sont diffusés.</li></ul>',
-            sprintf('<p class="note">Carte associée : <a href="../cartes/carte_typologie.html">carte des profils</a> (hachures = exposition forte). Sources : %s ; tension par famille professionnelle (FAP) en France, rattachée aux PCS stratégiques.</p>', e(source_note)),
+            sprintf('<p class="note">Carte associée : <a href="../cartes/carte_typologie.html">carte des profils</a> (hachures = forte part de remplacements difficiles). Sources : %s ; tension par famille professionnelle (FAP) en France, rattachée aux PCS stratégiques.</p>', e(source_note)),
             annexe, '</div></body></html>')
   if (any(grepl("<script", html, fixed = TRUE)) || any(grepl(" on[a-z]+=", html)) || any(grepl("javascript:", html, fixed = TRUE)))
     stop("generer_fiche_exposition_tension : contenu actif détecté.")
@@ -460,10 +461,10 @@ tables_classeur_tension <- function(dif, mat, messages, parametres, params = par
   # Départements : une ligne par département ; non diffusé = aucune valeur
   dep <- data.frame(check.names = FALSE, stringsAsFactors = FALSE,
     Code = as.character(dif$geo_code), `Département` = dif$geo_nom, `Diffusé` = ifelse(dif$tension_diffusee, "oui", "non diffusé (secret statistique)"),
-    `Exposition (%)` = arrondir_taux(dif$tension_exposition_pct), `Repère France (%)` = arrondir_taux(dif$tension_exposition_france_pct), `Couverture (%)` = arrondir_taux(dif$tension_couverture_pct),
+    `Part des remplacements difficiles (%)` = arrondir_taux(dif$tension_exposition_pct), `Repère France (%)` = arrondir_taux(dif$tension_exposition_france_pct), `Couverture (%)` = arrondir_taux(dif$tension_couverture_pct),
     Classe = ifelse(dif$tension_diffusee & is.na(dif$tension_classe) & !is.na(dif$tension_couverture_pct), "non interprétée (couverture insuffisante)", dif$tension_classe),
     Robustesse = dif$tension_robustesse, `Sensible à` = dif$tension_causes, Levier = dif$tension_levier, Composante = dif$tension_composante,
-    `Métiers en tension les plus concernés` = dif$tension_metiers, `Renouvellement rapide et exposition forte` = oui_non(dif$tension_cumul), Texte = dif$tension_texte)
+    `Métiers en tension les plus concernés` = dif$tension_metiers, `Renouvellement rapide et forte part de remplacements difficiles` = oui_non(dif$tension_cumul), Texte = dif$tension_texte)
   if (any(!is.na(as.matrix(dep[!dif$tension_diffusee, -(1:3), drop = FALSE])))) stop("tables_classeur_tension : valeur présente pour un département non diffusé.")
   dep <- dep[order(dep$Code), , drop = FALSE]; rownames(dep) <- NULL
   # Métiers : une ligne par PCS stratégique (niveau France), situations dans l'ordre, départs décroissants
@@ -482,25 +483,25 @@ tables_classeur_tension <- function(dif, mat, messages, parametres, params = par
   # Lisez-moi : le texte de la fiche, en cellules (une colonne) ; attr "gras" = titres
   titre <- function(x) structure(x, gras = TRUE)
   lignes <- list(titre("Départs attendus et difficultés de recrutement"),
-    paste0(construire_libelles_public(champ)$salaries_age, " · entreprises du périmètre Base · départs attendus d’ici 2030 · métiers stratégiques"),
+    paste0(construire_libelles_public(champ)$salaries_age, texte_perimetre(" · entreprises du périmètre Base · départs attendus d’ici 2030 · métiers stratégiques")),
     paste0("Classeur produit le ", format(date, "%d/%m/%Y"), ". Sources : ", source_note, " ; tension par famille professionnelle (FAP) en France, rattachée aux PCS stratégiques."), "",
     titre("Trois messages"), paste0(TITRES_MESSAGES_TENSION, " : ", messages), "",
     titre("Comment lire"),
     "Ce que dit la carte des profils : sa couleur indique combien de salariés vont partir d’ici 2030, et à quel rythme.",
-    sprintf("Ce qu’ajoute l’exposition : un département d’exposition forte a une grande part des départs de ses métiers stratégiques qui concerne des métiers en tension en France (rang %d ou plus sur %d).", params$seuil_rang, params$rang_max),
-    "Le croisement des deux : un département à renouvellement rapide et d’exposition forte cumule les deux difficultés ; la feuille Métiers dit quels métiers sont concernés, et le levier indique la nature de la tension.",
+    sprintf("Ce qu’ajoute la part des remplacements difficiles : sur 100 salariés à remplacer dans les métiers stratégiques, combien partent de métiers en tension en France (rang %d ou plus sur %d) ; un département hachuré sur la carte a une part forte.", params$seuil_rang, params$rang_max),
+    "Le croisement des deux : un département à renouvellement rapide et à forte part de remplacements difficiles cumule les deux difficultés ; la feuille Métiers dit quels métiers sont concernés, et le levier indique la nature de la tension.",
     sprintf("Un métier est « à départs rapides » quand la part de ses salariés susceptibles de partir d’ici 2030 atteint celle de l’ensemble des salariés concernés en France (%s %%) ; il est « en tension » quand sa famille professionnelle atteint le rang %d sur %d en France.", f1(mat$ref_x), params$seuil_rang, params$rang_max), "",
     titre("Ce que ce classeur ne dit pas"),
-    "Ce n’est pas une prédiction de pénurie. La tension est mesurée pour le métier en France entière, pas dans le département : « exposé » veut dire que les départs du département portent sur des métiers difficiles à recruter, pas que le département manque de candidats.", "",
+    "Ce n’est pas une prédiction de pénurie. La tension est mesurée pour le métier en France entière, pas dans le département : une forte part de remplacements difficiles veut dire que les départs du département portent sur des métiers difficiles à recruter, pas que le département manque de candidats.", "",
     titre("Méthode en bref"),
-    "Exposition = départs attendus des métiers stratégiques en tension ÷ départs attendus des métiers stratégiques (estimation centrale) ; repère : la même part en France.",
-    sprintf("Classes : faible sous %s %%, forte à partir de %s %% (%s) ; %s département(s) d’exposition forte. Non interprétée si les métiers stratégiques portent moins de %s %% des départs du département.",
+    "Part des remplacements difficiles = départs attendus des métiers stratégiques en tension ÷ départs attendus des métiers stratégiques (estimation centrale) ; repère : la même part en France.",
+    sprintf("Classes : faible sous %s %%, forte à partir de %s %% (%s) ; %s département(s) à part forte. Non interprétée si les métiers stratégiques portent moins de %s %% des départs du département.",
             f1(bornes[["bas"]]), f1(bornes[["haut"]]), if (identical(params$methode, "fixes")) "seuils fixes" else "terciles, règle provisoire", if (is.na(n_forte)) "n.d." else n_forte, f1(params$couverture_min)),
     "Robustesse : la classe est recalculée avec les hypothèses de départ basse et haute, un seuil de tension un cran plus strict et un cran plus large, et sans les rattachements PCS → FAP de faible confiance ; « robuste » si elle ne change jamais.",
     "Secret statistique : un département n’est montré que si ses parts respectent la règle Insee et ne permettent de retrouver aucune valeur masquée ; seuls des pourcentages, des classes et des textes sont diffusés. Une cellule vide est une valeur non diffusée, jamais un zéro.", "",
     titre("Les feuilles"),
-    "Départements : une ligne par département. Exposition = sur 100 départs attendus des métiers stratégiques, part concernant des métiers en tension en France ; Repère France = la même part en France ; Couverture = part des départs du département portés par les métiers stratégiques ; Classe (faible, modérée, forte) ; Robustesse et Sensible à (variantes qui changent la classe) ; Levier et Composante (nature de la tension la plus fréquente) ; Métiers en tension les plus concernés (cellules diffusables) ; Renouvellement rapide et exposition forte ; Texte.",
-    sprintf("Métiers : une ligne par PCS stratégique de la liste, au niveau France. Situation ; départs attendus d’ici 2030 et fourchette (estimation centrale, basse, haute) ; part susceptible de partir et repère France ; tension en France (rang de 1 à %d, valeur fine%s) ; composante qui pèse le plus ; levier ; rattachement PCS → FAP (fiable ou à confirmer) ; Statut (diffusé, non diffusé pour secret statistique, tension inconnue, absente de la Base).",
+    "Départements : une ligne par département. Part des remplacements difficiles = sur 100 départs attendus des métiers stratégiques, part concernant des métiers en tension en France ; Repère France = la même part en France ; Couverture = part des départs du département portés par les métiers stratégiques ; Classe (faible, modérée, forte) ; Robustesse et Sensible à (variantes qui changent la classe) ; Levier et Composante (nature de la tension la plus fréquente) ; Métiers en tension les plus concernés (cellules diffusables) ; Renouvellement rapide et forte part de remplacements difficiles ; Texte.",
+    sprintf(texte_perimetre("Métiers : une ligne par PCS stratégique de la liste, au niveau France. Situation ; départs attendus d’ici 2030 et fourchette (estimation centrale, basse, haute) ; part susceptible de partir et repère France ; tension en France (rang de 1 à %d, valeur fine%s) ; composante qui pèse le plus ; levier ; rattachement PCS → FAP (fiable ou à confirmer) ; Statut (diffusé, non diffusé pour secret statistique, tension inconnue, absente de la Base)."),
             params$rang_max, if (length(params$sous_niveaux)) paste0(" : ", paste(params$rang_max + params$sous_niveaux / 10, collapse = " et "), " affinent le niveau le plus fort") else ""),
     "Paramètres : seuils et bornes effectifs de ce calcul.")
   gras <- vapply(lignes, function(x) isTRUE(attr(x, "gras")), TRUE); gras <- rep(gras, lengths(lignes)); lignes <- unlist(lapply(lignes, as.character))

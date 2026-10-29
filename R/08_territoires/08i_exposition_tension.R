@@ -35,7 +35,7 @@ if (!isTRUE(get0("GENERER_EXPOSITION_TENSION", ifnotfound = FALSE))) {
   dep_08i <- departs_pcs$analytique$departement
   met_08i$present_base <- met_08i$pcs %in% normaliser_code_pcs(dep_08i$pcs)
   if (any(!met_08i$present_base))
-    message("08i : ", sum(!met_08i$present_base), " PCS de la liste absente(s) des départs de la Base (aucun salarié du champ) : ",
+    message("08i : ", sum(!met_08i$present_base), texte_perimetre(" PCS de la liste absente(s) des départs de la Base (aucun salarié du champ) : "),
             paste(met_08i$pcs_source[!met_08i$present_base], collapse = ", "))
   if (any(!met_08i$tension_connue)) message("08i : ", sum(!met_08i$tension_connue), " PCS de tension inconnue (rang manquant), comptée(s) hors des métiers stratégiques.")
   expo_08i <- exposition_departements(dep_08i, met_08i, par_08i)
@@ -92,7 +92,7 @@ if (!isTRUE(get0("GENERER_EXPOSITION_TENSION", ifnotfound = FALSE))) {
     }
   }
   exposition_tension <- list(metiers = met_08i, departements = expo_08i$departements, diffusion = dif_08i, bornes = expo_08i$bornes, france = expo_08i$france)
-  cat(sprintf("\n08i OK -> exposition au recrutement difficile : %d PCS stratégiques (%d présentes dans la Base, %d en tension en France, rang >= %d sur %d)\n",
+  cat(sprintf(texte_perimetre("\n08i OK -> part des remplacements difficiles (exposition) : %d PCS stratégiques (%d présentes dans la Base, %d en tension en France, rang >= %d sur %d)\n"),
               nrow(met_08i), sum(met_08i$present_base), sum(met_08i$en_tension %in% TRUE), par_08i$seuil_rang, par_08i$rang_max))
   cat(sprintf("  France : %s %% des départs des métiers stratégiques concernent des métiers en tension ; ces métiers portent %s %% des départs\n",
               formatC(expo_08i$france$exposition_pct, format = "f", digits = 1, decimal.mark = ","), formatC(expo_08i$france$couverture_pct, format = "f", digits = 1, decimal.mark = ",")))

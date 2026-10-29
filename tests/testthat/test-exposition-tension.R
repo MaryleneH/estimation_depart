@@ -193,11 +193,11 @@ test_that("SPEC-TYPO-107 — carte des profils : hachures pour l'exposition fort
   f <- file.path(dir, "avec.html"); ET2$generer_carte_typologie(p, fond, f); h <- paste(readLines(f, encoding = "UTF-8"), collapse = "\n")
   expect_equal(lengths(regmatches(h, gregexpr('<path class="h" data-code="', h))), 1L)
   expect_true(grepl(sprintf('<path class="h" data-code="%s"', tout$geo_code[1]), h, fixed = TRUE)); expect_false(grepl(sprintf('class="h" data-code="%s"', tout$geo_code[2]), h, fixed = TRUE))
-  expect_false(grepl("FUITE-MASQUE", h, fixed = TRUE)); expect_true(grepl("Départs portés par des métiers en tension (exposition forte)", h, fixed = TRUE))
+  expect_false(grepl("FUITE-MASQUE", h, fixed = TRUE)); expect_true(grepl("Forte part de remplacements difficiles (métiers en tension)", h, fixed = TRUE)); expect_false(grepl("exposition", gsub("<[^>]+>", " ", h)))
   expect_true(grepl('querySelectorAll("path.t,path.h")', h, fixed = TRUE))
   l <- ET2$lignes_detail_typologie(p$territoires[p$territoires$code == tout$geo_code[1], ])
-  expect_true(any(grepl("^Métiers en tension : 60 % des départs des métiers stratégiques \\(France : 40 %\\) · exposition forte · robuste$", l)))
-  expect_true("Exposition au recrutement difficile non diffusée (secret statistique)" %in% ET2$lignes_detail_typologie(p$territoires[p$territoires$code == tout$geo_code[4], ]))
+  expect_true(any(grepl("^Remplacements difficiles : 60 % des départs des métiers stratégiques \\(France : 40 %\\) · part forte · robuste$", l)))
+  expect_true("Part des remplacements difficiles non diffusée (secret statistique)" %in% ET2$lignes_detail_typologie(p$territoires[p$territoires$code == tout$geo_code[4], ]))
   j <- jsonlite::fromJSON(regmatches(h, regexpr('(?s)(?<=<script type="application/json" id="donnees">).*?(?=</script>)', h, perl = TRUE)))
   expect_match(j$territoires[[tout$geo_code[1]]]$texte, "Texte. Sur 100 départs… phrase A.", fixed = TRUE)
   fc <- file.path(dir, "courriel.html"); ET2$generer_carte_typologie_courriel(p, fond, fc); hc <- paste(readLines(fc, encoding = "UTF-8"), collapse = "\n")
@@ -238,7 +238,7 @@ test_that("SPEC-TYPO-107 — 08i sur la chaîne de test : sorties, objets amont 
   fx <- file.path(dt, "diffusion", "exposition_tension.xlsx"); expect_true(file.exists(fx))
   expect_identical(readxl::excel_sheets(fx), c("Lisez-moi", "Départements", "Métiers", "Paramètres"))
   xd <- readxl::read_excel(fx, sheet = "Départements"); expect_identical(xd$Code, sort(dif$geo_code))
-  expect_equal(xd$`Exposition (%)`[match(dif$geo_code, xd$Code)], dif$tension_exposition_pct); expect_identical(xd$Classe[match(dif$geo_code, xd$Code)][!is.na(dif$tension_classe)], dif$tension_classe[!is.na(dif$tension_classe)])
+  expect_equal(xd$`Part des remplacements difficiles (%)`[match(dif$geo_code, xd$Code)], dif$tension_exposition_pct); expect_identical(xd$Classe[match(dif$geo_code, xd$Code)][!is.na(dif$tension_classe)], dif$tension_classe[!is.na(dif$tension_classe)])
   xm <- readxl::read_excel(fx, sheet = "Métiers"); cm <- utils::read.csv2(file.path(dt, "diffusion", "metiers_strategiques_tension.csv"), colClasses = c(pcs = "character"))
   expect_setequal(xm$`Code PCS`, cm$pcs); expect_equal(xm$`Départs d’ici 2030`[match(cm$pcs, xm$`Code PCS`)], cm$departs_central)
   xp <- readxl::read_excel(fx, sheet = "Paramètres"); expect_identical(names(xp), c("parametre", "valeur")); expect_true("seuil_rang" %in% xp$parametre)
@@ -259,11 +259,11 @@ test_that("SPEC-TYPO-108 — classeur Excel : quatre feuilles issues des tables 
   tb <- ET2$tables_classeur_tension(dif, m, c("M1.", "M2.", "M3."), param, PAR_T, c(bas = 25, haut = 50), 1L, ET2$construire_libelle_champ(), "table test", as.Date("2030-01-01"))
   expect_identical(names(tb), c("Lisez-moi", "Départements", "Métiers", "Paramètres"))
   d <- tb$Départements
-  expect_identical(names(d), c("Code", "Département", "Diffusé", "Exposition (%)", "Repère France (%)", "Couverture (%)", "Classe", "Robustesse", "Sensible à", "Levier", "Composante",
-                               "Métiers en tension les plus concernés", "Renouvellement rapide et exposition forte", "Texte"))
+  expect_identical(names(d), c("Code", "Département", "Diffusé", "Part des remplacements difficiles (%)", "Repère France (%)", "Couverture (%)", "Classe", "Robustesse", "Sensible à", "Levier", "Composante",
+                               "Métiers en tension les plus concernés", "Renouvellement rapide et forte part de remplacements difficiles", "Texte"))
   expect_identical(d$Code, c("D1", "D2", "D3", "D6")); expect_identical(d$Diffusé, c("oui", "oui", "oui", "non diffusé (secret statistique)"))
-  expect_equal(d$`Exposition (%)`, c(30, NA, 60, NA)); expect_equal(d$`Repère France (%)`, c(40.3, 40.3, 40.3, NA)); expect_equal(d$`Couverture (%)`[2], 9.5)
-  expect_identical(d$Classe, c("Modérée", "non interprétée (couverture insuffisante)", "Forte", NA)); expect_identical(d$`Renouvellement rapide et exposition forte`, c("non", NA, "oui", NA))
+  expect_equal(d$`Part des remplacements difficiles (%)`, c(30, NA, 60, NA)); expect_equal(d$`Repère France (%)`, c(40.3, 40.3, 40.3, NA)); expect_equal(d$`Couverture (%)`[2], 9.5)
+  expect_identical(d$Classe, c("Modérée", "non interprétée (couverture insuffisante)", "Forte", NA)); expect_identical(d$`Renouvellement rapide et forte part de remplacements difficiles`, c("non", NA, "oui", NA))
   expect_true(all(is.na(unlist(d[d$Code == "D6", -(1:3)]))))                                                                     # non diffusé : aucune valeur
   expect_false(any(grepl("^departs_|^effectif_|n_entreprises|part_dominante", names(d))))
   mt <- tb$Métiers
@@ -286,7 +286,7 @@ test_that("SPEC-TYPO-108 — classeur Excel : quatre feuilles issues des tables 
   skip_if_not_installed("openxlsx")
   fx <- tempfile(fileext = ".xlsx"); expect_identical(ET2$ecrire_classeur_tension(tb, fx), fx); expect_true(file.exists(fx))
   expect_identical(readxl::excel_sheets(fx), names(tb))
-  xd <- readxl::read_excel(fx, sheet = "Départements"); expect_identical(xd$Code, d$Code); expect_equal(xd$`Exposition (%)`, d$`Exposition (%)`); expect_identical(xd$Texte, d$Texte)
+  xd <- readxl::read_excel(fx, sheet = "Départements"); expect_identical(xd$Code, d$Code); expect_equal(xd$`Part des remplacements difficiles (%)`, d$`Part des remplacements difficiles (%)`); expect_identical(xd$Texte, d$Texte)
   xm <- readxl::read_excel(fx, sheet = "Métiers"); expect_identical(xm$`Code PCS`, mt$`Code PCS`); expect_equal(xm$`Départs d’ici 2030`, mt$`Départs d’ici 2030`); expect_equal(xm$`Tension (valeur fine)`, mt$`Tension (valeur fine)`)
   xl <- readxl::read_excel(fx, sheet = "Lisez-moi", col_names = FALSE); expect_identical(xl[[1]][1], li$texte[1]); expect_true(all(li$texte[li$texte != ""] %in% xl[[1]]))
   x <- openxlsx::loadWorkbook(fx); expect_identical(names(x), names(tb))

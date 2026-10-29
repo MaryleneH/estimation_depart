@@ -34,7 +34,7 @@ if (SOURCE_BTS == "parquet") {
   bts <- charger_bts_parquet(FICHIER_BTS, COL_BTS, COL_GEO, AGE_MIN_BTS, sirens_base)
 
   message("01 OK (parquet) -> bts : ", format(nrow(bts), big.mark = " "),
-          " salariés (>= ", AGE_MIN_BTS, " ans, périmètre Base) chargés en RAM.")
+          " salariés (>= ", AGE_MIN_BTS, texte_perimetre(" ans, périmètre Base) chargés en RAM."))
 
 } else {
   # ------------------------------------------------------- table test simulée

@@ -68,7 +68,7 @@ if (!isTRUE(get0("GENERER_TYPOLOGIE", ifnotfound = FALSE))) {
   }
   typologie_departements <- list(departements = typo_08f$departements, departement_cs = typo_08f$departement_cs,
                                  parametres = typo_08f$parametres, synthese = synth_08f, diffusion = diffusion_08f)
-  cat("\n08f OK -> typologie des territoires Base (", nrow(typo_08f$departements), " départements ; intensité = ",
+  cat(texte_perimetre("\n08f OK -> typologie des territoires Base ("), nrow(typo_08f$departements), " départements ; intensité = ",
       typo_08f$indicateur, " ; base du poids = ", typo_08f$base_poids, " ; pyramide des âges = ",
       if (is.null(pyr_08f)) "indisponible" else if (pyr_08f$source == "tous_ages") "complète" else "champ seulement (repli)", ")\n", sep = "")
   for (i in seq_len(nrow(synth_08f)))

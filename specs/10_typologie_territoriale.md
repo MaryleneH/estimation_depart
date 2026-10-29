@@ -755,7 +755,7 @@ sous-classes, **5.1 et 5.2** (5.2 la plus forte). Règle de lecture :
 | composante dominante, levier (métier) | composante au rang le plus élevé, retenue seulement si ce rang atteint le seuil ; ex aequo : ordre de `TENSION_COMPOSANTES` ; chaque composante porte un levier rédigé |
 | `faible_confiance` (métier) | `indice_confiance` < `TENSION_CONFIANCE_MIN` ; si ce paramètre vaut NULL, le plus bas niveau observé (s'il existe au moins deux niveaux) ; confiance manquante = faible |
 | A, B, C (département) | départs (08c, exacts) des PCS stratégiques en tension (A), stratégiques hors tension (B), et de toutes les autres PCS, y compris les stratégiques de tension inconnue (C) |
-| `exposition_pct` | 100 × A / (A + B) : sur 100 départs des métiers stratégiques, combien concernent des métiers en tension |
+| `exposition_pct` | 100 × A / (A + B) : sur 100 départs des métiers stratégiques, combien concernent des métiers en tension. Libellé PUBLIC (fiche, classeur, panneau, légende) : « part des remplacements difficiles » ; le mot « exposition » reste le nom technique (code, colonnes des CSV) |
 | `couverture_pct` | 100 × (A + B) / (A + B + C) : poids des métiers stratégiques dans les départs du département |
 | `exposition_france_pct` | même calcul sur la France entière (repère) |
 | `classe_exposition` | Faible / Modérée / Forte : bornes `TENSION_METHODE_CLASSES` (terciles provisoires sur les départements retenus, ou seuils fixes `TENSION_SEUIL_EXPO_FAIBLE` / `_FORTE`) ; borne incluse en haut ; NA si couverture < `TENSION_COUVERTURE_MIN_PCT` |
@@ -840,7 +840,7 @@ Fonctionnalité: Lire, avec la typologie, si les départs portent sur des métie
 
   Scénario: [SPEC-TYPO-105] Rédiger les phrases et les leviers par gabarits fixes
     Quand les textes sont produits
-    Alors chaque département diffusé reçoit une phrase : exposition, repère France, classe, robustesse, couverture, levier le plus fréquent
+    Alors chaque département diffusé reçoit une phrase : part des remplacements difficiles (l'exposition), repère France, classe, robustesse, couverture, levier le plus fréquent ; le mot « exposition » n'apparaît dans aucun texte lu
     Et la fiche porte trois messages (départements cumulant renouvellement rapide et exposition forte ; métiers à départs rapides et en tension ; levier dominant), puis un TABLEAU des métiers stratégiques diffusables groupés par situation (métier et code, famille professionnelle, départs et fourchette, part susceptible de partir face au repère France, tension en France avec sa réglette et sa valeur fine, composante qui pèse le plus, levier, confiance du rattachement), les métiers non diffusés, de tension inconnue ou absents n'étant que des comptes ; puis « Comment lire » et « Ce que cette page ne dit pas » (ni une prédiction de pénurie, ni une tension mesurée dans le département)
     Et aucun texte n'est généré : uniquement des gabarits et des règles
 
@@ -856,7 +856,7 @@ Fonctionnalité: Lire, avec la typologie, si les départs portent sur des métie
     Étant donné diffusion/exposition_tension_departements.csv à côté de la table de diffusion de la typologie
     Quand le 08g produit les cartes
     Alors un département d'exposition Forte est hachuré (motif SVG, aussi dans la version courriel sans script), la couleur restant celle de son profil
-    Et la légende ajoute une entrée « hachures » avec le nombre de départements, le détail ajoute une ligne et le panneau la phrase
+    Et la légende ajoute une entrée « hachures » (« Forte part de remplacements difficiles (métiers en tension) ») avec le nombre de départements, le détail ajoute une ligne et le panneau la phrase
     Et un département masqué n'est jamais hachuré et n'embarque aucune valeur d'exposition
     Et sans ce fichier, ou sans le classeur de tension (message, jamais d'arrêt), les pages et les sorties sont celles d'avant ; le PNG du 08g reste inchangé
 

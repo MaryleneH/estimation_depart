@@ -7,6 +7,15 @@ salariés » est la source Insee, « Base commune » a le sens courant, `_Base` 
 de fichier) : le script **inventorie** chaque occurrence, la **classe** d'après son
 contexte, vous **décidez** dans un tableau, puis il **applique** exactement vos décisions.
 
+## Avant tout : pour les restitutions, inutile de renommer le code
+
+Le nom du périmètre dans toutes les sorties (HTML, textes des CSV, PNG, classeur Excel,
+console) est le paramètre `LIBELLE_PERIMETRE` de `R/00_config_fonctions/00_config.R`
+(« Base » par défaut) : mettre `"BITD"` et relancer `main.R` suffit. Les notes Word lisent
+la variable d'environnement `PERIMETRE` (`PERIMETRE=BITD node …`). Ce script ne sert donc
+qu'à renommer le texte du code, des commentaires, des specs et des README d'un dépôt de
+travail, si l'on y tient.
+
 ## Mode d'emploi en cinq commandes
 
 ```bash
